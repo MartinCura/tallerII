@@ -13,5 +13,5 @@ branches:
   - ApplicationServer
 
 script:
-  - c++ ApplicationServer/code/main.cpp -o main
-  - ./main
+  - cmake ApplicationServer/code/
+  - make
