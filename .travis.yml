@@ -18,7 +18,7 @@ script:
 - sleep 10
 - sudo docker-compose -f SharedServer/docker-compose.yml up -d 
 - sudo docker ps -a
-- sudo docker exec -itd sharedserver_sharedserver_1 node code/server.js
+- sudo docker exec -itd sharedserver_sharedserver_1 nodemon code/server.js
 - sudo docker exec -it sharedserver_sharedserver_1 ps -A
 - sudo docker exec -it sharedserver_sharedserver_1 curl localhost
 - curl localhost
