@@ -12,7 +12,7 @@ services:
 before_install:
 - sudo docker-compose -f SharedServer/docker-compose.yml build
 - sudo docker build -t sharedservertest SharedServer/tests/
-sudo docker-compose -f SharedServer/docker-compose.yml up db -d 
+- sudo docker-compose -f SharedServer/docker-compose.yml up db -d 
 
 script:
 - sudo docker-compose -f SharedServer/docker-compose.yml up -d 
