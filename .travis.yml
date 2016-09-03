@@ -1,6 +1,6 @@
-env:
-  global:
-  - DOCKER_VERSION="1.9.1-0~trusty"
+# env:
+#   global:
+#   - DOCKER_VERSION="1.9.1-0~trusty"
 
 
 
