@@ -20,6 +20,7 @@ script:
 - sudo docker ps -a
 - sudo docker exec -itd sharedserver_sharedserver_1 nodemon code/server.js
 - sudo docker exec -it sharedserver_sharedserver_1 ps -A
+- sleep 10
 - sudo docker logs sharedserver_sharedserver_1
 - sudo docker exec -it sharedserver_sharedserver_1 curl localhost
 - curl localhost
