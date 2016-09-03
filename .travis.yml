@@ -11,7 +11,7 @@ services:
 
 before_install:
 - sudo docker-compose -f SharedServer/docker-compose.yml build
-#- sudo docker build -t sharedservertest SharedServer/tests/
+- sudo docker build -t sharedservertest SharedServer/tests/
 - sudo docker-compose -f SharedServer/docker-compose.yml up -d db 
 
 script:
@@ -24,9 +24,9 @@ script:
 - sudo docker logs sharedserver_sharedserver_1
 - sudo docker exec -it sharedserver_sharedserver_1 curl localhost
 - curl localhost
+- sudo docker run -it sharedservertest bash
 
 #- sudo docker exec -it sharedserver_sharedserver_1 nodemon -L server.js
 
 #- sudo docker exec -it sharedserver_sharedserver_1 curl localhost
 #- sudo docker exec -it sharedserver_sharedserver_1 curl localhost
-#- sudo docker run -it sharedservertest bash
