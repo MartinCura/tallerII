@@ -13,4 +13,5 @@ branches:
   - ApplicationServer
 
 script:
-  - cmake ApplicationServer/code/ && make
+  - cmake ApplicationServer/code/
+  - make
