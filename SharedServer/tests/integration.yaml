@@ -10,7 +10,7 @@
 - test:
     - group: "Quickstart"
     - name: "Crear una categoría"
-    #- url: "/job_positions/categories/software"
-    - url: "/api/job_positions"
-    - method: "GET"
+    - url: "/job_positions/categories/software"
+    #- url: "/api/job_positions"
+    - method: "POST"
     #- body: '{"first_name": "Gaius","id": 10,"last_name": "Baltar","login": "baltarg"}'

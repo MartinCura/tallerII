@@ -12,6 +12,7 @@ sharedserver:
     - PGHOST=db
     - PGDATABASE=postgres
     - PGUSER=postgres
+    - PGPASSWORD=postgres
   volumes:
     - "./code:/home/src"
   ports:
