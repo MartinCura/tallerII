@@ -15,6 +15,7 @@ before_install:
 - sudo docker-compose -f SharedServer/docker-compose.yml up -d db 
 
 script:
+- sleep 10
 - sudo docker-compose -f SharedServer/docker-compose.yml up -d 
 - sudo docker ps -a
 - sudo docker exec -it sharedserver_sharedserver_1 node code/server.js
