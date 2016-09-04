@@ -9,25 +9,18 @@ Handler::Handler() {}
 
 Handler::~Handler() {}
 
-Response* Handler::handleRequest(http_message* httpMessage, int ev, string url) {
-    Response* response = new Response();
-    switch (ev) {
-        case MG_EV_HTTP_REQUEST:
-            if (this->isEqual(&httpMessage->method, &s_get_method)) {
-                response = this->handleGetRequest(httpMessage);
-            } else if (this->isEqual(&httpMessage->method, &s_put_method)) {
-                response = this->handlePutRequest(httpMessage);
-            } else if (this->isEqual(&httpMessage->method, &s_delete_method)) {
-                response = this->handleDeleteRequest(httpMessage);
-            } else if (this->isEqual(&httpMessage->method, &s_post_method)) {
-                response = this->handlePostRequest(httpMessage);
-            } else {
-                response->setNotImplementedHeader();
-            }
-            break;
-        default:
-        break;
+Response* Handler::handleRequest(http_message* httpMessage, string url) {
+    if (this->isEqual(&httpMessage->method, &s_get_method)) {
+        return this->handleGetRequest(httpMessage);
+    } else if (this->isEqual(&httpMessage->method, &s_put_method)) {
+        return this->handlePutRequest(httpMessage);
+    } else if (this->isEqual(&httpMessage->method, &s_delete_method)) {
+        return this->handleDeleteRequest(httpMessage);
+    } else if (this->isEqual(&httpMessage->method, &s_post_method)) {
+        return this->handlePostRequest(httpMessage);
     }
+    Response* response = new Response();
+    response->setNotImplementedHeader();
     return response;
 }
 

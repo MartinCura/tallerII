@@ -12,7 +12,7 @@ public:
     Handler();
     virtual ~Handler();
 
-    Response* handleRequest(http_message* httpMessage, int ev, string url);
+    Response* handleRequest(http_message* httpMessage, string url);
     virtual Response* handlePostRequest(http_message* httpMessage) = 0;
     virtual Response* handleGetRequest(http_message* httpMessage) = 0;
     virtual Response* handleDeleteRequest(http_message* httpMessage) = 0;

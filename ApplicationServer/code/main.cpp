@@ -8,7 +8,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     if (ev == MG_EV_HTTP_REQUEST) {
         struct http_message *httpMessage = (struct http_message *) ev_data;
         WebHandler *webHandler = new WebHandler();
-        Response* response = webHandler->handleRequest(httpMessage, ev);
+        Response* response = webHandler->handleRequest(httpMessage);
         mg_printf(nc, "%s", response->getHeader());
         mg_printf_http_chunk(nc, response->getBody());
         mg_send_http_chunk(nc, "", 0);

@@ -14,7 +14,7 @@ public:
     WebHandler();
     ~WebHandler();
 
-    Response* handleRequest(http_message* httpMessage, int ev);
+    Response* handleRequest(http_message* httpMessage);
 
 private:
     string getUrl(const struct mg_str uri);
