@@ -2,7 +2,7 @@
 #define APPLICATIONSERVER_WEBHANDLER_H
 
 #include <array>
-#include "../mongoose/mongoose.h"
+#include "../Mongoose/mongoose.h"
 #include "Response.h"
 #include "Handler.h"
 #include "UsersHandler.h"

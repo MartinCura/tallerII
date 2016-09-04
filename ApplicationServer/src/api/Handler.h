@@ -2,7 +2,7 @@
 #define APPLICATIONSERVER_HANDLER_H
 
 #include <array>
-#include "../mongoose/mongoose.h"
+#include "../Mongoose/mongoose.h"
 #include "Response.h"
 
 using namespace std;
