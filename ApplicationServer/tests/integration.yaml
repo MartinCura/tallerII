@@ -1,0 +1,63 @@
+---
+- config:
+    - testset: "Application Server tests"
+
+- test:
+    - name: "Get positions"
+    - url: "/positions"
+    - method: "GET"
+    - expected_status: [404] # not found
+
+- test:
+    - name: "Delete users"
+    - url: "/users"
+    - method: "DELETE"
+    - expected_status: [501] # not implemented
+
+- test:
+    - name: "Update users"
+    - url: "/users"
+    - method: "PUT"
+    - expected_status: [501] # not implemented
+
+- test:
+    - name: "Add users - bad request - empty body"
+    - url: "/users"
+    - method: "POST"
+    - validators:
+        - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Invalid Json."}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Add users - bad request - invalid json"
+    - url: "/users"
+    - method: "POST"
+    - body: '{"name": ,,,,"Some invalid json"}'
+    - validators:
+        - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Invalid Json."}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Update users"
+    - url: "/users"
+    - method: "POST"
+    - body: '{"name": "John"}'
+    - validators:
+          - compare: {jsonpath_mini: "id", comparator: "eq", expected: 1}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Get user data - missing id"
+    - url: "/users"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Cannot get user id from url."}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Get user data"
+    - url: "/users/1"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "name", comparator: "eq", expected: "John"}
+    - expected_status: [200] # ok
