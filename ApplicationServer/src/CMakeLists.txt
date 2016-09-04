@@ -1,6 +1,12 @@
 message (STATUS "Building source code")
 
-set(target ApplicationServer_src)
-set(sources main.cpp)
+include_directories(Mongoose)
 
-add_executable(${target} ${sources})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (TARGET ApplicationServer_src)
+
+set(SOURCE_FILES main.cpp Mongoose/mongoose.h Mongoose/mongoose.c api/WebHandler.cpp api/WebHandler.h api/Response.cpp api/Response.h api/UsersHandler.cpp api/UsersHandler.h api/Handler.cpp api/Handler.h)
+
+add_executable(${TARGET} ${SOURCE_FILES})
+
+

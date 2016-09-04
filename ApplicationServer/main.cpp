@@ -1,4 +1,4 @@
-#include "Mongoose/mongoose.h"
+#include "mongoose/mongoose.h"
 #include "api/WebHandler.h"
 
 static const char *s_http_port = "8000";
