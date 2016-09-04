@@ -1,9 +1,3 @@
-# env:
-#   global:
-#   - DOCKER_VERSION="1.9.1-0~trusty"
-
-
-
 sudo: required
 
 services:
@@ -25,8 +19,3 @@ script:
 - sudo docker exec -it sharedserver_sharedserver_1 curl -I localhost
 - curl -I localhost
 - sudo docker run -it sharedservertest bash
-
-#- sudo docker exec -it sharedserver_sharedserver_1 nodemon -L server.js
-
-#- sudo docker exec -it sharedserver_sharedserver_1 curl localhost
-#- sudo docker exec -it sharedserver_sharedserver_1 curl localhost

@@ -1,5 +1,5 @@
 var pg       = require('pg'); 
-
+var sprintf = require("sprintf-js").sprintf;
 
 // create a config to configure both pooling behavior
 // and client options
@@ -49,3 +49,16 @@ pool.on('error', function (err, client) {
 })
 
 module.exports.pool = pool;
+
+var cration_template = "INSERT INTO %s (%s) values(%s);";
+
+module.exports.create_category = function (name, description){
+  values_name = sprintf("%s,%s", "name", "description");
+  values = sprintf("'%s','%s'", name, description);
+  query_string = sprintf(cration_template, "categories", values_name, values);
+  
+  // Lo que está acá arriba iría en una función porque es siempre lo mismo para todas las tablas
+  console.log(query_string);
+  return pool.query(query_string);
+
+};

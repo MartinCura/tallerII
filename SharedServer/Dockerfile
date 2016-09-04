@@ -2,6 +2,7 @@ FROM node
 
 RUN apt-get update && apt-get install vim postgresql-client -y
 
+RUN npm install -g nodemon
 WORKDIR /home
 
 #RUN mkdir /home/deploy
@@ -10,7 +11,6 @@ COPY code/package.json /home/package.json
 
 
 RUN npm set progress=false
-RUN npm install -g nodemon
 # RUN npm install
 
 RUN npm install
