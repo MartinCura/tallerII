@@ -9,6 +9,15 @@ branches:
     - master
     - ApplicationServer
 
+notifications:
+    email: false
+    slack:
+      rooms:
+        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#general
+        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#plandetrabajo
+  
+      on_success: change
+      on_failure: always
 matrix:
   include:
     - compiler: gcc
