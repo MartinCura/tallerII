@@ -1,12 +1,12 @@
 # ApplicationServer
 
-Para correr el programa:
+Para correr el programa y evitar que se generen archivos de CMake no deseados
 
 ```
-/tallerII/ApplicationServer$  cmake code/
-/tallerII/ApplicationServer$  make
-/tallerII/ApplicationServer$  ./AppServer
-```
+mkdir ../build
+cd ../build
+cmake .. && make
+./ApplicationServer_src
 
 Para generar un paquete .deb:
 
