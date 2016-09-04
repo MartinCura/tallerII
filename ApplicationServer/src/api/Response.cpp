@@ -23,8 +23,22 @@ void Response::setBody(const char* body) {
     this->body = body;
 }
 
+void Response::setErrorBody(const char* errorDetails) {
+    string body = "{\"successful\":false,\"error\":\"" + string(errorDetails) + "\"}";
+    this->body = body.c_str();
+}
+
+void Response::setSuccessfulBody() {
+    string body = "{\"successful\":true\"}";
+    this->body = body.c_str();
+}
+
 void Response::setSuccessfulHeader() {
     this->header = "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n";
+}
+
+void Response::setBadRequestHeader() {
+    this->header = "HTTP/1.1 400 Bad Request\r\nTransfer-Encoding: chunked\r\n\r\n";
 }
 
 void Response::setNotFoundHeader() {
