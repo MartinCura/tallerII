@@ -8,7 +8,7 @@ WebHandler::~WebHandler() {}
 Response* WebHandler::handleRequest(http_message* httpMessage) {
     if (&httpMessage->uri) {
         string url = this->getUrl(httpMessage->uri);
-        if (regex_match(url, regex("/users/.*"))) {
+        if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users"))) {
             UsersHandler* handler = new UsersHandler();
             return handler->handleRequest(httpMessage, url);
         }
