@@ -1,12 +1,16 @@
 message (STATUS "Building source code")
 
-include_directories(Mongoose)
 
-set(CMAKE_CXX_FLAGS " -std=c++0x")
+
+set (CMAKE_CXX_FLAGS " -std=c++0x")
 set (TARGET ApplicationServer_src)
 
-set(SOURCE_FILES main.cpp Mongoose/mongoose.h Mongoose/mongoose.c api/WebHandler.cpp api/WebHandler.h api/Response.cpp api/Response.h api/UsersHandler.cpp api/UsersHandler.h api/Handler.cpp api/Handler.h)
+include_directories ("${PROJECT_SOURCE_DIR}/Mongoose")
+add_subdirectory (Mongoose) 
+
+file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp api/*.h)
 
 add_executable(${TARGET} ${SOURCE_FILES})
+target_link_libraries (${TARGET} Mongoose)
 
 
