@@ -1,7 +1,7 @@
 #ifndef APPLICATIONSERVER_HANDLER_H
 #define APPLICATIONSERVER_HANDLER_H
 
-#include <array>
+#include <cstring>
 #include "../Mongoose/mongoose.h"
 #include "Response.h"
 

@@ -1,5 +1,4 @@
 #include "WebHandler.h"
-#include <regex>
 
 WebHandler::WebHandler() {}
 

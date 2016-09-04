@@ -1,11 +1,12 @@
 #ifndef APPLICATIONSERVER_WEBHANDLER_H
 #define APPLICATIONSERVER_WEBHANDLER_H
 
-#include <array>
 #include "../Mongoose/mongoose.h"
 #include "Response.h"
 #include "Handler.h"
 #include "UsersHandler.h"
+#include <regex>
+#include <cstring>
 
 using namespace std;
 
