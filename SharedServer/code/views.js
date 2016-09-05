@@ -27,21 +27,32 @@ module.exports.job_positions_add = function (request, response) {
 }
 
 module.exports.job_categories_get = function function_name(request, response) {
-  response.status(200).json({
+  db.get_categories()
+    .then(function (data) {
+      response.status(200)
+        .json({
+          categories: data.rows,
+        });
+    })
+
+
+
+  /*response.status(200).json({
                           "categories": [{
-                            "name": "sport_name1s",
+                            "name": "sport_name1",
                             "description": "description1"
                           }]
-              });
+              });*/
 }
+
 module.exports.job_categories_add = function function_name(request, response) {
   
   db.create_category(request.body.category.name, request.body.category.description).then(function () {
       response.status(200)
-        .json({
-                name: request.body.category.name,
-                description: request.body.category.description
-            });
+        .json({"category" :  {
+                "name": request.body.category.name,
+                "description": request.body.category.description
+            }});
     })
 }
 module.exports.job_categories_modify = function function_name(request, response) {

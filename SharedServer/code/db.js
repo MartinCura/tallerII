@@ -62,3 +62,7 @@ module.exports.create_category = function (name, description){
   return pool.query(query_string);
 
 };
+
+module.exports.get_categories = function (name, description ) {
+  return pool.query('select * from categories');
+}
