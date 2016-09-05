@@ -7,6 +7,7 @@ mkdir ../build
 cd ../build
 cmake .. && make
 ./ApplicationServer_src
+```
 
 Para generar un paquete .deb:
 
