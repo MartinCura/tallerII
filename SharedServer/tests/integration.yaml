@@ -40,5 +40,22 @@
   - method: "GET"
   - validators:
     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}  
-    #- compare: {jsonpath_mini: "total_count", comparator: "eq", expected: 1}
-  # - compare: {jsonpath: "categories[0].name", comparator: "eq", expected: 'description1 '}
+    - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "sport_name1"}  
+    - compare: {jsonpath_mini: "categories.0.description", comparator: "eq", expected: "description1"}  
+
+- test:
+  - headers: {'Content-Type': 'application/json'}
+  - name: "Crear una categoría"
+  - url: "/categories"
+  - method: "POST"
+  - body: '{"category": {
+                            "name": "sport_name2",
+                            "description": "description2"
+                        }
+              }'
+
+- test:
+  - url: "/categories"
+  - method: "GET"
+  - validators:
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 2}  

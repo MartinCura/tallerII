@@ -34,15 +34,6 @@ module.exports.job_categories_get = function function_name(request, response) {
           categories: data.rows,
         });
     })
-
-
-
-  /*response.status(200).json({
-                          "categories": [{
-                            "name": "sport_name1",
-                            "description": "description1"
-                          }]
-              });*/
 }
 
 module.exports.job_categories_add = function function_name(request, response) {
