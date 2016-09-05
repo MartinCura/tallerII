@@ -1,10 +1,10 @@
 var db = require("./db.js");
 
-module.exports.job_positions = function (request, response) {
+module.exports.job_positions = function(request, response) {
     response.json("HELLO WORD!");
 };
 
-module.exports.job_positions_add = function (request, response) {
+module.exports.job_positions_add = function(request, response) {
 
   name = "test name";
   description = "test description";
@@ -26,29 +26,35 @@ module.exports.job_positions_add = function (request, response) {
 
 }
 
-module.exports.job_categories_get = function function_name(request, response) {
+module.exports.job_categories_get = function(request, response) {
   db.get_categories()
     .then(function (data) {
       response.status(200)
         .json({
-          categories: data.rows,
+          categories: data.rows
         });
     })
 }
 
-module.exports.job_categories_add = function function_name(request, response) {
+function json_of_categories(name, description) {
+  return {"category" :  {
+                "name": name,
+                "description": description
+            }};
+}
+
+module.exports.job_categories_add = function(request, response) {
   
   db.create_category(request.body.category.name, request.body.category.description).then(function () {
       response.status(200)
-        .json({"category" :  {
-                "name": request.body.category.name,
-                "description": request.body.category.description
-            }});
+        .json(json_of_categories(request.body.category.name, request.body.category.description));
     })
 }
-module.exports.job_categories_modify = function function_name(request, response) {
-  response.status(501);
+module.exports.job_categories_modify = function(request, response) {
+  db.modify_category(request.params.category, request.body.category.name, request.body.category.description).then(function(data){
+    response.status(200).json(json_of_categories(request.body.category.name, request.body.category.description));
+  });
 }
-module.exports.job_categories_delete = function function_name(request, response) {
+module.exports.job_categories_delete = function(request, response) {
   response.status(501);
 }

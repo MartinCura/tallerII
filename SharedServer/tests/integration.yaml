@@ -58,4 +58,27 @@
   - url: "/categories"
   - method: "GET"
   - validators:
-    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 2}  
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 2}
+
+
+- test:
+  - headers: {'Content-Type': 'application/json'}
+  - url: "/categories/sport_name1"
+  - method: "POST"
+  - validators:
+  - body: '{"category": {
+                            "name": "outdoor activies",
+                            "description": "all kind of outdoor activities"
+                        }
+              }'
+  - validators:
+    - compare: {jsonpath_mini: "category.name", comparator: "eq", expected: 'outdoor activies'}
+    - compare: {jsonpath_mini: "category.description", comparator: "eq", expected: 'all kind of outdoor activities'}
+
+# - test:
+#   - url: "/categories"
+#   - method: "GET"
+#   - validators:
+#     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}  
+#     - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "outdoor activies"}  
+#     - compare: {jsonpath_mini: "categories.0.description", comparator: "eq", expected: "all kind of outdoor activities"}  

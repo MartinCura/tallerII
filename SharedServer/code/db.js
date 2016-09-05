@@ -63,6 +63,11 @@ module.exports.create_category = function (name, description){
 
 };
 
-module.exports.get_categories = function (name, description ) {
+module.exports.get_categories = function (name, description){
   return pool.query('select * from categories');
+}
+
+module.exports.modify_category = function (to_modify, name, description){
+    return pool.query('update categories set name=$1, description=$2 where name=$3',
+    [name, description, to_modify, ]);
 }
