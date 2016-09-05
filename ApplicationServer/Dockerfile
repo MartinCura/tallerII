@@ -9,3 +9,5 @@ ADD src/ /home/src
 
 RUN cmake src/
 RUN make
+
+CMD  ./ApplicationServer_src
