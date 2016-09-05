@@ -75,10 +75,10 @@
     - compare: {jsonpath_mini: "category.name", comparator: "eq", expected: 'outdoor activies'}
     - compare: {jsonpath_mini: "category.description", comparator: "eq", expected: 'all kind of outdoor activities'}
 
-# - test:
-#   - url: "/categories"
-#   - method: "GET"
-#   - validators:
-#     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}  
-#     - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "outdoor activies"}  
-#     - compare: {jsonpath_mini: "categories.0.description", comparator: "eq", expected: "all kind of outdoor activities"}  
+- test:
+  - url: "/categories"
+  - method: "GET"
+  - validators:
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 2}
+    - compare: {jsonpath_mini: "categories.1.name", comparator: "eq", expected: "outdoor activies"}  
+    - compare: {jsonpath_mini: "categories.1.description", comparator: "eq", expected: "all kind of outdoor activities"}  

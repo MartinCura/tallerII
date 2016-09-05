@@ -38,7 +38,7 @@ pool.connect(function(err, client, done) {
   });
 });
 
-pool.on('error', function (err, client) {
+pool.on('error', function(err, client) {
   // if an error is encountered by a client while it sits idle in the pool
   // the pool itself will emit an error event with both the error and
   // the client which emitted the original error
@@ -52,7 +52,7 @@ module.exports.pool = pool;
 
 var cration_template = "INSERT INTO %s (%s) values(%s);";
 
-module.exports.create_category = function (name, description){
+module.exports.create_category = function(name, description){
   values_name = sprintf("%s,%s", "name", "description");
   values = sprintf("'%s','%s'", name, description);
   query_string = sprintf(cration_template, "categories", values_name, values);
@@ -63,11 +63,15 @@ module.exports.create_category = function (name, description){
 
 };
 
-module.exports.get_categories = function (name, description){
+module.exports.get_categories = function(name, description){
   return pool.query('select * from categories');
 }
 
-module.exports.modify_category = function (to_modify, name, description){
-    return pool.query('update categories set name=$1, description=$2 where name=$3',
-    [name, description, to_modify, ]);
+module.exports.modify_category = function(to_modify, name, description){
+  return pool.query('update categories set name=$1, description=$2 where name=$3',
+  [name, description, to_modify]);
+}
+
+module.exports.delete_category = function(to_modify, name, description){
+
 }
