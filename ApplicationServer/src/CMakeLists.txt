@@ -1,4 +1,6 @@
-message (STATUS "Building source code")
+ cmake_minimum_required(VERSION 2.8)
+
+ message (STATUS "Building source code")
 
 
 
