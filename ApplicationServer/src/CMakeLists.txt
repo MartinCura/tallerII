@@ -3,12 +3,19 @@ message (STATUS "Building source code")
 set (CMAKE_CXX_FLAGS " -std=c++0x")
 set (TARGET ApplicationServer_src)
 
-include_directories ("${PROJECT_SOURCE_DIR}/Mongoose")
-include_directories ("${PROJECT_SOURCE_DIR}/jsoncpp")
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb")
-add_subdirectory (Mongoose)
-add_subdirectory (jsoncpp)
+set (PROJECT_LINK_LIBS libMongoose.so)
+set (PROJECT_LINK_LIBS libjsoncpp.so)
+link_directories (~/build)
 
+# Used to bring the header files into the build environment
+include_directories ("${PROJECT_SOURCE_DIR}/jsoncpp")
+include_directories ("${PROJECT_SOURCE_DIR}/Mongoose")
+
+add_subdirectory (jsoncpp)
+add_subdirectory (Mongoose)
+
+# Used to set a variable(SOURCE_FILES) that contains the name values of all of the source
+# files (.cpp) in the project
 file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp)
 
 # Requests that an executable is to be built using ${SOURCE_FILES}. 
