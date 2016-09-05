@@ -27,7 +27,12 @@ module.exports.job_positions_add = function (request, response) {
 }
 
 module.exports.job_categories_get = function function_name(request, response) {
-  response.status(501);
+  response.status(200).json({
+                          "categories": [{
+                            "name": "sport_name1s",
+                            "description": "description1"
+                          }]
+              });
 }
 module.exports.job_categories_add = function function_name(request, response) {
   
