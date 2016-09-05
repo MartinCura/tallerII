@@ -5,10 +5,11 @@ set (TARGET ApplicationServer_src)
 
 include_directories ("${PROJECT_SOURCE_DIR}/Mongoose")
 include_directories ("${PROJECT_SOURCE_DIR}/jsoncpp")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb")
 add_subdirectory (Mongoose)
 add_subdirectory (jsoncpp)
 
-file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp api/*.h)
+file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp)
 
 # Requests that an executable is to be built using ${SOURCE_FILES}. 
 # The first argument is the name of the executable
