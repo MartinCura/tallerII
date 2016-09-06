@@ -17,7 +17,7 @@ notifications:
         - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#plandetrabajo
   
       on_success: change
-      on_failure: always
+      on_failure: never
 matrix:
   include:
     - compiler: gcc
