@@ -42,3 +42,8 @@ add_executable (${TARGET} ${HEADERS} ${SOURCES} )
 target_link_libraries (${TARGET} leveldb)
 add_test (all ${EXECUTABLE_OUTPUT_PATH}/${TARGET})
 
+# Allows to create a Debian package
+install(TARGETS ApplicationServer_src DESTINATION appserver)
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "David Doria")
+include(CPack)
