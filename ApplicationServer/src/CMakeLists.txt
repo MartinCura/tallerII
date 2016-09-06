@@ -37,7 +37,8 @@ include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/port")
 
 set (SOURCES testing_levedb.cpp)
 
-add_executable (${TARGET} ${SOURCES})
+file(GLOB_RECURSE HEADERS leveldb/db/*.h leveldb/include/leveldb/*.h leveldb/util/*.h leveldb/port/*.h)
+add_executable (${TARGET} ${HEADERS} ${SOURCES} )
 target_link_libraries (${TARGET} leveldb)
 add_test (all ${EXECUTABLE_OUTPUT_PATH}/${TARGET})
 
