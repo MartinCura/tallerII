@@ -3,7 +3,11 @@ message(STATUS "Building tests")
 set(TARGET ApplicationServer_test)
 message (STATUS "Building application ${TARGET}")
 
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb/db")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb/include/leveldb")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/util")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/port")
+
 set (SOURCES testing_levedb.cpp)
 
 add_executable (${TARGET} ${SOURCES})
