@@ -22,6 +22,6 @@ file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp)
 # The second argument are the source files from wich to build the executable
 add_executable(${TARGET} ${SOURCE_FILES})
 
-target_link_libraries (${TARGET} libMongoose.a)
+target_link_libraries (${TARGET} Mongoose)
 target_link_libraries (${TARGET} Peterete)
 
