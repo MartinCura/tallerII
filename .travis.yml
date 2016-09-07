@@ -15,9 +15,8 @@ notifications:
       rooms:
         - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#general
         - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#plandetrabajo
-  
       on_success: change
-      on_failure: never
+      on_failure: always
 matrix:
   include:
     - compiler: gcc
@@ -37,6 +36,9 @@ matrix:
             - g++-5
       env: COMPILER=g++-5
 
+services:
+  - docker
+  
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libopencv-dev
