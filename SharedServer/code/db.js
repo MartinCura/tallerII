@@ -1,4 +1,7 @@
-var pg       = require('pg'); 
+var promise = require('bluebird');
+
+
+var pg       = require('pg-promise')(); 
 var sprintf = require("sprintf-js").sprintf;
 
 // create a config to configure both pooling behavior
@@ -15,7 +18,7 @@ var config = {
 };
 
 
-//this initializes a connection pool
+/*//this initializes a connection pool
 //it will keep idle connections open for a 30 seconds
 //and set a limit of maximum 10 idle clients
 var pool = new pg.Pool(config);
@@ -46,7 +49,10 @@ pool.on('error', function(err, client) {
   // between your application and the database, the database restarts, etc.
   // and so you might want to handle it and at least log it out
   console.error('idle client error', err.message, err.stack)
-})
+})*/
+
+var pool = new pg(config);
+pool.connect();
 
 module.exports.pool = pool;
 
@@ -64,14 +70,18 @@ module.exports.create_category = function(name, description){
 };
 
 module.exports.get_categories = function(name, description){
-  return pool.query('select * from categories');
+  return pool.any('select * from categories');
 }
 
 module.exports.modify_category = function(to_modify, name, description){
-  return pool.query('update categories set name=$1, description=$2 where name=$3',
+  return pool.none('update categories set name=$1, description=$2 where name=$3',
   [name, description, to_modify]);
 }
 
-module.exports.delete_category = function(to_modify, name, description){
+module.exports.delete_category = function(to_delete){
+  query = sprintf("delete from categories where name='%s'", to_delete);
+  console.log(query);
+  // return pool.query('delete from categories where name = "$1"', to_delete);
+  return pool.none(query);
 
 }

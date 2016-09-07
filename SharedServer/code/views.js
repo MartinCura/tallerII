@@ -31,7 +31,7 @@ module.exports.job_categories_get = function(request, response) {
     .then(function (data) {
       response.status(200)
         .json({
-          categories: data.rows
+          categories: data
         });
     })
 }
@@ -51,10 +51,17 @@ module.exports.job_categories_add = function(request, response) {
     })
 }
 module.exports.job_categories_modify = function(request, response) {
-  db.modify_category(request.params.category, request.body.category.name, request.body.category.description).then(function(data){
+  db.modify_category(request.params.category, request.body.category.name, request.body.category.description).then(function(){
     response.status(200).json(json_of_categories(request.body.category.name, request.body.category.description));
   });
 }
 module.exports.job_categories_delete = function(request, response) {
-  response.status(501);
+  console.log(request.params.category);
+  /*db.delete_category(request.params.category).end(function(){
+    response.status(200);
+  });*/
+  db.delete_category(request.params.category).then(function(){
+    console.log("lala");
+    response.status(200).json({});
+  });
 }
