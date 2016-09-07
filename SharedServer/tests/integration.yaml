@@ -64,7 +64,7 @@
 - test:
   - headers: {'Content-Type': 'application/json'}
   - url: "/categories/sport_name1"
-  - method: "POST"
+  - method: "PUT"
   - validators:
   - body: '{"category": {
                             "name": "outdoor activies",
@@ -85,13 +85,13 @@
 
 - test:
   # - url: "/categories/outdoor%20activies"
-  - url: "/categories/sport_name2"
+  - url: "/categories/outdoor%20activies"
   - method: "DELETE"
 
-# - test:
-#   - url: "/categories"
-#   - method: "GET"
-#   - validators:
-#     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}
-#     - compare: {jsonpath_mini: "categories.1.name", comparator: "eq", expected: "sport_name2"}  
-#     - compare: {jsonpath_mini: "categories.1.description", comparator: "eq", expected: "description2"}
+- test:
+  - url: "/categories"
+  - method: "GET"
+  - validators:
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}
+    - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "sport_name2"}  
+    - compare: {jsonpath_mini: "categories.0.description", comparator: "eq", expected: "description2"}

@@ -61,7 +61,6 @@ module.exports.job_categories_delete = function(request, response) {
     response.status(200);
   });*/
   db.delete_category(request.params.category).then(function(){
-    console.log("lala");
     response.status(200).json({});
   });
 }

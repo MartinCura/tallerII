@@ -9,7 +9,7 @@ module.exports.set_urls = function (router) {
 		// categories
 		router.get('/categories', views.job_categories_get);
 		router.post('/categories', views.job_categories_add);
-		router.post('/categories/:category', views.job_categories_modify);
+		router.put('/categories/:category', views.job_categories_modify);
 		router.delete('/categories/:category', views.job_categories_delete);
 
 
