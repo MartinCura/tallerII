@@ -9,5 +9,6 @@ ADD src/ /home/src
 
 RUN cmake src/
 RUN make
+RUN make test
 
 CMD  ./ApplicationServer_src
