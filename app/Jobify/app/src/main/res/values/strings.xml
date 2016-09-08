@@ -3,6 +3,9 @@
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur ipsum...</string>
+
+    <string name="BASE_HTTP_URL">http://192.168.0.116:8000/</string>
+
+    <string name="perfil_nombre_y_apellido_default">Joan of Arc</string>
 </resources>

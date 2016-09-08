@@ -1,12 +1,11 @@
 package ar.fiuba.jobify;
 
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.AsyncLayoutInflater;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,12 +13,24 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import com.android.volley.AuthFailureError;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Random;
+
+import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.shared_server_api.JobPositionsResponse;
 
 
 /**
@@ -34,7 +45,10 @@ public class PerfilFragment extends Fragment {
 
     private final String LOG_TAG = PerfilFragment.class.getSimpleName();
 
-    private TextView textView;
+    private static final String EXTRA_IMAGE = "ar.fiuba.jobify.extraImage";
+
+    private TextView textView;//
+    private CollapsingToolbarLayout collapsingToolbarLayout;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -77,12 +91,16 @@ public class PerfilFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        updateProfileInformation();
-    }
 
-    public void updateProfileInformation() {
-        FetchProfileTask profileTask = new FetchProfileTask();
-        profileTask.execute(LOG_TAG);
+//        ViewCompat.setTransitionName(
+//                getActivity().findViewById(R.id.perfil_app_bar_layout), EXTRA_IMAGE);//
+//
+//        collapsingToolbarLayout = (CollapsingToolbarLayout) getActivity().findViewById(R.id.perfil_collapsing_toolbar);
+//        collapsingToolbarLayout.setTitle(getString(R.string.perfil_nombre_y_apellido_default));
+//        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
+
+//        updateProfileInformation();//
+        refreshProfileInformation();
     }
 
     @Override
@@ -91,7 +109,7 @@ public class PerfilFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_perfil, container, false);
 
-        textView = (TextView) rootView.findViewById(R.id.textview_perfil);
+        textView = (TextView) rootView.findViewById(R.id.textview_perfil_nombre_y_apellido);
 
         return rootView;
     }
@@ -120,6 +138,19 @@ public class PerfilFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (RequestQueueSingleton.hasRequestQueue()) {
+
+            RequestQueue mRequestQueue = RequestQueueSingleton
+                    .getInstance(this.getActivity().getApplicationContext())
+                    .getRequestQueue();
+            mRequestQueue.cancelAll(LOG_TAG);
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -135,115 +166,114 @@ public class PerfilFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public class FetchProfileTask extends AsyncTask<String, Void, String[]> {
 
-        private final String LOG_TAG = FetchProfileTask.class.getSimpleName();
+    public void refreshProfileInformation() {
 
-        @Override   // TODO: Por ahora, params[0] tiene ¿...?
-        protected String[] doInBackground(String... params) {
+        Random rand = new Random();
+        int unId = rand.nextInt(100);// hardcodeo fuerte para CP1
 
-            // Si no hay parámetros, nada que buscar.
-            if (params.length == 0) {
-                return null;
-            }
+        Uri builtUri = Uri.parse(getString(R.string.BASE_HTTP_URL)).buildUpon()
+                .appendPath("users") //;// semi hardcodeado
+                .appendPath(Integer.toString(unId))
+                .build();
+        String url = builtUri.toString();
 
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
+        Log.d(LOG_TAG, "urrrrrrrrl: "+url);//
 
-            // Will contain the raw JSON response as a string.
-            String perfilJsonStr = null;
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
-            // TODO: Modificar
-            String request = "users";
-            //String format = "json";
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        User mUser = User.parseJSON(response.toString());
 
-            try {
-                // Construct the URL    TODO: Cambiar por la del AppServer
-                final String BASE_URL = "http://192.168.0.114";
-                final int PORT = 5000;
+                        int idUsuario = mUser.getId();
+                        String nombreUsuario = mUser.getName();
 
-                //Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                //        .appendQueryParameter(":", "5000")
-                //        .appendPath(request)
-                //        .build();
+                        Toast.makeText(getActivity(), "nombre obtenido: "+nombreUsuario+
+                                "\npara usuario de id "+idUsuario, Toast.LENGTH_SHORT).show();
+                        textView.setText("id: "+idUsuario+"\nnombre: "+nombreUsuario);
 
-                String URLString = BASE_URL + ':' + PORT + '/' + request;
-
-                Log.d(LOG_TAG, "---------- URL: "+URLString);//
-
-                URL url = new URL(URLString);
-
-                // Create the request to OpenWeatherMap, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    Log.d(LOG_TAG, "GET a "+URLString+" came back with no information.");
-                    /// Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    Log.d(LOG_TAG, "GET a "+URLString+" devolvió un stream vacío.");
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                perfilJsonStr = buffer.toString();
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
-                return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
+//                        collapsingToolbarLayout.setTitle(auxString);
                     }
+
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+//                        error.printStackTrace();//
+                        Log.d(LOG_TAG, "errortostring "+error.toString());
+//                        textView.setText("[No se obtuvo nada de la URL hardcodeada.]");
+//                        Toast.makeText(getActivity(), ":(", Toast.LENGTH_SHORT).show();
+                        if (error instanceof ParseError && error.getCause() instanceof JSONException) {
+                            Log.d(LOG_TAG, "JSONException! Intento refreshear de nuevo...");
+                            refreshProfileInformation();
+                        }
+                    }
+                });
+
+        jsObjRequest.setTag(LOG_TAG);
+
+        RequestQueueSingleton.getInstance(this.getActivity().getApplicationContext())
+                .addToRequestQueue(jsObjRequest);
+    }
+
+
+    public void updateProfileInformation() {
+
+        String username = "Robert";//
+
+        Uri builtUri = Uri.parse(getString(R.string.BASE_HTTP_URL)).buildUpon()
+                .appendPath("user")
+                .appendPath(username)
+                .build();
+        String url = builtUri.toString();
+
+        final String mRequestBody = "Lottto";
+
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST,
+                url, new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response) {
+                        Log.i("VOLLEY", response);
+                    }
+
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(LOG_TAG, "stringoferror "+error.toString());
+                        textView.setText("[No se obtuvo nada de la URL hardcodeada.]");
+                        Toast.makeText(getActivity(), ":(", Toast.LENGTH_SHORT).show();
+                    }
+                }) {
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                try {
+                    return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
+                } catch (UnsupportedEncodingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
+                            mRequestBody, "utf-8");
+                    return null;
                 }
             }
 
-            // TODO: DesJSONear lo obtenido
-            String res[] = new String[1];
-            res[0] = perfilJsonStr;
-            return res;
+//            @Override
+//            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+//                String responseString = "";
+//                if (response != null) {
+//                    responseString = String.valueOf(response.statusCode);
+//                    // can get more details such as response.headers
+//                }
+//                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+//            }
+        };
 
-            // TODO: Para casos de error de la desJSONeada
-            //return null;
-        }
+        mStringRequest.setTag(LOG_TAG);
 
-        @Override
-        protected void onPostExecute(String[] result) {
-            if (result != null) {
-                //for (String str : result) {
-                //Log.d(LOG_TAG, "--------- GET devolvió:\n"+str+"\n");
-                //}
-                textView.setText(result[0]);
-                Toast.makeText(getActivity(), result[0], Toast.LENGTH_SHORT).show();
-            } else {
-                textView.setText("[No se obtuvo nada de la URL hardcodeada.]");
-                Toast.makeText(getActivity(), ":(", Toast.LENGTH_SHORT).show();
-            }
-        }
-
+        RequestQueueSingleton.getInstance(this.getActivity().getApplicationContext())
+                .addToRequestQueue(mStringRequest);
     }
 }
