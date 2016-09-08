@@ -1,7 +1,8 @@
 # Use new trusty images, should yield newer compilers and packages
 sudo: required
-dist: precise
-language: cpp
+
+services:
+  - docker
 
 branches:
 
@@ -13,31 +14,11 @@ notifications:
     email: false
     slack:
       rooms:
-        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#general
+        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#commit
         - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#plandetrabajo
       on_success: change
-      on_failure: always
-matrix:
-  include:
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.9
-      env: COMPILER=g++-4.9
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env: COMPILER=g++-5
+      on_failure: never
 
-services:
-  - docker
   
 before_install:
   
