@@ -6,6 +6,11 @@ set (TARGET ApplicationServer_src)
 # Used to bring the header files into the build environment
 include_directories ("${PROJECT_SOURCE_DIR}/jsoncpp")
 include_directories ("${PROJECT_SOURCE_DIR}/Mongoose")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb/db")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb/include")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/util")
+include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/port")
+
 link_directories("${CMAKE_BINARY_DIR}/lib")
 
 
@@ -23,17 +28,15 @@ file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp)
 add_executable(${TARGET} ${SOURCE_FILES})
 
 target_link_libraries (${TARGET} Mongoose)
-target_link_libraries (${TARGET} Peterete)
+target_link_libraries (${TARGET} JsonCpp)
 
-message(STATUS "Building tests")
+############################Test########################################
 
 set(TARGET ApplicationServer_test)
+
+message("++ Building tests ++")
 message (STATUS "Building application ${TARGET}")
 
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb/db")
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb/include")
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/util")
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/port")
 
 set (SOURCES testing_levedb.cpp)
 
