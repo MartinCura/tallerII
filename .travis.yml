@@ -21,14 +21,30 @@ notifications:
 
   
 before_install:
-
+  # Creates docker images from Dockerfiles called "appserverimg" and "testingappserverimg" on the local machine.
   - docker build -t appserverimg ApplicationServer/
   - docker build -t testingappserverimg ApplicationServer/tests/
+  - docker images #To verify that the new images are on the local host.
   
 script:
 
+  # Creates dockers from docker images
+
+  # -d: tells Docker to run the container in the background
+  # -p: tells Docker to map port:8000 of the container to our  local port 8000
+  # appserverimg: we specified an image, that was built previously.
+  # appserver: is the name of the container
   - docker run --name appserver -d -p 8000:8000 appserverimg 
+  # To see the running container
+  # -l: tells Docker to return de details of the last container started.
+  - docker ps -l
+  # waits for the docker to be setup
   - sleep 30
+  # Same as beforse, only that creates a new container from another docker image testingappserverimg
+  # --ling appserver: appserverhost: tells that want to conect with another container 
+  # appserver: is the name of the container we want to link with
+  # appserverhost: is the container alias name
+  # -i -t: open a console and makes ir interactive
   - docker run --name testingappserver --link appserver:appserverhost -ti testingappserverimg;
 
  # - mkdir build
