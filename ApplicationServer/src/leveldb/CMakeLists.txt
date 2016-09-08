@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT(leveldb)
 
-ENABLE_TESTING()
 
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 15)
 set(VERRION_PATCH 0)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR})
 
-
+# ${CMAKE_CURRENT_SOURCE_DIR}  -> This is the directoy where the urrently processed CMakeLists.txt ie located in.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} include)
 
 message("Configuration: ${CMAKE_BUILD_TYPE}")
@@ -19,50 +18,22 @@ message("Configuration: ${CMAKE_BUILD_TYPE}")
 ## 	SNAPPY
 ## 	OS_****
 
-if(WIN32 AND MSVC)
-  add_definitions(-DOS_WIN)
-  add_definitions(-DLEVELDB_PLATFORM_WINDOWS)
-  add_definitions(-DCOMPILER_MSVC)
+add_definitions(-DOS_LINUX)
+add_definitions(-DLEVELDB_PLATFORM_POSIX)
 
-  add_definitions(-DWINVER=0x0501 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
-  add_definitions(-Dssize_t=ptrdiff_t) #workaround for ssize_t
+add_definitions(-fno-builtin-memcmp)
 
-  set(PORT_SRCS port/port_win.cc util/env_win.cc util/win_logger.cc)
-  set(PORT_HDRS port/port_win.h port/win/stdint.h util/win_logger.h)
-  include_directories(port/win) #workaround for stdint.h
+set(PORT_SRCS port/port_posix.cc util/env_posix.cc)
+set(PORT_HDRS port/port_posix.h util/posix_logger.h)
 
-#  set(CAPI_SRC db/c.cc)
-#  set(CAPI_HDRS include/leveldb/c.h)
-  set(CAPI_SRC)
-  set(CAPI_HDRS)
-  set(CAPI_TEST)
+set(CAPI_SRC db/c.cc)
+set(CAPI_HDRS include/leveldb/c.h)
+set(CAPI_TEST db/c_test.c)
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /Oi /EHsc")
-  #set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Ob2 /DNDEBUG /MD")
-  set(CMAKE_CXX_FLAGS_RELEASE "/Ox /Ob2 /Ot /DNDEBUG /MD")
-  set(CMAKE_CXX_FLAGS_DEBUG "/Od /Zi /Ob0 /RTC1 /D_DEBUG /MDd")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
-  set(LIBS "${LIBS}" shlwapi)
 
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND CMAKE_COMPILER_IS_GNUCXX)
-  add_definitions(-DOS_LINUX)
-  add_definitions(-DLEVELDB_PLATFORM_POSIX)
-
-  add_definitions(-fno-builtin-memcmp)
-
-  set(PORT_SRCS port/port_posix.cc util/env_posix.cc)
-  set(PORT_HDRS port/port_posix.h util/posix_logger.h)
-
-  set(CAPI_SRC db/c.cc)
-  set(CAPI_HDRS include/leveldb/c.h)
-  set(CAPI_TEST db/c_test.c)
-
-  set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
-  set(CMAKE_CXX_FLAGS_DEBUG "-g")
-
-else()
-  error("Unknown platform")
-endif()
 
 set(SRCS
   db/builder.cc
@@ -161,37 +132,6 @@ set_target_properties(leveldb PROPERTIES
   VERSION ${VERSION_STRING}
   SOVERSION ${VERSION_MAJOR}
   )
-
-add_library(leveldb_static STATIC ${SRCS} ${HDRS} ${SNAPPY_SRCS} ${SNAPPY_HDRS})
 install (TARGETS leveldb DESTINATION "${CMAKE_BINARY_DIR}/lib")
 find_package(Threads)
 target_link_libraries(leveldb ${CMAKE_THREAD_LIBS_INIT} ${LIBS})
-target_link_libraries(leveldb_static ${CMAKE_THRxEAD_LIBS_INIT} ${LIBS})
-
-###
-# TESTS
-###
-
-set(TESTHARNESS_SRCS
-  util/testutil.cc
-  util/testharness.cc
-)
-set(TESTHARNESS_HDRS
-  util/testutil.h
-  util/testharness.h
-)
-
-add_library(leveldb-testharness STATIC ${TESTHARNESS_SRCS})
-
-macro(leveldb_tests)
-  foreach(t ${ARGN})
-    get_filename_component(_tname ${t} NAME_WE)
-    add_executable(${_tname} ${t})
-    target_link_libraries(${_tname}
-      leveldb-testharness
-      leveldb_static
-      )
-    add_test(NAME ${_tname}
-      COMMAND $<TARGET_FILE:${_tname}>)
-  endforeach()
-endmacro()
