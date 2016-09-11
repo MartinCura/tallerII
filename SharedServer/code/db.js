@@ -31,7 +31,7 @@ module.exports.create_category = function(name, description){
   query_string = sprintf(cration_template, "categories", values_name, values);
   
   // Lo que está acá arriba iría en una función porque es siempre lo mismo para todas las tablas
-  console.log(query_string);
+  //console.log(query_string);
   return db.query(query_string);
 
 };
@@ -47,8 +47,17 @@ module.exports.modify_category = function(to_modify, name, description){
 
 module.exports.delete_category = function(to_delete){
   query = sprintf("delete from categories where name='%s'", to_delete);
-  console.log(query);
+  //console.log(query);
   // return db.query('delete from categories where name = "$1"', to_delete);
   return db.none(query);
 
+}
+
+module.exports.get_job_positions = function(){
+  return db.any("SELECT * FROM job_positions");
+}
+
+module.exports.create_job_position = function(category, name, description) {
+  return db.none("INSERT INTO job_positions(name, description, category) values ($1, $2, $3)",
+    [name, description, category]);
 }

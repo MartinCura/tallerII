@@ -91,7 +91,6 @@
     - compare: {jsonpath_mini: "categories.1.description", comparator: "eq", expected: "all kind of outdoor activities"}
 
 - test:
-  # - url: "/categories/outdoor%20activies"
   - url: "/categories/outdoor%20activies"
   - expected_status: [200]
   - method: "DELETE"
@@ -104,3 +103,33 @@
     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}
     - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "sport_name2"}  
     - compare: {jsonpath_mini: "categories.0.description", comparator: "eq", expected: "description2"}
+
+# Job positions
+- test:
+  - url: "/job_positions"
+  - method: "GET"
+  - expected_status: [200]
+  - validators:
+    - compare: {jsonpath_mini: "job_positions", comparator: "count_eq", expected: 0}
+
+
+- test:
+  - url: "/job_positions/categories/sport_name2"
+  - headers: {'Content-Type': 'application/json'}
+  - method: "POST"
+  - expected_status: [200]
+  - body: '{"job_position": {
+                  "name": "developer",
+                  "description": "a software developer"
+              }
+            }'
+  - validators:
+    - compare: {jsonpath_mini: "job_position.name", comparator: "eq", expected: 'developer'}
+    - compare: {jsonpath_mini: "job_position.description", comparator: "eq", expected: 'a software developer'}
+
+- test:
+  - url: "/job_positions"
+  - method: "GET"
+  - expected_status: [200]
+  - validators:
+    - compare: {jsonpath_mini: "job_positions", comparator: "count_eq", expected: 1}
