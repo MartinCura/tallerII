@@ -13,6 +13,7 @@ module.exports.set_urls = function (router) {
 
 
 		router.get('/job_positions', views.job_positions_get);
+		router.get('/job_positions/categories/:category', views.job_positions_get_by_category);
 		router.post('/job_positions/categories/:category', views.job_positions_add);
 		//router.post('/job_positions/categories/:PositionCategory', views.job_positions_add);
 

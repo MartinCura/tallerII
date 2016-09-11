@@ -44,12 +44,17 @@ module.exports.job_categories_delete = function(request, response) {
   });
 }
 
-module.exports.job_positions_get = function(request, response){
+module.exports.job_positions_get = function(request, response) {
   db.get_job_positions().then(function (data) {
     response.status(HttpStatus.OK).json({job_positions: data});
   })
 }
 
+module.exports.job_positions_get_by_category = function(request, response) {
+  db.get_job_positions_by_category(request.params.category).then(function (data) {
+    response.status(HttpStatus.OK).json({job_positions: data});
+  })
+}
 
 module.exports.job_positions_add = function(request, response) {
   db.create_job_position(request.params.category, request.body.job_position.name, request.body.job_position.description).then(
@@ -58,6 +63,7 @@ module.exports.job_positions_add = function(request, response) {
     }
   );
 }
+
 
 /*module.exports.job_positions_add = function(request, response) {
 

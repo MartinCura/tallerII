@@ -133,3 +133,35 @@
   - expected_status: [200]
   - validators:
     - compare: {jsonpath_mini: "job_positions", comparator: "count_eq", expected: 1}
+
+- test:
+  - headers: {'Content-Type': 'application/json'}
+  - url: "/categories"
+  - method: "POST"
+  - body: '{"category": {
+                            "name": "sport_name1",
+                            "description": "description1"
+                }
+            }'
+
+
+- test:
+  - url: "/job_positions/categories/sport_name1"
+  - headers: {'Content-Type': 'application/json'}
+  - method: "POST"
+  - expected_status: [200]
+  - body: '{"job_position": {
+                  "name": "developer2",
+                  "description": "description2"
+              }
+            }'
+
+- test:
+  - url: "/job_positions/categories/sport_name1"
+  - method: "GET"
+  - expected_status: [200]
+  - validators:
+    - compare: {jsonpath_mini: "job_positions", comparator: "count_eq", expected: 1}
+    - compare: {jsonpath_mini: "job_positions.0.name", comparator: "eq", expected: "developer2"}  
+    - compare: {jsonpath_mini: "job_positions.0.description", comparator: "eq", expected: "description2"}
+    - compare: {jsonpath_mini: "job_positions.0.category", comparator: "eq", expected: "sport_name1"}

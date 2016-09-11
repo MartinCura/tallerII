@@ -61,3 +61,7 @@ module.exports.create_job_position = function(category, name, description) {
   return db.none("INSERT INTO job_positions(name, description, category) values ($1, $2, $3)",
     [name, description, category]);
 }
+
+module.exports.get_job_positions_by_category = function(category){
+  return db.any("SELECT * FROM job_positions where category=$1", [category]);
+}
