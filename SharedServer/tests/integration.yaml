@@ -1,0 +1,97 @@
+---
+- config:
+    - testset: "Quickstart app tests"
+
+# - test:
+#     - group: "Quickstart"
+#     - name: "Basic smoketest"
+#     - url: "/api/job_positions/"
+
+# - test:
+#     - group: "Quickstart"
+#     - name: "Crear una categoría"
+#     - url: "/job_positions/categories/software"
+#     #- url: "/api/job_positions"
+#     - method: "POST"
+#     #- body: '{"first_name": "Gaius","id": 10,"last_name": "Baltar","login": "baltarg"}'
+
+- test:
+  - url: "/categories"
+  - method: "GET"
+  - validators:
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 0}
+
+- test:
+  - headers: {'Content-Type': 'application/json'}
+  - name: "Crear una categoría"
+  - url: "/categories"
+  - method: "POST"
+  - body: '{"category": {
+                            "name": "sport_name1",
+                            "description": "description1"
+                        }
+              }'
+  - validators:
+    - compare: {jsonpath_mini: "category.name", comparator: "eq", expected: 'sport_name1'}
+    - compare: {jsonpath_mini: "category.description", comparator: "eq", expected: 'description1'}
+
+- test:
+  - url: "/categories"
+  - method: "GET"
+  - validators:
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}  
+    - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "sport_name1"}  
+    - compare: {jsonpath_mini: "categories.0.description", comparator: "eq", expected: "description1"}  
+
+- test:
+  - headers: {'Content-Type': 'application/json'}
+  - name: "Crear una categoría"
+  - url: "/categories"
+  - method: "POST"
+  - body: '{"category": {
+                            "name": "sport_name2",
+                            "description": "description2"
+                        }
+              }'
+
+- test:
+  - url: "/categories"
+  - method: "GET"
+  - validators:
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 2}
+
+
+- test:
+  - headers: {'Content-Type': 'application/json'}
+  - url: "/categories/sport_name1"
+  - method: "PUT"
+  - validators:
+  - body: '{"category": {
+                            "name": "outdoor activies",
+                            "description": "all kind of outdoor activities"
+                        }
+              }'
+  - validators:
+    - compare: {jsonpath_mini: "category.name", comparator: "eq", expected: 'outdoor activies'}
+    - compare: {jsonpath_mini: "category.description", comparator: "eq", expected: 'all kind of outdoor activities'}
+
+- test:
+  - url: "/categories"
+  - method: "GET"
+  - validators:
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 2}
+    - compare: {jsonpath_mini: "categories.1.name", comparator: "eq", expected: "outdoor activies"}  
+    - compare: {jsonpath_mini: "categories.1.description", comparator: "eq", expected: "all kind of outdoor activities"}
+
+- test:
+  # - url: "/categories/outdoor%20activies"
+  - url: "/categories/outdoor%20activies"
+  - method: "DELETE"
+
+- test:
+  - url: "/categories"
+  - method: "GET"
+  - validators:
+    - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}
+    - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "sport_name2"}  
+    - compare: {jsonpath_mini: "categories.0.description", comparator: "eq", expected: "description2"}
