@@ -3,6 +3,7 @@
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
+static int s_sig_num = 0;
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     if (ev == MG_EV_HTTP_REQUEST) {
@@ -15,6 +16,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         delete webHandler;
         delete response;
     }
+}
+
+static void signal_handler(int sig_num) {
+    signal(sig_num, signal_handler);
+    s_sig_num = sig_num;
 }
 
 int main(int argc, char *argv[]) {
@@ -66,6 +72,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+
     memset(&bind_opts, 0, sizeof(bind_opts));
     bind_opts.error_string = &err_str;
 #ifdef MG_ENABLE_SSL
@@ -85,7 +94,7 @@ int main(int argc, char *argv[]) {
 
     printf("Starting RESTful server on port %s, serving %s\n", s_http_port,
            s_http_server_opts.document_root);
-    for (;;) {
+    while (s_sig_num == 0) {
         mg_mgr_poll(&mgr, 1000);
     }
     mg_mgr_free(&mgr);
