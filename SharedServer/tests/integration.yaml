@@ -18,6 +18,7 @@
 - test:
   - url: "/categories"
   - method: "GET"
+  - expected_status: [200]
   - validators:
     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 0}
 
@@ -26,6 +27,7 @@
   - name: "Crear una categoría"
   - url: "/categories"
   - method: "POST"
+  - expected_status: [200]
   - body: '{"category": {
                             "name": "sport_name1",
                             "description": "description1"
@@ -38,6 +40,7 @@
 - test:
   - url: "/categories"
   - method: "GET"
+  - expected_status: [200]
   - validators:
     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}  
     - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "sport_name1"}  
@@ -48,6 +51,7 @@
   - name: "Crear una categoría"
   - url: "/categories"
   - method: "POST"
+  - expected_status: [200]
   - body: '{"category": {
                             "name": "sport_name2",
                             "description": "description2"
@@ -57,6 +61,7 @@
 - test:
   - url: "/categories"
   - method: "GET"
+  - expected_status: [200]
   - validators:
     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 2}
 
@@ -65,6 +70,7 @@
   - headers: {'Content-Type': 'application/json'}
   - url: "/categories/sport_name1"
   - method: "PUT"
+  - expected_status: [200]
   - validators:
   - body: '{"category": {
                             "name": "outdoor activies",
@@ -78,6 +84,7 @@
 - test:
   - url: "/categories"
   - method: "GET"
+  - expected_status: [200]
   - validators:
     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 2}
     - compare: {jsonpath_mini: "categories.1.name", comparator: "eq", expected: "outdoor activies"}  
@@ -86,11 +93,13 @@
 - test:
   # - url: "/categories/outdoor%20activies"
   - url: "/categories/outdoor%20activies"
+  - expected_status: [200]
   - method: "DELETE"
 
 - test:
   - url: "/categories"
   - method: "GET"
+  - expected_status: [200]
   - validators:
     - compare: {jsonpath_mini: "categories", comparator: "count_eq", expected: 1}
     - compare: {jsonpath_mini: "categories.0.name", comparator: "eq", expected: "sport_name2"}  

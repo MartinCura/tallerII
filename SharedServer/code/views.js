@@ -1,4 +1,6 @@
 var db = require("./db.js");
+var HttpStatus = require('http-status-codes');
+
 
 module.exports.job_positions = function(request, response) {
     response.json("HELLO WORD!");
@@ -14,7 +16,7 @@ module.exports.job_positions_add = function(request, response) {
   db.pool.query('INSERT INTO job_positions(name, description, category) ' + 
     "values('" + name + "','" + description + "','" + category + "')"
     ).then(function () {
-      response.status(200)
+      response.status(HttpStatus.OK)
         .json({
           status: 'success',
           message: 'Se agrego el trabajo'
@@ -29,7 +31,7 @@ module.exports.job_positions_add = function(request, response) {
 module.exports.job_categories_get = function(request, response) {
   db.get_categories()
     .then(function (data) {
-      response.status(200)
+      response.status(HttpStatus.OK)
         .json({
           categories: data
         });
@@ -46,21 +48,21 @@ function json_of_categories(name, description) {
 module.exports.job_categories_add = function(request, response) {
   
   db.create_category(request.body.category.name, request.body.category.description).then(function () {
-      response.status(200)
+      response.status(HttpStatus.OK)
         .json(json_of_categories(request.body.category.name, request.body.category.description));
     })
 }
 module.exports.job_categories_modify = function(request, response) {
   db.modify_category(request.params.category, request.body.category.name, request.body.category.description).then(function(){
-    response.status(200).json(json_of_categories(request.body.category.name, request.body.category.description));
+    response.status(HttpStatus.OK).json(json_of_categories(request.body.category.name, request.body.category.description));
   });
 }
 module.exports.job_categories_delete = function(request, response) {
   console.log(request.params.category);
   /*db.delete_category(request.params.category).end(function(){
-    response.status(200);
+    response.status(HttpStatus.OK);
   });*/
   db.delete_category(request.params.category).then(function(){
-    response.status(200).json({});
+    response.status(HttpStatus.OK).json({});
   });
 }
