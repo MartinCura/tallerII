@@ -15,7 +15,8 @@ notifications:
     slack:
       rooms:
         - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#commit
-        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#plandetrabajo
+        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#appser
+        
       on_success: change
       on_failure: never
 
