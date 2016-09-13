@@ -22,7 +22,7 @@ notifications:
   
 before_install:
   # Creates docker images from Dockerfiles called "appserverimg" and "testingappserverimg" on the local machine.
-  - docker build -t appserverimg ApplicationServer/
+  - docker build -t appserverimg .
   - docker build -t testingappserverimg ApplicationServer/tests/
   - docker images #To verify that the new images are on the local host.
   
