@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo docker build -t appserverimg ..;
+sudo docker build -t appserverimg ../..;
 sudo docker run --name appserver -p 8000:8000 appserverimg &
 
 sudo docker build -t testingappserverimg .;
