@@ -34,12 +34,10 @@ script:
   # -p: tells Docker to map port:8000 of the container to our  local port 8000
   # appserverimg: we specified an image, that was built previously.
   # appserver: is the name of the container
-  - docker run --name appserver -d -p 8000:8000 appserverimg 
+  - docker run --name appserver -d -p 8000:8000 appserverimg;
   # To see the running container
   # -l: tells Docker to return de details of the last container started.
   - docker ps -l
-  # waits for the docker to be setup
-  - sleep 30
   # Same as beforse, only that creates a new container from another docker image testingappserverimg
   # --ling appserver: appserverhost: tells that want to conect with another container 
   # appserver: is the name of the container we want to link with
