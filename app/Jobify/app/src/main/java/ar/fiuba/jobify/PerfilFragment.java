@@ -1,5 +1,7 @@
 package ar.fiuba.jobify;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.content.Context;
@@ -30,7 +32,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 import ar.fiuba.jobify.app_server_api.User;
-import ar.fiuba.jobify.shared_server_api.JobPositionsResponse;
 
 
 /**
@@ -167,12 +168,21 @@ public class PerfilFragment extends Fragment {
     }
 
 
+    private String getAppServerBaseURL() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String ip = sharedPref.getString("pref_appServer_ip", getString(R.string.pref_default_appServer_ip));
+        String puerto = sharedPref.getString("pref_appServer_puerto", getString(R.string.pref_default_appServer_puerto));
+
+        String baseURL = "http://" + ip + ":" + puerto + "/";
+        return baseURL;
+    }
+
     public void refreshProfileInformation() {
 
         Random rand = new Random();
         int unId = rand.nextInt(100);// hardcodeo fuerte para CP1
 
-        Uri builtUri = Uri.parse(getString(R.string.BASE_HTTP_URL)).buildUpon()
+        Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
                 .appendPath("users") //;// semi hardcodeado
                 .appendPath(Integer.toString(unId))
                 .build();
@@ -218,12 +228,11 @@ public class PerfilFragment extends Fragment {
                 .addToRequestQueue(jsObjRequest);
     }
 
-
     public void updateProfileInformation() {
 
         String username = "Robert";//
 
-        Uri builtUri = Uri.parse(getString(R.string.BASE_HTTP_URL)).buildUpon()
+        Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
                 .appendPath("user")
                 .appendPath(username)
                 .build();
