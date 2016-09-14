@@ -36,7 +36,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
     private final String LOG_TAG = PerfilActivity.class.getSimpleName();
 
-    private TextView textoEjemplo;//
+//    private TextView textoEjemplo;//
     private CollapsingToolbarLayout collapsingToolbarLayout;//
 
     @Override
@@ -44,28 +44,40 @@ public class PerfilActivity extends NavDrawerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil_drawer);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-
         collapsingToolbarLayout =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar_perfil);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_message);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                startActivity(new Intent(PerfilActivity.this, SettingsActivity.class));
-            }
-        });
+        FloatingActionButton fabAmigar = (FloatingActionButton) findViewById(R.id.fab_amigar);
+        if (fabAmigar != null) {
+            fabAmigar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO: Amigar
+                }
+            });
+        }
 
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.addDrawerListener(toggle);
-//        toggle.syncState();
+        FloatingActionButton fabRecomendar = (FloatingActionButton) findViewById(R.id.fab_recomendar);
+        if (fabRecomendar != null) {
+            fabRecomendar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO: Recomendar
+                }
+            });
+        }
 
-        textoEjemplo = (TextView) findViewById(R.id.textview_perfil_nombre_y_apellido);
+        FloatingActionButton fabChatearOEditar = (FloatingActionButton) findViewById(R.id.fab_chatear_o_editar);
+        if (fabChatearOEditar != null) {
+            fabChatearOEditar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO: if (perfil propio) Editar, else Chatear
+                }
+            });
+        }
+
+//        textoEjemplo = (TextView) findViewById(R.id.textview_perfil_nombre_y_apellido);
 
         //Toast.makeText(this, "PerfilActivity onCreate", Toast.LENGTH_SHORT).show();
     }
@@ -129,7 +141,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
                         Toast.makeText(PerfilActivity.this, "nombre obtenido: "+nombreUsuario+
                                 "\npara usuario de id "+idUsuario, Toast.LENGTH_SHORT).show();//
-                        textoEjemplo.setText("id: "+idUsuario+"\nnombre: "+nombreUsuario);
+//                        textoEjemplo.setText("id: "+idUsuario+"\nnombre: "+nombreUsuario);
                         collapsingToolbarLayout.setTitle(nombreUsuario);
                     }
 
@@ -182,7 +194,7 @@ public class PerfilActivity extends NavDrawerActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(LOG_TAG, "stringoferror "+error.toString());
-                textoEjemplo.setText("[No se obtuvo nada de la URL hardcodeada.]");
+//                textoEjemplo.setText("[No se obtuvo nada de la URL hardcodeada.]");
                 Toast.makeText(PerfilActivity.this, ":(", Toast.LENGTH_SHORT).show();
             }
         }) {

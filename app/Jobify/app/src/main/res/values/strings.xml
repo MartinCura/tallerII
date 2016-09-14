@@ -1,3 +1,5 @@
+<!-- TODO: ORDENAR -->
+
 <resources>
     <string name="app_name">Jobify</string>
     <string name="title_item_list">Items</string>
@@ -9,11 +11,9 @@
     <string name="perfil_nombre_y_apellido_default">Joan of Arc</string>
     <string name="title_activity_perfil">PerfilActivity</string>
 
-    <string name="textview_title_usuario">Fetch de usuario rándom</string>
-    <string name="large_text">
-        "Some loooo.. ..ooong text."
-    </string>
+    <string name="text_perfil_mail_default">email@normal.com.ar</string>
     <string name="foto_perfil_description">Foto perfil</string>
+    <string name="text_perfil_exp_laboral_title">Experiencia Laboral</string>
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
@@ -86,4 +86,12 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_settings_option">Settings</string>
+    <string name="perfil_trabajo_actual_default">CEO en Jobify</string>
+    <string name="text_perfil_ciudad_y_pais_default">Brasilia, Brasil</string>
+    <string name="text_perfil_cant_recomendaciones_default">X recomendaciones</string>
+    <string name="text_perfil_resumen_default">Me need job.</string>
+    <string name="text_perfil_skills_title">Skills</string>
+    <string name="text_perfil_nacimiento_default">Edad</string>
+    <string name="text_perfil_contactos_title">Contactos</string>
+    <string name="perfil_cant_amigos_default">0</string>
 </resources>

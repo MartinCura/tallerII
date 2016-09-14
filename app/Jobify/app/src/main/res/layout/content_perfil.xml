@@ -12,7 +12,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="@dimen/fab_margin">
+
+        <TextView
+            android:id="@+id/text_perfil_mail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:text="@string/text_perfil_mail_default" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -21,7 +31,50 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                app:cardElevation="@dimen/spacing_medium"
+                app:cardUseCompatPadding="true">
+                <!--android:layout_marginTop="24dp"-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/text_perfil_trabajo_actual"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/text_margin"
+                        android:textStyle="bold"
+                        android:text="@string/perfil_trabajo_actual_default" />
+
+                    <TextView
+                        android:id="@+id/text_perfil_ciudad_y_pais"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/text_margin"
+                        android:text="@string/text_perfil_ciudad_y_pais_default" />
+
+                    <TextView
+                        android:id="@+id/text_perfil_cant_recomendaciones"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/text_margin"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:text="@string/text_perfil_cant_recomendaciones_default" />
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 app:cardElevation="@dimen/spacing_medium"
                 app:cardUseCompatPadding="true">
 
@@ -30,27 +83,196 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <TextView
+                        android:id="@+id/text_perfil_resumen"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/text_margin"
+                        android:textStyle="italic"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:text="@string/text_perfil_resumen_default" />
 
                     <TextView
-                        android:id="@+id/title"
+                        android:id="@+id/text_perfil_fec_nacimiento"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/text_margin"
+                        android:text="@string/text_perfil_nacimiento_default"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+        </FrameLayout>
+
+        <!-- TODO: Si no tiene amigos, debería esconder esta sección-->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardElevation="@dimen/spacing_medium"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/spacing_large"
+                            android:layout_marginRight="@dimen/spacing_large"
+                            android:layout_marginTop="@dimen/spacing_large"
+                            android:text="@string/text_perfil_contactos_title"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+                        <TextView
+                            android:id="@+id/text_perfil_cant_contactos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/spacing_large"
+                            android:layout_marginRight="@dimen/spacing_large"
+                            android:layout_marginTop="@dimen/spacing_large"
+                            android:layout_gravity="end"
+                            android:text="@string/perfil_cant_amigos_default"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+                    </GridLayout>
+
+                    <HorizontalScrollView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/spacing_large"
+                            android:layout_marginBottom="@dimen/spacing_large"
+                            android:layout_marginTop="@dimen/spacing_large"
+                            android:orientation="horizontal">
+
+                            <!-- Here go them contact cards -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contacto " />
+
+                        </LinearLayout>
+
+                    </HorizontalScrollView>
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardElevation="@dimen/spacing_medium"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!--EXPERIENCIA LABORAL-->
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/spacing_large"
                         android:layout_marginRight="@dimen/spacing_large"
                         android:layout_marginTop="@dimen/spacing_large"
-                        android:text="@string/textview_title_usuario"
+                        android:text="@string/text_perfil_exp_laboral_title"
                         android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
 
                     <TextView
-                        android:id="@+id/textview_perfil_nombre_y_apellido"
+                        android:id="@+id/text_perfil_ex_lab"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/text_margin"
-                        android:text="@string/large_text" />
-
+                        android:text="@string/lorem_ipsum" />
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>
         </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardElevation="@dimen/spacing_medium"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!--SKILLS-->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/spacing_large"
+                        android:layout_marginRight="@dimen/spacing_large"
+                        android:layout_marginTop="@dimen/spacing_large"
+                        android:text="@string/text_perfil_skills_title"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+
+                    <TextView
+                        android:id="@+id/text_perfil_skill"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/text_margin"
+                        android:text="@string/lorem_ipsum" />
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+        </FrameLayout>
+
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
