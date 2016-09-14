@@ -1,10 +1,23 @@
 #include "../src/leveldb/include/leveldb/db.h"
 #include <string>
-
+#include "gtest/gtest.h"
 #include <cassert>
 #include <iostream>
 
 
+TEST(GTest, WorkingTest) {
+
+  EXPECT_EQ(1,1);
+
+}
+
+int main (int argc, char *argv[]) {
+  printf ("Running main() from testing_levedb.cpp\n");
+  testing::InitGoogleTest(&argc, argv);
+
+  return RUN_ALL_TESTS();
+}
+/*
 int main(int argc, char *argv[]) {
 	
   leveldb::DB* db;
@@ -25,3 +38,4 @@ int main(int argc, char *argv[]) {
   assert(str1.compare(result)==0);
   return 0;
 }
+*/

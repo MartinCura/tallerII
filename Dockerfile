@@ -10,6 +10,9 @@ WORKDIR /application/build
 COPY . /application
 
 RUN cmake ..
-RUN make && make test
+RUN make
 
-CMD  ./ApplicationServer_src
+RUN ./ApplicationServer_test;
+
+CMD ./ApplicationServer_src 
+

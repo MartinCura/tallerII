@@ -4,13 +4,12 @@ set (CMAKE_CXX_FLAGS " -std=c++0x")
 set (TARGET ApplicationServer_src)
 
 # Used to bring the header files into the build environment
-include_directories ("${PROJECT_SOURCE_DIR}/jsoncpp")
-include_directories ("${PROJECT_SOURCE_DIR}/Mongoose")
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb/db")
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb/include")
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/util")
-include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/port")
-include_directories ("${PROJECT_SOURCE_DIR}/googletest/googletest/include")
+include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/jsoncpp")
+include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/Mongoose")
+include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/db")
+include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/include")
+include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/util")
+include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/port")
 
 link_directories("${CMAKE_BINARY_DIR}/lib")
 
@@ -39,10 +38,15 @@ set(TARGET ApplicationServer_test)
 
 message("++ Building tests ++")
 message (STATUS "Building application ${TARGET}")
+message (STATUS "okey ${PROJECT_SOURCE_DIR}/googletest/googletest/include")
+message (STATUS "okey2 ${gtest_SOURCE_DIR}/include")
 
+
+include_directories ("${gtest_SOURCE_DIR}/include")
 
 set (SOURCES testing_levedb.cpp)
 
 add_executable (${TARGET} ${SOURCES} )
 target_link_libraries (${TARGET} leveldb)
+target_link_libraries (${TARGET} gtest)
 add_test (all ${EXECUTABLE_OUTPUT_PATH}/${TARGET})
