@@ -10,6 +10,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/leveldb/db")
 include_directories ("${PROJECT_SOURCE_DIR}/leveldb/include")
 include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/util")
 include_directories ("${PROJECT_SOURCE_DIR}/leveldb/leveldb/port")
+include_directories ("${PROJECT_SOURCE_DIR}/googletest/googletest/include")
 
 link_directories("${CMAKE_BINARY_DIR}/lib")
 
@@ -17,6 +18,7 @@ link_directories("${CMAKE_BINARY_DIR}/lib")
 add_subdirectory(Mongoose)
 add_subdirectory(jsoncpp)
 add_subdirectory(leveldb)
+add_subdirectory(googletest)
 
 # Used to set a variable(SOURCE_FILES) that contains the name values of all of the source
 # files (.cpp) in the project
@@ -29,6 +31,7 @@ add_executable(${TARGET} ${SOURCE_FILES})
 
 target_link_libraries (${TARGET} Mongoose)
 target_link_libraries (${TARGET} JsonCpp)
+target_link_libraries (${TARGET} gtest)
 
 ############################Test########################################
 
