@@ -29,6 +29,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ar.fiuba.jobify.MainActivity" />
         </activity>
+        <activity
+            android:name=".NavDrawerActivity"
+            android:label="@string/title_activity_nav_drawer"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ar.fiuba.jobify.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

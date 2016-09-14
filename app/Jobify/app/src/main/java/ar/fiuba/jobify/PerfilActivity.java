@@ -5,8 +5,11 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.LayoutRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -32,7 +35,7 @@ import java.util.Random;
 
 import ar.fiuba.jobify.app_server_api.User;
 
-public class PerfilActivity extends AppCompatActivity {
+public class PerfilActivity extends NavDrawerActivity {
 
     private final String LOG_TAG = PerfilActivity.class.getSimpleName();
 
@@ -42,14 +45,15 @@ public class PerfilActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_perfil);
+        setContentView(R.layout.activity_perfil_drawer);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         collapsingToolbarLayout =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar_perfil);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_message);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -59,9 +63,20 @@ public class PerfilActivity extends AppCompatActivity {
             }
         });
 
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer.addDrawerListener(toggle);
+//        toggle.syncState();
+
         textoEjemplo = (TextView) findViewById(R.id.textview_perfil_nombre_y_apellido);
 
         //Toast.makeText(this, "PerfilActivity onCreate", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        onCreateDrawer();
     }
 
     @Override
@@ -75,7 +90,7 @@ public class PerfilActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Supongo...
+        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
 
             RequestQueue mRequestQueue = RequestQueueSingleton
                     .getInstance(this.getApplicationContext())
@@ -103,9 +118,7 @@ public class PerfilActivity extends AppCompatActivity {
                 .appendPath("users") //;// semi hardcodeado
                 .appendPath(Integer.toString(unId))
                 .build();
-        String url = builtUri.toString();
-
-        Log.d(LOG_TAG, "urrrrrrrrl: "+url);//
+        final String url = builtUri.toString();
 
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -129,6 +142,8 @@ public class PerfilActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 //                        error.printStackTrace();//
                         Log.d(LOG_TAG, "errortostring "+error.toString());
+                        Log.d(LOG_TAG, "urrrrrrrrl: "+url);//
+
 //                        textView.setText("[No se obtuvo nada de la URL hardcodeada.]");
 //                        Toast.makeText(getActivity(), ":(", Toast.LENGTH_SHORT).show();
                         if (error instanceof ParseError && error.getCause() instanceof JSONException) {
