@@ -18,6 +18,7 @@ add_subdirectory(Mongoose)
 add_subdirectory(jsoncpp)
 add_subdirectory(leveldb)
 add_subdirectory(googletest)
+add_subdirectory(tests)
 
 # Used to set a variable(SOURCE_FILES) that contains the name values of all of the source
 # files (.cpp) in the project
@@ -30,23 +31,5 @@ add_executable(${TARGET} ${SOURCE_FILES})
 
 target_link_libraries (${TARGET} Mongoose)
 target_link_libraries (${TARGET} JsonCpp)
-target_link_libraries (${TARGET} gtest)
-
-############################Test########################################
-
-set(TARGET ApplicationServer_test)
-
-message("++ Building tests ++")
-message (STATUS "Building application ${TARGET}")
-message (STATUS "okey ${PROJECT_SOURCE_DIR}/googletest/googletest/include")
-message (STATUS "okey2 ${gtest_SOURCE_DIR}/include")
 
 
-include_directories ("${gtest_SOURCE_DIR}/include")
-
-set (SOURCES testing_levedb.cpp)
-
-add_executable (${TARGET} ${SOURCES} )
-target_link_libraries (${TARGET} leveldb)
-target_link_libraries (${TARGET} gtest)
-add_test (all ${EXECUTABLE_OUTPUT_PATH}/${TARGET})
