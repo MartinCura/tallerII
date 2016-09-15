@@ -1,34 +1,41 @@
-<!-- TODO: ORDENAR -->
+<!-- TODO: Mantener ordenado -->
 
 <resources>
     <string name="app_name">Jobify</string>
-    <string name="title_item_list">Items</string>
-    <string name="title_item_detail">Item Detail</string>
 
-    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur ipsum...</string>
+
+    <!-- Menúes -->
+    <string name="action_settings">Settings</string>
+
+    <!-- Perfil -->
+    <string name="title_activity_perfil">Perfil</string>
+
+    <string name="perfil_foto_description">Foto perfil</string>
+    <string name="perfil_nombre_y_apellido_default">Joan of Arc</string>
+    <string name="perfil_mail_default">email@normal.com.ar</string>
+
+    <string name="perfil_trabajo_actual_default">CEO en Jobify</string>
+    <string name="perfil_ciudad_y_pais_default">Brasilia, Brasil</string>
+    <string name="perfil_cant_recomendaciones_default"># recomendaciones</string>
+    <string name="perfil_nacimiento_default">Edad</string>
+
+    <string name="perfil_resumen_default">Me need job.</string>
+
+    <string name="perfil_contactos_title">Contactos</string>
+    <string name="perfil_cant_amigos_default">0</string>
+
+    <string name="perfil_exp_laboral_title">Experiencia Laboral</string>
+    <string name="perfil_skills_title">Skills</string>
 
     <string name="BASE_HTTP_URL">http://192.168.43.236:8000/</string>
-    <string name="perfil_nombre_y_apellido_default">Joan of Arc</string>
-    <string name="title_activity_perfil">PerfilActivity</string>
-
-    <string name="text_perfil_mail_default">email@normal.com.ar</string>
-    <string name="foto_perfil_description">Foto perfil</string>
-    <string name="text_perfil_exp_laboral_title">Experiencia Laboral</string>
-
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_settings">Settings</string>
 
 
     <!-- Strings related to Settings -->
+    <string name="title_activity_settings">Settings</string>
+
 
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
     <string name="pref_appServer_title">AppServer</string>
 
     <string name="pref_title_appServer_ip">IP</string>
@@ -36,18 +43,6 @@
 
     <string name="pref_title_appServer_puerto">Puerto</string>
     <string name="pref_default_appServer_puerto">8000</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
 
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
@@ -70,28 +65,43 @@
         <item>-1</item>
     </string-array>
 
-    <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
+    <!-- NavDrawer -->
     <string name="title_activity_nav_drawer">NavDrawerActivity</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <string name="nav_settings_option">Settings</string>
-    <string name="perfil_trabajo_actual_default">CEO en Jobify</string>
-    <string name="text_perfil_ciudad_y_pais_default">Brasilia, Brasil</string>
-    <string name="text_perfil_cant_recomendaciones_default">X recomendaciones</string>
-    <string name="text_perfil_resumen_default">Me need job.</string>
-    <string name="text_perfil_skills_title">Skills</string>
-    <string name="text_perfil_nacimiento_default">Edad</string>
-    <string name="text_perfil_contactos_title">Contactos</string>
-    <string name="perfil_cant_amigos_default">0</string>
+
+
+    <!-- Login -->
+    <string name="title_activity_login">Inicia sesión</string>
+
+    <string name="prompt_email">Correo electrónico</string>
+    <string name="prompt_password">Contraseña (opcional)</string>
+    <string name="action_sign_in">Iniciar sesión o registrarse</string>
+    <string name="action_sign_in_short">Login</string>
+    <string name="error_invalid_email">Correo electrónico inválido</string>
+    <string name="error_invalid_password">Contraseña muy corta</string>
+    <string name="error_incorrect_password">Contraseña incorrecta</string>
+    <string name="error_field_required">Este campo es obligatorio >:^[</string>
+    <string name="permission_rationale">"No tocamos tus datos. Prometemos no robarte los"
+        "48,435.27 $ que tenés en el ICBC, CBU # 213123013012310132. Confiá en nosotros :)"
+    </string>
+    <string name="permission_rationale_acceptance">"Permiso de acceso para poder autocompletar"
+        "tu correo"
+    </string>
+
+    <!-- Otros -->
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur ipsum...</string>
+
+
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+    <string name="pref_title_vibrate">Vibrate</string>
 </resources>

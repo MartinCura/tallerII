@@ -77,6 +77,8 @@ public class PerfilActivity extends NavDrawerActivity {
             });
         }
 
+        collapsingToolbarLayout.setTitle(getString(R.string.perfil_nombre_y_apellido_default));
+
 //        textoEjemplo = (TextView) findViewById(R.id.textview_perfil_nombre_y_apellido);
 
         //Toast.makeText(this, "PerfilActivity onCreate", Toast.LENGTH_SHORT).show();

@@ -22,7 +22,7 @@
             android:layout_margin="@dimen/text_margin"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-            android:text="@string/text_perfil_mail_default" />
+            android:text="@string/perfil_mail_default" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -53,7 +53,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/text_margin"
-                        android:text="@string/text_perfil_ciudad_y_pais_default" />
+                        android:text="@string/perfil_ciudad_y_pais_default" />
 
                     <TextView
                         android:id="@+id/text_perfil_cant_recomendaciones"
@@ -62,7 +62,7 @@
                         android:layout_margin="@dimen/text_margin"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/colorPrimaryDark"
-                        android:text="@string/text_perfil_cant_recomendaciones_default" />
+                        android:text="@string/perfil_cant_recomendaciones_default" />
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -90,14 +90,14 @@
                         android:layout_margin="@dimen/text_margin"
                         android:textStyle="italic"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:text="@string/text_perfil_resumen_default" />
+                        android:text="@string/perfil_resumen_default" />
 
                     <TextView
                         android:id="@+id/text_perfil_fec_nacimiento"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/text_margin"
-                        android:text="@string/text_perfil_nacimiento_default"
+                        android:text="@string/perfil_nacimiento_default"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
                 </LinearLayout>
@@ -130,7 +130,7 @@
                             android:layout_marginLeft="@dimen/spacing_large"
                             android:layout_marginRight="@dimen/spacing_large"
                             android:layout_marginTop="@dimen/spacing_large"
-                            android:text="@string/text_perfil_contactos_title"
+                            android:text="@string/perfil_contactos_title"
                             android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
                         <TextView
                             android:id="@+id/text_perfil_cant_contactos"
@@ -224,7 +224,7 @@
                         android:layout_marginLeft="@dimen/spacing_large"
                         android:layout_marginRight="@dimen/spacing_large"
                         android:layout_marginTop="@dimen/spacing_large"
-                        android:text="@string/text_perfil_exp_laboral_title"
+                        android:text="@string/perfil_exp_laboral_title"
                         android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
 
                     <TextView
@@ -260,7 +260,7 @@
                         android:layout_marginLeft="@dimen/spacing_large"
                         android:layout_marginRight="@dimen/spacing_large"
                         android:layout_marginTop="@dimen/spacing_large"
-                        android:text="@string/text_perfil_skills_title"
+                        android:text="@string/perfil_skills_title"
                         android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
 
                     <TextView
