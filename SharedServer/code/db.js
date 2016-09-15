@@ -47,8 +47,6 @@ module.exports.modify_category = function(to_modify, name, description){
 
 module.exports.delete_category = function(to_delete){
   query = sprintf("delete from categories where name='%s'", to_delete);
-  //console.log(query);
-  // return db.query('delete from categories where name = "$1"', to_delete);
   return db.none(query);
 
 }
@@ -64,4 +62,14 @@ module.exports.create_job_position = function(category, name, description) {
 
 module.exports.get_job_positions_by_category = function(category){
   return db.any("SELECT * FROM job_positions where category=$1", [category]);
+}
+
+module.exports.job_position_modify = function(category, position_name, new_position_name, new_description) {
+  return db.none('update job_positions set name=$1, description=$2 where name=$3 AND category=$4',
+  [new_position_name, new_description, position_name, category]);
+}
+
+module.exports.job_positions_delete = function(category, position_name) {
+  return db.result("delete from job_positions where name=$1 AND category=$2", [position_name, category]);
+
 }

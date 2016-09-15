@@ -15,7 +15,8 @@ module.exports.set_urls = function (router) {
 		router.get('/job_positions', views.job_positions_get);
 		router.get('/job_positions/categories/:category', views.job_positions_get_by_category);
 		router.post('/job_positions/categories/:category', views.job_positions_add);
-		//router.post('/job_positions/categories/:PositionCategory', views.job_positions_add);
+		router.put('/job_positions/categories/:category/:position', views.job_positions_modify);
+		router.delete('/job_positions/categories/:category/:position', views.job_positions_delete);
 
 	// Front-end
 		// angular single-page website

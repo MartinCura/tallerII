@@ -64,25 +64,20 @@ module.exports.job_positions_add = function(request, response) {
   );
 }
 
+module.exports.job_positions_modify = function(request, response) {
+  db.job_position_modify(request.params.category, request.params.position, request.body.job_position.name, request.body.job_position.description).then(
+    function(){
+      response.status(HttpStatus.OK).json(json_of_item(request.body.job_position.name, request.body.job_position.description, "job_position"));
+    }
+  );
+}
 
-/*module.exports.job_positions_add = function(request, response) {
 
-  name = "test name";
-  description = "test description";
-  category = "test category";
-
-  //TODO // text formatting
-  db.pool.query('INSERT INTO job_positions(name, description, category) ' + 
-    "values('" + name + "','" + description + "','" + category + "')"
-    ).then(function () {
-      response.status(HttpStatus.OK)
-        .json({
-          status: 'success',
-          message: 'Se agrego el trabajo'
-        });
-    })
-    .catch(function (err) {
-      return next(err);
-    });
-
-}*/
+module.exports.job_positions_delete = function(request, response) {
+  console.log(request.params.position);
+  db.job_positions_delete(request.params.category, request.params.position).then(
+    function(){
+     response.status(HttpStatus.OK).json({});
+    }
+  )
+}

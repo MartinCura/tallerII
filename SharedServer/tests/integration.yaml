@@ -165,3 +165,39 @@
     - compare: {jsonpath_mini: "job_positions.0.name", comparator: "eq", expected: "developer2"}  
     - compare: {jsonpath_mini: "job_positions.0.description", comparator: "eq", expected: "description2"}
     - compare: {jsonpath_mini: "job_positions.0.category", comparator: "eq", expected: "sport_name1"}
+
+- test:
+  - url: "/job_positions/categories/sport_name1/developer2"
+  - headers: {'Content-Type': 'application/json'}
+  - method: "PUT"
+  - expected_status: [200]
+  - body: '{"job_position": {
+                  "name": "new name",
+                  "description": "new description"
+              }
+            }'
+  - validators:
+    - compare: {jsonpath_mini: "job_position.name", comparator: "eq", expected: 'new name'}
+    - compare: {jsonpath_mini: "job_position.description", comparator: "eq", expected: 'new description'}
+
+- test:
+  - url: "/job_positions/categories/sport_name1"
+  - method: "GET"
+  - expected_status: [200]
+  - validators:
+    - compare: {jsonpath_mini: "job_positions", comparator: "count_eq", expected: 1}
+    - compare: {jsonpath_mini: "job_positions.0.name", comparator: "eq", expected: "new name"}  
+    - compare: {jsonpath_mini: "job_positions.0.description", comparator: "eq", expected: "new description"}
+    - compare: {jsonpath_mini: "job_positions.0.category", comparator: "eq", expected: "sport_name1"}
+
+- test:
+  - url: "/job_positions/categories/sport_name1/new%20name"
+  - method: "DELETE"
+  - expected_status: [200]
+
+- test:
+  - url: "/job_positions/categories/sport_name1"
+  - method: "GET"
+  - expected_status: [200]
+  - validators:
+    - compare: {jsonpath_mini: "job_positions", comparator: "count_eq", expected:  0}

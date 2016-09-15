@@ -9,7 +9,7 @@ CREATE TABLE categories (
 
 CREATE TABLE job_positions (
   /*ID SERIAL PRIMARY KEY,*/
-  name VARCHAR UNIQUE PRIMARY KEY,
+  name VARCHAR,
   description VARCHAR,
   category VARCHAR REFERENCES categories (name)
 );
