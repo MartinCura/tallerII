@@ -1,6 +1,12 @@
 var db = require("./db.js");
 var HttpStatus = require('http-status-codes');
 
+/*Este archivo tiene código repetido, se hizo así por simplicidad y porque
+tenemos solo 3 elementos (2 que on iguales) y el código repetido es trivial.
+
+Hacer uso de cosas más genéricas hubiera llevado mucho trabajo de diseño, testing
+e implementación, solo para 3 elementos.*/
+
 
 module.exports.job_positions = function(request, response) {
     response.json("HELLO WORD!");
@@ -74,10 +80,24 @@ module.exports.job_positions_modify = function(request, response) {
 
 
 module.exports.job_positions_delete = function(request, response) {
-  console.log(request.params.position);
   db.job_positions_delete(request.params.category, request.params.position).then(
     function(){
      response.status(HttpStatus.OK).json({});
     }
   )
+}
+
+module.exports.skills_get = function(request, response){
+  db.skills_get().then(function (data) {
+    response.status(HttpStatus.OK).json({skills: data});
+  })
+}
+
+
+module.exports.skills_add = function(request, response){
+  db.create_skills(request.params.category, request.body.skill.name, request.body.skill.description).then(
+    function(){
+      response.status(HttpStatus.OK).json(json_of_item(request.body.skill.name, request.body.skill.description, "skill"));
+    }
+  );
 }

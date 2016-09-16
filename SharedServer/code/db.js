@@ -71,5 +71,13 @@ module.exports.job_position_modify = function(category, position_name, new_posit
 
 module.exports.job_positions_delete = function(category, position_name) {
   return db.result("delete from job_positions where name=$1 AND category=$2", [position_name, category]);
+}
 
+module.exports.skills_get = function(){
+  return db.any("SELECT * FROM skills"); 
+}
+
+module.exports.create_skills = function(category, name, description){
+  return db.none("INSERT INTO skills(name, description, category) values ($1, $2, $3)",
+    [name, description, category]);
 }

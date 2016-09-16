@@ -105,6 +105,7 @@
     - compare: {jsonpath_mini: "categories.0.description", comparator: "eq", expected: "description2"}
 
 # Job positions
+
 - test:
   - url: "/job_positions"
   - method: "GET"
@@ -201,3 +202,39 @@
   - expected_status: [200]
   - validators:
     - compare: {jsonpath_mini: "job_positions", comparator: "count_eq", expected:  0}
+
+
+- test:
+  - url: "/job_positions/categories/sport_name1"
+  - headers: {'Content-Type': 'application/json'}
+  - method: "POST"
+  - expected_status: [200]
+  - body: '{"job_position": {
+                  "name": "developer2",
+                  "description": "description2"
+              }
+            }'
+
+
+# Skills
+
+- test:
+  - url: "/skills"
+  - method: "GET"
+  - expected_status: [200]
+  - validators:
+    - compare: {jsonpath_mini: "skills", comparator: "count_eq", expected: 0}
+
+- test:
+  - url: "/skills/categories/sport_name2"
+  - headers: {'Content-Type': 'application/json'}
+  - method: "POST"
+  - expected_status: [200]
+  - body: '{"skill": {
+                  "name": "skill1",
+                  "description": "description of skill1"
+              }
+            }'
+  - validators:
+    - compare: {jsonpath_mini: "skill.name", comparator: "eq", expected: 'skill1'}
+    - compare: {jsonpath_mini: "skill.description", comparator: "eq", expected: 'description of skill1'}
