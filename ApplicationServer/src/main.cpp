@@ -93,13 +93,13 @@ int main(int argc, char *argv[]) {
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.enable_directory_listing = "yes";
 
-    Logger::getInstance()->log(Logger::INFO, "Starting server on port " + string(s_http_port));
+    Logger::getInstance()->info("Starting server on port " + string(s_http_port));
 
     while (s_sig_num == 0) {
         mg_mgr_poll(&mgr, 1000);
     }
 
-    Logger::getInstance()->log(Logger::INFO, "Exiting on signal " + to_string(s_sig_num));
+    Logger::getInstance()->info("Exiting on signal " + to_string(s_sig_num));
 
     delete Logger::getInstance();
     mg_mgr_free(&mgr);

@@ -1,15 +1,13 @@
 #include "Logger.h"
 
-const char *Logger::ERROR = "error";
-const char *Logger::WARN = "warn";
-const char *Logger::INFO = "info";
-const char *Logger::DEBUG = "debug";
+const char *Logger::FILE_NAME = "ApplicationServer.log";
 
 Logger* Logger::instance = NULL;
 
 Logger::Logger() {
-    this->logFile.open("ApplicationServer.log", ios::trunc);
+    this->logFile.open(Logger::FILE_NAME, ios_base::app | ios_base::ate);
     time_t now = time(0);
+    this->logFile << "\n";
     this->logFile << "Starting server at ";
     this->logFile << ctime(&now);
     this->logFile << "\n";
@@ -25,21 +23,26 @@ Logger* Logger::getInstance() {
     return instance;
 }
 
-void Logger::log(const char *logMode, string message) {
-        this->logFile.open("ApplicationServer.log", ios_base::app);
-        this->logFile << this->getLogPrefix(logMode);
-        this->logFile << message;
-        this->logFile << "\n";
-        this->logFile.close();
+void Logger::error(string message) {
+    this->log("[ERROR]: ", message);
 }
 
-string Logger::getLogPrefix(const char *logMode) {
-    if (strcmp(logMode, Logger::DEBUG) == 0) {
-        return "[DEBUG]: ";
-    } else if (strcmp(logMode, Logger::INFO) == 0) {
-        return "[INFO]: ";
-    } else if (strcmp(logMode, Logger::WARN) == 0) {
-        return "[WARN]: ";
-    }
-    return "[ERROR]: ";
+void Logger::warn(string message) {
+    this->log("[WARN]: ", message);
+}
+
+void Logger::info(string message) {
+    this->log("[INFO]: ", message);
+}
+
+void Logger::debug(string message) {
+    this->log("[DEBUG]: ", message);
+}
+
+void Logger::log(string prefix, string message) {
+    this->logFile.open(Logger::FILE_NAME, ios_base::app | ios_base::ate);
+    this->logFile << prefix;
+    this->logFile << message;
+    this->logFile << "\n";
+    this->logFile.close();
 }

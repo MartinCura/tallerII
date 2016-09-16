@@ -12,13 +12,13 @@ using namespace std;
 class Logger {
 
 public:
-    static const char* ERROR;
-    static const char* WARN;
-    static const char* INFO;
-    static const char* DEBUG;
+    static const char* FILE_NAME;
 
     static Logger* getInstance();
-    void log(const char *logMode, string message);
+    void error(string message);
+    void warn(string message);
+    void info(string message);
+    void debug(string message);
     virtual ~Logger();
 
 private:
@@ -26,7 +26,7 @@ private:
     static Logger* instance;
 
     Logger();
-    string getLogPrefix(const char* logMode);
+    void log(string prefix, string message);
 };
 
 #endif //PROJECT_LOGGER_H
