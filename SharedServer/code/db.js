@@ -37,16 +37,16 @@ module.exports.create_category = function(name, description){
 };
 
 module.exports.get_categories = function(name, description){
-  return db.any('select * from categories');
+  return db.any('SELECT * from categories');
 }
 
 module.exports.modify_category = function(to_modify, name, description){
-  return db.none('update categories set name=$1, description=$2 where name=$3',
+  return db.none('UPDATE categories set name=$1, description=$2 where name=$3',
   [name, description, to_modify]);
 }
 
 module.exports.delete_category = function(to_delete){
-  query = sprintf("delete from categories where name='%s'", to_delete);
+  query = sprintf("DELETE FROM categories where name='%s'", to_delete);
   return db.none(query);
 
 }
@@ -65,12 +65,12 @@ module.exports.get_job_positions_by_category = function(category){
 }
 
 module.exports.job_position_modify = function(category, position_name, new_position_name, new_description) {
-  return db.none('update job_positions set name=$1, description=$2 where name=$3 AND category=$4',
+  return db.none('UPDATE job_positions set name=$1, description=$2 where name=$3 AND category=$4',
    [new_position_name, new_description, position_name, category]);
 }
 
 module.exports.job_positions_delete = function(category, position_name) {
-  return db.result("delete from job_positions where name=$1 AND category=$2", [position_name, category]);
+  return db.result("DELETE FROM job_positions where name=$1 AND category=$2", [position_name, category]);
 }
 
 module.exports.skills_get = function(){
@@ -88,10 +88,10 @@ module.exports.get_skills_by_category = function function_name(category) {
 }
 
 module.exports.skills_modify = function(category, skill_name, new_name, new_description){
-  return  db.none('update skills set name=$1, description=$2 where name=$3 AND category=$4',
+  return  db.none('UPDATE skills set name=$1, description=$2 where name=$3 AND category=$4',
    [new_name, new_description, skill_name, category]);
 }
 
 module.exports.delete_skills = function(category, skill_name){
-  return db.result("delete from skills where name=$1 AND category=$2", [skill_name, category]);
+  return db.result("DELETE FROM skills where name=$1 AND category=$2", [skill_name, category]);
 }
