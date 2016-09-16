@@ -6,6 +6,7 @@
 #include <ctime>
 #include <stdio.h>
 #include <string.h>
+#include <mutex>
 
 using namespace std;
 
@@ -24,6 +25,7 @@ public:
 private:
     ofstream logFile;
     static Logger* instance;
+    mutex  logMutex;
 
     Logger();
     void log(string prefix, string message);
