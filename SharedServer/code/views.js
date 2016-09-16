@@ -101,3 +101,27 @@ module.exports.skills_add = function(request, response){
     }
   );
 }
+
+module.exports.skills_get_by_category = function(request, response){
+  db.get_skills_by_category(request.params.category).then(
+    function(data) {
+      response.status(HttpStatus.OK).json({skills: data});
+    }
+  );
+}
+
+module.exports.skills_modify = function(request, response){
+  db.skills_modify(request.params.category, request.params.skill, request.body.skill.name, request.body.skill.description).then(
+    function(){
+      response.status(HttpStatus.OK).json(json_of_item(request.body.skill.name, request.body.skill.description, "skill"));
+    }
+  );
+}
+
+module.exports.skills_delete = function(request, response){
+  db.delete_skills(request.params.category, request.params.skill).then(
+    function(){
+     response.status(HttpStatus.OK).json({});
+    }
+  )
+}

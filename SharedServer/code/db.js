@@ -66,7 +66,7 @@ module.exports.get_job_positions_by_category = function(category){
 
 module.exports.job_position_modify = function(category, position_name, new_position_name, new_description) {
   return db.none('update job_positions set name=$1, description=$2 where name=$3 AND category=$4',
-  [new_position_name, new_description, position_name, category]);
+   [new_position_name, new_description, position_name, category]);
 }
 
 module.exports.job_positions_delete = function(category, position_name) {
@@ -80,4 +80,18 @@ module.exports.skills_get = function(){
 module.exports.create_skills = function(category, name, description){
   return db.none("INSERT INTO skills(name, description, category) values ($1, $2, $3)",
     [name, description, category]);
+}
+
+module.exports.get_skills_by_category = function function_name(category) {
+  return db.any("SELECT * FROM skills where category=$1", [category]);
+
+}
+
+module.exports.skills_modify = function(category, skill_name, new_name, new_description){
+  return  db.none('update skills set name=$1, description=$2 where name=$3 AND category=$4',
+   [new_name, new_description, skill_name, category]);
+}
+
+module.exports.delete_skills = function(category, skill_name){
+  return db.result("delete from skills where name=$1 AND category=$2", [skill_name, category]);
 }

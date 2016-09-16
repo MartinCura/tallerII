@@ -13,10 +13,10 @@ module.exports.set_urls = function (router) {
 		// skills
 
 		router.get('/skills', views.skills_get);
-		// router.get('/skills/categories/:category', );
+		router.get('/skills/categories/:category', views.skills_get_by_category);
 		router.post('/skills/categories/:category', views.skills_add);
-		/*router.put('/skills/categories/:category/:skill', );
-		router.delete('/skills/categories/:category/:skill', );*/
+		router.put('/skills/categories/:category/:skill', views.skills_modify);
+		router.delete('/skills/categories/:category/:skill', views.skills_delete);
 
 		// categories
 		router.get('/categories', views.job_categories_get);
