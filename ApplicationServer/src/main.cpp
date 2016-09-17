@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
       ssl_cert = argv[++i];
 #endif
         } else {
+            Logger::getInstance()->error("Error starting server. Unknown option: " + string(argv[i]));
             fprintf(stderr, "Unknown option: [%s]\n", argv[i]);
             exit(1);
         }
@@ -85,6 +86,7 @@ int main(int argc, char *argv[]) {
 #endif
     nc = mg_bind_opt(&mgr, s_http_port, ev_handler, bind_opts);
     if (nc == NULL) {
+        Logger::getInstance()->error("Error starting server on port " + string(s_http_port));
         fprintf(stderr, "Error starting server on port %s: %s\n", s_http_port,
                 *bind_opts.error_string);
         exit(1);
