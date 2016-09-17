@@ -2,6 +2,8 @@
 #define APPLICATIONSERVER_RESPONSE_H
 
 #include <string>
+#include "../jsoncpp/json/json.h"
+#include "../jsoncpp/json/json-forwards.h"
 
 using namespace std;
 
@@ -22,8 +24,8 @@ public:
     void setBadRequestHeader();
     void setNotImplementedHeader();
 private:
-    const char* header;
-    const char* body;
+    string header;
+    string body;
 };
 
 #endif //APPLICATIONSERVER_RESPONSE_H

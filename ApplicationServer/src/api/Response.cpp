@@ -8,11 +8,16 @@ Response::Response() {
 Response::~Response() {}
 
 const char *Response::getHeader() {
-    return this->header;
+    string fullHeader =
+        "HTTP/1.1 " + this->header + "\r\n"
+        "Transfer-Encoding: chunked\r\n" +
+        "Content-Length: " + to_string(this->body.length()) + "\r\n"
+        "\r\n";
+    return fullHeader.c_str();
 }
 
 const char *Response::getBody() {
-    return this->body;
+    return this->body.c_str();
 }
 
 void Response::setHeader(const char* header) {
@@ -37,18 +42,17 @@ void Response::setSuccessfulBody() {
 }
 
 void Response::setSuccessfulHeader() {
-    this->header = "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n";
+    this->header = "200 OK";
 }
 
 void Response::setBadRequestHeader() {
-    this->header = "HTTP/1.1 400 Bad Request\r\nTransfer-Encoding: chunked\r\n\r\n";
+    this->header = "400 Bad Request";
 }
 
 void Response::setNotFoundHeader() {
-    this->header = "HTTP/1.1 404 Not Found\r\nTransfer-Encoding: chunked\r\n\r\n";
+    this->header = "404 Not Found";
 }
 
 void Response::setNotImplementedHeader() {
-    this->header = "HTTP/1.0 501 Not Implemented\r\n"
-            "Content-Length: 0\r\n\r\n";
+    this->header = "501 Not Implemented";
 }
