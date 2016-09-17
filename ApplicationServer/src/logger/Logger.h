@@ -29,6 +29,7 @@ private:
 
     Logger();
     void log(string prefix, string message);
+    string getTimestamp();
 };
 
 #endif //PROJECT_LOGGER_H
