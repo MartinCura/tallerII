@@ -16,7 +16,11 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
         response->setSuccessfulHeader();
 
         //FIXME: reemplazar por info de la base
-        response->setBody("{\"id\":1}");
+        Json::Value root;
+        root["id"] = "1";
+
+        string responseBody = root.toStyledString();
+        response->setBody(responseBody.c_str());
 
         return response;
     } catch (const char* e) {
@@ -31,8 +35,12 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
 
         //FIXME: reemplazar por info de la base
         string name = "John";
-        string responseBody = "{\"id\": " + this->getUserId(url) + ",\"name\": \"" + name + "\"}";
+        string id = this->getUserId(url);
+        Json::Value root;
+        root["id"] = id;
+        root["name"] = name;
 
+        string responseBody = root.toStyledString();
         response->setBody(responseBody.c_str());
         return response;
     } catch (const char* e) {

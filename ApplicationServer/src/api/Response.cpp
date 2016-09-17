@@ -24,13 +24,16 @@ void Response::setBody(const char* body) {
 }
 
 void Response::setErrorBody(const char* errorDetails) {
-    string body = "{\"successful\":false,\"error\":\"" + string(errorDetails) + "\"}";
-    this->body = body.c_str();
+    Json::Value root;
+    root["successful"] = "false";
+    root["error"] = string(errorDetails);
+    this->body = root.toStyledString().c_str();
 }
 
 void Response::setSuccessfulBody() {
-    string body = "{\"successful\":true\"}";
-    this->body = body.c_str();
+    Json::Value root;
+    root["successful"] = "true";
+    this->body = root.toStyledString().c_str();
 }
 
 void Response::setSuccessfulHeader() {
