@@ -17,7 +17,7 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
 
         //FIXME: reemplazar por info de la base
         Json::Value root;
-        root["id"] = "1";
+        root["id"] = 1;
 
         string responseBody = root.toStyledString();
         response->setBody(responseBody.c_str());
