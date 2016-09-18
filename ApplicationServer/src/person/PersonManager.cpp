@@ -5,7 +5,7 @@ PersonManager::PersonManager() {}
 PersonManager::~PersonManager() {}
 
 Person* PersonManager::getPersonById(int id) {
-    //FIXME: muy feo
+    //FIXME: sacar una vez que este la base de datos
     switch (id) {
         case 1:
             return this->getFakePerson1();
