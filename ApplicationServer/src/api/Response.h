@@ -14,7 +14,6 @@ public:
 
     const char* getHeader();
     const char* getBody();
-    void setHeader(const char* header);
     void setBody(const char* body);
     void setErrorBody(const char* errorDetails);
     void setSuccessfulBody();

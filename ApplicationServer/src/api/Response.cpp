@@ -20,10 +20,6 @@ const char *Response::getBody() {
     return this->body.c_str();
 }
 
-void Response::setHeader(const char* header) {
-    this->header = header;
-}
-
 void Response::setBody(const char* body) {
     this->body = body;
 }
