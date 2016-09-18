@@ -22,6 +22,20 @@ Person* PersonManager::getFakePerson1() {
     person->setCity("Buenos Aires");
     person->setProfilePicture("");
     person->setSummary("Hi, this is John Doe");
+
+    WorkHistory* workHistory1 = new WorkHistory();
+    workHistory1->setCompany("IBM");
+    workHistory1->setPositionTitle("JavaScript Developer");
+    workHistory1->setFromDate("10/2012");
+    workHistory1->setToDate("11/2014");
+    person->addWorkHistory(workHistory1);
+
+    WorkHistory* workHistory2 = new WorkHistory();
+    workHistory2->setCompany("Amazon");
+    workHistory2->setPositionTitle("Project Manager");
+    workHistory2->setFromDate("12/2014");
+    workHistory2->setToDate("");
+    person->addWorkHistory(workHistory2);
+
     return person;
 }
-

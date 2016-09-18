@@ -4,6 +4,8 @@
 #include "Handler.h"
 #include "../person/PersonManager.h"
 #include "../person/Person.h"
+#include "../person/WorkHistory.h"
+#include <vector>
 
 class UsersHandler : public Handler {
 public:

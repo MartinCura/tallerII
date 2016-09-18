@@ -2,6 +2,8 @@
 #define PROJECT_PERSON_H
 
 #include <string>
+#include <vector>
+#include "WorkHistory.h"
 
 using namespace std;
 
@@ -18,6 +20,7 @@ public:
     void setCity(string city);
     void setProfilePicture(string profilePicture);
     void setSummary(string summary);
+    void addWorkHistory(WorkHistory* workHistory);
 
     string getFirstName();
     string getLastName();
@@ -26,6 +29,7 @@ public:
     string getCity();
     string getProfilePicture();
     string getSummary();
+    vector<WorkHistory*> getWorkHistory();
 
 private:
     string firstName;
@@ -35,6 +39,7 @@ private:
     string city;
     string profilePicture;
     string summary;
+    vector<WorkHistory*> workHistory;
 };
 
 #endif //PROJECT_PERSON_H

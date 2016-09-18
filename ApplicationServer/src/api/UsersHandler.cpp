@@ -69,6 +69,16 @@ string UsersHandler::buildResponse(int id) {
     response["city"] = person->getCity();
     response["profile_picture"] = person->getProfilePicture();
     response["summary"] = person->getSummary();
+    vector<WorkHistory*> workHistoryVector = person->getWorkHistory();
+    for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
+        Json::Value workHistoryResponse;
+        WorkHistory* workHistory = workHistoryVector[i];
+        workHistoryResponse["positionTitle"] = workHistory->getPositionTitle();
+        workHistoryResponse["company"] = workHistory->getCompany();
+        workHistoryResponse["fromDate"] = workHistory->getFromDate();
+        workHistoryResponse["toDate"] = workHistory->getToDate();
+        response["work_history"].append(workHistoryResponse);
+    }
     delete person;
     delete personManager;
     return response.toStyledString();

@@ -10,7 +10,12 @@ Person::Person() {
     this->summary = "";
 }
 
-Person::~Person() {}
+Person::~Person() {
+    vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
+    for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
+        delete workHistoryVector[i];
+    }
+}
 
 void Person::setFirstName(string firstName) {
     this->firstName = firstName;
@@ -40,6 +45,10 @@ void Person::setSummary(string summary) {
     this->summary = summary;
 }
 
+void Person::addWorkHistory(WorkHistory* workHistory) {
+    this->workHistory.push_back(workHistory);
+}
+
 string Person::getFirstName() {
     return this->firstName;
 }
@@ -66,4 +75,8 @@ string Person::getProfilePicture() {
 
 string Person::getSummary() {
     return this->summary;
+}
+
+vector<WorkHistory*> Person::getWorkHistory() {
+    return this->workHistory;
 }
