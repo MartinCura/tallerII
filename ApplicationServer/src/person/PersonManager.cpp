@@ -37,5 +37,17 @@ Person* PersonManager::getFakePerson1() {
     workHistory2->setToDate("");
     person->addWorkHistory(workHistory2);
 
+    Skill* skill1 = new Skill();
+    skill1->setName("JavaScript");
+    skill1->setDescription("JavaScrip programming language");
+    skill1->setCategory("software");
+    person->addSkill(skill1);
+
+    Skill* skill2 = new Skill();
+    skill2->setName("PM");
+    skill2->setDescription("Project Management");
+    skill2->setCategory("management");
+    person->addSkill(skill2);
+
     return person;
 }

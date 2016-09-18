@@ -79,6 +79,15 @@ string UsersHandler::buildResponse(int id) {
         workHistoryResponse["toDate"] = workHistory->getToDate();
         response["work_history"].append(workHistoryResponse);
     }
+    vector<Skill*> skillsVector = person->getSkills();
+    for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
+        Json::Value skillsResponse;
+        Skill* skill = skillsVector[i];
+        skillsResponse["name"] = skill->getName();
+        skillsResponse["description"] = skill->getDescription();
+        skillsResponse["category"] = skill->getCategory();
+        response["skills"].append(skillsResponse);
+    }
     delete person;
     delete personManager;
     return response.toStyledString();

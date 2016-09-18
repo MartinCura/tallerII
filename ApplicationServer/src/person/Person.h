@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "WorkHistory.h"
+#include "Skill.h"
 
 using namespace std;
 
@@ -21,6 +22,7 @@ public:
     void setProfilePicture(string profilePicture);
     void setSummary(string summary);
     void addWorkHistory(WorkHistory* workHistory);
+    void addSkill(Skill* skill);
 
     string getFirstName();
     string getLastName();
@@ -30,6 +32,7 @@ public:
     string getProfilePicture();
     string getSummary();
     vector<WorkHistory*> getWorkHistory();
+    vector<Skill*> getSkills();
 
 private:
     string firstName;
@@ -40,6 +43,7 @@ private:
     string profilePicture;
     string summary;
     vector<WorkHistory*> workHistory;
+    vector<Skill*> skills;
 };
 
 #endif //PROJECT_PERSON_H
