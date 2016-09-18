@@ -21,7 +21,7 @@ public:
 
 private:
     int getUserId(string url);
-    string buildResponse(int id);
+    const char* buildResponse(int id);
 };
 
 #endif //APPLICATIONSERVER_USERSHANDLER_H
