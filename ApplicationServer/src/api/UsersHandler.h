@@ -2,6 +2,8 @@
 #define APPLICATIONSERVER_USERSHANDLER_H
 
 #include "Handler.h"
+#include "../person/PersonManager.h"
+#include "../person/Person.h"
 
 class UsersHandler : public Handler {
 public:
@@ -14,7 +16,8 @@ public:
     Response* handlePutRequest(http_message* httpMessage);
 
 private:
-    string getUserId(string url);
+    int getUserId(string url);
+    string buildResponse(int id);
 };
 
 #endif //APPLICATIONSERVER_USERSHANDLER_H

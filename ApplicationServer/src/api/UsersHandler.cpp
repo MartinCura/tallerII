@@ -32,15 +32,7 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
     try {
         Response* response = new Response();
         response->setSuccessfulHeader();
-
-        //FIXME: reemplazar por info de la base
-        string name = "John";
-        string id = this->getUserId(url);
-        Json::Value root;
-        root["id"] = id;
-        root["name"] = name;
-
-        string responseBody = root.toStyledString();
+        string responseBody = buildResponse(this->getUserId(url));
         response->setBody(responseBody.c_str());
         return response;
     } catch (const char* e) {
@@ -56,11 +48,28 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage) {
     return this->getNotImplementedResponse();
 }
 
-string UsersHandler::getUserId(string url) {
+int UsersHandler::getUserId(string url) {
     size_t sp = url.find_first_of('/', 1);
     if (sp == string::npos || ((url.begin() + sp + 1) >= (url.begin() + url.size()))) {
         throw "Cannot get user id from url.";
     }
     string userId(url.begin() + sp + 1, url.begin() + url.size());
-    return userId;
+    return stoi(userId);
+}
+
+string UsersHandler::buildResponse(int id) {
+    PersonManager *personManager = new PersonManager();
+    Person *person = personManager->getPersonById(id);
+    Json::Value response;
+    response["id"] = id;
+    response["first_name"] = person->getFirstName();
+    response["last_name"] = person->getLastName();
+    response["email"] = person->getEmail();
+    response["date_of_birth"] = person->getDateOfBirth();
+    response["city"] = person->getCity();
+    response["profile_picture"] = person->getProfilePicture();
+    response["summary"] = person->getSummary();
+    delete person;
+    delete personManager;
+    return response.toStyledString();
 }
