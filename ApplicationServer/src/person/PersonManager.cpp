@@ -12,6 +12,7 @@ Person* PersonManager::getPersonById(int id) {
         case 2:
             return this->getFakePerson2();
     }
+    throw UserNotFoundException(id);
 }
 
 //FIXME: sacar una vez que este la base de datos

@@ -37,9 +37,16 @@ Response* Handler::getSuccessfulResponse() {
     return response;
 }
 
-Response* Handler::getBadRequestResponse(const char* errorDetails) {
+Response* Handler::getBadRequestResponse(string errorDetails) {
     Response* response = new Response();
     response->setBadRequestHeader();
+    response->setErrorBody(errorDetails);
+    return response;
+}
+
+Response* Handler::getNotFoundResponse(string errorDetails) {
+    Response* response = new Response();
+    response->setNotFoundHeader();
     response->setErrorBody(errorDetails);
     return response;
 }

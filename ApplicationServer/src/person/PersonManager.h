@@ -2,6 +2,7 @@
 #define PROJECT_PERSONMANAGER_H
 
 #include "Person.h"
+#include "../api/exception/UserNotFoundException.h"
 
 class PersonManager {
 

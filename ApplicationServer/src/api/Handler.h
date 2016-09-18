@@ -23,7 +23,8 @@ public:
 protected:
     Response* getNotImplementedResponse();
     Response* getSuccessfulResponse();
-    Response* getBadRequestResponse(const char* errorDetails);
+    Response* getBadRequestResponse(string errorDetails);
+    Response* getNotFoundResponse(string errorDetails);
     Json::Value parseBody(string body);
 
 private:

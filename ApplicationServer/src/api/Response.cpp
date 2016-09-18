@@ -24,10 +24,10 @@ void Response::setBody(const char* body) {
     this->body = body;
 }
 
-void Response::setErrorBody(const char* errorDetails) {
+void Response::setErrorBody(string errorDetails) {
     Json::Value root;
     root["successful"] = "false";
-    root["error"] = string(errorDetails);
+    root["error"] = errorDetails;
     this->body = root.toStyledString().c_str();
 }
 

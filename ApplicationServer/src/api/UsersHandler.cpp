@@ -23,8 +23,8 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
         response->setBody(responseBody.c_str());
 
         return response;
-    } catch (const char* e) {
-        return this->getBadRequestResponse(e);
+    } catch (InvalidRequestException& e) {
+        return this->getBadRequestResponse(e.getMessage());
     }
 }
 
@@ -35,8 +35,10 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
         string responseBody = buildResponse(this->getUserId(url));
         response->setBody(responseBody.c_str());
         return response;
-    } catch (const char* e) {
-        return this->getBadRequestResponse(e);
+    } catch (InvalidRequestException& e) {
+        return this->getBadRequestResponse(e.getMessage());
+    } catch (UserNotFoundException& e) {
+        return this->getNotFoundResponse(e.getMessage());
     }
 }
 
@@ -51,10 +53,15 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage) {
 int UsersHandler::getUserId(string url) {
     size_t sp = url.find_first_of('/', 1);
     if (sp == string::npos || ((url.begin() + sp + 1) >= (url.begin() + url.size()))) {
-        throw "Cannot get user id from url.";
+        throw InvalidRequestException("Cannot get user id from url.");
     }
-    string userId(url.begin() + sp + 1, url.begin() + url.size());
-    return stoi(userId);
+    string userIdAsString(url.begin() + sp + 1, url.begin() + url.size());
+    try {
+        int userId = stoi(userIdAsString);
+        return userId;
+    } catch (invalid_argument e) {
+        throw InvalidRequestException("Not a numeric id");
+    }
 }
 
 string UsersHandler::buildResponse(int id) {
