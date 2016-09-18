@@ -13,6 +13,7 @@ public:
 
 private:
     Person* getFakePerson1();
+    Person* getFakePerson2();
 };
 
 #endif //PROJECT_PERSONMANAGER_H
