@@ -59,5 +59,5 @@
     - url: "/users/1"
     - method: "GET"
     - validators:
-          - compare: {jsonpath_mini: "name", comparator: "eq", expected: "John"}
+          - compare: {jsonpath_mini: "first_name", comparator: "eq", expected: "John"}
     - expected_status: [200] # ok
