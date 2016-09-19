@@ -20,7 +20,7 @@ const char *Response::getBody() {
     return this->body.c_str();
 }
 
-void Response::setBody(const char* body) {
+void Response::setBody(string body) {
     this->body = body;
 }
 

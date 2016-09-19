@@ -20,7 +20,7 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
         root["id"] = 1;
 
         string responseBody = root.toStyledString();
-        response->setBody(responseBody.c_str());
+        response->setBody(responseBody);
 
         return response;
     } catch (InvalidRequestException& e) {
@@ -63,7 +63,7 @@ int UsersHandler::getUserId(string url) {
     }
 }
 
-const char* UsersHandler::buildGetUserResponse(int id) {
+string UsersHandler::buildGetUserResponse(int id) {
     PersonManager *personManager = new PersonManager();
     Person *person = personManager->getPersonById(id);
     Json::Value response;
@@ -96,6 +96,5 @@ const char* UsersHandler::buildGetUserResponse(int id) {
     }
     delete person;
     delete personManager;
-    string responseAsString = response.toStyledString();
-    return responseAsString.c_str();
+    return response.toStyledString();
 }
