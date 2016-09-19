@@ -32,7 +32,7 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
     try {
         Response* response = new Response();
         response->setSuccessfulHeader();
-        response->setBody(this->buildResponse(this->getUserId(url)));
+        response->setBody(this->buildGetUserResponse(this->getUserId(url)));
         return response;
     } catch (InvalidRequestException& e) {
         return this->getBadRequestResponse(e.getMessage());
@@ -63,7 +63,7 @@ int UsersHandler::getUserId(string url) {
     }
 }
 
-const char* UsersHandler::buildResponse(int id) {
+const char* UsersHandler::buildGetUserResponse(int id) {
     PersonManager *personManager = new PersonManager();
     Person *person = personManager->getPersonById(id);
     Json::Value response;
