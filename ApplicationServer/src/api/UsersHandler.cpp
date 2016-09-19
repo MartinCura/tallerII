@@ -79,10 +79,10 @@ const char* UsersHandler::buildGetUserResponse(int id) {
     for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
         Json::Value workHistoryResponse;
         WorkHistory* workHistory = workHistoryVector[i];
-        workHistoryResponse["positionTitle"] = workHistory->getPositionTitle();
+        workHistoryResponse["position_title"] = workHistory->getPositionTitle();
         workHistoryResponse["company"] = workHistory->getCompany();
-        workHistoryResponse["fromDate"] = workHistory->getFromDate();
-        workHistoryResponse["toDate"] = workHistory->getToDate();
+        workHistoryResponse["from_date"] = workHistory->getFromDate();
+        workHistoryResponse["to_date"] = workHistory->getToDate();
         response["work_history"].append(workHistoryResponse);
     }
     vector<Skill*> skillsVector = person->getSkills();
