@@ -60,7 +60,7 @@ Json::Value Handler::parseBody(string body) {
     Json::Reader reader;
     bool parsingSuccessful = reader.parse(body, root);
     if (!parsingSuccessful) {
-        throw "Invalid Json.";
+        throw InvalidRequestException("Invalid Json.");
     }
     return root;
 }
