@@ -28,13 +28,13 @@ void Response::setErrorBody(string errorDetails) {
     Json::Value root;
     root["successful"] = "false";
     root["error"] = errorDetails;
-    this->body = root.toStyledString().c_str();
+    this->body = root.toStyledString();
 }
 
 void Response::setSuccessfulBody() {
     Json::Value root;
     root["successful"] = "true";
-    this->body = root.toStyledString().c_str();
+    this->body = root.toStyledString();
 }
 
 void Response::setSuccessfulHeader() {
