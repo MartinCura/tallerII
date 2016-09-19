@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.MultiSelectListPreference;
 import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -11,6 +12,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,8 +29,11 @@ import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import ar.fiuba.jobify.app_server_api.User;
@@ -94,7 +100,7 @@ public class PerfilActivity extends NavDrawerActivity {
     protected void onResume() {
         super.onResume();
 
-        refreshProfileInformation();
+        refreshProfileInformation(1);   // TODO hardcodeo
     }
 
     @Override
@@ -120,14 +126,11 @@ public class PerfilActivity extends NavDrawerActivity {
         return baseURL;
     }
 
-    public void refreshProfileInformation() {
-
-        Random rand = new Random();
-        int unId = rand.nextInt(100);// hardcodeo fuerte para CP1
+    public void refreshProfileInformation(final int idFetched) {
 
         Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
-                .appendPath("users") //;// semi hardcodeado
-                .appendPath(Integer.toString(unId))
+                .appendPath(getString(R.string.perfil_get_user_path))
+                .appendPath(Integer.toString(idFetched))
                 .build();
         final String url = builtUri.toString();
 
@@ -138,13 +141,13 @@ public class PerfilActivity extends NavDrawerActivity {
                     public void onResponse(JSONObject response) {
                         User mUser = User.parseJSON(response.toString());
 
-                        int idUsuario = mUser.getId();
-                        String nombreUsuario = mUser.getName();
+                        if (mUser != null)
+                            fillProfile(mUser);
 
-                        Toast.makeText(PerfilActivity.this, "nombre obtenido: "+nombreUsuario+
-                                "\npara usuario de id "+idUsuario, Toast.LENGTH_SHORT).show();//
-//                        textoEjemplo.setText("id: "+idUsuario+"\nnombre: "+nombreUsuario);
-                        collapsingToolbarLayout.setTitle(nombreUsuario);
+                        else {
+                            Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el perfil");
+                        }
+
                     }
 
                 }, new Response.ErrorListener() {
@@ -159,7 +162,7 @@ public class PerfilActivity extends NavDrawerActivity {
 //                        Toast.makeText(getActivity(), ":(", Toast.LENGTH_SHORT).show();
                         if (error instanceof ParseError && error.getCause() instanceof JSONException) {
                             Log.d(LOG_TAG, "JSONException! Intento refreshear de nuevo...");
-                            refreshProfileInformation();
+                            refreshProfileInformation(idFetched);
                         }
                     }
                 });
@@ -168,6 +171,54 @@ public class PerfilActivity extends NavDrawerActivity {
 
         RequestQueueSingleton.getInstance(this.getApplicationContext())
                 .addToRequestQueue(jsObjRequest);
+    }
+
+    private void fillProfile(User mUser) {
+        collapsingToolbarLayout.setTitle(mUser.getFullName());
+
+        setTextViewText(R.id.text_perfil_mail, mUser.getEmail());
+        setTextViewText(R.id.text_perfil_ciudad, mUser.getCity());
+        setTextViewText(R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
+        setTextViewText(R.id.text_perfil_resumen, mUser.getSummary());
+        setTextViewText(R.id.text_perfil_trabajo_actual, mUser.getTrabajoActual());
+
+        populateStringList(R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
+        populateStringList(R.id.perfil_skills_list, mUser.getListaSkills());
+    }
+
+    // Esconde TextView si text está vacío
+    public void setTextViewText(int idRes, CharSequence text) {
+        TextView tv = (TextView) findViewById(idRes);
+        if (tv != null) {
+            tv.setText(text);
+
+            if (text.equals(""))
+                tv.setVisibility(View.GONE);
+            else
+                tv.setVisibility(View.VISIBLE);
+
+        } else
+            Log.e(LOG_TAG, "No se encontró el textview! idRes: "+idRes+", text: "+text);
+    }
+
+    public void populateStringList(int idRes, List<String> list) {
+        ListView mListView = (ListView) findViewById(idRes);
+        if (mListView != null) {
+
+            ArrayAdapter<String> mAdapter = new ArrayAdapter<>(
+                    this,
+                    R.layout.list_item,
+                    R.id.plain_text_list_item,
+                    new ArrayList<String>()
+            );
+            mListView.setAdapter(mAdapter);
+
+            Log.d(LOG_TAG, "TAMA;O: "+list.size());//
+            mAdapter.addAll(list);
+            mAdapter.notifyDataSetChanged();
+
+        } else
+            Log.e(LOG_TAG, "No se encontró el listview! idRes: "+idRes);
     }
 
 

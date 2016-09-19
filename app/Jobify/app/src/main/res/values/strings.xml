@@ -17,7 +17,7 @@
     <string name="perfil_trabajo_actual_default">CEO en Jobify</string>
     <string name="perfil_ciudad_y_pais_default">Brasilia, Brasil</string>
     <string name="perfil_cant_recomendaciones_default"># recomendaciones</string>
-    <string name="perfil_nacimiento_default">Edad</string>
+    <string name="perfil_nacimiento_default">Fecha de nacimiento (¿o edad?)</string>
 
     <string name="perfil_resumen_default">Me need job.</string>
 
@@ -28,6 +28,7 @@
     <string name="perfil_skills_title">Skills</string>
 
     <string name="BASE_HTTP_URL">http://192.168.43.236:8000/</string>
+    <string name="perfil_get_user_path">users</string>
 
 
     <!-- Strings related to Settings -->

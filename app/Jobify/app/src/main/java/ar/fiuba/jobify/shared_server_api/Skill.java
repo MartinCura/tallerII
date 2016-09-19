@@ -6,9 +6,9 @@ package ar.fiuba.jobify.shared_server_api;
 public class Skill {
 
     String
-            name,
-            description,    // TODO: Debería inicializarlas?
-            category;
+            name = "",
+            description = "",
+            category = "";
 
 
     public String getName() {

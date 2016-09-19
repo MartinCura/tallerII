@@ -6,8 +6,8 @@ package ar.fiuba.jobify.shared_server_api;
 public class Category {
 
     String
-            name,
-            description;    // TODO: Debería inicializarlas?
+            name = "",
+            description = "";
 
 
     public String getName() {
