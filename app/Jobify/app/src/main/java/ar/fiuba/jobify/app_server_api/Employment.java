@@ -7,21 +7,10 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Employment {
 
-    // Borrar cuando se cambie el AppServer.
-    @SerializedName("positionTitle")
-    String positionTitle = "";
-    @SerializedName("company")
-    String company = "";
-    @SerializedName("fromDate")
-    String fromDate = "";
-    @SerializedName("toDate")
-    String toDate = "";
-
-
-//    String  positionTitle = "",
-//            company = "",
-//            fromDate = "",
-//            toDate = "";
+    String  positionTitle = "",
+            company = "",
+            fromDate = "",
+            toDate = "";
 
 
     public String getPositionTitle() {
