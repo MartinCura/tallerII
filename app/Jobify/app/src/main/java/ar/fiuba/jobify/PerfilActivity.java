@@ -12,6 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -216,6 +217,19 @@ public class PerfilActivity extends NavDrawerActivity {
             Log.d(LOG_TAG, "TAMA;O: "+list.size());//
             mAdapter.addAll(list);
             mAdapter.notifyDataSetChanged();
+
+            int totalHeight = 0;
+            for (int i = 0; i < mAdapter.getCount(); i++) {
+                View listItem = mAdapter.getView(i, null, mListView);
+                listItem.measure(0, 0);
+                totalHeight += listItem.getMeasuredHeight();
+            }
+
+            // Para asegurarse de que la altura esté bien.
+            ViewGroup.LayoutParams params = mListView.getLayoutParams();
+            params.height = totalHeight +
+                    (mListView.getDividerHeight() * (mAdapter.getCount() - 1));
+            mListView.setLayoutParams(params);
 
         } else
             Log.e(LOG_TAG, "No se encontró el listview! idRes: "+idRes);
