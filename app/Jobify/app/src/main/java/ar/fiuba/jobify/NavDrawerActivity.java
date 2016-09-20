@@ -1,12 +1,15 @@
 package ar.fiuba.jobify;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,9 +18,16 @@ public class NavDrawerActivity extends AppCompatActivity
 
     private final String LOG_TAG = NavDrawerActivity.class.getSimpleName();
 
+    public long connectedUserID = 1;
+
     protected void onCreateDrawer() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        SharedPreferences sharedPref =
+                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        connectedUserID = sharedPref
+                .getLong(getString(R.string.stored_connected_user_id), connectedUserID);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

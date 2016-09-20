@@ -4,12 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.MultiSelectListPreference;
 import android.preference.PreferenceManager;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,12 +28,10 @@ import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import ar.fiuba.jobify.app_server_api.User;
 
@@ -43,13 +39,21 @@ public class PerfilActivity extends NavDrawerActivity {
 
     private final String LOG_TAG = PerfilActivity.class.getSimpleName();
 
-//    private TextView textoEjemplo;//
+    public final static String FETCHED_USER_ID_MESSAGE = "ar.fiuba.jobify.FETCHED_USER_ID_MESSAGE";
+    private long fetchedUserID = 2;
+
     private CollapsingToolbarLayout collapsingToolbarLayout;//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil_drawer);
+
+        // Obtengo el id del usuario que debo mostrar
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(FETCHED_USER_ID_MESSAGE)) {
+            fetchedUserID = intent.getLongExtra(FETCHED_USER_ID_MESSAGE, fetchedUserID);
+        }
 
         collapsingToolbarLayout =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar_perfil);
@@ -74,21 +78,32 @@ public class PerfilActivity extends NavDrawerActivity {
             });
         }
 
-        FloatingActionButton fabChatearOEditar = (FloatingActionButton) findViewById(R.id.fab_chatear_o_editar);
-        if (fabChatearOEditar != null) {
-            fabChatearOEditar.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fabChatear = (FloatingActionButton) findViewById(R.id.fab_chatear);
+        if (fabChatear != null) {
+            fabChatear.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO: if (perfil propio) Editar, else Chatear
+                    // TODO: Chatear
                 }
             });
         }
 
-        collapsingToolbarLayout.setTitle(getString(R.string.perfil_nombre_y_apellido_default));
+        FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
+        if (fabEditar != null) {
+            fabEditar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO: Editar
+                }
+            });
+        }
 
-//        textoEjemplo = (TextView) findViewById(R.id.textview_perfil_nombre_y_apellido);
-
-        //Toast.makeText(this, "PerfilActivity onCreate", Toast.LENGTH_SHORT).show();
+        if (fetchedUserID == connectedUserID) {
+            if (fabAmigar != null) fabAmigar.setVisibility(View.GONE);
+            if (fabRecomendar != null) fabRecomendar.setVisibility(View.GONE);
+            if (fabChatear != null) fabChatear.setVisibility(View.GONE);
+            if (fabEditar != null) fabEditar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -101,7 +116,7 @@ public class PerfilActivity extends NavDrawerActivity {
     protected void onResume() {
         super.onResume();
 
-        refreshProfileInformation(1);   // TODO hardcodeo
+        refreshProfileInformation(fetchedUserID);
     }
 
     @Override
@@ -123,15 +138,14 @@ public class PerfilActivity extends NavDrawerActivity {
         String ip = sharedPref.getString("pref_appServer_ip", getString(R.string.pref_default_appServer_ip));
         String puerto = sharedPref.getString("pref_appServer_puerto", getString(R.string.pref_default_appServer_puerto));
 
-        String baseURL = "http://" + ip + ":" + puerto + "/";
-        return baseURL;
+        return "http://" + ip + ":" + puerto + "/";
     }
 
-    public void refreshProfileInformation(final int idFetched) {
+    public void refreshProfileInformation(final long idFetched) {
 
         Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
                 .appendPath(getString(R.string.perfil_get_user_path))
-                .appendPath(Integer.toString(idFetched))
+                .appendPath(Long.toString(idFetched))
                 .build();
         final String url = builtUri.toString();
 
@@ -214,7 +228,6 @@ public class PerfilActivity extends NavDrawerActivity {
             );
             mListView.setAdapter(mAdapter);
 
-            Log.d(LOG_TAG, "TAMA;O: "+list.size());//
             mAdapter.addAll(list);
             mAdapter.notifyDataSetChanged();
 
@@ -261,7 +274,6 @@ public class PerfilActivity extends NavDrawerActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(LOG_TAG, "stringoferror "+error.toString());
-//                textoEjemplo.setText("[No se obtuvo nada de la URL hardcodeada.]");
                 Toast.makeText(PerfilActivity.this, ":(", Toast.LENGTH_SHORT).show();
             }
         }) {
