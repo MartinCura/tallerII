@@ -97,7 +97,6 @@
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur ipsum...</string>
 
 
-
     <string name="pref_title_system_sync_settings">System sync settings</string>
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
@@ -107,4 +106,5 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="stored_connected_user_id">connected_used_id</string>
     <string name="shared_pref_connected_user">connected_user</string>
+    <string name="title_activity_user_list">User List</string>
 </resources>

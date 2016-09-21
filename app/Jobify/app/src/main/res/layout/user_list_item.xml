@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/user_list_item"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/text_margin">
+
+    <ImageView
+        android:id="@+id/list_item_thumbnail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:contentDescription="@string/perfil_foto_description"
+        android:src="@drawable/placeholder_image" />
+    <!--TODO Fijarse si cambiar dimensiones por constantes-->
+
+    <TextView
+        android:id="@+id/list_item_nombre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/list_item_thumbnail"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:textSize="30sp"
+        android:text="@string/perfil_nombre_y_apellido_default" />
+
+    <TextView
+        android:id="@+id/list_item_trabajo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_nombre"
+        android:layout_toRightOf="@id/list_item_thumbnail"
+        android:layout_margin="@dimen/text_margin"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="@string/perfil_trabajo_actual_default" />
+
+    <TextView
+        android:id="@+id/list_item_recomendaciones"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/accent_bright"
+        android:text="@string/perfil_cant_recomendaciones_default" />
+    <!-- TODO: Separar en iconito de Likes y cantidad -->
+
+</RelativeLayout>

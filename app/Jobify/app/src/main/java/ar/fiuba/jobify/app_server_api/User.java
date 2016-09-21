@@ -69,6 +69,11 @@ public class User {
         return workHistory;
     }
 
+    public int getCantRecomendaciones() {   // TODO
+        return 123;
+        //return cantRecomendaciones;
+    }
+
     /**
      * @return String de una o varias líneas con los trabajos actuales,
      * determinado por {@code Employment.esActual}.
