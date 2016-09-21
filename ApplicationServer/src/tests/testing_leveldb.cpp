@@ -8,6 +8,7 @@ TEST(LevelDB, WorkinGLevelDB) {
 	leveldb::DB* db;
 	leveldb::Options options;
 	options.create_if_missing = true;
+	options.error_if_exists = true;
 	leveldb::Status status = leveldb::DB::Open(options, "/tmp/testdb", &db);
 	EXPECT_EQ(status.ok(), true);
 
@@ -19,4 +20,6 @@ TEST(LevelDB, WorkinGLevelDB) {
 	db->Get(leveldb::ReadOptions(), "Key", &result);
 
 	EXPECT_EQ(str1.compare(result), 0);
+
+	delete db;
 }
