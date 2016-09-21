@@ -107,4 +107,7 @@
     <string name="stored_connected_user_id">connected_used_id</string>
     <string name="shared_pref_connected_user">connected_user</string>
     <string name="title_activity_user_list">User List</string>
+    <string name="location_icon_description">Ícono de locación</string>
+    <string name="add_item_description">Add item</string>
+    <string name="remove_item_description">Remove item</string>
 </resources>

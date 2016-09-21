@@ -68,7 +68,7 @@ public class UserListActivity extends NavDrawerActivity {
             View itemView = convertView;
             if (itemView == null) {
                 itemView = LayoutInflater.from(getContext())
-                        .inflate(R.layout.user_list_item, parent, false);
+                                .inflate(R.layout.user_list_item, parent, false);
             }
 
             User user = getItem(position);

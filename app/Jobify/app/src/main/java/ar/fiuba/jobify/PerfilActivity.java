@@ -9,9 +9,17 @@ import android.support.annotation.LayoutRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.GridLayout;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +36,7 @@ import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -199,6 +208,8 @@ public class PerfilActivity extends NavDrawerActivity {
 
         populateStringList(R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
         populateStringList(R.id.perfil_skills_list, mUser.getListaSkills());
+
+        populateContacts();
     }
 
     // Esconde TextView si text está vacío
@@ -246,6 +257,38 @@ public class PerfilActivity extends NavDrawerActivity {
 
         } else
             Log.e(LOG_TAG, "No se encontró el listview! idRes: "+idRes);
+    }
+
+    private void populateContacts() {
+
+//         TODO: if (contacts == 0) {
+//            FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
+//            if (contactsFrameLayout != null)
+//                contactsFrameLayout.setVisibility(View.GONE);
+//        } else {
+
+        GridView mGridView = (GridView) findViewById(R.id.perfil_contactos_list);
+        if (mGridView != null) {
+
+            final CardAdapter mAdapter = new CardAdapter(new ArrayList<User>());  //TODO hardcodeado
+            mGridView.setAdapter(mAdapter);
+            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    User clickedUser = mAdapter.getItem(position);
+                    startActivity(
+                            new Intent(PerfilActivity.this, PerfilActivity.class)
+                            .putExtra(FETCHED_USER_ID_MESSAGE, clickedUser.getId())
+                    );
+                }
+            });
+
+        } else {
+            Log.e(LOG_TAG, "No se encontró el gridview de contactos!");
+        }
+
+//        }
     }
 
 
@@ -304,5 +347,79 @@ public class PerfilActivity extends NavDrawerActivity {
 
         RequestQueueSingleton.getInstance(this.getApplicationContext())
                 .addToRequestQueue(mStringRequest);
+    }
+
+    private class EditableListAdapter extends ArrayAdapter<String> {
+
+        public EditableListAdapter(List<String> list) {
+            super(PerfilActivity.this, R.layout.list_item_borrable, list);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View itemView = convertView;
+            if (itemView == null) {
+                itemView = LayoutInflater.from(getContext())
+                                .inflate(R.layout.list_item_borrable, parent, false);
+            }
+
+            final String itemString = getItem(position);
+            if (itemString != null) {
+
+                EditText item_tv = (EditText) itemView.findViewById(R.id.text_list_item_editable);
+                if (item_tv != null)
+                    item_tv.setText(itemString);
+
+                ImageButton botonRemove = (ImageButton) itemView.findViewById(R.id.boton_borrar_item);
+                if (botonRemove != null) {
+                    botonRemove.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            remove(itemString);     // TODO: Revisar funcionamiento.
+                            notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+
+            return itemView;
+        }
+    }
+
+    private class CardAdapter extends ArrayAdapter<User> {
+
+        public CardAdapter(List<User> userList) {
+            super(PerfilActivity.this, R.layout.contact_card, userList);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View itemView = convertView;
+            if (itemView == null) {
+                itemView = LayoutInflater.from(getContext())
+                        .inflate(R.layout.list_item_borrable, parent, false);
+            }
+
+            User user = getItem(position);
+            if (user != null) {
+
+                ImageView tv_thumbnail = (ImageView) itemView.findViewById(R.id.contact_card_foto);
+                if (tv_thumbnail != null) {
+                    // TODO: Cargar foto a partir de URL
+                }
+
+                TextView tv_nombre  = (TextView) itemView.findViewById(R.id.contact_card_nombre);
+                if (tv_nombre != null)
+                    tv_nombre.setText(user.getFullName());
+
+                TextView tv_trabajo = (TextView) itemView.findViewById(R.id.contact_card_trabajo);
+                if (tv_trabajo != null)
+                    tv_trabajo.setText(user.getTrabajoActual());    // TODO: Varias líneas!! Cortar a la última
+            }
+
+            return itemView;
+        }
     }
 }
