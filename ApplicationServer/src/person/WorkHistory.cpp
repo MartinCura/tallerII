@@ -60,4 +60,6 @@ Json::Value WorkHistory::serializeMe() {
     response["from_date"] = this->fromDate;
     response["to_date"] = this->toDate;
 
+    return response;
+
 }

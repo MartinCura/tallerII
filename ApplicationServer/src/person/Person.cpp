@@ -147,12 +147,10 @@ Json::Value Person::serializeMe() {
 
     vector<Skill*> skillsVector = this->getSkills();
     for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
-        Json::Value skillsResponse;
         Skill* skill = skillsVector[i];
-        skillsResponse["name"] = skill->getName();
-        skillsResponse["description"] = skill->getDescription();
-        skillsResponse["category"] = skill->getCategory();
+        Json::Value skillsResponse = skill->serializeMe();
         response["skills"].append(skillsResponse);
     }
+
     return response;
 }
