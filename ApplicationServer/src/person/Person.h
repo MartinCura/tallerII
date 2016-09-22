@@ -5,13 +5,18 @@
 #include <vector>
 #include "WorkHistory.h"
 #include "Skill.h"
+#include "json/json.h"
+#include "json/json-forwards.h"
 
 using namespace std;
 
 class Person {
 
 public:
+
+    Person(Json::Value);
     Person();
+
     virtual ~Person();
 
     void setFirstName(string firstName);
@@ -34,6 +39,10 @@ public:
     vector<WorkHistory*> getWorkHistory();
     vector<Skill*> getSkills();
 
+    /// Converts the object Person into a Json
+    Json::Value serializeMe();
+
+
 private:
     string firstName;
     string lastName;
@@ -44,6 +53,10 @@ private:
     string summary;
     vector<WorkHistory*> workHistory;
     vector<Skill*> skills;
+
+
+    /// Creates an object Person from a Json
+    Person desserializeMe(Json::Value jvalue);
 };
 
 #endif //PROJECT_PERSON_H

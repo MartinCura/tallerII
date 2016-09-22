@@ -1,4 +1,5 @@
 #include "Person.h"
+#include <iostream>
 
 Person::Person() {
     this->firstName = "";
@@ -8,6 +9,11 @@ Person::Person() {
     this->city = "";
     this->profilePicture = "";
     this->summary = "";
+}
+
+Person::Person(Json::Value jvalue) {
+
+    this->desserializeMe(jvalue);
 }
 
 Person::~Person() {
@@ -91,4 +97,16 @@ vector<WorkHistory*> Person::getWorkHistory() {
 
 vector<Skill*> Person::getSkills() {
     return this->skills;
+}
+
+Person Person::desserializeMe(Json::Value jvalue) {
+
+    this->firstName = jvalue["first_name"].asString(); //TODO: TEST IF IT DONE PROPERLY
+    this->lastName = jvalue["last_name"].asString();
+    this->email = jvalue["email"].asString();
+    this->dateOfBirth = jvalue["date_of_birth"].asString();
+    this->city = jvalue["city"].asString();
+    this->profilePicture = "";
+    this->summary = jvalue["summary"].asString();
+
 }

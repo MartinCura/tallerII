@@ -8,12 +8,13 @@ message (STATUS "Building application ${TARGET}")
 
 include_directories ("${gtest_SOURCE_DIR}/include")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/jsoncpp")
+include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/person")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/db")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/include")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/util")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/port")
 
-set (SOURCES gtest_main.cpp testing_gtest.cpp testing_leveldb.cpp testing_ABMUsers.cpp)
+set (SOURCES gtest_main.cpp testing_gtest.cpp testing_leveldb.cpp testing_ABMUsers.cpp ../person/Person.cpp)
 
 add_executable (${TARGET} ${SOURCES} )
 
