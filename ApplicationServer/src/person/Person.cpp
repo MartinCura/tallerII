@@ -120,7 +120,26 @@ void Person::deserializeMe(Json::Value jvalue) {
     this->profilePicture = "";
     this->summary = jvalue["summary"].asString();
 
+//     const Json::Value my_plugins = root["my-plug-ins"];
+// for ( int index = 0; index < my_plugins.size(); ++index )  // Iterates over the sequence elements.
+//    yourlib::loadPlugIn( my_plugins[index].asString() );
     //TODO: Missing WorkHistory
+
+    const Json::Value jWorkHistoryVector = jvalue["work_history"];
+    for (int index = 0; index < jWorkHistoryVector.size(); index++) {
+        //Iterates over the sequence elements.
+        WorkHistory* workHistory = new WorkHistory(jWorkHistoryVector[index]);
+        this->addWorkHistory(workHistory);
+    }
+
+    const Json::Value jSkillVector = jvalue["skills"];
+    for (int index2 = 0; index2 < jSkillVector.size(); index2++) {
+        //Iterates over the sequence elements.
+        Skill* skill = new Skill(jSkillVector[index2]);
+        this->addSkill(skill);
+    }
+
+
 
 }
 

@@ -5,8 +5,7 @@
 #include "Person.h"
 #include <iostream>
 
-
-TEST(NewUser, FromJson) {
+Json::Value generatePersonJson() {
 
 	Json::Value user;
 	user["id"] = 1;
@@ -18,12 +17,53 @@ TEST(NewUser, FromJson) {
 	user["profile_picture"] = "";
 	user["summary"] = "Me gusta el arrte";
 
+	Json::Value jskill;
+	jskill["name"] = "java";
+	jskill["description"] = "jdescription";
+	jskill["category"] = "developer";
+
+	Json::Value jWorkHistory;
+	jWorkHistory["company"] = "IBM";
+	jWorkHistory["position_title"] = "Developer";
+	jWorkHistory["from_date"] = "2012";
+	jWorkHistory["to_date"] = "2014";
+
+
+	user["skills"].append(jskill);
+	user["work_history"].append(jWorkHistory);
+
+	return user;
+
+
+}
+
+TEST(NewUser, FromJson) {
+
+	Json::Value user = generatePersonJson();
+
 	Person pUser = Person(user);
 
 	EXPECT_EQ(pUser.getFirstName(), "Carlos");
 	EXPECT_EQ(pUser.getLastName(), "Rodriguez");
 	EXPECT_EQ(pUser.getEmail(), "crodriguez@gmail.com");
 	EXPECT_EQ(pUser.getDateOfBirth(), "01/01/1990" );
+
+	vector<Skill*> skills = pUser.getSkills();
+ 	Skill* skill = skills[0];	
+
+ 	EXPECT_EQ(skill->getName(), "java");
+ 	EXPECT_EQ(skill->getDescription(), "jdescription");
+ 	EXPECT_EQ(skill->getCategory(), "developer");
+
+ 	std::vector<WorkHistory*> whs = pUser.getWorkHistory();
+ 	WorkHistory* wh = whs[0];
+
+	EXPECT_EQ(wh->getCompany(), "IBM");
+ 	EXPECT_EQ(wh->getPositionTitle(), "Developer");
+ 	EXPECT_EQ(wh->getFromDate(), "2012");
+ 	EXPECT_EQ(wh->getToDate(), "2014");
+
+
 
 ;
 }
@@ -46,15 +86,7 @@ TEST(NewUser, CompleteUser) {
 
 TEST(User, GetUserJson) {
 
-	Json::Value user;
-	user["id"] = 1;
-	user["first_name"] = "Carlos";
-	user["last_name"] = "Rodriguez";
-	user["email"] = "crodriguez@gmail.com";
-	user["date_of_birth"] = "01/01/1990";
-	user["city"] = "CABA";
-	user["profile_picture"] = "";
-	user["summary"] = "Me gusta el arrte";
+	Json::Value user = generatePersonJson();
 
 	Person pUser = Person(user);
 
@@ -67,5 +99,17 @@ TEST(User, GetUserJson) {
 	EXPECT_EQ(jUser["date_of_birth"].asString(), "01/01/1990");
 	EXPECT_EQ(jUser["city"].asString(), "CABA");
 	EXPECT_EQ(jUser["profile_picture"].asString(), "");
-	EXPECT_EQ(jUser["summary"], "Me gusta el arrte");
+	EXPECT_EQ(jUser["summary"].asString(), "Me gusta el arrte");
+
+	EXPECT_EQ(jUser["skills"][0]["name"].asString(), "java");
+	EXPECT_EQ(jUser["skills"][0]["description"].asString(), "jdescription");
+	EXPECT_EQ(jUser["skills"][0]["category"].asString(), "developer");
+
+	EXPECT_EQ(jUser["work_history"][0]["company"].asString(), "IBM");
+	EXPECT_EQ(jUser["work_history"][0]["position_title"].asString(), "Developer");
+	EXPECT_EQ(jUser["work_history"][0]["from_date"].asString(), "2012");
+	EXPECT_EQ(jUser["work_history"][0]["to_date"].asString(), "2014");
+		
+
+
 }
