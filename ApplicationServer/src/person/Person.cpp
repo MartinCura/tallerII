@@ -140,12 +140,8 @@ Json::Value Person::serializeMe() {
 
     vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
     for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
-        Json::Value workHistoryResponse;
         WorkHistory* workHistory = workHistoryVector[i];
-        workHistoryResponse["position_title"] = workHistory->getPositionTitle();
-        workHistoryResponse["company"] = workHistory->getCompany();
-        workHistoryResponse["from_date"] = workHistory->getFromDate();
-        workHistoryResponse["to_date"] = workHistory->getToDate();
+        Json::Value workHistoryResponse = workHistory->serializeMe();
         response["work_history"].append(workHistoryResponse);
     }
 

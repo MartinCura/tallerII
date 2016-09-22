@@ -2,6 +2,9 @@
 #define PROJECT_WORKHISTORY_H
 
 #include <string>
+#include "json/json.h"
+#include "json/json-forwards.h"
+
 
 using namespace std;
 
@@ -9,6 +12,8 @@ class WorkHistory {
 
 public:
     WorkHistory();
+    WorkHistory(Json::Value jvalue);
+
     virtual ~WorkHistory();
 
     void setPositionTitle(string positionTitle);
@@ -21,11 +26,16 @@ public:
     string getFromDate();
     string getToDate();
 
+    Json::Value serializeMe();
+
 private:
     string positionTitle;
     string company;
     string fromDate;
     string toDate;
+
+    /// Creates an object WorkHistory from a Json
+    void deserializeMe(Json::Value jvalue);
 };
 
 #endif //PROJECT_WORKHISTORY_H

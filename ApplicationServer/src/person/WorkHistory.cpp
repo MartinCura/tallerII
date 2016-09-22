@@ -7,6 +7,10 @@ WorkHistory::WorkHistory() {
     this->toDate = "";
 }
 
+WorkHistory::WorkHistory(Json::Value jvalue) {
+    deserializeMe(jvalue);
+}
+
 WorkHistory::~WorkHistory() {}
 
 void WorkHistory::setPositionTitle(string positionTitle) {
@@ -39,4 +43,21 @@ string WorkHistory::getFromDate() {
 
 string WorkHistory::getToDate() {
     return toDate;
+}
+
+void WorkHistory::deserializeMe(Json::Value jvalue) {
+
+    this->positionTitle = jvalue["position_title"].asString();
+    this->company = jvalue["company"].asString();
+    this->fromDate = jvalue["from_date"].asString();
+    this->toDate = jvalue["to_date"].asString();
+}
+
+Json::Value WorkHistory::serializeMe() {
+    Json::Value response;
+    response["position_title"] = this->positionTitle;
+    response["company"] = this->company;
+    response["from_date"] = this->fromDate;
+    response["to_date"] = this->toDate;
+
 }
