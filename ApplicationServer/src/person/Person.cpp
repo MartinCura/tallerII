@@ -111,6 +111,7 @@ vector<Skill*> Person::getSkills() {
 
 void Person::deserializeMe(Json::Value jvalue) {
 
+    this->id = jvalue["id"].asInt();
     this->firstName = jvalue["first_name"].asString();
     this->lastName = jvalue["last_name"].asString();
     this->email = jvalue["email"].asString();
