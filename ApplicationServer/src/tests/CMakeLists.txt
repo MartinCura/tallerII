@@ -7,7 +7,7 @@ message("++ Building tests ++")
 message (STATUS "Building application ${TARGET}")
 
 include_directories ("${gtest_SOURCE_DIR}/include")
-include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/jsoncpp/json")
+include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/jsoncpp")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/db")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/include")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/util")
@@ -19,5 +19,6 @@ add_executable (${TARGET} ${SOURCES} )
 
 target_link_libraries (${TARGET} gtest)
 target_link_libraries (${TARGET} leveldb)
+target_link_libraries (${TARGET} JsonCpp)
 
 add_test (all ${EXECUTABLE_OUTPUT_PATH}/${TARGET})
