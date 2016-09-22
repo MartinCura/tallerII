@@ -136,18 +136,14 @@ Json::Value Person::serializeMe() {
     response["profile_picture"] = this->profilePicture;
     response["summary"] = this->summary;
 
-    //TODO: Move serialize workHistory
-
-    vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
-    for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
-        WorkHistory* workHistory = workHistoryVector[i];
+    for (vector<WorkHistory*>::size_type i = 0; i != this->workHistory.size(); i++) {
+        WorkHistory* workHistory = this->workHistory[i];
         Json::Value workHistoryResponse = workHistory->serializeMe();
         response["work_history"].append(workHistoryResponse);
     }
 
-    vector<Skill*> skillsVector = this->getSkills();
-    for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
-        Skill* skill = skillsVector[i];
+    for (vector<Skill*>::size_type i = 0; i != this->skills.size(); i++) {
+        Skill* skill = this->skills[i];
         Json::Value skillsResponse = skill->serializeMe();
         response["skills"].append(skillsResponse);
     }
