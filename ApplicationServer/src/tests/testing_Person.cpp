@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-TEST(User, NewUserFromJson) {
+TEST(NewUser, FromJson) {
 
 	Json::Value user;
 	user["id"] = 1;
@@ -19,12 +19,27 @@ TEST(User, NewUserFromJson) {
 	user["summary"] = "Me gusta el arrte";
 
 	Person pUser = Person(user);
-	
+
 	EXPECT_EQ(pUser.getFirstName(), "Carlos");
+	EXPECT_EQ(pUser.getLastName(), "Rodriguez");
+	EXPECT_EQ(pUser.getEmail(), "crodriguez@gmail.com");
+	EXPECT_EQ(pUser.getDateOfBirth(), "01/01/1990" );
+
+;
 }
 
-TEST(User, NewUser) {
+TEST(NewUser, EmptyUser) {
 	Person user = Person();
 	EXPECT_EQ(user.getFirstName(),"");
 }
 
+TEST(NewUser, CompleteUser) {
+
+	Person user = Person();
+	
+	user.setCity("Mar del Plata");
+	user.setSummary("Carrera");
+	
+	EXPECT_EQ(user.getCity(), "Mar del Plata");
+	EXPECT_EQ(user.getSummary(), "Carrera");
+}

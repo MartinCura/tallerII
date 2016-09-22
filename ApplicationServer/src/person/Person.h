@@ -17,7 +17,7 @@ public:
     Person(Json::Value);
     Person();
 
-    virtual ~Person();
+    virtual ~Person(); //TODO: Preguntar por q virtual
 
     void setFirstName(string firstName);
     void setLastName(string lastName);
@@ -56,7 +56,7 @@ private:
 
 
     /// Creates an object Person from a Json
-    Person desserializeMe(Json::Value jvalue);
+    void desserializeMe(Json::Value jvalue);
 };
 
 #endif //PROJECT_PERSON_H
