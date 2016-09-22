@@ -12,8 +12,18 @@ protected:
 		leveldb::Options op;
 		op.create_if_missing = true;
 		leveldb::Status s = leveldb::DB::Open(op, "/tmp/testingABMUser_ExistUser", &db_);
+		Json::Value user = CreateFakeUser(1);
+		
+		Json::FastWriter fastWriter;
+		std::string output = fastWriter.write(user);
+		db_->Put(leveldb::WriteOptions(), "user_1", output);
+
+	}
+
+	Json::Value CreateFakeUser(int id) {
+
 		Json::Value user;
-		user["id"] = 2;
+		user["id"] = id;
 		user["first_name"] = "Carlos";
 		user["last_name"] = "Rodriguez";
 		user["email"] = "crodriguez@gmail.com";
@@ -21,12 +31,10 @@ protected:
 		user["city"] = "CABA";
 		user["profile_picture"] = "";
 		user["summary"] = "Me gusta el arrte";
-		Json::FastWriter fastWriter;
-		std::string output = fastWriter.write(user);
-		db_->Put(leveldb::WriteOptions(), "user_1", output);
-
-
+		return user;
 	}
+
+
 
 	leveldb::DB* db_;
 
@@ -35,11 +43,11 @@ protected:
 		delete db_; 
 	}
 };
+
 /// Get  User that exists already
 TEST_F(ExistsUserDBTest, GetUser) {
 	std::string value;
 	leveldb::Status s = db_->Get(leveldb::ReadOptions(), "user_1", &value);
-	//std::cout << s.ToString();
 	EXPECT_EQ(s.ok(), true);
 
 }
