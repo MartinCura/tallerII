@@ -14,7 +14,9 @@ include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/includ
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/util")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/port")
 
-set (SOURCES gtest_main.cpp testing_gtest.cpp testing_leveldb.cpp testing_ABMUsers.cpp ../person/Person.cpp testing_Person.cpp)
+# Used to set a variable(SOURCE_FILES) that contains the name values of all of the source
+# files (.cpp) in the project
+file(GLOB_RECURSE SOURCES *.cpp ../person/*.cpp)
 
 add_executable (${TARGET} ${SOURCES} )
 

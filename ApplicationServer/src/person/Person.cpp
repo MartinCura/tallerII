@@ -2,6 +2,7 @@
 #include <iostream>
 
 Person::Person() {
+    this->id = 0;
     this->firstName = "";
     this->lastName = "" ;
     this->email = "";
@@ -14,7 +15,7 @@ Person::Person() {
 
 Person::Person(Json::Value jvalue) {
 
-    desserializeMe(jvalue);
+    deserializeMe(jvalue);
 }
 
 Person::~Person() {
@@ -26,6 +27,10 @@ Person::~Person() {
     for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
         delete skillsVector[i];
     }
+}
+
+void Person::setId(int id) {
+    this->id = id;
 }
 
 void Person::setFirstName(string firstName) {
@@ -64,6 +69,10 @@ void Person::addSkill(Skill *skill){
     this->skills.push_back(skill);
 }
 
+int Person::getId() {
+    return this->id;
+}
+
 string Person::getFirstName() {
     return this->firstName;
 }
@@ -100,9 +109,9 @@ vector<Skill*> Person::getSkills() {
     return this->skills;
 }
 
-void Person::desserializeMe(Json::Value jvalue) {
+void Person::deserializeMe(Json::Value jvalue) {
 
-    this->firstName = jvalue["first_name"].asString(); //TODO: TEST IF IT DONE PROPERLY
+    this->firstName = jvalue["first_name"].asString();
     this->lastName = jvalue["last_name"].asString();
     this->email = jvalue["email"].asString();
     this->dateOfBirth = jvalue["date_of_birth"].asString();
@@ -110,4 +119,43 @@ void Person::desserializeMe(Json::Value jvalue) {
     this->profilePicture = "";
     this->summary = jvalue["summary"].asString();
 
+    //TODO: Missing WorkHistory
+
+}
+
+Json::Value Person::serializeMe() {
+
+    Json::Value response;
+    response["id"] = this->id;
+    response["first_name"] = this->firstName;
+    response["last_name"] = this->lastName;
+    response["email"] = this->email;
+    response["date_of_birth"] = this->dateOfBirth;
+    response["city"] = this->city;
+    response["profile_picture"] = this->profilePicture;
+    response["summary"] = this->summary;
+
+    //TODO: Move serialize workHistory
+
+    vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
+    for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
+        Json::Value workHistoryResponse;
+        WorkHistory* workHistory = workHistoryVector[i];
+        workHistoryResponse["position_title"] = workHistory->getPositionTitle();
+        workHistoryResponse["company"] = workHistory->getCompany();
+        workHistoryResponse["from_date"] = workHistory->getFromDate();
+        workHistoryResponse["to_date"] = workHistory->getToDate();
+        response["work_history"].append(workHistoryResponse);
+    }
+
+    vector<Skill*> skillsVector = this->getSkills();
+    for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
+        Json::Value skillsResponse;
+        Skill* skill = skillsVector[i];
+        skillsResponse["name"] = skill->getName();
+        skillsResponse["description"] = skill->getDescription();
+        skillsResponse["category"] = skill->getCategory();
+        response["skills"].append(skillsResponse);
+    }
+    return response;
 }

@@ -19,6 +19,7 @@ public:
 
     virtual ~Person(); //TODO: Preguntar por q virtual
 
+    void setId(int id);
     void setFirstName(string firstName);
     void setLastName(string lastName);
     void setEmail(string email);
@@ -29,6 +30,7 @@ public:
     void addWorkHistory(WorkHistory* workHistory);
     void addSkill(Skill* skill);
 
+    int getId();
     string getFirstName();
     string getLastName();
     string getEmail();
@@ -44,6 +46,7 @@ public:
 
 
 private:
+    int id;
     string firstName;
     string lastName;
     string email;
@@ -56,7 +59,7 @@ private:
 
 
     /// Creates an object Person from a Json
-    void desserializeMe(Json::Value jvalue);
+    void deserializeMe(Json::Value jvalue);
 };
 
 #endif //PROJECT_PERSON_H
