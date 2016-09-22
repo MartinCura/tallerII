@@ -9,11 +9,18 @@ Person::Person() {
     this->city = "";
     this->profilePicture = "";
     this->summary = "";
+    //this->workHistoryVector = new 
 }
 
 Person::Person(Json::Value jvalue) {
 
-    this->desserializeMe(jvalue);
+    this->firstName = jvalue["first_name"].asString(); //TODO: TEST IF IT DONE PROPERLY
+    this->lastName = jvalue["last_name"].asString();
+    this->email = jvalue["email"].asString();
+    this->dateOfBirth = jvalue["date_of_birth"].asString();
+    this->city = jvalue["city"].asString();
+    this->profilePicture = "";
+    this->summary = jvalue["summary"].asString();
 }
 
 Person::~Person() {

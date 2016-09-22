@@ -14,7 +14,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/includ
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/util")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveldb/port")
 
-set (SOURCES gtest_main.cpp testing_gtest.cpp testing_leveldb.cpp testing_ABMUsers.cpp ../person/Person.cpp)
+set (SOURCES gtest_main.cpp testing_gtest.cpp testing_leveldb.cpp testing_ABMUsers.cpp ../person/Person.cpp testing_Person.cpp)
 
 add_executable (${TARGET} ${SOURCES} )
 
