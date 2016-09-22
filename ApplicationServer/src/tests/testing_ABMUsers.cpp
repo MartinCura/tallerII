@@ -1,5 +1,7 @@
 #include <string>
 #include "gtest/gtest.h"
+#include "json/json.h"
+#include "json/json-forwards.h"
 #include "leveldb/db.h"
 #include <iostream>
 
@@ -27,7 +29,7 @@ TEST(SaveUser, NotExists) {
 
 
 /// Save New User that already exists
-TEST(SaveUser, Exists) {
+TEST(ExistsUserDB, SaveUser) {
 	EXPECT_EQ(1,1);
 
 }
@@ -40,7 +42,7 @@ TEST(GetUser, NotExists) {
 }
 
 /// Get  User that exists already
-TEST(GetUser, Exists) {
+TEST(ExistsUserDB, GetUser) {
 	EXPECT_EQ(1,1);
 
 }
@@ -52,7 +54,36 @@ TEST(DeleteUser, NotExists) {
 }
 
 /// Delete User that exists already
-TEST(DeleteUser, Exists) {
+TEST(ExistsUserDB, DeleteUser) {
     EXPECT_EQ(1,1);
 
 }
+
+class ExistsUserDB : public testing::Test { 
+protected:
+	ExistsUserDB() {
+
+		leveldb::Options op;
+		op.create_if_missing = true;
+		leveldb::Status s = leveldb::DB::Open(op, "/tmp/testingABMUser_ExistUser", &db_);
+		Json::Value user;
+		user["id"] = 2;
+		user["first_name"] = "Carlos";
+		user["last_name"] = "Rodriguez";
+		user["email"] = "crodriguez@gmail.com";
+		user["date_of_birth"] = "01/01/1990";
+		user["city"] = "CABA";
+		user["profile_picture"] = "";
+		user["summary"] = "Me gusta el arrte";
+
+
+	}
+
+	leveldb::DB* db_;
+	
+
+	virtual ~ExistsUserDB() { 
+		delete db_; 
+	}
+};
+
