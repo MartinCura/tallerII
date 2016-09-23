@@ -1,6 +1,19 @@
 
 
-function SharedSeverCtrl($scope, $http) {
+
+var sharedServerApp = angular.module('sharedServerApp', ['ngRoute']);
+
+sharedServerApp.config(function($routerProvider){
+    $routerProvider.
+        when('/', {
+
+            templateUrl : 'categories.html',
+            controller : 'mainController'
+        });
+});
+
+
+sharedServerApp.controller('mainController', function($scope, $http) {
     $scope.formData = {};
 
     // when landing on the page, get all todos and show them
@@ -26,6 +39,8 @@ function SharedSeverCtrl($scope, $http) {
             console.log('Error: ' + mydata);
         });
 
+
+});
 
 
 
@@ -54,6 +69,6 @@ function SharedSeverCtrl($scope, $http) {
             });
     };*/
 
-}
+//}
 // public/core.js
-var scotchTodo = angular.module('SharedServerApi', []).controller('SharedSeverCtrl', SharedSeverCtrl);
+//var scotchTodo = angular.module('SharedServerApi', []).controller('SharedSeverCtrl', SharedSeverCtrl);
