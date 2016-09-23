@@ -66,34 +66,7 @@ int UsersHandler::getUserId(string url) {
 string UsersHandler::buildGetUserResponse(int id) {
     PersonManager *personManager = new PersonManager();
     Person *person = personManager->getPersonById(id);
-    Json::Value response;
-    response["id"] = id;
-    response["first_name"] = person->getFirstName();
-    response["last_name"] = person->getLastName();
-    response["email"] = person->getEmail();
-    response["date_of_birth"] = person->getDateOfBirth();
-    response["city"] = person->getCity();
-    response["profile_picture"] = person->getProfilePicture();
-    response["summary"] = person->getSummary();
-    vector<WorkHistory*> workHistoryVector = person->getWorkHistory();
-    for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
-        Json::Value workHistoryResponse;
-        WorkHistory* workHistory = workHistoryVector[i];
-        workHistoryResponse["position_title"] = workHistory->getPositionTitle();
-        workHistoryResponse["company"] = workHistory->getCompany();
-        workHistoryResponse["from_date"] = workHistory->getFromDate();
-        workHistoryResponse["to_date"] = workHistory->getToDate();
-        response["work_history"].append(workHistoryResponse);
-    }
-    vector<Skill*> skillsVector = person->getSkills();
-    for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
-        Json::Value skillsResponse;
-        Skill* skill = skillsVector[i];
-        skillsResponse["name"] = skill->getName();
-        skillsResponse["description"] = skill->getDescription();
-        skillsResponse["category"] = skill->getCategory();
-        response["skills"].append(skillsResponse);
-    }
+    Json::Value response = person->serializeMe();
     delete person;
     delete personManager;
     return response.toStyledString();
