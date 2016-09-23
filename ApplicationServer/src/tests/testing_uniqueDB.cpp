@@ -13,7 +13,6 @@ TEST(ApplicationSDB, getLastID) {
 
     EXPECT_EQ(std::stoi(result),0);
 
-    db->Get(leveldb::ReadOptions(), "Key", &result);
     delete db;
 }
 
