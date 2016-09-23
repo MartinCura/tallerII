@@ -11,6 +11,7 @@ public:
     virtual ~PersonManager();
 
     Person* getPersonById(int id);
+    void savePerson(Person* person);
 
 private:
     Person* getFakePerson1();

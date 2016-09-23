@@ -1,4 +1,5 @@
 #include "PersonManager.h"
+#include "../DB/ApplicationSDB.h"
 
 PersonManager::PersonManager() {}
 
@@ -93,5 +94,21 @@ Person* PersonManager::getFakePerson2() {
     person->addSkill(skill2);
 
     return person;
+}
+
+void PersonManager::savePerson(Person *person) {
+    //Verificar que el mail sea unico -> no esté ya registrado.
+    //O usuario.
+    leveldb::DB* db = ApplicationSDB::getInstance();
+    std::string lastId;
+    db->Get(leveldb::ReadOptions(), "lastID", &lastId);
+    int id = std::stoi(lastId);
+    std::string userId = std::to_string(id + 1);
+
+    Json::FastWriter fastWriter;
+    std::string output = fastWriter.write(person->serializeMe());
+
+    db->Put(leveldb::WriteOptions(), "user_"+ userId, output);
+
 }
 
