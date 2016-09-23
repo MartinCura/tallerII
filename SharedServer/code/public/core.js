@@ -1,7 +1,6 @@
-// public/core.js
-var scotchTodo = angular.module('SharedServerApi', []);
 
-function mainController($scope, $http) {
+
+function SharedSeverCtrl($scope, $http) {
     $scope.formData = {};
 
     // when landing on the page, get all todos and show them
@@ -14,7 +13,21 @@ function mainController($scope, $http) {
         })
         .error(function(data) {
             console.log('Error: ' + mydata);
+    });
+
+    $http.get('/skills')
+        .success(function(data) {
+            console.log(data);
+            mydata = data["skills"];
+            $scope.skills = mydata;
+            console.log(mydata);
+        })
+        .error(function(data) {
+            console.log('Error: ' + mydata);
         });
+
+
+
 
     /*// when submitting the add form, send the text to the node API
     $scope.createTodo = function() {
@@ -42,3 +55,5 @@ function mainController($scope, $http) {
     };*/
 
 }
+// public/core.js
+var scotchTodo = angular.module('SharedServerApi', []).controller('SharedSeverCtrl', SharedSeverCtrl);

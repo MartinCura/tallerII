@@ -3,42 +3,52 @@
 <!-- ASSIGN OUR ANGULAR MODULE -->
 <html ng-app="SharedServerApi">
 <head>
-    <!-- META -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
-
     <title>SharedServerApi</title>
 
-    <!-- SCROLLS -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"><!-- load bootstrap -->
-    <style>
-        html                    { overflow-y:scroll; }
-        body                    { padding-top:50px; }
-        #job_positions              { margin-bottom:30px; }
-    </style>
+    <meta charset="utf-8">
+ 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-    <!-- SPELLS -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/style.css">
+	<link href="/simple-sidebar.css" rel="stylesheet">
+
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="core.js"></script>
 
 </head>
-<!-- SET THE CONTROLLER AND GET ALL JOB POSITIONS -->
-<body ng-controller="mainController">
-    <div class="container">
 
-        <!-- HEADER AND JOBSPositions COUNT -->
+
+<body ng-controller="SharedSeverCtrl">
+<div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="#">Categories</a>
+                </li>
+                <li>
+                    <a href="#">Skills</a>
+                </li>
+                <li>
+                    <a href="#">Job Positions</a>
+                </li>
+            </ul>
+        </div>
+
+    <div class="container-fluid">
+
         <div class="jumbotron text-center">
             <h1>Position<span class="label label-info">{{ job_positions.length }}</span></h1>
         </div>
 
-        <!-- ALL JOB POSITIONS LIST -->
-        <div ng-app="">
-
-		<p>Name: <input type="text" ng-model="name"></p>
-		<p>You wrote: {{ name }}</p> 
-
-		</div>
         <div id="job_positions-list" class="row">
             <div class="col-sm-4 col-sm-offset-4">
 
@@ -51,6 +61,33 @@
 
             </div>
         </div>
+
+
+        <div class="jumbotron text-center">
+            <h1>Position<span class="label label-info">{{ skills.length }}</span></h1>
+        </div>
+
+        <div id="skills-list" class="row">
+            <div class="col-sm-4 col-sm-offset-4">
+
+                <!-- LOOP OVER THE ALL JOB POSITIONS IN $scope.job_positions -->
+                <div class="checkbox" ng-repeat="skill in skills">
+                    <label>
+                        <input type="checkbox" ng-click="deleteTodo(todo._id)"> {{ skill.name }}
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- ALL JOB POSITIONS LIST -->
+        <div ng-app="">
+
+		<p>Name: <input type="text" ng-model="name"></p>
+		<p>You wrote: {{ name }}</p> 
+
+		</div>
 
         <!-- FORM TO CREATE TODOS -->
         <div id="todo-form" class="row">
