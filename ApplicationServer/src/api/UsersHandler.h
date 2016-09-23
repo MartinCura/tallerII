@@ -22,6 +22,7 @@ public:
 private:
     int getUserId(string url);
     string buildGetUserResponse(int id);
+    string saveOrUpdatePerson(string body);
 };
 
 #endif //APPLICATIONSERVER_USERSHANDLER_H
