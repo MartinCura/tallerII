@@ -95,9 +95,3 @@ Person* PersonManager::getFakePerson2() {
     return person;
 }
 
-void PersonManager::savePerson(){
-    ///Validations
-
-    ///Logic
-
-}
