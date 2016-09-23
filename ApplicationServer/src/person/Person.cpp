@@ -1,5 +1,4 @@
 #include "Person.h"
-#include <iostream>
 
 Person::Person() {
     this->id = 0;
@@ -10,12 +9,10 @@ Person::Person() {
     this->city = "";
     this->profilePicture = "";
     this->summary = "";
-    //this->workHistoryVector = new 
 }
 
-Person::Person(Json::Value jvalue) {
-
-    deserializeMe(jvalue);
+Person::Person(Json::Value personAsJson) {
+    deserializeMe(personAsJson);
 }
 
 Person::~Person() {
@@ -109,63 +106,48 @@ vector<Skill*> Person::getSkills() {
     return this->skills;
 }
 
-void Person::deserializeMe(Json::Value jvalue) {
-
-    this->id = jvalue["id"].asInt();
-    this->firstName = jvalue["first_name"].asString();
-    this->lastName = jvalue["last_name"].asString();
-    this->email = jvalue["email"].asString();
-    this->dateOfBirth = jvalue["date_of_birth"].asString();
-    this->city = jvalue["city"].asString();
+void Person::deserializeMe(Json::Value personAsJson) {
+    this->id = personAsJson["id"].asInt();
+    this->firstName = personAsJson["first_name"].asString();
+    this->lastName = personAsJson["last_name"].asString();
+    this->email = personAsJson["email"].asString();
+    this->dateOfBirth = personAsJson["date_of_birth"].asString();
+    this->city = personAsJson["city"].asString();
     this->profilePicture = "";
-    this->summary = jvalue["summary"].asString();
+    this->summary = personAsJson["summary"].asString();
 
-//     const Json::Value my_plugins = root["my-plug-ins"];
-// for ( int index = 0; index < my_plugins.size(); ++index )  // Iterates over the sequence elements.
-//    yourlib::loadPlugIn( my_plugins[index].asString() );
-    //TODO: Missing WorkHistory
-
-    const Json::Value jWorkHistoryVector = jvalue["work_history"];
+    const Json::Value jWorkHistoryVector = personAsJson["work_history"];
     for (int index = 0; index < jWorkHistoryVector.size(); index++) {
-        //Iterates over the sequence elements.
         WorkHistory* workHistory = new WorkHistory(jWorkHistoryVector[index]);
         this->addWorkHistory(workHistory);
     }
 
-    const Json::Value jSkillVector = jvalue["skills"];
+    const Json::Value jSkillVector = personAsJson["skills"];
     for (int index2 = 0; index2 < jSkillVector.size(); index2++) {
-        //Iterates over the sequence elements.
         Skill* skill = new Skill(jSkillVector[index2]);
         this->addSkill(skill);
     }
-
-
-
 }
 
 Json::Value Person::serializeMe() {
-
-    Json::Value response;
-    response["id"] = this->id;
-    response["first_name"] = this->firstName;
-    response["last_name"] = this->lastName;
-    response["email"] = this->email;
-    response["date_of_birth"] = this->dateOfBirth;
-    response["city"] = this->city;
-    response["profile_picture"] = this->profilePicture;
-    response["summary"] = this->summary;
-
+    Json::Value personAsJson;
+    personAsJson["id"] = this->id;
+    personAsJson["first_name"] = this->firstName;
+    personAsJson["last_name"] = this->lastName;
+    personAsJson["email"] = this->email;
+    personAsJson["date_of_birth"] = this->dateOfBirth;
+    personAsJson["city"] = this->city;
+    personAsJson["profile_picture"] = this->profilePicture;
+    personAsJson["summary"] = this->summary;
     for (vector<WorkHistory*>::size_type i = 0; i != this->workHistory.size(); i++) {
         WorkHistory* workHistory = this->workHistory[i];
         Json::Value workHistoryResponse = workHistory->serializeMe();
-        response["work_history"].append(workHistoryResponse);
+        personAsJson["work_history"].append(workHistoryResponse);
     }
-
     for (vector<Skill*>::size_type i = 0; i != this->skills.size(); i++) {
         Skill* skill = this->skills[i];
         Json::Value skillsResponse = skill->serializeMe();
-        response["skills"].append(skillsResponse);
+        personAsJson["skills"].append(skillsResponse);
     }
-
-    return response;
+    return personAsJson;
 }

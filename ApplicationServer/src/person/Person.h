@@ -3,10 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include "WorkHistory.h"
 #include "Skill.h"
-#include "json/json.h"
-#include "json/json-forwards.h"
+#include "../jsoncpp/json/json.h"
+#include "../jsoncpp/json/json-forwards.h"
 
 using namespace std;
 
@@ -44,7 +45,6 @@ public:
     /// Converts the object Person into a Json
     Json::Value serializeMe();
 
-
 private:
     int id;
     string firstName;
@@ -57,9 +57,8 @@ private:
     vector<WorkHistory*> workHistory;
     vector<Skill*> skills;
 
-
     /// Creates an object Person from a Json
-    void deserializeMe(Json::Value jvalue);
+    void deserializeMe(Json::Value personAsJson);
 };
 
 #endif //PROJECT_PERSON_H

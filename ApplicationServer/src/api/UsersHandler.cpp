@@ -5,23 +5,12 @@ UsersHandler::UsersHandler() {}
 UsersHandler::~UsersHandler() {}
 
 Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
-    string body = string(httpMessage->body.p);
+    string requestBody = string(httpMessage->body.p);
     try {
-        Json::Value parsedBody = this->parseBody(body);
-        string name = parsedBody.get("name", "").asString();
-        if (name == "") {
-            return this->getBadRequestResponse("Missing name parameter.");
-        }
         Response* response = new Response();
         response->setSuccessfulHeader();
-
-        //FIXME: reemplazar por info de la base
-        Json::Value root;
-        root["id"] = 1;
-
-        string responseBody = root.toStyledString();
+        string responseBody = this->saveOrUpdatePerson(requestBody);
         response->setBody(responseBody);
-
         return response;
     } catch (InvalidRequestException& e) {
         return this->getBadRequestResponse(e.getMessage());
@@ -66,35 +55,22 @@ int UsersHandler::getUserId(string url) {
 string UsersHandler::buildGetUserResponse(int id) {
     PersonManager *personManager = new PersonManager();
     Person *person = personManager->getPersonById(id);
-    Json::Value response;
-    response["id"] = id;
-    response["first_name"] = person->getFirstName();
-    response["last_name"] = person->getLastName();
-    response["email"] = person->getEmail();
-    response["date_of_birth"] = person->getDateOfBirth();
-    response["city"] = person->getCity();
-    response["profile_picture"] = person->getProfilePicture();
-    response["summary"] = person->getSummary();
-    vector<WorkHistory*> workHistoryVector = person->getWorkHistory();
-    for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
-        Json::Value workHistoryResponse;
-        WorkHistory* workHistory = workHistoryVector[i];
-        workHistoryResponse["position_title"] = workHistory->getPositionTitle();
-        workHistoryResponse["company"] = workHistory->getCompany();
-        workHistoryResponse["from_date"] = workHistory->getFromDate();
-        workHistoryResponse["to_date"] = workHistory->getToDate();
-        response["work_history"].append(workHistoryResponse);
-    }
-    vector<Skill*> skillsVector = person->getSkills();
-    for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
-        Json::Value skillsResponse;
-        Skill* skill = skillsVector[i];
-        skillsResponse["name"] = skill->getName();
-        skillsResponse["description"] = skill->getDescription();
-        skillsResponse["category"] = skill->getCategory();
-        response["skills"].append(skillsResponse);
-    }
+    Json::Value response = person->serializeMe();
     delete person;
     delete personManager;
     return response.toStyledString();
+}
+
+string UsersHandler::saveOrUpdatePerson(string body) {
+    Json::Value parsedBody = this->parseBody(body);
+    string name = parsedBody.get("name", "").asString();
+    if (name == "") {
+        throw InvalidRequestException("Missing name parameter.");
+    }
+
+    //FIXME: reemplazar por info de la base
+    Json::Value root;
+    root["id"] = 1;
+
+    return root.toStyledString();
 }
