@@ -8,11 +8,11 @@ CREATE TABLE categories (
 CREATE TABLE job_positions (
   name VARCHAR,
   description VARCHAR,
-  category VARCHAR REFERENCES categories (name)
+  category VARCHAR REFERENCES categories (name) ON DELETE CASCADE
 );
 
 CREATE TABLE skills (
   name VARCHAR,
   description VARCHAR,
-  category VARCHAR REFERENCES categories (name)
+  category VARCHAR REFERENCES categories (name) ON DELETE CASCADE
 );

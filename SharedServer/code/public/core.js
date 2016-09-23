@@ -1,5 +1,102 @@
+// create the module and name it sharedServerClient
+var sharedServerClient = angular.module('sharedServerClient', ['ngRoute']);
+
+// configure our routes
+sharedServerClient.config(function($routeProvider) {
+    $routeProvider
+
+        // route for the home page
+        .when('/', {
+            templateUrl : 'categories.html',
+            controller  : 'mainController'
+        })
+
+        // route for the about page
+        .when('/skills', {
+            templateUrl : 'categories.html',
+            controller  : 'skillsController'
+        })
+
+        // route for the contact page
+        .when('/job_positions', {
+            templateUrl : 'categories.html',
+            controller  : 'PositionController'
+        });
+});
 
 
+function get($scope, $http, url, name){
+    $http.get(url)
+        .success(function(data) {
+            console.log(data);
+            mydata = data[name];
+            $scope.items = mydata;
+            console.log(mydata);
+        })
+        .error(function(data) {
+            console.log('Error: ' + mydata);
+    });
+}
+
+// create the controller and inject Angular's $scope
+sharedServerClient.controller('mainController', function($scope, $http) {
+    $scope.formData = {};
+
+    $scope.item_name = 'Categories';
+    
+    get($scope, $http, '/categories', 'categories');
+
+    $scope.create = function() {
+            console.log({category: $scope.formData});
+            $http.post('/categories', {category: $scope.formData})
+                .success(function(data) {
+                    // refresh
+                    get($scope, $http, '/categories', 'categories');
+                })
+                .error(function(data) {
+                    alert("Error al crear");
+                    console.log('Error: ' + data);
+                });
+        };
+    
+    $scope.delete = function(name) {
+        $http.delete('/categories/' + name)
+            .success(function(){
+                get($scope, $http, '/categories', 'categories');
+            })
+    }
+});
+
+sharedServerClient.controller('skillsController', function($scope, $http) {
+    $scope.item_name = 'Skills';
+    $http.get('/skills')
+        .success(function(data) {
+            console.log(data);
+            mydata = data["skills"];
+            $scope.items = mydata;
+            console.log(mydata);
+        })
+        .error(function(data) {
+            console.log('Error: ' + mydata);
+    });
+});
+
+sharedServerClient.controller('PositionController', function($scope, $http) {
+    $scope.item_name = 'Job Positions';
+    $http.get('/job_positions')
+        .success(function(data) {
+            console.log(data);
+            mydata = data["job_positions"];
+            $scope.items = mydata;
+            console.log(mydata);
+        })
+        .error(function(data) {
+            console.log('Error: ' + mydata);
+    });
+});
+
+    
+/*
 
 var sharedServerApp = angular.module('sharedServerApp', ['ngRoute']);
 
@@ -40,7 +137,7 @@ sharedServerApp.controller('mainController', function($scope, $http) {
         });
 
 
-});
+});*/
 
 
 

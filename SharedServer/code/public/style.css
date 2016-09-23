@@ -1,3 +1,11 @@
-html                    { overflow-y:scroll; }
-        body                    { padding-top:50px; }
-        #job_positions              { margin-bottom:30px; } 
+html {
+	overflow-y:scroll;
+}
+
+#job_positions {
+	margin-bottom:30px;
+} 
+
+.hiden {
+	display: none;
+}
