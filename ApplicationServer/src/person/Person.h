@@ -17,8 +17,7 @@ public:
 
     Person(Json::Value);
     Person();
-
-    virtual ~Person(); //TODO: Preguntar por q virtual
+    ~Person();
 
     void setId(int id);
     void setFirstName(string firstName);
