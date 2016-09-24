@@ -3,6 +3,7 @@
 Response::Response() {
     this->header = "";
     this->body = "";
+    this->bodyLength = 0;
 }
 
 Response::~Response() {}
@@ -10,7 +11,7 @@ Response::~Response() {}
 const char *Response::getHeader() {
     string fullHeader = "HTTP/1.1 " + this->header + "\r\n";
     fullHeader += "Transfer-Encoding: chunked\r\n";
-    fullHeader += "Content-Length: " + to_string(this->body.length()) + "\r\n";
+    fullHeader += "Content-Length: " + to_string(this->bodyLength) + "\r\n";
     fullHeader += "\r\n";
     return fullHeader.c_str();
 }
@@ -19,21 +20,26 @@ const char *Response::getBody() {
     return this->body.c_str();
 }
 
+unsigned long Response::getBodyLength() {
+    return this->bodyLength;
+}
+
 void Response::setBody(string body) {
     this->body = body;
+    this->bodyLength = body.length();
 }
 
 void Response::setErrorBody(string errorDetails) {
     Json::Value root;
     root["successful"] = "false";
     root["error"] = errorDetails;
-    this->body = root.toStyledString();
+    this->setBody(root.toStyledString());
 }
 
 void Response::setSuccessfulBody() {
     Json::Value root;
     root["successful"] = "true";
-    this->body = root.toStyledString();
+    this->setBody(root.toStyledString());
 }
 
 void Response::setSuccessfulHeader() {

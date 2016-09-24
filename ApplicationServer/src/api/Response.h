@@ -14,6 +14,7 @@ public:
 
     const char* getHeader();
     const char* getBody();
+    unsigned long getBodyLength();
     void setBody(string body);
     void setErrorBody(string errorDetails);
     void setSuccessfulBody();
@@ -25,6 +26,7 @@ public:
 private:
     string header;
     string body;
+    unsigned long bodyLength;
 };
 
 #endif //APPLICATIONSERVER_RESPONSE_H
