@@ -44,6 +44,6 @@ Response* PictureHandler::buildGetPictureResponse(int id) {
     }
     Response* response = new Response();
     response->setSuccessfulHeader();
-    response->setSuccessfulBody();
+    response->setBinaryBody(&buffer[0], length);
     return response;
 }

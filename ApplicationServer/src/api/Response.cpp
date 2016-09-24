@@ -4,6 +4,7 @@ Response::Response() {
     this->header = "";
     this->body = "";
     this->bodyLength = 0;
+    this->hasBinaryContent = false;
 }
 
 Response::~Response() {}
@@ -17,6 +18,9 @@ const char *Response::getHeader() {
 }
 
 const char *Response::getBody() {
+    if (hasBinaryContent) {
+        return this->binaryBody;
+    }
     return this->body.c_str();
 }
 
@@ -27,6 +31,12 @@ unsigned long Response::getBodyLength() {
 void Response::setBody(string body) {
     this->body = body;
     this->bodyLength = body.length();
+}
+
+void Response::setBinaryBody(char* body, unsigned long length) {
+    this->hasBinaryContent = true;
+    this->binaryBody = body;
+    this->bodyLength = length;
 }
 
 void Response::setErrorBody(string errorDetails) {
