@@ -5,6 +5,7 @@
 #include "Response.h"
 #include "handler/Handler.h"
 #include "handler/UsersHandler.h"
+#include "handler/PictureHandler.h"
 #include <regex>
 #include <cstring>
 

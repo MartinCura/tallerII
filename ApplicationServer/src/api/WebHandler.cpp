@@ -14,6 +14,12 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
             delete handler;
             return response;
         }
+        if (regex_match(url, regex("/profilepicture/.*"))) {
+            PictureHandler* handler = new PictureHandler();
+            response = handler->handleRequest(httpMessage, url);
+            delete handler;
+            return response;
+        }
     }
     response->setNotFoundHeader();
     return response;
