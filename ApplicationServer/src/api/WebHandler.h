@@ -3,8 +3,8 @@
 
 #include "../Mongoose/mongoose.h"
 #include "Response.h"
-#include "Handler.h"
-#include "UsersHandler.h"
+#include "handler/Handler.h"
+#include "handler/UsersHandler.h"
 #include <regex>
 #include <cstring>
 

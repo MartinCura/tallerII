@@ -2,11 +2,11 @@
 #define APPLICATIONSERVER_USERSHANDLER_H
 
 #include "Handler.h"
-#include "../person/PersonManager.h"
-#include "../person/Person.h"
-#include "../person/WorkHistory.h"
-#include "exception/UserNotFoundException.h"
-#include "exception/InvalidRequestException.h"
+#include "../../person/PersonManager.h"
+#include "../../person/Person.h"
+#include "../../person/WorkHistory.h"
+#include "../exception/UserNotFoundException.h"
+#include "../exception/InvalidRequestException.h"
 #include <vector>
 
 class UsersHandler : public Handler {

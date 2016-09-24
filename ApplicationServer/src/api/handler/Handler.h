@@ -2,11 +2,11 @@
 #define APPLICATIONSERVER_HANDLER_H
 
 #include <cstring>
-#include "../Mongoose/mongoose.h"
-#include "../jsoncpp/json/json.h"
-#include "../jsoncpp/json/json-forwards.h"
-#include "Response.h"
-#include "exception/InvalidRequestException.h"
+#include "../../Mongoose/mongoose.h"
+#include "../../jsoncpp/json/json.h"
+#include "../../jsoncpp/json/json-forwards.h"
+#include "../Response.h"
+#include "../exception/InvalidRequestException.h"
 
 using namespace std;
 
