@@ -5,14 +5,16 @@ WebHandler::WebHandler() {}
 WebHandler::~WebHandler() {}
 
 Response* WebHandler::handleRequest(http_message* httpMessage) {
+    Response* response = new Response();
     if (&httpMessage->uri) {
         string url = this->getUrl(httpMessage->uri);
         if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users"))) {
             UsersHandler* handler = new UsersHandler();
-            return handler->handleRequest(httpMessage, url);
+            response = handler->handleRequest(httpMessage, url);
+            delete handler;
+            return response;
         }
     }
-    Response* response = new Response();
     response->setNotFoundHeader();
     return response;
 }
