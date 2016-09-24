@@ -39,11 +39,11 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage) {
 }
 
 int UsersHandler::getUserId(string url) {
-    size_t sp = url.find_first_of('/', 1);
-    if (sp == string::npos || ((url.begin() + sp + 1) >= (url.begin() + url.size()))) {
+    vector<string> parsedUrl = this->parseUrl(url);
+    if (parsedUrl.size() != 1) {
         throw InvalidRequestException("Cannot get user id from url.");
     }
-    string userIdAsString(url.begin() + sp + 1, url.begin() + url.size());
+    string userIdAsString = parsedUrl[0];
     try {
         int userId = stoi(userIdAsString);
         return userId;

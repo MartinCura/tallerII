@@ -27,9 +27,11 @@ protected:
     Response* getBadRequestResponse(string errorDetails);
     Response* getNotFoundResponse(string errorDetails);
     Json::Value parseBody(string body);
+    vector<string> parseUrl(string url);
 
 private:
     int isEqual(const struct mg_str *s1, const struct mg_str *s2);
+    string getSubUrl(string url);
 };
 
 #endif //APPLICATIONSERVER_HANDLER_H

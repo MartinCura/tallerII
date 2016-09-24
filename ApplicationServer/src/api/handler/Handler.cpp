@@ -64,3 +64,20 @@ Json::Value Handler::parseBody(string body) {
     }
     return root;
 }
+
+vector<string> Handler::parseUrl(string url) {
+    vector<string> parsedUrl;
+    if (this->getSubUrl(url) != "") {
+        parsedUrl.push_back(this->getSubUrl(url));
+    }
+    return parsedUrl;
+}
+
+string Handler::getSubUrl(string url) {
+    size_t sp = url.find_first_of('/', 1);
+    if (sp == string::npos || ((url.begin() + sp + 1) >= (url.begin() + url.size()))) {
+        return "";
+    }
+    string subUrl(url.begin() + sp + 1, url.begin() + url.size());
+    return subUrl;
+}
