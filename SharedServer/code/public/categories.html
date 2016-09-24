@@ -1,29 +1,11 @@
 <div class="jumbotron text-center">
     <h1>{{ item_name }}<span class="label label-info">{{ items.length }}</span></h1>
     <button type="button" class="btn btn-default" onclick="$('#add-form').slideToggle()"><span class="glyphicon glyphicon-plus">Add</span></button>
-    
-    <div id="add-form" class="hiden">
-	    <form>
-	    	<div class="form-group row">
-				<label for="example-text-input" class="col-xs-2 col-form-label">Nombre</label>
-				<div class="col-xs-10">
-					<input class="form-control" type="text" placeholder="Nombre" ng-model="formData.name"  >
-				</div>
-			</div>
-			<div class="form-group row">
-				<label for="example-text-input" class="col-xs-2 col-form-label">Descripción</label>
-				<div class="col-xs-10">
-					<input class="form-control" type="text" placeholder="Descripción" ng-model="formData.description">
-				</div>
-			</div>
 
-			<div class="form-group row">
-				<div class="offset-sm-2 col-sm-10">
-					<button type="submit" class="btn btn-primary" ng-click="create()">Enviar</button>
-				</div>
-			</div>
-	    </form>
-    </div>
+
+	<div ng-include="'/form.html'"></div>
+    
+    
 </div>
 
 <div id="job_positions-list" class="row">

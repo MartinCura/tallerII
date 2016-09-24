@@ -43,6 +43,8 @@ sharedServerClient.controller('mainController', function($scope, $http) {
     $scope.formData = {};
 
     $scope.item_name = 'Categories';
+
+    $scope.fields = ["name", "description"];
     
     get($scope, $http, '/categories', 'categories');
 

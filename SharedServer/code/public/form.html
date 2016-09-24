@@ -1,0 +1,23 @@
+<div id="add-form" class="hiden">
+	    <form>
+	    	<div class="form-group row" ng-repeat="field in fields">
+				<label for="example-text-input" class="col-xs-2 col-form-label">{{field}}</label>
+				<div class="col-xs-10">
+					<input class="form-control" type="text" placeholder='{{field}}' ng-model="formData.{{field}}"  >
+					<!-- <input class="form-control" type="text" placeholder='{{field}}'> -->
+				</div>
+			</div>
+			<!-- <div class="form-group row">
+				<label for="example-text-input" class="col-xs-2 col-form-label">Descripción</label>
+				<div class="col-xs-10">
+					<input class="form-control" type="text" placeholder="Descripción" ng-model="formData.description">
+				</div>
+			</div> -->
+
+			<div class="form-group row">
+				<div class="offset-sm-2 col-sm-10">
+					<button type="submit" class="btn btn-primary" ng-click="create()">Enviar</button>
+				</div>
+			</div>
+	    </form>
+    </div>
