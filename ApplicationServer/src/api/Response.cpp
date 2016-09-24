@@ -8,11 +8,10 @@ Response::Response() {
 Response::~Response() {}
 
 const char *Response::getHeader() {
-    string fullHeader =
-        "HTTP/1.1 " + this->header + "\r\n"
-        "Transfer-Encoding: chunked\r\n" +
-        "Content-Length: " + to_string(this->body.length()) + "\r\n"
-        "\r\n";
+    string fullHeader = "HTTP/1.1 " + this->header + "\r\n";
+    fullHeader += "Transfer-Encoding: chunked\r\n";
+    fullHeader += "Content-Length: " + to_string(this->body.length()) + "\r\n";
+    fullHeader += "\r\n";
     return fullHeader.c_str();
 }
 
