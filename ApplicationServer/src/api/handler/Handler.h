@@ -28,6 +28,7 @@ protected:
     Response* getNotFoundResponse(string errorDetails);
     Json::Value parseBody(string body);
     vector<string> parseUrl(string url);
+    int getUserId(string url);
 
 private:
     int isEqual(const struct mg_str *s1, const struct mg_str *s2);

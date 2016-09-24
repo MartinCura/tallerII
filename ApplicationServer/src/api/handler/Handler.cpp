@@ -81,3 +81,17 @@ string Handler::getSubUrl(string url) {
     string subUrl(url.begin() + sp + 1, url.begin() + url.size());
     return subUrl;
 }
+
+int Handler::getUserId(string url) {
+    vector<string> parsedUrl = this->parseUrl(url);
+    if (parsedUrl.size() != 1) {
+        throw InvalidRequestException("Cannot get user id from url.");
+    }
+    string userIdAsString = parsedUrl[0];
+    try {
+        int userId = stoi(userIdAsString);
+        return userId;
+    } catch (invalid_argument e) {
+        throw InvalidRequestException("Not a numeric id");
+    }
+}

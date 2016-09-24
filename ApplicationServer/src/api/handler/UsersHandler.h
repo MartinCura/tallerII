@@ -20,7 +20,6 @@ public:
     Response* handlePutRequest(http_message* httpMessage);
 
 private:
-    int getUserId(string url);
     string buildGetUserResponse(int id);
     string saveOrUpdatePerson(string body);
 };
