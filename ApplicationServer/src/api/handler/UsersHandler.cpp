@@ -21,7 +21,7 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
     try {
         Response* response = new Response();
         response->setSuccessfulHeader();
-        response->setBody(this->buildGetUserResponse(this->getUserId(url)));
+        response->setBody(this->buildGetUserResponse(this->getUserIdFromUrl(url)));
         return response;
     } catch (InvalidRequestException& e) {
         return this->getBadRequestResponse(e.getMessage());

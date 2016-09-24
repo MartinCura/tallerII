@@ -82,7 +82,7 @@ string Handler::getSubUrl(string url) {
     return subUrl;
 }
 
-int Handler::getUserId(string url) {
+int Handler::getUserIdFromUrl(string url) {
     vector<string> parsedUrl = this->parseUrl(url);
     if (parsedUrl.size() != 1) {
         throw InvalidRequestException("Cannot get user id from url.");
