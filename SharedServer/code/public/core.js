@@ -1,14 +1,40 @@
+nameAndDescriptionFields = [
+        {
+            key: 'name',
+            type: 'input',
+            templateOptions: {
+                type: 'text',
+                label: 'Nombre',
+                placeholder: 'Nombre',
+                required: true
+            }
+        },
+        {
+            key: 'description',
+            type: 'input',
+            templateOptions: {
+                type: 'text',
+                label: 'Descipción',
+                placeholder: 'Descipción',
+                required: true
+            }
+        }
+];
+
+
+
 // create the module and name it sharedServerClient
-var sharedServerClient = angular.module('sharedServerClient', ['ngRoute']);
+var sharedServerClient = angular.module('sharedServerClient', ['ngRoute', 'formly', 'formlyBootstrap']);
 
 // configure our routes
 sharedServerClient.config(function($routeProvider) {
     $routeProvider
 
         // route for the home page
-        .when('/', {
+        .when('/categories', {
             templateUrl : 'categories.html',
-            controller  : 'mainController'
+            controller  : 'mainController',
+            controllerAs: 'vm'
         })
 
         // route for the about page
@@ -25,35 +51,45 @@ sharedServerClient.config(function($routeProvider) {
 });
 
 
-function get($scope, $http, url, name){
+function get($scope, $http, url, name, vm){
     $http.get(url)
         .success(function(data) {
             console.log(data);
             mydata = data[name];
             $scope.items = mydata;
             console.log(mydata);
+            vm.items = JSON.parse(JSON.stringify(mydata));
         })
         .error(function(data) {
             console.log('Error: ' + mydata);
     });
 }
 
+function update($http, url) {
+    $http.put()
+
+}
+
 // create the controller and inject Angular's $scope
 sharedServerClient.controller('mainController', function($scope, $http) {
-    $scope.formData = {};
+    var vm = this;
+
+    vm.formData = {};
+    vm.fields = nameAndDescriptionFields;
 
     $scope.item_name = 'Categories';
 
     $scope.fields = ["name", "description"];
     
-    get($scope, $http, '/categories', 'categories');
+    get($scope, $http, '/categories', 'categories', vm);
 
-    $scope.create = function() {
-            console.log({category: $scope.formData});
-            $http.post('/categories', {category: $scope.formData})
+    vm.create = function() {
+            console.log({category: vm.formData});
+            $http.post('/categories', {category: vm.formData})
                 .success(function(data) {
                     // refresh
-                    get($scope, $http, '/categories', 'categories');
+                    get($scope, $http, '/categories', 'categories', vm);
+                    
                 })
                 .error(function(data) {
                     alert("Error al crear");
@@ -64,7 +100,17 @@ sharedServerClient.controller('mainController', function($scope, $http) {
     $scope.delete = function(name) {
         $http.delete('/categories/' + name)
             .success(function(){
-                get($scope, $http, '/categories', 'categories');
+                get($scope, $http, '/categories', 'categories', vm);
+            })
+    }
+
+    vm.onSubmit = function(index){
+        console.log($scope.items[index]);
+        console.log(vm.items[index]);
+        $http.put("/categories/" + $scope.items[index].name, {category: vm.items[index]})
+            .success(function() {
+                // refresh
+                    get($scope, $http, '/categories', 'categories', vm);
             })
     }
 });
@@ -97,77 +143,3 @@ sharedServerClient.controller('PositionController', function($scope, $http) {
     });
 });
 
-    
-/*
-
-var sharedServerApp = angular.module('sharedServerApp', ['ngRoute']);
-
-sharedServerApp.config(function($routerProvider){
-    $routerProvider.
-        when('/', {
-
-            templateUrl : 'categories.html',
-            controller : 'mainController'
-        });
-});
-
-
-sharedServerApp.controller('mainController', function($scope, $http) {
-    $scope.formData = {};
-
-    // when landing on the page, get all todos and show them
-    $http.get('/job_positions')
-        .success(function(data) {
-            console.log(data);
-            mydata = data["job_positions"];
-            $scope.job_positions = mydata;
-            console.log(mydata);
-        })
-        .error(function(data) {
-            console.log('Error: ' + mydata);
-    });
-
-    $http.get('/skills')
-        .success(function(data) {
-            console.log(data);
-            mydata = data["skills"];
-            $scope.skills = mydata;
-            console.log(mydata);
-        })
-        .error(function(data) {
-            console.log('Error: ' + mydata);
-        });
-
-
-});*/
-
-
-
-    /*// when submitting the add form, send the text to the node API
-    $scope.createTodo = function() {
-        $http.post('/api/todos', $scope.formData)
-            .success(function(data) {
-                $scope.formData = {}; // clear the form so our user is ready to enter another
-                $scope.todos = data;
-                console.log(data);
-            })
-            .error(function(data) {
-                console.log('Error: ' + data);
-            });
-    };
-
-    // delete a todo after checking it
-    $scope.deleteTodo = function(id) {
-        $http.delete('/api/todos/' + id)
-            .success(function(data) {
-                $scope.todos = data;
-                console.log(data);
-            })
-            .error(function(data) {
-                console.log('Error: ' + data);
-            });
-    };*/
-
-//}
-// public/core.js
-//var scotchTodo = angular.module('SharedServerApi', []).controller('SharedSeverCtrl', SharedSeverCtrl);
