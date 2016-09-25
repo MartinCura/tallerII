@@ -125,6 +125,7 @@ public class PerfilActivity extends NavDrawerActivity {
         super.onResume();
 
         refreshProfileInformation(fetchedUserID);
+        cargarFotoDePerfil(fetchedUserID);
     }
 
     @Override
@@ -196,15 +197,15 @@ public class PerfilActivity extends NavDrawerActivity {
                 .addToRequestQueue(jsObjRequest);
     }
 
-    public void cargarFotoDePerfil(long idFetched) {
+    public void cargarFotoDePerfil(final long idFetched) {
 
         Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
                 .appendPath(getString(R.string.perfil_get_photo_path))
                 .appendPath(Long.toString(idFetched))
                 .build();
         final String url = builtUri.toString(); //"http://i.imgur.com/7spzG.png";
-        final ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
 
+        final ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
         if (imageView == null) {
             Log.e(LOG_TAG, "No pude encontrar el ImageView, no cargo foto de perfil.");
             return;
@@ -220,7 +221,13 @@ public class PerfilActivity extends NavDrawerActivity {
                 ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(LOG_TAG, "Error de response, no puedo cargar la foto de perfil");
+                        Log.e(LOG_TAG, "Error de response, no pude cargar la foto de perfil.");
+                        if (error.networkResponse == null) return;
+                        Log.e(LOG_TAG, "Network response status code: "+error.networkResponse.statusCode);
+                        if (error.networkResponse.statusCode == 200) {
+                            Log.e(LOG_TAG, "Reintento cargar foto de perfil");//
+                            cargarFotoDePerfil(idFetched);
+                        }
                     }
                 }) ;
         RequestQueueSingleton.getInstance(this.getApplicationContext())
@@ -240,7 +247,6 @@ public class PerfilActivity extends NavDrawerActivity {
         populateStringList(R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
         populateStringList(R.id.perfil_skills_list, mUser.getListaSkills());
 
-        cargarFotoDePerfil(mUser.getId());
         populateContacts();
     }
 
