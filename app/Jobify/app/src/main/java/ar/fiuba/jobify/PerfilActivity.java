@@ -2,6 +2,7 @@ package ar.fiuba.jobify;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -15,8 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,12 +30,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -197,6 +196,38 @@ public class PerfilActivity extends NavDrawerActivity {
                 .addToRequestQueue(jsObjRequest);
     }
 
+    public void cargarFotoDePerfil(long idFetched) {
+
+        Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
+                .appendPath(getString(R.string.perfil_get_photo_path))
+                .appendPath(Long.toString(idFetched))
+                .build();
+        final String url = builtUri.toString(); //"http://i.imgur.com/7spzG.png";
+        final ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
+
+        if (imageView == null) {
+            Log.e(LOG_TAG, "No pude encontrar el ImageView, no cargo foto de perfil.");
+            return;
+        }
+
+        ImageRequest request = new ImageRequest(url,
+                new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap bitmap) {
+                        imageView.setImageBitmap(bitmap);
+                    }
+                }, imageView.getWidth(), imageView.getHeight(),
+                ImageView.ScaleType.CENTER_INSIDE, null,
+                new Response.ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(LOG_TAG, "Error de response, no puedo cargar la foto de perfil");
+                    }
+                }) ;
+        RequestQueueSingleton.getInstance(this.getApplicationContext())
+                .addToRequestQueue(request);
+    }
+
+
     private void fillProfile(User mUser) {
         collapsingToolbarLayout.setTitle(mUser.getFullName());
 
@@ -209,6 +240,7 @@ public class PerfilActivity extends NavDrawerActivity {
         populateStringList(R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
         populateStringList(R.id.perfil_skills_list, mUser.getListaSkills());
 
+        cargarFotoDePerfil(mUser.getId());
         populateContacts();
     }
 
@@ -279,7 +311,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     User clickedUser = mAdapter.getItem(position);
                     startActivity(
                             new Intent(PerfilActivity.this, PerfilActivity.class)
-                            .putExtra(FETCHED_USER_ID_MESSAGE, clickedUser.getId())
+                                    .putExtra(FETCHED_USER_ID_MESSAGE, clickedUser.getId())
                     );
                 }
             });
