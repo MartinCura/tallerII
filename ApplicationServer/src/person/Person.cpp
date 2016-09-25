@@ -7,7 +7,6 @@ Person::Person() {
     this->email = "";
     this->dateOfBirth = "";
     this->city = "";
-    this->profilePicture = "";
     this->summary = "";
 }
 
@@ -50,10 +49,6 @@ void Person::setCity(string city) {
     this->city = city;
 }
 
-void Person::setProfilePicture(string profilePicture) {
-    this->profilePicture = profilePicture;
-}
-
 void Person::setSummary(string summary) {
     this->summary = summary;
 }
@@ -90,10 +85,6 @@ string Person::getCity() {
     return this->city;
 }
 
-string Person::getProfilePicture() {
-    return this->profilePicture;
-}
-
 string Person::getSummary() {
     return this->summary;
 }
@@ -113,7 +104,6 @@ void Person::deserializeMe(Json::Value personAsJson) {
     this->email = personAsJson["email"].asString();
     this->dateOfBirth = personAsJson["date_of_birth"].asString();
     this->city = personAsJson["city"].asString();
-    this->profilePicture = "";
     this->summary = personAsJson["summary"].asString();
 
     const Json::Value jWorkHistoryVector = personAsJson["work_history"];
@@ -137,7 +127,6 @@ Json::Value Person::serializeMe() {
     personAsJson["email"] = this->email;
     personAsJson["date_of_birth"] = this->dateOfBirth;
     personAsJson["city"] = this->city;
-    personAsJson["profile_picture"] = this->profilePicture;
     personAsJson["summary"] = this->summary;
     for (vector<WorkHistory*>::size_type i = 0; i != this->workHistory.size(); i++) {
         WorkHistory* workHistory = this->workHistory[i];

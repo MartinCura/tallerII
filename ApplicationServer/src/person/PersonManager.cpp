@@ -25,7 +25,6 @@ Person* PersonManager::getFakePerson1() {
     person->setEmail("John@doe.com");
     person->setDateOfBirth("01/01/1990");
     person->setCity("Buenos Aires");
-    person->setProfilePicture("");
     person->setSummary("Hi, this is John Doe");
 
     WorkHistory* workHistory1 = new WorkHistory();
@@ -66,7 +65,6 @@ Person* PersonManager::getFakePerson2() {
     person->setEmail("Jane@doe.com");
     person->setDateOfBirth("01/11/1991");
     person->setCity("Madrid");
-    person->setProfilePicture("");
     person->setSummary("Hi, this is Jane Doe");
 
     WorkHistory* workHistory1 = new WorkHistory();

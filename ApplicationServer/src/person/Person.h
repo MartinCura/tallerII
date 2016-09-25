@@ -25,7 +25,6 @@ public:
     void setEmail(string email);
     void setDateOfBirth(string dateOfBirth);
     void setCity(string city);
-    void setProfilePicture(string profilePicture);
     void setSummary(string summary);
     void addWorkHistory(WorkHistory* workHistory);
     void addSkill(Skill* skill);
@@ -36,7 +35,6 @@ public:
     string getEmail();
     string getDateOfBirth();
     string getCity();
-    string getProfilePicture();
     string getSummary();
     vector<WorkHistory*> getWorkHistory();
     vector<Skill*> getSkills();
@@ -51,7 +49,6 @@ private:
     string email;
     string dateOfBirth;
     string city;
-    string profilePicture;
     string summary;
     vector<WorkHistory*> workHistory;
     vector<Skill*> skills;
