@@ -19,6 +19,7 @@ Person* PersonManager::getPersonById(int id) {
 //FIXME: sacar una vez que este la base de datos
 Person* PersonManager::getFakePerson1() {
     Person* person = new Person();
+    person->setId(1);
     person->setFirstName("John");
     person->setLastName("Doe");
     person->setEmail("John@doe.com");
@@ -59,6 +60,7 @@ Person* PersonManager::getFakePerson1() {
 //FIXME: sacar una vez que este la base de datos
 Person* PersonManager::getFakePerson2() {
     Person* person = new Person();
+    person->setId(2);
     person->setFirstName("Jane");
     person->setLastName("Doe");
     person->setEmail("Jane@doe.com");
