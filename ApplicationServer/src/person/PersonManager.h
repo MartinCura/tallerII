@@ -22,6 +22,9 @@ private:
 
     long uniqueId;
 
+    bool userExists(long id, string *result);
+
+    bool userExists(string *user_mail, string *result);
 };
 
 #endif //PROJECT_PERSONMANAGER_H
