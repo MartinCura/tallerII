@@ -49,6 +49,8 @@ string UsersHandler::buildGetUserResponse(int id) {
 }
 
 string UsersHandler::saveOrUpdatePerson(string body) {
+
+    //TODO: INFORMACIÓN OBLIGATORIA
     Json::Value parsedBody = this->parseBody(body);
     string name = parsedBody.get("name", "").asString();
     if (name == "") {

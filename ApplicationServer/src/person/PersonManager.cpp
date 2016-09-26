@@ -107,36 +107,45 @@ Person* PersonManager::getFakePerson2() {
 }
 
 void PersonManager::savePerson(Json::Value person_json) {
-    //Se supone que el usuario aun no fue creado entonces debería tener id = 0
-    //El mail es único.
-
-    std::string user_mail, user_information;
+    std::string user_mail, user_information, output;
+    long user_id;
+    Json::FastWriter fastWriter;
 
     user_mail=  person_json["email"].asString();
+    user_id = person_json["id"].asLargestInt();
 
-    if (person_json["id"] == 0) {
+    if (user_id == 0) {
 
         if (userExists(&user_mail, &user_information )) {
             //Ya existe un usuario con dicho mail
             throw  UserAlreadyExistsException();
         } else {
-            long id = this->uniqueId + 1;
-            this->uniqueId++;
 
-            std::string user_id = "user_" + std::to_string(this->uniqueId );
-            Json::FastWriter fastWriter;
-            std::string output = fastWriter.write(person_json);
+            uniqueId++;
+            output = fastWriter.write(person_json);
             db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
-            db->Put(leveldb::WriteOptions(), user_id, user_mail );
+            db->Put(leveldb::WriteOptions(), "user_" + std::to_string(uniqueId), user_mail );
         }
     } else {
         //The person already exists in the system and it wants to refresh his information
-        Json::FastWriter fastWriter;
-        std::string output = fastWriter.write(person_json);
+        output = fastWriter.write(person_json);
         db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
 
     }
 }
+
+
+void PersonManager::deletePerson(long id) {
+
+    std::string user_mail;
+
+    if (!userExists(id, &user_mail)) {
+        throw UserNotFoundException(id);
+    }
+
+    db->Delete(leveldb::WriteOptions(), "user_" + std::to_string(id));
+}
+
 
 Person* PersonManager::getPersonById(long id) {
 

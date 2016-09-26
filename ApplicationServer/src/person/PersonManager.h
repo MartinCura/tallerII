@@ -25,6 +25,8 @@ private:
     bool userExists(long id, string *result);
 
     bool userExists(string *user_mail, string *result);
+
+    void deletePerson(long id);
 };
 
 #endif //PROJECT_PERSONMANAGER_H
