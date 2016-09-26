@@ -142,23 +142,22 @@ void PersonManager::savePerson(Json::Value person_json) {
 
 Person* PersonManager::getPersonById(long id) {
 
-    std::string user_id = "user_" + std::to_string(id);
-    std::string user_mailId, user;
+    std::string user_id, user_mailId, user;
+    leveldb::Status user_mail_status, user_status;
+    Json::Reader reader;
+    Json::Value json_user;
 
-    leveldb::Status user_mail_status = db->Get(leveldb::ReadOptions(), user_id, &user_mailId);
+    user_id = "user_" + std::to_string(id);
+    user_mail_status = db->Get(leveldb::ReadOptions(), user_id, &user_mailId);
 
     if (!user_mail_status.IsNotFound()) {
-        //Se encontro el usuario
-        leveldb::Status user_status = db->Get(leveldb::ReadOptions(), user_mailId, &user);
+        user_status = db->Get(leveldb::ReadOptions(), user_mailId, &user);
+
         if (user_status.IsNotFound()) {
-            //No debiera suceder
             throw std::exception();
         }
-        Json::Reader reader;
-        Json::Value json_user;
 
         reader.parse( user.c_str(), json_user );
-        //TODO: Chequear si funciona
         return new Person(json_user);
 
     } else {
