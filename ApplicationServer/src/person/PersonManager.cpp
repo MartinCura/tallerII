@@ -122,7 +122,10 @@ void PersonManager::savePerson(Json::Value person_json) {
             //Ya existe un usuario con dicho mail
             throw  UserAlreadyExistsException();
         } else {
-            std::string user_id = "user_" + std::to_string(this->uniqueId);
+            long id = this->uniqueId + 1;
+            this->uniqueId++;
+
+            std::string user_id = "user_" + std::to_string(this->uniqueId );
             Json::FastWriter fastWriter;
             std::string output = fastWriter.write(person_json);
             db->Put(leveldb::WriteOptions(), user_mailid, output);

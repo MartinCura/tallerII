@@ -107,7 +107,7 @@ TEST(ExistsUserDB, GetUser) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    long id = 0;
+    long id = 1;
     personManager_->savePerson(user);
 
     Person* person = personManager_->getPersonById(id);
