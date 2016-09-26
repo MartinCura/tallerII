@@ -151,8 +151,12 @@ Person* PersonManager::getPersonById(long id) {
             //No debiera suceder
             throw std::exception();
         }
+        Json::Reader reader;
+        Json::Value json_user;
+
+        reader.parse( user.c_str(), json_user );
         //TODO: Chequear si funciona
-        return new Person(user);
+        return new Person(json_user);
 
     } else {
         //No se encontro el usuario

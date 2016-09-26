@@ -93,6 +93,30 @@ TEST(ExistsUserDB, SaveUserERROR) {
 
 }
 
+/// Get  User that exists already
+TEST(ExistsUserDB, GetUser) {
+    PersonManager* personManager_ = new PersonManager();
+
+    Json::Value user;
+    user["id"] = 0;
+    user["first_name"] = "Carlos";
+    user["last_name"] = "Rodriguez";
+    user["email"] = "crodriguez@gmail.com";
+    user["date_of_birth"] = "01/01/1990";
+    user["city"] = "CABA";
+    user["profile_picture"] = "";
+    user["summary"] = "Me gusta el arrte";
+
+    long id = 0;
+    personManager_->savePerson(user);
+
+    Person* person = personManager_->getPersonById(id);
+    EXPECT_EQ(person->getLastName(), "Rodriguez");
+
+    delete person;
+    delete personManager_;
+
+}
 
 
 

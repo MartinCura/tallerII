@@ -12,6 +12,7 @@ public:
     virtual ~PersonManager();
 
     Person* getPersonById(int id);
+    Person *getPersonById(long id);
     void savePerson(Json::Value person_json);
 
 private:
@@ -21,7 +22,6 @@ private:
 
     long uniqueId;
 
-    Person *getPersonById(long id);
 };
 
 #endif //PROJECT_PERSONMANAGER_H
