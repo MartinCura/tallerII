@@ -6,16 +6,45 @@ static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 static int s_sig_num = 0;
 
+bool validBody(struct mbuf body, struct mbuf bodyToSend) {
+    bool validBody = true;
+    int offset = 7;
+    const char* bodyPointer = body.buf + body.len - 1;
+    const char* bodyToSendPointer = bodyToSend.buf + bodyToSend.len - 1;
+    bodyToSendPointer = bodyToSendPointer - offset;
+    for(int i = 0; i < body.len; i++) {
+        if (*bodyPointer != *bodyToSendPointer) {
+            validBody = false;
+        }
+        bodyPointer--;
+        bodyToSendPointer--;
+    }
+    return validBody;
+}
+
+struct mbuf processMessage(struct mg_connection *nc, struct http_message *httpMessage, WebHandler *webHandler, Response* response) {
+    response = webHandler->handleRequest(httpMessage);
+    struct mbuf body;
+    body.buf = (char*) response->getBody();
+    body.len = response->getBodyLength();
+    mg_printf(nc, "%s", response->getHeader());
+    mg_send_http_chunk(nc, body.buf, body.len);
+    mg_send_http_chunk(nc, "", 0);
+    return body;
+}
+
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     if (ev == MG_EV_HTTP_REQUEST) {
-        struct http_message *httpMessage = (struct http_message *) ev_data;
         WebHandler *webHandler = new WebHandler();
-        Response* response = webHandler->handleRequest(httpMessage);
-        mg_printf(nc, "%s", response->getHeader());
-        mg_send_http_chunk(nc, response->getBody(), response->getBodyLength());
-        mg_send_http_chunk(nc, "", 0);
-        delete webHandler;
+        Response* response = new Response();
+        struct http_message *httpMessage = (struct http_message *) ev_data;
+        struct mbuf body = processMessage(nc, httpMessage, webHandler, response);
+        if (!validBody(body, nc->send_mbuf)) {
+            mbuf_remove(&nc->send_mbuf, nc->send_mbuf.len);
+            processMessage(nc, httpMessage, webHandler, response);
+        }
         delete response;
+        delete webHandler;
     }
 }
 
