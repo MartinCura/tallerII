@@ -5,7 +5,7 @@
 
 using namespace std;
 
-class UserNotFoundException {
+class UserNotFoundException: public exception{
 public:
     UserNotFoundException(int userId) {
         this->userId = userId;

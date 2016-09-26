@@ -18,7 +18,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveld
 # files (.cpp) in the project
 file(GLOB_RECURSE SOURCES *.cpp ../person/*.cpp)
 
-add_executable (${TARGET} ${SOURCES} ../DB/ApplicationSDB.cpp ../DB/ApplicationSDB.h testing_uniqueDB.cpp)
+add_executable (${TARGET} ${SOURCES} ../DB/ApplicationSDB.cpp ../DB/ApplicationSDB.h testing_uniqueDB.cpp ../Exceptions/UserAlreadyExistsException.h ../Exceptions/UserNotFoundException.h)
 
 target_link_libraries (${TARGET} gtest)
 target_link_libraries (${TARGET} leveldb)

@@ -14,8 +14,9 @@ leveldb::DB *ApplicationSDB::getInstance() {
         leveldb::Options options;
         options.create_if_missing = true;
         leveldb::Status status = leveldb::DB::Open(options, "/tmp/testdb", &uniqueInstance);
-
+        status.ToString();
         status = uniqueInstance->Put(leveldb::WriteOptions(), "lastID", std::to_string(0));
+
     }
 
     return uniqueInstance;
