@@ -41,6 +41,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         struct http_message *httpMessage = (struct http_message *) ev_data;
         struct mbuf body = processMessage(nc, httpMessage, webHandler, response);
         if (!validBody(body, nc->send_mbuf)) {
+            Logger::getInstance()->info("Building response message again because body was invalid.");
             mbuf_remove(&nc->send_mbuf, nc->send_mbuf.len);
             processMessage(nc, httpMessage, webHandler, response);
         }
