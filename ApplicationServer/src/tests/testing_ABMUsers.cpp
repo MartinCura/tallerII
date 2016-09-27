@@ -1,54 +1,8 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "json/json.h"
-#include "json/json-forwards.h"
-#include "leveldb/db.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
-#include <iostream>
 #include <PersonManager.h>
-
-class ExistsUserDBTest : public ::testing::Test { 
-protected:
-	virtual void SetUp() {
-
-        personManager_ = new PersonManager();
-
-	}
-
-    virtual void TearDown() {
-        delete personManager_;
-    }
-
-	Json::Value CreateFakeUser(int id) {
-
-		Json::Value user;
-		user["id"] = id;
-		user["first_name"] = "Carlos";
-		user["last_name"] = "Rodriguez";
-		user["email"] = "crodriguez@gmail.com";
-		user["date_of_birth"] = "01/01/1990";
-		user["city"] = "CABA";
-		user["profile_picture"] = "";
-		user["summary"] = "Me gusta el arrte";
-		return user;
-	}
-
-
-
-
-	PersonManager* personManager_;
-
-
-
-};
-
-/// Get  User that exists already
-//TEST_F(ExistsUserDBTest, GetUser) {
-//	std::string value;
-//	leveldb::Status s = db_->Get(leveldb::ReadOptions(), "user_crodriguez@gmail.com", &value);
-//	EXPECT_EQ(s.ok(), true);
-//
-//}
 
 /// Save a new user to DB
 TEST(NewUser, SaveUser) {
@@ -82,19 +36,15 @@ TEST(UserExists, SaveUserERROR) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    try {
-        personManager_->savePerson(user);
-        personManager_->savePerson(user);
-        delete personManager_;
-    } catch (UserAlreadyExistsException& exception1) {
-        ASSERT_EQ(1,1);
-        delete personManager_;
-    }
+    personManager_->savePerson(user);
+    EXPECT_THROW(personManager_->savePerson(user), UserAlreadyExistsException);
+
+    delete personManager_;
 
 }
 
 /// Get  User that exists already
-TEST(ExistsUserDB, GetUser) {
+TEST(UserExists, GetUserById) {
     PersonManager* personManager_ = new PersonManager();
 
     Json::Value user;
@@ -107,7 +57,7 @@ TEST(ExistsUserDB, GetUser) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    long id = 1;
+    long id = 1; //Se aumenta en 1 el id después de crearlo.
     personManager_->savePerson(user);
 
     Person* person = personManager_->getPersonById(id);
@@ -118,58 +68,101 @@ TEST(ExistsUserDB, GetUser) {
 
 }
 
+///Get User that doesn't exists by Id
+TEST(NewUser, GetUserById) {
+    PersonManager* personManager_;
+    long id;
 
+    personManager_= new PersonManager();
+    id = 3;
 
-//TEST(KeyFound, KeyNotStored) {
-//
-/////Error when asking fot user that doesn't exist
-//	leveldb::DB* db;
-//	leveldb::Options op;
-//	op.create_if_missing = true;
-//	leveldb::Status s = leveldb::DB::Open(op, "/tmp/testingleveldb", &db);
-//	EXPECT_EQ(s.ok(), true);
-//	std::string value;
-//	leveldb::Status sGet = db->Get(leveldb::ReadOptions(), "key_not_saved", &value);
-//	EXPECT_EQ(sGet.IsNotFound(), true);
-//
-//	delete db;
-//
-//}
+    EXPECT_THROW(personManager_->getPersonById(id), UserNotFoundException);
 
-/// Save New User that doesn't exist already
-TEST(SaveUser, NotExists) {
-	EXPECT_EQ(1,1);
+    delete personManager_;
 
 }
 
+///Get User that doesn't exists by Mail
+TEST(NewUser, GetUserByMail) {
+    PersonManager* personManager_;
+    std::string user_mail;
 
-/// Save New User that already exists
-/*
-TEST_F(ExistsUserDBTest, SaveUser) {
-	EXPECT_EQ(1,1);
+    personManager_= new PersonManager();
+    user_mail = "cc";
 
-}
+    EXPECT_THROW(personManager_->getPersonByMail(&user_mail), UserNotFoundException);
 
-
-/// Get  User that doesn't exist already
-TEST(GetUser, NotExists) {
-	EXPECT_EQ(1,1);
-
-}
-
-
-
-/// Delete User that doesn't exist already
-TEST(DeleteUser, NotExists) {
-    EXPECT_EQ(1,1);
+    delete personManager_;
 
 }
 
-/// Delete User that exists already
-TEST_F(ExistsUserDBTest, DeleteUser) {
-    EXPECT_EQ(1,1);
+///Get User that exists in DB by Mail
+TEST(UserExists, GetUserByMail) {
+    PersonManager*  personManager;
+    Json::Value user;
+    std::string user_mail;
+
+    personManager = new PersonManager();
+
+    user["id"] = 0;
+    user["first_name"] = "Carlos";
+    user["last_name"] = "Rodriguez";
+    user["email"] = "crodriguez@gmail.com";
+    user["date_of_birth"] = "01/01/1990";
+    user["city"] = "CABA";
+    user["profile_picture"] = "";
+    user["summary"] = "Me gusta el arrte";
+
+    user_mail = user["email"].asString();
+
+    personManager->savePerson(user);
+    Person* person = personManager->getPersonByMail(&user_mail);
+
+    EXPECT_EQ(person->getCity(), "CABA");
+    delete personManager;
+}
+
+/// Delete User that doesn't exists
+TEST(NewUser, DeleteUser) {
+    PersonManager* personManager;
+    long id;
+
+    id = 3;
+    personManager = new PersonManager();
+
+    EXPECT_THROW(personManager->deletePerson(id), UserNotFoundException);
+
+    delete personManager;
 
 }
 
-*/
+///Delete User that exists in DB, expects to be deleted by Mail and by Id
+TEST(UserExists, DeleteUser) {
+    PersonManager* personManager;
+    std::string user_mail;
+    Json::Value user;
+    long id;
 
+    id = 1;
+    personManager = new PersonManager();
+
+    user["id"] = 0;
+    user["first_name"] = "Carlos";
+    user["last_name"] = "Rodriguez";
+    user["email"] = "crodriguez@gmail.com";
+    user["date_of_birth"] = "01/01/1990";
+    user["city"] = "CABA";
+    user["profile_picture"] = "";
+    user["summary"] = "Me gusta el arrte";
+
+    personManager->savePerson(user);
+    personManager->deletePerson(id);
+
+    user_mail = "crodriguez@gmail.com";
+
+    EXPECT_THROW(personManager->getPersonById(id), UserNotFoundException);
+    EXPECT_THROW(personManager->getPersonByMail(&user_mail), UserNotFoundException);
+
+    delete personManager;
+
+}
