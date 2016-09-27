@@ -85,7 +85,7 @@ public class UserListActivity extends NavDrawerActivity {
                 if (tv_nombre != null)
                     tv_nombre.setText(user.getFullName());
                 if (tv_trabajo != null)
-                    tv_trabajo.setText(user.getTrabajoActual());    // Revisar si cortar a la primera línea
+                    tv_trabajo.setText(user.getTrabajosActuales());    // Revisar si cortar a la primera línea
                 if (tv_recom != null)
                     tv_recom.setText(user.getCantRecomendaciones());
             }

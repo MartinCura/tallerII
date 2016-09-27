@@ -242,7 +242,7 @@ public class PerfilActivity extends NavDrawerActivity {
         setTextViewText(R.id.text_perfil_ciudad, mUser.getCity());
         setTextViewText(R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
         setTextViewText(R.id.text_perfil_resumen, mUser.getSummary());
-        setTextViewText(R.id.text_perfil_trabajo_actual, mUser.getTrabajoActual());
+        setTextViewText(R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales());
 
         populateStringList(R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
         populateStringList(R.id.perfil_skills_list, mUser.getListaSkills());
@@ -454,7 +454,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.contact_card_trabajo);
                 if (tv_trabajo != null)
-                    tv_trabajo.setText(user.getTrabajoActual());    // TODO: Varias líneas!! Cortar a la última
+                    tv_trabajo.setText(user.getUltimoTrabajoActual());
             }
 
             return itemView;

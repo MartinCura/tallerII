@@ -30,7 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/list_item_nombre"
         android:layout_toRightOf="@id/list_item_thumbnail"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginTop="5dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:text="@string/perfil_trabajo_actual_default" />
 

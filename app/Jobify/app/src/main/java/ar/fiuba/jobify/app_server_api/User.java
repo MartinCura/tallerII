@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +77,7 @@ public class User {
      * @return String de una o varias líneas con los trabajos actuales,
      * determinado por {@code Employment.esActual}.
      */
-    public String getTrabajoActual() {
+    public String getTrabajosActuales() {
         String actual = "";
         for (Employment trabajo : workHistory) {
             if (trabajo.esActual()) {
@@ -88,6 +87,18 @@ public class User {
             }
         }
         return actual;
+    }
+
+    /**
+     * @return String de una línea con el último trabajo actual listado,
+     * determinado por {@code Employment.esActual}.
+     */
+    public String getUltimoTrabajoActual() {
+        String trabajos = getTrabajosActuales();
+        int index = trabajos.lastIndexOf("\n");
+        if (index < 0)
+            return trabajos;
+        return trabajos.substring(index);
     }
 
     /**
