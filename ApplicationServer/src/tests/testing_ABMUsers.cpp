@@ -51,7 +51,7 @@ protected:
 //}
 
 /// Save a new user to DB
-TEST(ExistsUserDB, SaveUser) {
+TEST(NewUser, SaveUser) {
     PersonManager*  personManager = new PersonManager();
     Json::Value user;
     user["id"] = 0;
@@ -69,8 +69,8 @@ TEST(ExistsUserDB, SaveUser) {
 }
 
 
-/// Get  User that exists already
-TEST(ExistsUserDB, SaveUserERROR) {
+/// Save  User that exists already
+TEST(UserExists, SaveUserERROR) {
     PersonManager* personManager_ = new PersonManager();
     Json::Value user;
     user["id"] = 0;
