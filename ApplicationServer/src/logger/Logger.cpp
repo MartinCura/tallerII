@@ -4,15 +4,7 @@ const char *Logger::FILE_NAME = "ApplicationServer.log";
 
 Logger* Logger::instance = NULL;
 
-Logger::Logger() {
-    this->logFile.open(Logger::FILE_NAME, ios_base::app | ios_base::ate);
-    time_t now = time(0);
-    this->logFile << "\n";
-    this->logFile << "Starting server at ";
-    this->logFile << ctime(&now);
-    this->logFile << "\n";
-    this->logFile.close();
-}
+Logger::Logger() {}
 
 Logger::~Logger() {}
 
