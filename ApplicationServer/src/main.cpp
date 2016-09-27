@@ -15,6 +15,7 @@ bool validBody(struct mbuf body, struct mbuf bodyToSend) {
     for(int i = 0; i < body.len; i++) {
         if (*bodyPointer != *bodyToSendPointer) {
             validBody = false;
+            break;
         }
         bodyPointer--;
         bodyToSendPointer--;
