@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
         mg_mgr_poll(&mgr, 1000);
     }
 
-    Logger::getInstance()->info("Exiting on signal " + to_string(s_sig_num));
+    Logger::getInstance()->info("Exiting on signal " + to_string(s_sig_num) + "\n");
 
     delete Logger::getInstance();
     mg_mgr_free(&mgr);
