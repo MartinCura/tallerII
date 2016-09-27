@@ -27,7 +27,7 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
     } catch (InvalidRequestException& e) {
         return this->getBadRequestResponse(e.getMessage());
     } catch (UserNotFoundException& e) {
-        return this->getNotFoundResponse(e.getMessage());
+        return this->getNotFoundResponse(e.getMessage(UserNotFoundException::Message::id));
     }
 }
 

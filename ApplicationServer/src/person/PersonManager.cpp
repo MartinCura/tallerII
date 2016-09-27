@@ -137,28 +137,33 @@ void PersonManager::savePerson(Json::Value person_json) {
 
 void PersonManager::deletePerson(long id) {
 
-    std::string user_mail;
+    std::string user_mail, user_information;
 
     if (!userExists(id, &user_mail)) {
-        throw UserNotFoundException(id);
+        throw UserNotFoundException(UserNotFoundException::Message::id);
     }
 
     db->Delete(leveldb::WriteOptions(), "user_" + std::to_string(id));
+
+    if (!userExists(&user_mail, &user_information)) {
+        throw  UserNotFoundException(UserNotFoundException::Message::mail);
+    }
+
+    db->Delete(leveldb::WriteOptions(), "user_" + user_mail);
 }
 
 
 Person* PersonManager::getPersonById(long id) {
 
     std::string  user_mail, user;
-    leveldb::Status user_status;
     Json::Reader reader;
     Json::Value json_user;
 
     if (userExists(id, &user_mail)) {
-        user_status = db->Get(leveldb::ReadOptions(), "user_" + user_mail, &user);
-
-        if (user_status.IsNotFound()) {
-            throw std::exception();
+        try {
+            return getPersonByMail(&user_mail);
+        } catch (UserNotFoundException& exception1) {
+            std::exception();
         }
 
         reader.parse( user.c_str(), json_user );
@@ -166,9 +171,22 @@ Person* PersonManager::getPersonById(long id) {
 
     } else {
         //No se encontro el usuario
-        throw UserNotFoundException(id);
+        throw UserNotFoundException(UserNotFoundException::Message::id);
     }
 
+}
+
+Person* PersonManager::getPersonByMail(std::string* user_mail) {
+    std::string result;
+    Json::Value json_user;
+    Json::Reader reader;
+
+    if (!userExists(user_mail, &result)) {
+        throw UserNotFoundException(UserNotFoundException::Message::mail);
+    }
+
+    reader.parse( result.c_str(), json_user );
+    return new Person(json_user);
 }
 
 bool PersonManager::userExists(long id, std::string* result) {
