@@ -1,6 +1,7 @@
 #include "Logger.h"
 
-const char *Logger::FILE_NAME = "ApplicationServer.log";
+const char *Logger::FILE_EXTENSION = ".log";
+const char *Logger::DIRECTORY = "../ApplicationServer/logs/";
 
 Logger* Logger::instance = NULL;
 
@@ -33,7 +34,8 @@ void Logger::debug(string message) {
 
 void Logger::log(string prefix, string message) {
     logMutex.lock();
-    this->logFile.open(Logger::FILE_NAME, ios_base::app | ios_base::ate);
+    string fileName = Logger::DIRECTORY + this->getFileName() + Logger::FILE_EXTENSION;
+    this->logFile.open(fileName, ios_base::app | ios_base::ate);
     this->logFile << this->getTimestamp();
     this->logFile << prefix;
     this->logFile << message;
@@ -47,5 +49,13 @@ string Logger::getTimestamp() {
     struct tm * timeInfo = localtime(&now);
     char buffer[30];
     strftime(buffer, 30, "%Y-%m-%d %H:%M:%S ", timeInfo);
+    return string(buffer);
+}
+
+string Logger::getFileName() {
+    time_t now = time(0);
+    struct tm * timeInfo = localtime(&now);
+    char buffer[30];
+    strftime(buffer, 30, "%Y-%m", timeInfo);
     return string(buffer);
 }

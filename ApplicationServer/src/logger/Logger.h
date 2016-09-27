@@ -13,7 +13,8 @@ using namespace std;
 class Logger {
 
 public:
-    static const char* FILE_NAME;
+    static const char* FILE_EXTENSION;
+    static const char* DIRECTORY;
 
     static Logger* getInstance();
     void error(string message);
@@ -30,6 +31,7 @@ private:
     Logger();
     void log(string prefix, string message);
     string getTimestamp();
+    string getFileName();
 };
 
 #endif //PROJECT_LOGGER_H
