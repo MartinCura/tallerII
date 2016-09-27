@@ -6,7 +6,7 @@
 #include "../../jsoncpp/json/json.h"
 #include "../../jsoncpp/json/json-forwards.h"
 #include "../Response.h"
-#include "../exception/InvalidRequestException.h"
+#include "../../Exceptions/InvalidRequestException.h"
 
 using namespace std;
 
