@@ -189,6 +189,36 @@ Person* PersonManager::getPersonByMail(std::string* user_mail) {
     return new Person(json_user);
 }
 
+//TODO: SEE IF IT WORKS
+vector<Person*> PersonManager::getPersonFriendsById(long id) {
+    std::string  user_mail, user, friend_user;
+    Json::Reader reader;
+    Json::Value json_friends;
+    std::string friends_result;
+    vector<Person*> friends;
+
+
+
+    if (!userExists(id, &user_mail)) {
+        throw UserNotFoundException(UserNotFoundException::Message::id);
+    }
+
+    if (!userExists(&user_mail, &user)) {
+        throw std::exception();
+    }
+
+    db->Get(leveldb::ReadOptions(), "user_friends_" + std::to_string(id), &friends_result);
+    //Friends result has de id of every friend of the user_id
+    reader.parse(friends_result.c_str(), json_friends);
+    const Json::Value jfriends = json_friends["friends"];
+    for (int index = 0; index < jfriends.size(); index++) {
+        std::string friend_id = jfriends[index].asString();
+
+        friends.push_back(this->getPersonById(std::stol(friend_id)));
+    }
+    return friends;
+}
+
 bool PersonManager::userExists(long id, std::string* result) {
     std::string user_id = "user_" + std::to_string(id);
     return !(db->Get(leveldb::ReadOptions(), user_id, result)).IsNotFound();

@@ -49,8 +49,9 @@ string UsersHandler::buildGetUserResponse(int id) {
 }
 
 string UsersHandler::saveOrUpdatePerson(string body) {
-
+    std::cout<<body;
     //TODO: INFORMACIÓN OBLIGATORIA
+    //Validaciones
     Json::Value parsedBody = this->parseBody(body);
     string name = parsedBody.get("name", "").asString();
     if (name == "") {

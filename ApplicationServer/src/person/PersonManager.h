@@ -29,6 +29,7 @@ private:
     bool userExists(string *user_mail, string *result);
 
 
+    vector<Person *> getPersonFriendsById(long id);
 };
 
 #endif //PROJECT_PERSONMANAGER_H
