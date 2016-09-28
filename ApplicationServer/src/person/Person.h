@@ -52,6 +52,7 @@ private:
     string summary;
     vector<WorkHistory*> workHistory;
     vector<Skill*> skills;
+    Json::Value personAsJson;
 
     /// Creates an object Person from a Json
     void deserializeMe(Json::Value personAsJson);

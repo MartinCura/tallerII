@@ -12,6 +12,7 @@ Person::Person() {
 
 Person::Person(Json::Value personAsJson) {
     deserializeMe(personAsJson);
+    this->personAsJson = personAsJson;
 }
 
 Person::~Person() {
@@ -120,6 +121,10 @@ void Person::deserializeMe(Json::Value personAsJson) {
 }
 
 Json::Value Person::serializeMe() {
+    if (this->personAsJson != nullptr) {
+        return this->personAsJson;
+    }
+
     Json::Value personAsJson;
     personAsJson["id"] = this->id;
     personAsJson["first_name"] = this->firstName;
