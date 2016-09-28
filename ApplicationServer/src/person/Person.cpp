@@ -125,7 +125,6 @@ Json::Value Person::serializeMe() {
     if (this->personAsJson != "") {
         return this->personAsJson;
     }
-
     Json::Value personAsJson;
     personAsJson["id"] = this->id;
     personAsJson["first_name"] = this->firstName;
@@ -134,6 +133,7 @@ Json::Value Person::serializeMe() {
     personAsJson["date_of_birth"] = this->dateOfBirth;
     personAsJson["city"] = this->city;
     personAsJson["summary"] = this->summary;
+
     for (vector<WorkHistory*>::size_type i = 0; i != this->workHistory.size(); i++) {
         WorkHistory* workHistory = this->workHistory[i];
         Json::Value workHistoryResponse = workHistory->serializeMe();

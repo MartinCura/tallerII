@@ -27,7 +27,7 @@ file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp logger/*.cpp person/*.cpp)
 # Requests that an executable is to be built using ${SOURCE_FILES}. 
 # The first argument is the name of the executable
 # The second argument are the source files from wich to build the executable
-add_executable(${TARGET} ${SOURCE_FILES} DB/ApplicationSDB.cpp DB/ApplicationSDB.h Exceptions/UserAlreadyExistsException.h Exceptions/UserNotFoundException.h)
+add_executable(${TARGET} ${SOURCE_FILES} DB/ApplicationSDB.cpp DB/ApplicationSDB.h Exceptions/UserAlreadyExistsException.h Exceptions/UserNotFoundException.h DB/DBWrapper.cpp DB/DBWrapper.h)
 
 target_link_libraries (${TARGET} Mongoose)
 target_link_libraries (${TARGET} JsonCpp)
