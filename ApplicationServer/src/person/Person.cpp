@@ -8,6 +8,7 @@ Person::Person() {
     this->dateOfBirth = "";
     this->city = "";
     this->summary = "";
+    this->personAsJson = "";
 }
 
 Person::Person(Json::Value personAsJson) {
@@ -121,7 +122,7 @@ void Person::deserializeMe(Json::Value personAsJson) {
 }
 
 Json::Value Person::serializeMe() {
-    if (this->personAsJson != nullptr) {
+    if (this->personAsJson != "") {
         return this->personAsJson;
     }
 
