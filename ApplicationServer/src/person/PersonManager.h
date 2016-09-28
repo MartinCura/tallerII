@@ -4,6 +4,7 @@
 #include <leveldb/db.h>
 #include "Person.h"
 #include "../Exceptions/UserNotFoundException.h"
+#include "../DB/DBWrapper.h"
 
 class PersonManager {
 
@@ -19,14 +20,14 @@ public:
     void deletePerson(long id);
 
 private:
-    leveldb::DB* db;
+    DBWrapper* db;
     long uniqueId;
 
     Person* getFakePerson1();
     Person* getFakePerson2();
 
-    bool userExists(long id, string *result);
-    bool userExists(string *user_mail, string *result);
+   // bool userExists(long id, string *result);
+//    bool userExists(string *user_mail, string *result);
 
 
     vector<Person *> getPersonFriendsById(long id);

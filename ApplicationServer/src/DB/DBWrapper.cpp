@@ -4,7 +4,7 @@
 
 #include "DBWrapper.h"
 
-ResponseCode DBWrapper::openDb() {
+DBWrapper::ResponseCode DBWrapper::openDb() {
     if (db != nullptr) {
         throw std::exception(); //No se debería abrir una base que ya está abierta.
     }
@@ -14,7 +14,7 @@ ResponseCode DBWrapper::openDb() {
 
     options.create_if_missing = true;
     s = leveldb::DB::Open(options, "/tmp/appDB", &db);
-    if (!s.ok) {
+    if (!s.ok()) {
         return ERROR;
     }
     return OK;
@@ -72,12 +72,28 @@ DBWrapper::ResponseCode DBWrapper::deleteDB() {
     }
 
     delete db;
+    db = nullptr;
 }
 
 DBWrapper::~DBWrapper() {
-    if (db) {
+    if (db != nullptr) {
         deleteDB();
     }
+}
+
+DBWrapper::ResponseCode DBWrapper::existsKey(std::string key, std::string *output) {
+    bool s;
+    s = db->Get(leveldb::ReadOptions(), key, output).IsNotFound();
+    if (!s) {
+        return ERROR;
+    }
+
+    return OK;
+}
+
+DBWrapper::ResponseCode DBWrapper::destroyDB() {
+    leveldb::DestroyDB("/tmp/appDB", leveldb::Options());
+    return OK;
 }
 
 

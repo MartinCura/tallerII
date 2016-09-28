@@ -14,7 +14,7 @@ public:
 
     enum ResponseCode {OK, ERROR};
 
-    DBWrapper() {};
+    DBWrapper() { db = nullptr;};
     ~DBWrapper();
 
     ResponseCode openDb();
@@ -22,10 +22,12 @@ public:
     DBWrapper::ResponseCode puTKey(std::string key, std::string *output);
     DBWrapper::ResponseCode deleteKey(std::string key);
     DBWrapper::ResponseCode deleteDB();
+    DBWrapper::ResponseCode existsKey(std::string key, std::string *output);
+    DBWrapper::ResponseCode destroyDB();
+
 
 private:
     leveldb::DB* db;
-
 
 
 };

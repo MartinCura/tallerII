@@ -2,16 +2,17 @@
 #include "../Exceptions/UserAlreadyExistsException.h"
 
 PersonManager::PersonManager() {
+    db = new DBWrapper();
+    DBWrapper::ResponseCode status = db->openDb();
+    if (status == DBWrapper::ResponseCode::ERROR) {
+        throw exception();
+    }
 
-    leveldb::Options options;
-    options.create_if_missing = true;
-    leveldb::DB::Open(options, "/tmp/appDB", &db);
-    uniqueId = 0;
 }
 
 PersonManager::~PersonManager() {
-    delete db;
-    leveldb::DestroyDB("/tmp/appDB", leveldb::Options());
+    db->deleteDB();
+    db->destroyDB();
 
 }
 
@@ -116,20 +117,22 @@ void PersonManager::savePerson(Json::Value person_json) {
 
     if (user_id == 0) {
 
-        if (userExists(&user_mail, &user_information )) {
+        if (db->existsKey("user_" + user_mail, &user_information )) {
             //Ya existe un usuario con dicho mail
             throw  UserAlreadyExistsException();
         } else {
 
             uniqueId++;
             output = fastWriter.write(person_json);
-            db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
-            db->Put(leveldb::WriteOptions(), "user_" + std::to_string(uniqueId), user_mail );
+            db->puTKey("user_" + user_mail, &output);
+            db->puTKey("user_" + std::to_string(uniqueId), &user_mail);
+            //db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
+            //db->Put(leveldb::WriteOptions(), "user_" + std::to_string(uniqueId), user_mail );
         }
     } else {
         //The person already exists in the system and it wants to refresh his information
         output = fastWriter.write(person_json);
-        db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
+        db->puTKey( "user_" + user_mail, &output);
 
     }
 }
@@ -139,17 +142,17 @@ void PersonManager::deletePerson(long id) {
 
     std::string user_mail, user_information;
 
-    if (!userExists(id, &user_mail)) {
+    if (!db->existsKey("user_"+std::to_string(id), &user_mail)) {
         throw UserNotFoundException(UserNotFoundException::Message::id);
     }
 
-    db->Delete(leveldb::WriteOptions(), "user_" + std::to_string(id));
+    db->deleteKey("user_" + std::to_string(id));
 
-    if (!userExists(&user_mail, &user_information)) {
+    if (!db->existsKey("user_" + user_mail, &user_information)) {
         throw  UserNotFoundException(UserNotFoundException::Message::mail);
     }
 
-    db->Delete(leveldb::WriteOptions(), "user_" + user_mail);
+    db->deleteKey("user_" + user_mail);
 }
 
 
@@ -159,7 +162,7 @@ Person* PersonManager::getPersonById(long id) {
     Json::Reader reader;
     Json::Value json_user;
 
-    if (userExists(id, &user_mail)) {
+    if (db->existsKey("user_" + std::to_string(id), &user_mail)) {
         try {
             return getPersonByMail(&user_mail);
         } catch (UserNotFoundException& exception1) {
@@ -181,7 +184,7 @@ Person* PersonManager::getPersonByMail(std::string* user_mail) {
     Json::Value json_user;
     Json::Reader reader;
 
-    if (!userExists(user_mail, &result)) {
+    if (!db->existsKey("user_" + *user_mail, &result)) {
         throw UserNotFoundException(UserNotFoundException::Message::mail);
     }
 
@@ -199,15 +202,15 @@ vector<Person*> PersonManager::getPersonFriendsById(long id) {
 
 
 
-    if (!userExists(id, &user_mail)) {
+    if (!db->existsKey("user_" + std::to_string(id), &user_mail)) {
         throw UserNotFoundException(UserNotFoundException::Message::id);
     }
 
-    if (!userExists(&user_mail, &user)) {
+    if (!db->existsKey("user_" + user_mail, &user)) {
         throw std::exception();
     }
 
-    db->Get(leveldb::ReadOptions(), "user_friends_" + std::to_string(id), &friends_result);
+    db->getKey( "user_friends_" + std::to_string(id), &friends_result);
     //Friends result has de id of every friend of the user_id
     reader.parse(friends_result.c_str(), json_friends);
     const Json::Value jfriends = json_friends["friends"];
@@ -219,6 +222,7 @@ vector<Person*> PersonManager::getPersonFriendsById(long id) {
     return friends;
 }
 
+/*
 bool PersonManager::userExists(long id, std::string* result) {
     std::string user_id = "user_" + std::to_string(id);
     return !(db->Get(leveldb::ReadOptions(), user_id, result)).IsNotFound();
@@ -229,4 +233,4 @@ bool PersonManager::userExists(std::string* user_mail, std::string* result) {
     std::string user_id = "user_" + *user_mail;
     return !(db->Get(leveldb::ReadOptions(), user_id, result)).IsNotFound();
 }
-
+*/
