@@ -24,8 +24,17 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
 
     private final String LOG_TAG = EditableListAdapter.class.getSimpleName();
 
-    public EditableListAdapter(Context context, List<T> list) {
+    private ListView adaptedListView;
+
+    public EditableListAdapter(Context context, ListView lv, List<T> list) {
         super(context, R.layout.list_item_borrable, list);
+        this.adaptedListView = lv;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        actualizarAlturaDeListView(adaptedListView, this);
     }
 
     @Override
@@ -50,7 +59,7 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
                 botonRemove.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        remove(item);     // TODO: Revisar funcionamiento.
+                        remove(item);
                         notifyDataSetChanged();
                     }
                 });
@@ -78,9 +87,8 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
     public static <T extends Nombrable> EditableListAdapter<T> populateEditableList(Context context, ListView mListView, List<T> list) {
         if (mListView != null) {
 
-            EditableListAdapter<T> mAdapter = new EditableListAdapter<>(context, list);
+            EditableListAdapter<T> mAdapter = new EditableListAdapter<>(context, mListView, list);
             mListView.setAdapter(mAdapter);
-            mAdapter.notifyDataSetChanged();
             actualizarAlturaDeListView(mListView, mAdapter);
 
             return mAdapter;

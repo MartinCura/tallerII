@@ -115,7 +115,8 @@ public class PerfilActivity extends NavDrawerActivity {
             fabEditar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    switchEditMode();
+                    if (fetchedUser != null)
+                        switchEditMode();
                 }
             });
         }
