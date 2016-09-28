@@ -345,7 +345,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         .show();//
 
                 SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).edit();
-                editor.putLong(getString(R.string.stored_connected_user_id), 3);//  HARDCODEO
+                editor.putLong(getString(R.string.stored_connected_user_id), 2);//  HARDCODEO
                 editor.apply();
 
                 iniciarPerfilActivity();

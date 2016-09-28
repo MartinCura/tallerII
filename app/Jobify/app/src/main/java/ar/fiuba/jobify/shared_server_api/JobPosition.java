@@ -3,7 +3,7 @@ package ar.fiuba.jobify.shared_server_api;
 /**
  * Created by martín on 06/09/16.
  */
-public class JobPosition {
+public class JobPosition implements Nombrable {
 
     String
             name = "",
@@ -13,6 +13,9 @@ public class JobPosition {
 
     public String getName() {
         return name;
+    }
+    public String getNombre() {
+        return getName();
     }
 
     public String getDescription() {

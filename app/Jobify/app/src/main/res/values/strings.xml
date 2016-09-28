@@ -30,6 +30,9 @@
     <string name="BASE_HTTP_URL">http://192.168.43.236:8000/</string>
     <string name="perfil_get_user_path">users</string>
     <string name="perfil_get_photo_path">profilepicture</string>
+    <string name="perfil_get_thumbnail_path">profilepicture</string>
+    <!-- TODO thumbnail path -->
+
 
 
     <!-- Strings related to Settings -->

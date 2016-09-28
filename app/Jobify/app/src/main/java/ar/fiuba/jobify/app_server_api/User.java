@@ -10,10 +10,15 @@ import com.google.gson.JsonSyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.fiuba.jobify.shared_server_api.JobPosition;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
 /**
  * Created by martín on 08/09/16.
+ * Clase que maneja todos los elementos de un usuario del sistema.
+ * Para la creación de un nuevo usuario, usar el constructor de e-mail.
+ * La única otra forma permitida por el momento de crear uno entero es a partir de un Json
+ * de esa forma evitando que se toque el id, elemento decidido únicamente por el servidor.
  */
 public class User {
 
@@ -24,7 +29,7 @@ public class User {
             city = "",
             dateOfBirth = "",
             summary = "";
-    String profilePicture; // URL? TODO revisar
+    String profilePicture = ""; // URL? Imagen? TODO revisar
     List<Skill> skills;
     List<Employment> workHistory;
 
@@ -32,6 +37,25 @@ public class User {
     public User() {
         skills = new ArrayList<>();
         workHistory = new ArrayList<>();
+    }
+
+    public User(String email) {
+        this();
+        this.email = email;
+    }
+
+    // copy constructor
+    public User(User o) {
+        this.id = o.id;
+        this.firstName = o.firstName;
+        this.lastName = o.lastName;
+        this.email = o.email;
+        this.city = o.city;
+        this.dateOfBirth = o.dateOfBirth;
+        this.summary = o.summary;
+        this.profilePicture = o.profilePicture;
+        this.skills = new ArrayList<>(o.skills);
+        this.workHistory = new ArrayList<>(o.workHistory);
     }
 
     public int getId() {
@@ -73,6 +97,49 @@ public class User {
         //return cantRecomendaciones;
     }
 
+    public boolean setFirstName(String firstName) {
+        if (firstName.isEmpty() || firstName.length() > 35) // hardcodeado
+            return false;
+        this.firstName = firstName;
+        return true;
+    }
+
+    public boolean setLastName(String lastName) {
+        if (lastName.isEmpty() || lastName.length() > 35) // hardcodeado
+            return false;
+        this.lastName = lastName;
+        return true;
+    }
+
+    public boolean setCity(String city) {
+        // if?? TODO
+        this.city = city;
+        return true;
+    }
+
+    public boolean setDateOfBirth(String dateOfBirth) {
+        // TODO if
+        this.dateOfBirth = dateOfBirth;
+        return true;
+    }
+
+    public boolean setSummary(String summary) {
+        if (summary.length() > 1000)    // hardcodeado
+            return false;
+        this.summary = summary;
+        return true;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        // Chequeos?? TODO
+        this.skills = new ArrayList<>(skills);
+    }
+
+    public void setWorkHistory(List<Employment> workHistory) {
+        // Chequeos?? TODO
+        this.workHistory = new ArrayList<>(workHistory);
+    }
+
     /**
      * @return String de una o varias líneas con los trabajos actuales,
      * determinado por {@code Employment.esActual}.
@@ -81,7 +148,7 @@ public class User {
         String actual = "";
         for (Employment trabajo : workHistory) {
             if (trabajo.esActual()) {
-                if (!actual.equals(""))
+                if (!actual.isEmpty())
                     actual = actual.concat("\n");
                 actual = actual.concat(trabajo.getOneLiner());
             }
@@ -126,14 +193,21 @@ public class User {
         return lista;
     }
 
+    public String toJSON() {
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
+
+        return gson.toJson(this);
+    }
+
     public static User parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
 
         try {
-            User user = gson.fromJson(response, User.class);
-            return user;
+            return gson.fromJson(response, User.class);
 
         } catch (JsonSyntaxException e) {
             Log.e("API", "Json Syntax exception!");
