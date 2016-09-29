@@ -6,7 +6,7 @@
 #include "../../person/Person.h"
 #include "../../person/WorkHistory.h"
 #include "../../Exceptions/UserNotFoundException.h"
-#include "../exception/InvalidRequestException.h"
+#include "../../Exceptions/InvalidRequestException.h"
 #include <vector>
 
 class UsersHandler : public Handler {

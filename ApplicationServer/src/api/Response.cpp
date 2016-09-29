@@ -18,7 +18,7 @@ const char *Response::getHeader() {
 }
 
 const char *Response::getBody() {
-    if (hasBinaryContent) {
+    if (this->hasBinaryContent) {
         return this->binaryBody;
     }
     return this->body.c_str();

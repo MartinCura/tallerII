@@ -33,4 +33,6 @@ target_link_libraries (${TARGET} Mongoose)
 target_link_libraries (${TARGET} JsonCpp)
 target_link_libraries (${TARGET} leveldb)
 
-
+# Creates a directory for log files
+file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ApplicationServer/logs")
+execute_process(COMMAND /bin/chmod 777 "${PROJECT_SOURCE_DIR}/ApplicationServer/logs")

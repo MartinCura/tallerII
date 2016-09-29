@@ -15,6 +15,7 @@ bool validBody(struct mbuf body, struct mbuf bodyToSend) {
     for(int i = 0; i < body.len; i++) {
         if (*bodyPointer != *bodyToSendPointer) {
             validBody = false;
+            break;
         }
         bodyPointer--;
         bodyToSendPointer--;
@@ -40,6 +41,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         struct http_message *httpMessage = (struct http_message *) ev_data;
         struct mbuf body = processMessage(nc, httpMessage, webHandler, response);
         if (!validBody(body, nc->send_mbuf)) {
+            Logger::getInstance()->info("Building response message again because body was invalid.");
             mbuf_remove(&nc->send_mbuf, nc->send_mbuf.len);
             processMessage(nc, httpMessage, webHandler, response);
         }
@@ -130,7 +132,7 @@ int main(int argc, char *argv[]) {
         mg_mgr_poll(&mgr, 1000);
     }
 
-    Logger::getInstance()->info("Exiting on signal " + to_string(s_sig_num));
+    Logger::getInstance()->info("Exiting on signal " + to_string(s_sig_num) + "\n");
 
     delete Logger::getInstance();
     mg_mgr_free(&mgr);
