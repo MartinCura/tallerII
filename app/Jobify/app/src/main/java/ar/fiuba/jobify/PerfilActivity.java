@@ -3,16 +3,21 @@ package ar.fiuba.jobify;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,9 +47,14 @@ import com.android.volley.toolbox.StringRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import ar.fiuba.jobify.app_server_api.Employment;
 import ar.fiuba.jobify.app_server_api.User;
@@ -57,6 +67,10 @@ public class PerfilActivity extends NavDrawerActivity {
     public final static String FETCHED_USER_ID_MESSAGE = "ar.fiuba.jobify.FETCHED_USER_ID_MESSAGE";
     private long fetchedUserID = 2;
     private User fetchedUser;
+
+    static final int REQUEST_TAKE_PHOTO = 1;
+    String mCurrentPhotoPath = null;
+    Uri mPhotoURI;
 
     private static Context mContext;
 
@@ -132,6 +146,7 @@ public class PerfilActivity extends NavDrawerActivity {
     // TODO: nacimiento, foto
     private void switchEditMode() {
         FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
+        ImageView iv_foto = (ImageView) findViewById(R.id.perfil_image);
 
         if (inEditingMode) {    /** Modo normal */
             // Modificar usuario con contenido de los campos; si hay errores de input cancelar
@@ -140,6 +155,10 @@ public class PerfilActivity extends NavDrawerActivity {
                         .show();
                 return;
             }
+
+            // No permitir cambiar la foto
+            if (iv_foto != null)
+                iv_foto.setOnClickListener(null);
 
             // Esconder teclado
             View view = this.getCurrentFocus();
@@ -169,6 +188,16 @@ public class PerfilActivity extends NavDrawerActivity {
             }
 
             // Cambia funcionamiento del "volver" TODO
+
+            // Permitir cambiar la foto
+            if (iv_foto != null)
+                iv_foto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
+                            dispatchTakePictureIntent();
+                    }
+                });
 
             // Precargar campos con valores actuales
             setTextViewText(R.id.text_perfil_nombre_editable, fetchedUser.getFirstName());
@@ -394,6 +423,26 @@ public class PerfilActivity extends NavDrawerActivity {
 
     public void cargarFotoDePerfil(final long idFetched) {
 
+        // TODO / DE PRUEBA
+        if (mCurrentPhotoPath != null) {
+            ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
+//            File file = new File(mCurrentPhotoPath);
+            if (imageView != null) {// && file.exists()) {
+                // Forma URI:
+//                Uri imageContentUri = Uri.fromFile(file);
+//                imageView.setImageURI(imageContentUri);
+                // Forma Bitmap:
+//                Bitmap imageBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                try {
+                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mPhotoURI);
+                    imageView.setImageBitmap(imageBitmap);
+                    return;
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+        }
         Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
                 .appendPath(getString(R.string.perfil_get_photo_path))
                 .appendPath(Long.toString(idFetched))
@@ -580,6 +629,39 @@ public class PerfilActivity extends NavDrawerActivity {
 
         RequestQueueSingleton.getInstance(this.getApplicationContext())
                 .addToRequestQueue(mStringRequest);
+    }
+
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occured while creating the File
+                Log.e(LOG_TAG, "Error al intentar crear el archivo de foto.");
+                return;
+            }
+            if (photoFile != null) {
+                mPhotoURI = FileProvider.getUriForFile(this,
+                                                    "ar.fiuba.jobify.fileprovider",
+                                                    photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+                .format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+
+        mCurrentPhotoPath = "file:" + image.getAbsolutePath();//"content:" ?
+        return image;
     }
 
 

@@ -26,7 +26,7 @@
             <ImageView
                 android:id="@+id/perfil_image"
                 android:layout_width="match_parent"
-                android:layout_height="320dp"
+                android:layout_height="@dimen/app_bar_height"
                 android:src="@drawable/placeholder_image"
                 android:scaleType="centerCrop"
                 android:contentDescription="@string/perfil_foto_description"
