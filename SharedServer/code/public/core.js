@@ -21,6 +21,21 @@ nameAndDescriptionFields = [
         }
 ];
 
+function categoryFields(categories) {
+
+    return [
+    {
+      key: "transportation",
+      type: "select",
+      templateOptions: {
+        label: "Categories",
+        valueProp: "name",
+
+        options: categories
+        }
+    }
+    ]
+}
 
 
 // create the module and name it sharedServerClient
@@ -40,18 +55,21 @@ sharedServerClient.config(function($routeProvider) {
         // route for the about page
         .when('/skills', {
             templateUrl : 'categories.html',
-            controller  : 'skillsController'
+            controller  : 'skillsController',
+            controllerAs: 'vm'
         })
 
         // route for the contact page
         .when('/job_positions', {
             templateUrl : 'categories.html',
-            controller  : 'PositionController'
+            controller  : 'PositionController',
+            controllerAs: 'vm'
         });
 });
 
 
-function get($scope, $http, url, name, vm){
+
+function get($scope, $http, url, name, vm, callback){
     $http.get(url)
         .success(function(data) {
             console.log(data);
@@ -59,15 +77,21 @@ function get($scope, $http, url, name, vm){
             $scope.items = mydata;
             console.log(mydata);
             vm.items = JSON.parse(JSON.stringify(mydata));
+            if (callback != undefined){
+                callback($scope);
+            }
         })
         .error(function(data) {
             console.log('Error: ' + mydata);
     });
 }
 
-function update($http, url) {
-    $http.put()
-
+function get_categories($scope, $http, url, name, vm){
+    get($scope, $http, url, name, vm, 
+        function($scope) {
+                        $scope.categories = $scope.items;
+                    }
+    );
 }
 
 // create the controller and inject Angular's $scope
@@ -81,14 +105,14 @@ sharedServerClient.controller('mainController', function($scope, $http) {
 
     $scope.fields = ["name", "description"];
     
-    get($scope, $http, '/categories', 'categories', vm);
+    get_categories($scope, $http, '/categories', 'categories', vm);
 
     vm.create = function() {
             console.log({category: vm.formData});
             $http.post('/categories', {category: vm.formData})
                 .success(function(data) {
                     // refresh
-                    get($scope, $http, '/categories', 'categories', vm);
+                    get_categories($scope, $http, '/categories', 'categories', vm);
                     
                 })
                 .error(function(data) {
@@ -100,7 +124,7 @@ sharedServerClient.controller('mainController', function($scope, $http) {
     $scope.delete = function(name) {
         $http.delete('/categories/' + name)
             .success(function(){
-                get($scope, $http, '/categories', 'categories', vm);
+                get_categories($scope, $http, '/categories', 'categories', vm);
             })
     }
 
@@ -110,13 +134,20 @@ sharedServerClient.controller('mainController', function($scope, $http) {
         $http.put("/categories/" + $scope.items[index].name, {category: vm.items[index]})
             .success(function() {
                 // refresh
-                    get($scope, $http, '/categories', 'categories', vm);
+                    get_categories($scope, $http, '/categories', 'categories', vm);
             })
     }
 });
 
 sharedServerClient.controller('skillsController', function($scope, $http) {
+
+
     $scope.item_name = 'Skills';
+
+    var vm = this;
+
+    vm.fields = nameAndDescriptionFields.concat(categoryFields($scope.categories));
+
     $http.get('/skills')
         .success(function(data) {
             console.log(data);
@@ -131,6 +162,12 @@ sharedServerClient.controller('skillsController', function($scope, $http) {
 
 sharedServerClient.controller('PositionController', function($scope, $http) {
     $scope.item_name = 'Job Positions';
+
+    var vm = this;
+
+    vm.fields = nameAndDescriptionFields.concat(categoryFields($scope.categories));
+
+
     $http.get('/job_positions')
         .success(function(data) {
             console.log(data);
