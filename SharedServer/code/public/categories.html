@@ -16,7 +16,7 @@
             <!-- type="checkbox" ng-click="deleteTodo(todo._id)">  -->
                 <span>
                 	<span  onclick="$(this).parent().find('.info').toggleClass('hidden')">{{ item.name }}<span class="glyphicon glyphicon-pencil"></span></span>
-                	<span class="glyphicon glyphicon-remove" ng-click="delete(item.name)"></span>
+                	<span class="glyphicon glyphicon-remove" ng-click="delete(item.name, item.category)"></span>
 	                
 	                <div class="info hidden">
 		                <div class="" ng-repeat="(key, value) in item">

@@ -1,3 +1,4 @@
+
 nameAndDescriptionFields = [
         {
             key: 'name',
@@ -25,18 +26,22 @@ function categoryFields(categories) {
 
     return [
     {
-      key: "transportation",
+      key: "category",
       type: "select",
       templateOptions: {
         label: "Categories",
         valueProp: "name",
-
         options: categories
-        }
+      }
     }
     ]
 }
 
+
+function error(data) {
+    alert("Error al crear");
+    console.log('Error: ' + data);
+}
 
 // create the module and name it sharedServerClient
 var sharedServerClient = angular.module('sharedServerClient', ['ngRoute', 'formly', 'formlyBootstrap']);
@@ -80,10 +85,7 @@ function get($scope, $http, url, name, vm, callback){
             if (callback != undefined){
                 callback($scope);
             }
-        })
-        .error(function(data) {
-            console.log('Error: ' + mydata);
-    });
+        }).error(error);
 }
 
 function get_categories($scope, $http, url, name, vm){
@@ -102,8 +104,6 @@ sharedServerClient.controller('mainController', function($scope, $http) {
     vm.fields = nameAndDescriptionFields;
 
     $scope.item_name = 'Categories';
-
-    $scope.fields = ["name", "description"];
     
     get_categories($scope, $http, '/categories', 'categories', vm);
 
@@ -114,19 +114,15 @@ sharedServerClient.controller('mainController', function($scope, $http) {
                     // refresh
                     get_categories($scope, $http, '/categories', 'categories', vm);
                     
-                })
-                .error(function(data) {
-                    alert("Error al crear");
-                    console.log('Error: ' + data);
-                });
-        };
+                }).error(error);
+    };
     
     $scope.delete = function(name) {
         $http.delete('/categories/' + name)
             .success(function(){
                 get_categories($scope, $http, '/categories', 'categories', vm);
             })
-    }
+    };
 
     vm.onSubmit = function(index){
         console.log($scope.items[index]);
@@ -135,8 +131,9 @@ sharedServerClient.controller('mainController', function($scope, $http) {
             .success(function() {
                 // refresh
                     get_categories($scope, $http, '/categories', 'categories', vm);
-            })
-    }
+            }).error(error);
+    };
+
 });
 
 sharedServerClient.controller('skillsController', function($scope, $http) {
@@ -148,16 +145,34 @@ sharedServerClient.controller('skillsController', function($scope, $http) {
 
     vm.fields = nameAndDescriptionFields.concat(categoryFields($scope.categories));
 
-    $http.get('/skills')
-        .success(function(data) {
-            console.log(data);
-            mydata = data["skills"];
-            $scope.items = mydata;
-            console.log(mydata);
-        })
-        .error(function(data) {
-            console.log('Error: ' + mydata);
-    });
+    get($scope, $http, '/skills', 'skills', vm);
+
+    vm.create = function() {
+
+        console.log({skills: vm.formData});
+        $http.post('/skills/categories/' + vm.formData["category"], {skill: vm.formData})
+            .success(function(data) {
+                // refresh
+                get($scope, $http, '/skills', 'skills', vm);
+                
+            }).error(error);
+    };
+
+    $scope.delete = function(name, category) {
+        $http.delete('/skills/categories/' + category + "/" + name)
+            .success(function(){
+                get($scope, $http, '/skills', 'skills', vm);
+            })
+    };
+
+    vm.onSubmit = function(index){
+        $http.put('/skills/categories/' + $scope.items[index].category + "/" + $scope.items[index].name, {skill: vm.items[index]})
+            .success(function() {
+                // refresh
+                get($scope, $http, '/skills', 'skills', vm);
+            }).error(error);
+    };
+
 });
 
 sharedServerClient.controller('PositionController', function($scope, $http) {
@@ -168,15 +183,33 @@ sharedServerClient.controller('PositionController', function($scope, $http) {
     vm.fields = nameAndDescriptionFields.concat(categoryFields($scope.categories));
 
 
-    $http.get('/job_positions')
-        .success(function(data) {
-            console.log(data);
-            mydata = data["job_positions"];
-            $scope.items = mydata;
-            console.log(mydata);
-        })
-        .error(function(data) {
-            console.log('Error: ' + mydata);
-    });
+    get($scope, $http, '/job_positions', 'job_positions', vm);
+
+    vm.create = function() {
+
+        console.log({job_positions: vm.formData});
+        $http.post('/job_positions/categories/' + vm.formData["category"], {job_position: vm.formData})
+            .success(function(data) {
+                // refresh
+                get($scope, $http, '/job_positions', 'job_positions', vm);
+                
+            }).error(error);
+    };
+
+    $scope.delete = function(name, category) {
+        $http.delete('/job_positions/categories/' + category + "/" + name)
+            .success(function(){
+                get($scope, $http, '/job_positions', 'job_positions', vm);
+            })
+    };
+
+    vm.onSubmit = function(index){
+        console.log(vm.items[index]);
+        $http.put('/job_positions/categories/' + $scope.items[index].category + "/" + $scope.items[index].name, {job_position: vm.items[index]})
+            .success(function() {
+                // refresh
+                get($scope, $http, '/job_positions', 'job_positions', vm);
+            }).error(error);
+    };
 });
 
