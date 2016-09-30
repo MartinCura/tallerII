@@ -96,13 +96,13 @@ public class UserListActivity extends NavDrawerActivity {
                 TextView tv_recom   = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
 
                 if (iv_thumbnail != null) {
-                    Uri builtUri = Uri.parse(PerfilActivity.getAppServerBaseURL()).buildUpon()
+                    Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
                             .appendPath(getString(R.string.perfil_get_thumbnail_path))
                             .appendPath(Long.toString(user.getId()))
                             .build();
                     final String url = builtUri.toString();
 
-                    PerfilActivity.cargarImagenDeURLenImageView(getContext(),
+                    Utils.cargarImagenDeURLenImageView(getContext(),
                             iv_thumbnail, url, LOG_TAG);
                 }
 

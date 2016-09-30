@@ -10,7 +10,6 @@ import com.google.gson.JsonSyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ar.fiuba.jobify.shared_server_api.JobPosition;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
 /**
@@ -22,6 +21,9 @@ import ar.fiuba.jobify.shared_server_api.Skill;
  */
 public class User {
 
+    public final static int MAX_CHAR_NAMES = 35;
+    public final static int MAX_CHAR_SUMMARY = 1000;
+
     int id;
     String  firstName = "",
             lastName = "",
@@ -29,7 +31,7 @@ public class User {
             city = "",
             dateOfBirth = "",
             summary = "";
-    String profilePicture = ""; // URL? Imagen? TODO revisar
+//    String profilePicture = ""; // URL? Imagen? TODO revisar    BORRAR
     List<Skill> skills;
     List<Employment> workHistory;
 
@@ -53,7 +55,7 @@ public class User {
         this.city = o.city;
         this.dateOfBirth = o.dateOfBirth;
         this.summary = o.summary;
-        this.profilePicture = o.profilePicture;
+//        this.profilePicture = o.profilePicture;
         this.skills = new ArrayList<>(o.skills);
         this.workHistory = new ArrayList<>(o.workHistory);
     }
@@ -82,9 +84,6 @@ public class User {
     public String getSummary() {
         return summary;
     }
-    public String getProfilePicture() {
-        return profilePicture;
-    }
     public List<Skill> getSkills() {
         return skills;
     }
@@ -98,14 +97,14 @@ public class User {
     }
 
     public boolean setFirstName(String firstName) {
-        if (firstName.isEmpty() || firstName.length() > 35) // hardcodeado
+        if (firstName.isEmpty() || firstName.length() > MAX_CHAR_NAMES)
             return false;
         this.firstName = firstName;
         return true;
     }
 
     public boolean setLastName(String lastName) {
-        if (lastName.isEmpty() || lastName.length() > 35) // hardcodeado
+        if (lastName.isEmpty() || lastName.length() > MAX_CHAR_NAMES)
             return false;
         this.lastName = lastName;
         return true;
@@ -124,7 +123,7 @@ public class User {
     }
 
     public boolean setSummary(String summary) {
-        if (summary.length() > 1000)    // hardcodeado
+        if (summary.length() > MAX_CHAR_SUMMARY)
             return false;
         this.summary = summary;
         return true;

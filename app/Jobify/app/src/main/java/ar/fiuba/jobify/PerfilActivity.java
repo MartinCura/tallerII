@@ -2,16 +2,12 @@ package ar.fiuba.jobify;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
@@ -40,7 +36,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 
@@ -50,11 +45,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import ar.fiuba.jobify.app_server_api.Employment;
 import ar.fiuba.jobify.app_server_api.User;
@@ -143,12 +135,47 @@ public class PerfilActivity extends NavDrawerActivity {
         }
     }
 
-    // TODO: nacimiento, foto
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        onCreateDrawer();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        refreshProfileInformation(fetchedUserID);
+        cargarFotoDePerfil(fetchedUserID);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
+
+            RequestQueue mRequestQueue = RequestQueueSingleton
+                    .getInstance(this.getApplicationContext())
+                    .getRequestQueue();
+            mRequestQueue.cancelAll(LOG_TAG);
+        }
+    }
+
+    public static Context getContext() {
+        return mContext;
+    }
+
+
+    /**
+     * Cambia entre los estados normal y de edición.
+     */
+    // TODO: nacimiento
     private void switchEditMode() {
         FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
         ImageView iv_foto = (ImageView) findViewById(R.id.perfil_image);
 
-        if (inEditingMode) {    /** Modo normal */
+        if (inEditingMode) {    /** Cambiar a modo normal */
             // Modificar usuario con contenido de los campos; si hay errores de input cancelar
             if (!capturarInputPerfilUsuario()) {
                 Toast.makeText(this, "Usuario no modificado", Toast.LENGTH_LONG)
@@ -177,13 +204,13 @@ public class PerfilActivity extends NavDrawerActivity {
 
             refreshProfileInformation(fetchedUserID);
 
-        } else {    /** Modo edición */
+        } else {    /** Cambiar a modo edición */
             // Cambia color del botón de edición
             if (fabEditar != null) {
-                ColorStateList csl = new ColorStateList(
-                        new int[][] { new int[] { android.R.attr.state_enabled } },
-                        new int[] { Color.GREEN });
-//                fabEditar.setBackgroundTintList(csl);
+//                ColorStateList csl = new ColorStateList(
+//                        new int[][] { new int[] { android.R.attr.state_enabled } },
+//                        new int[] { Color.GREEN });
+////                fabEditar.setBackgroundTintList(csl);
                 fabEditar.setBackgroundColor(Color.BLUE);
             }
 
@@ -200,10 +227,10 @@ public class PerfilActivity extends NavDrawerActivity {
                 });
 
             // Precargar campos con valores actuales
-            setTextViewText(R.id.text_perfil_nombre_editable, fetchedUser.getFirstName());
-            setTextViewText(R.id.text_perfil_apellido_editable, fetchedUser.getLastName());
-            setTextViewText(R.id.text_perfil_ciudad_editable, fetchedUser.getCity());
-            setTextViewText(R.id.text_perfil_resumen_editable, fetchedUser.getSummary());
+            Utils.setTextViewText(this, R.id.text_perfil_nombre_editable, fetchedUser.getFirstName());
+            Utils.setTextViewText(this, R.id.text_perfil_apellido_editable, fetchedUser.getLastName());
+            Utils.setTextViewText(this, R.id.text_perfil_ciudad_editable, fetchedUser.getCity());
+            Utils.setTextViewText(this, R.id.text_perfil_resumen_editable, fetchedUser.getSummary());
 
             mSkillAdapter = EditableListAdapter.populateEditableList(this,
                     (ListView) findViewById(R.id.perfil_skills_list_editable),
@@ -245,65 +272,35 @@ public class PerfilActivity extends NavDrawerActivity {
         }
 
         // Togglear la visibilidad de views pertinentes a cada modo
-        @IdRes int[] visibilityViews = {
-                R.id.perfil_toolbar,
-                R.id.perfil_nombre_editable_frame,
-                R.id.text_perfil_trabajo_actual,
-                R.id.text_perfil_ciudad,
-                R.id.text_perfil_ciudad_editable,
-                R.id.boton_perfil_location,
-                R.id.text_perfil_cant_recomendaciones,
-                R.id.text_perfil_resumen,
-                R.id.text_perfil_resumen_editable,
-                R.id.perfil_contactos_frame,
-                R.id.perfil_experiencia_laboral_list,
-                R.id.perfil_experiencia_laboral_list_editable,
-                R.id.perfil_experiencia_laboral_list_new,
-                R.id.perfil_skills_list,
-                R.id.perfil_skills_list_editable,
-                R.id.perfil_skills_list_new
-        };
-        for (@IdRes int v : visibilityViews) {
-            toggleViewVisibility(v);
+        for (@IdRes int v : Utils.perfilVisibilityViews) {
+            Utils.toggleViewVisibility(this, v);
         }
 
         inEditingMode = !inEditingMode;
     }
 
+
+    // Si el input de algún campo es incorrecto, falla sin modificar al usuario.
     private boolean capturarInputPerfilUsuario() {
         User editedUser = new User(fetchedUser);
 
-        // Si el input de algún campo es incorrecto, falla antes modificar nada.
-        if (!editedUser.setFirstName(getTextViewText(R.id.text_perfil_nombre_editable))) {
-            EditText et_nombre = (EditText) findViewById(R.id.text_perfil_nombre_editable);
-            if (et_nombre != null) {
-                et_nombre.setError("Nombre muy corto o muy largo");
-                et_nombre.requestFocus();
-            }
+        if (!editedUser.setFirstName(Utils.getTextViewText(this, R.id.text_perfil_nombre_editable))) {
+            Utils.editTextSetErrorAndFocus(this, R.id.text_perfil_nombre_editable,
+                    "Nombre muy corto o muy largo");
             return false;
         }
-        if (!editedUser.setLastName(getTextViewText(R.id.text_perfil_apellido_editable))) {
-            EditText et_apellido = (EditText) findViewById(R.id.text_perfil_apellido_editable);
-            if (et_apellido != null) {
-                et_apellido.setError("Apellido muy corto o muy largo");
-                et_apellido.requestFocus();
-            }
+        if (!editedUser.setLastName(Utils.getTextViewText(this, R.id.text_perfil_apellido_editable))) {
+            Utils.editTextSetErrorAndFocus(this, R.id.text_perfil_apellido_editable,
+                    "Apellido muy corto o muy largo");
             return false;
         }
-        if (!editedUser.setCity(getTextViewText(R.id.text_perfil_ciudad_editable))) {
-            EditText et_ciudad = (EditText) findViewById(R.id.text_perfil_ciudad_editable);
-            if (et_ciudad != null) {
-                et_ciudad.setError("!");
-                et_ciudad.requestFocus();
-            }
+        if (!editedUser.setCity(Utils.getTextViewText(this, R.id.text_perfil_ciudad_editable))) {
+            Utils.editTextSetErrorAndFocus(this, R.id.text_perfil_ciudad_editable, "!");
             return false;
         }
-        if (!editedUser.setSummary(getTextViewText(R.id.text_perfil_resumen_editable))) {
-            EditText et_resumen = (EditText) findViewById(R.id.text_perfil_resumen_editable);
-            if (et_resumen != null) {
-                et_resumen.setError("Máximo 1000 caracteres");  // hardcodeado!
-                et_resumen.requestFocus();
-            }
+        if (!editedUser.setSummary(Utils.getTextViewText(this, R.id.text_perfil_resumen_editable))) {
+            Utils.editTextSetErrorAndFocus(this, R.id.text_perfil_resumen_editable,
+                    "Máximo "+User.MAX_CHAR_SUMMARY+" caracteres");
             return false;
         }
         editedUser.setWorkHistory(mJobsAdapter.getList()); // TODO
@@ -313,69 +310,10 @@ public class PerfilActivity extends NavDrawerActivity {
         return true;
     }
 
-    private String getTextViewText(@IdRes int idRes) {
-        String text = "";
-        EditText et = (EditText) findViewById(idRes);
-        if (et != null) {
-            text = et.getText().toString();
-        }
-        return text;
-    }
-
-    private void toggleViewVisibility(@IdRes int idRes) {
-        View v = findViewById(idRes);
-        if (v != null) {
-            if (v.getVisibility() == View.GONE) {
-                v.setVisibility(View.VISIBLE);
-            } else {
-                v.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    @Override
-    public void setContentView(@LayoutRes int layoutResID) {
-        super.setContentView(layoutResID);
-        onCreateDrawer();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        refreshProfileInformation(fetchedUserID);
-        cargarFotoDePerfil(fetchedUserID);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
-
-            RequestQueue mRequestQueue = RequestQueueSingleton
-                    .getInstance(this.getApplicationContext())
-                    .getRequestQueue();
-            mRequestQueue.cancelAll(LOG_TAG);
-        }
-    }
-
-    public static Context getContext() {
-        return mContext;
-    }
-
-    public static String getAppServerBaseURL() {
-        Context c = getContext();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
-        String ip = sharedPref.getString("pref_appServer_ip", c.getString(R.string.pref_default_appServer_ip));
-        String puerto = sharedPref.getString("pref_appServer_puerto", c.getString(R.string.pref_default_appServer_puerto));
-
-        return "http://" + ip + ":" + puerto + "/";
-    }
 
     public void refreshProfileInformation(final long idFetched) {
 
-        Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
                 .appendPath(getString(R.string.perfil_get_user_path))
                 .appendPath(Long.toString(idFetched))
                 .build();
@@ -395,26 +333,20 @@ public class PerfilActivity extends NavDrawerActivity {
                         } else {
                             Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el perfil");
                         }
-
                     }
 
                 }, new Response.ErrorListener() {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-//                        error.printStackTrace();//
                         Log.d(LOG_TAG, "errortostring "+error.toString());
                         Log.d(LOG_TAG, "urrrrrrrrl: "+url);//
-
-//                        textView.setText("[No se obtuvo nada de la URL hardcodeada.]");
-//                        Toast.makeText(getActivity(), ":(", Toast.LENGTH_SHORT).show();
                         if (error instanceof ParseError && error.getCause() instanceof JSONException) {
                             Log.d(LOG_TAG, "JSONException! Intento refreshear de nuevo...");
                             refreshProfileInformation(idFetched);
                         }
                     }
                 });
-
         jsObjRequest.setTag(LOG_TAG);
 
         RequestQueueSingleton.getInstance(this.getApplicationContext())
@@ -441,144 +373,41 @@ public class PerfilActivity extends NavDrawerActivity {
                     ex.printStackTrace();
                 }
             }
-
         }
-        Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
+
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
                 .appendPath(getString(R.string.perfil_get_photo_path))
                 .appendPath(Long.toString(idFetched))
                 .build();
         final String url = builtUri.toString();
 
-        cargarImagenDeURLenImageView(getApplicationContext(),
+        Utils.cargarImagenDeURLenImageView(getApplicationContext(),
                 (ImageView) findViewById(R.id.perfil_image),
                 url, LOG_TAG);
-    }
-
-    public static void cargarImagenDeURLenImageView(final Context context, final ImageView imageView, final String url, final String logTag) {
-
-        if (imageView == null) {
-            Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
-            return;
-        }
-
-        ImageRequest request = new ImageRequest(url,
-                new Response.Listener<Bitmap>() {
-                    @Override
-                    public void onResponse(Bitmap bitmap) {
-                        imageView.setImageBitmap(bitmap);
-
-                    }
-                }, imageView.getWidth(), imageView.getHeight(),
-                ImageView.ScaleType.CENTER_INSIDE, null,
-                new Response.ErrorListener() {
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(logTag, "Error de response, no pude cargar la imagen.");
-                        if (error.networkResponse == null) return;
-                        Log.e(logTag, "Network response status code: "+error.networkResponse.statusCode);
-                        if (error.networkResponse.statusCode == 200) {
-                            Log.e(logTag, "Problema con la imagen. Re-request");//
-                            cargarImagenDeURLenImageView(context, imageView, url, logTag);
-                        }
-                    }
-                }) ;
-        RequestQueueSingleton.getInstance(context)
-                .addToRequestQueue(request);
     }
 
     private void fillProfile(User mUser) {
         collapsingToolbarLayout.setTitle(mUser.getFullName());
 
-        setTextViewText(R.id.text_perfil_mail, mUser.getEmail());
-        setTextViewText(R.id.text_perfil_ciudad, mUser.getCity());
-        setTextViewText(R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
-        setTextViewText(R.id.text_perfil_resumen, mUser.getSummary(), true);
-        setTextViewText(R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales(), true);
-
-        populateStringList(R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
-        populateStringList(R.id.perfil_skills_list, mUser.getListaSkills());
+        Utils.setTextViewText(this, R.id.text_perfil_mail, mUser.getEmail());
+        Utils.setTextViewText(this, R.id.text_perfil_ciudad, mUser.getCity());
+        Utils.setTextViewText(this, R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
+        Utils.setTextViewText(this, R.id.text_perfil_resumen, mUser.getSummary(), true);
+        Utils.setTextViewText(this, R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales(), true);
 
         populateContacts();
-    }
 
-    // Esconde TextView si text está vacío
-    public void setTextViewText(@IdRes int idRes, CharSequence text) {
-        setTextViewText(idRes, text, false);
-    }
-
-    public void setTextViewText(@IdRes int idRes, CharSequence text, boolean hideEmptyText) {
-        TextView tv = (TextView) findViewById(idRes);
-        if (tv != null) {
-            tv.setText(text);
-
-            if (hideEmptyText) {
-                if (text.equals(""))
-                    tv.setVisibility(View.GONE);
-                else
-                    tv.setVisibility(View.VISIBLE);
-            }
-
-        } else
-            Log.e(LOG_TAG, "No se encontró el textview! idRes: "+idRes+", text: "+text);
-    }
-
-    public void populateStringList(int idRes, List<String> list) {
-        ListView mListView = (ListView) findViewById(idRes);
-        if (mListView != null) {
-
-            ArrayAdapter<String> mAdapter = new ArrayAdapter<>(
-                    this,
-                    R.layout.list_item,
-                    R.id.plain_text_list_item,
-                    new ArrayList<String>()
-            );
-            mListView.setAdapter(mAdapter);
-
-            mAdapter.addAll(list);
-            mAdapter.notifyDataSetChanged();
-            EditableListAdapter.actualizarAlturaDeListView(mListView, mAdapter);
-
-        } else
-            Log.e(LOG_TAG, "No se encontró el listview! idRes: "+idRes);
-    }
-
-    private void populateContacts() {
-
-//         TODO: if (contacts == 0) {
-//            FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
-//            if (contactsFrameLayout != null)
-//                contactsFrameLayout.setVisibility(View.GONE);
-//        } else {
-
-        GridView mGridView = (GridView) findViewById(R.id.perfil_contactos_list);
-        if (mGridView != null) {
-
-            final CardAdapter mAdapter = new CardAdapter(new ArrayList<User>());  //TODO hardcodeado
-            mGridView.setAdapter(mAdapter);
-            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    User clickedUser = mAdapter.getItem(position);
-                    startActivity(
-                            new Intent(PerfilActivity.this, PerfilActivity.class)
-                                    .putExtra(FETCHED_USER_ID_MESSAGE, clickedUser.getId())
-                    );
-                }
-            });
-
-        } else {
-            Log.e(LOG_TAG, "No se encontró el gridview de contactos!");
-        }
-
-//        }
+        Utils.populateStringList(this, R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
+        Utils.populateStringList(this, R.id.perfil_skills_list, mUser.getListaSkills());
     }
 
 
+    // TODO
     public void updateProfileInformation() {
 
         String username = "Robert";//
 
-        Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
                 .appendPath("user")
                 .appendPath(username)
                 .build();
@@ -635,9 +464,10 @@ public class PerfilActivity extends NavDrawerActivity {
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
+            File photoFile;
             try {
-                photoFile = createImageFile();
+                photoFile = createImageFile("new_profile");
+
             } catch (IOException ex) {
                 // Error occured while creating the File
                 Log.e(LOG_TAG, "Error al intentar crear el archivo de foto.");
@@ -647,29 +477,110 @@ public class PerfilActivity extends NavDrawerActivity {
                 mPhotoURI = FileProvider.getUriForFile(this,
                                                     "ar.fiuba.jobify.fileprovider",
                                                     photoFile);
+
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
     }
 
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
-                .format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+    private File createImageFile(String imageFileName) throws IOException {
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+//                .format(new Date());
+//        String imageFileName = "JPEG_" + timeStamp + "_";
 
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();//"content:" ?
-        return image;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if (storageDir == null)
+            throw new IOException("getExternalFilesDir dio error");
+//        File imageFile = File.createTempFile(imageFileName, ".jpg", storageDir); TODO: REVISAR SI VOLVER A ESTO
+        File imageFile = new File(storageDir.getPath() + File.separator + imageFileName + ".jpg");
+
+        mCurrentPhotoPath = imageFile.getAbsolutePath();//"file:" + imageFile.getAbsolutePath();//"content:" ?
+        return imageFile;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+
+            /** Enviar la imagen al servidor como foto de perfil */ // TODO: EXTRAER
+            File imageFile = new File(mCurrentPhotoPath);
+
+            Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+                    .appendPath(getString(R.string.perfil_post_photo_path))
+                    .appendPath(Long.toString(fetchedUserID))
+                    .build();
+            final String url = builtUri.toString();
+
+            if (imageFile.exists()) {
+                Utils.PhotoMultipartRequest<String> imageUploadReq =
+                        new Utils.PhotoMultipartRequest<>(url, imageFile, new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d(LOG_TAG, "Response correcta i guess. " + response);
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e(LOG_TAG, "Volley image post error");
+                                if (error.networkResponse != null)
+                                    Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
+                                error.printStackTrace();
+                            }
+                        });
+
+                try {
+                    Log.d(LOG_TAG, "Headers: " + imageUploadReq.getHeaders().toString());//
+                    Log.d(LOG_TAG, "BodyContentType: " + imageUploadReq.getBodyContentType());//
+                } catch (AuthFailureError er) {
+                    Log.d(LOG_TAG, "AuthFailureError in test Logs");//
+                    er.printStackTrace();
+                }
+                RequestQueueSingleton.getInstance(this)
+                        .addToRequestQueue(imageUploadReq);
+            } else {
+                Log.w(LOG_TAG, "Archivo en " + mPhotoURI.getPath() + " no existe.");
+            }
+        }
     }
 
 
+    private void populateContacts() {
 
+//         TODO: if (contacts == 0) {
+//            FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
+//            if (contactsFrameLayout != null)
+//                contactsFrameLayout.setVisibility(View.GONE);
+//                return;
+//        }
 
-    private class CardAdapter extends ArrayAdapter<User> {
+        GridView mGridView = (GridView) findViewById(R.id.perfil_contactos_list);
+        if (mGridView != null) {
 
-        public CardAdapter(List<User> userList) {
+            final ContactCardAdapter mAdapter = new ContactCardAdapter(new ArrayList<User>());  //TODO hardcodeado
+            mGridView.setAdapter(mAdapter);
+            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    User clickedUser = mAdapter.getItem(position);
+                    startActivity(
+                            new Intent(PerfilActivity.this, PerfilActivity.class)
+                                    .putExtra(FETCHED_USER_ID_MESSAGE, clickedUser.getId())
+                    );
+                }
+            });
+
+        } else {
+            Log.e(LOG_TAG, "No se encontró el gridview de contactos!");
+        }
+    }
+
+    private class ContactCardAdapter extends ArrayAdapter<User> {
+
+        public ContactCardAdapter(List<User> userList) {
             super(PerfilActivity.this, R.layout.contact_card, userList);
         }
 
@@ -685,11 +596,11 @@ public class PerfilActivity extends NavDrawerActivity {
             User user = getItem(position);
             if (user != null) {
 
-                Uri builtUri = Uri.parse(getAppServerBaseURL()).buildUpon()
+                Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
                         .appendPath(getString(R.string.perfil_get_photo_path))  // TODO: Thumbnail sale de otro lado??
                         .appendPath(Long.toString(user.getId()))
                         .build();
-                cargarImagenDeURLenImageView(getApplicationContext(),
+                Utils.cargarImagenDeURLenImageView(getApplicationContext(),
                         (ImageView) findViewById(R.id.contact_card_foto),
                         builtUri.toString(), LOG_TAG);
 
