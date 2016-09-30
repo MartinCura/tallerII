@@ -64,9 +64,9 @@ module.exports.get_job_positions_by_category = function(category){
   return db.any("SELECT * FROM job_positions where category=$1", [category]);
 }
 
-module.exports.job_position_modify = function(category, position_name, new_position_name, new_description) {
-  return db.none('UPDATE job_positions set name=$1, description=$2 where name=$3 AND category=$4',
-   [new_position_name, new_description, position_name, category]);
+module.exports.job_position_modify = function(category, position_name, new_position_name, new_description, new_category) {
+  return db.none('UPDATE job_positions set name=$1, description=$2, category=$5 where name=$3 AND category=$4',
+   [new_position_name, new_description, position_name, category, new_category]);
 }
 
 module.exports.job_positions_delete = function(category, position_name) {

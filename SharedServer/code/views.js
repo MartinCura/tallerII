@@ -23,12 +23,16 @@ module.exports.job_categories_get = function(request, response) {
     })
 }
 
-function json_of_item(name, description, itemName) {
+function json_of_item(name, description, itemName, category) {
   out = {};
-  out[itemName] = {
+  inner_item = {
                 "name": name,
                 "description": description
-            };
+  }
+  if (category != null) {
+    inner_item["category"] = category;
+  }
+  out[itemName] = inner_item;
   return out;
 }
 
@@ -71,9 +75,9 @@ module.exports.job_positions_add = function(request, response) {
 }
 
 module.exports.job_positions_modify = function(request, response) {
-  db.job_position_modify(request.params.category, request.params.position, request.body.job_position.name, request.body.job_position.description).then(
+  db.job_position_modify(request.params.category, request.params.position, request.body.job_position.name, request.body.job_position.description, request.body.job_position.category).then(
     function(){
-      response.status(HttpStatus.OK).json(json_of_item(request.body.job_position.name, request.body.job_position.description, "job_position"));
+      response.status(HttpStatus.OK).json(json_of_item(request.body.job_position.name, request.body.job_position.description, "job_position", request.body.job_position.category));
     }
   );
 }
