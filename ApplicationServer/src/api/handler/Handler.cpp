@@ -13,9 +13,9 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
     if (this->isEqual(&httpMessage->method, &s_get_method)) {
         return this->handleGetRequest(httpMessage, url);
     } else if (this->isEqual(&httpMessage->method, &s_put_method)) {
-        return this->handlePutRequest(httpMessage);
+        return this->handlePutRequest(httpMessage, url);
     } else if (this->isEqual(&httpMessage->method, &s_delete_method)) {
-        return this->handleDeleteRequest(httpMessage);
+        return this->handleDeleteRequest(httpMessage, url);
     } else if (this->isEqual(&httpMessage->method, &s_post_method)) {
         return this->handlePostRequest(httpMessage);
     }

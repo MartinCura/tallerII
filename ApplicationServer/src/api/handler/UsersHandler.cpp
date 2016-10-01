@@ -31,11 +31,11 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
     }
 }
 
-Response* UsersHandler::handleDeleteRequest(http_message* httpMessage) {
+Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string url) {
     return this->getNotImplementedResponse();
 }
 
-Response* UsersHandler::handlePutRequest(http_message* httpMessage) {
+Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) {
     return this->getNotImplementedResponse();
 }
 

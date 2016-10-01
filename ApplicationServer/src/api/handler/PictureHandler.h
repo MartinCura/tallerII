@@ -11,8 +11,8 @@ public:
 
     Response* handlePostRequest(http_message* httpMessage);
     Response* handleGetRequest(http_message* httpMessage, string url);
-    Response* handleDeleteRequest(http_message* httpMessage);
-    Response* handlePutRequest(http_message* httpMessage);
+    Response* handleDeleteRequest(http_message* httpMessage, string url);
+    Response* handlePutRequest(http_message* httpMessage, string url);
 
 private:
     Response* buildGetPictureResponse(int id);

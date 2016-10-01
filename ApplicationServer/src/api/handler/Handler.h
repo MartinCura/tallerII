@@ -18,8 +18,8 @@ public:
     Response* handleRequest(http_message* httpMessage, string url);
     virtual Response* handlePostRequest(http_message* httpMessage) = 0;
     virtual Response* handleGetRequest(http_message* httpMessage, string url) = 0;
-    virtual Response* handleDeleteRequest(http_message* httpMessage) = 0;
-    virtual Response* handlePutRequest(http_message* httpMessage) = 0;
+    virtual Response* handleDeleteRequest(http_message* httpMessage, string url) = 0;
+    virtual Response* handlePutRequest(http_message* httpMessage, string url) = 0;
 
 protected:
     Response* getNotImplementedResponse();
