@@ -66,6 +66,8 @@
           - compare: {jsonpath_mini: "date_of_birth", comparator: "eq", expected: "01/01/1990"}
           - compare: {jsonpath_mini: "city", comparator: "eq", expected: "Buenos Aires"}
           - compare: {jsonpath_mini: "summary", comparator: "eq", expected: "Hi, this is John Doe"}
+          - compare: {jsonpath_mini: "location.latitude", comparator: "eq", expected: -58.368368}
+          - compare: {jsonpath_mini: "location.longitude", comparator: "eq", expected: -34.617589}
           - compare: {jsonpath_mini: "skills.0.category", comparator: "eq", expected: "software"}
           - compare: {jsonpath_mini: "skills.0.description", comparator: "eq", expected: "JavaScrip programming language"}
           - compare: {jsonpath_mini: "skills.0.name", comparator: "eq", expected: "JavaScript"}

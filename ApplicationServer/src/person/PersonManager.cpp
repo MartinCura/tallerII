@@ -36,6 +36,7 @@ Person* PersonManager::getFakePerson1() {
     person->setDateOfBirth("01/01/1990");
     person->setCity("Buenos Aires");
     person->setSummary("Hi, this is John Doe");
+    person->setLocation(-58.368368, -34.617589);
 
     WorkHistory* workHistory1 = new WorkHistory();
     workHistory1->setCompany("IBM");
@@ -76,6 +77,7 @@ Person* PersonManager::getFakePerson2() {
     person->setDateOfBirth("01/11/1991");
     person->setCity("Madrid");
     person->setSummary("Hi, this is Jane Doe");
+    person->setLocation(-58.368368, -34.617589);
 
     WorkHistory* workHistory1 = new WorkHistory();
     workHistory1->setCompany("Microsoft");
