@@ -113,6 +113,9 @@ long PersonManager::savePerson(Json::Value person_json) {
     long user_id;
     Json::FastWriter fastWriter;
 
+    if (!person_json.isMember("email")) {
+        throw InvalidRequestException("Missing email");
+    }
     user_mail=  person_json["email"].asString();
     user_id = person_json["id"].asLargestInt();
 

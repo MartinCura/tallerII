@@ -4,6 +4,7 @@
 #include <leveldb/db.h>
 #include "Person.h"
 #include "../Exceptions/UserNotFoundException.h"
+#include "../Exceptions/InvalidRequestException.h"
 
 class PersonManager {
 
