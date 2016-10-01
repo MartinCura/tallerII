@@ -21,7 +21,9 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -48,6 +50,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.Employment;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.shared_server_api.Skill;
@@ -549,23 +552,40 @@ public class PerfilActivity extends NavDrawerActivity {
 
     private void populateContacts() {
 
-//         TODO: if (contacts == 0) {
-//            FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
-//            if (contactsFrameLayout != null)
-//                contactsFrameLayout.setVisibility(View.GONE);
-//                return;
-//        }
+        /// TODO: hardcodeado, de prueba
+        ArrayList<Contact> contacts = new ArrayList<>();
+        contacts.add(new Contact(1, "John", "Roberts", new Employment("CEO", "FBI"), Contact.ACTIVE));
+        contacts.add(new Contact(2, "Joan", "Roberts", new Employment("ZEO", "NSA"), Contact.ACTIVE));
+        contacts.add(new Contact(3, "Sean", "Roberts", new Employment("CTO", "FBI"), Contact.ACTIVE));
+        contacts.add(new Contact(4, "Jon", "Roberts", new Employment("CFO", "GitHub"), Contact.ACTIVE));
+        contacts.add(new Contact(5, "Jone", "Roberts", new Employment("Toilet cleaner", "Zoo"), Contact.ACTIVE));
+        contacts.add(new Contact(6, "Mark", "Zuckerberg", new Employment("CEO", "Facebook"), Contact.REQUESTED));
+        ///
 
-        GridView mGridView = (GridView) findViewById(R.id.perfil_contactos_list);
-        if (mGridView != null) {
+        // Solo mostrar contactos activos
+        ArrayList<Contact> activeContacts = new ArrayList<>();
+        for (Contact c : contacts) {
+            if (c.getEstado().equals(Contact.ACTIVE))
+                activeContacts.add(c);
+        }
 
-            final ContactCardAdapter mAdapter = new ContactCardAdapter(new ArrayList<User>());  //TODO hardcodeado
-            mGridView.setAdapter(mAdapter);
-            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        if (activeContacts.size() == 0) {
+            FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
+            if (contactsFrameLayout != null)
+                contactsFrameLayout.setVisibility(View.GONE);
+            return;
+        }
+
+        HorizontalListView mHLView = (HorizontalListView) findViewById(R.id.perfil_contactos_list);
+        if (mHLView != null) {
+
+            final ContactCardAdapter mAdapter = new ContactCardAdapter(activeContacts);
+            mHLView.setAdapter(mAdapter);
+            mHLView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                    User clickedUser = mAdapter.getItem(position);
+                    Contact clickedUser = (Contact) mAdapter.getItem(position);
                     startActivity(
                             new Intent(PerfilActivity.this, PerfilActivity.class)
                                     .putExtra(FETCHED_USER_ID_MESSAGE, clickedUser.getId())
@@ -573,15 +593,38 @@ public class PerfilActivity extends NavDrawerActivity {
                 }
             });
 
+            TextView tv_cantContactos = (TextView) findViewById(R.id.text_perfil_cant_contactos);
+            if (tv_cantContactos != null) {
+                tv_cantContactos.setText(String.valueOf(mAdapter.getCount()));
+            }
+
         } else {
             Log.e(LOG_TAG, "No se encontró el gridview de contactos!");
         }
     }
 
-    private class ContactCardAdapter extends ArrayAdapter<User> {
 
-        public ContactCardAdapter(List<User> userList) {
-            super(PerfilActivity.this, R.layout.contact_card, userList);
+    private class ContactCardAdapter extends BaseAdapter {
+
+        ArrayList<Contact> mContacts;
+
+        public ContactCardAdapter(List<Contact> contactList) {
+            mContacts = new ArrayList<>(contactList);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return mContacts.get(position).getId();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mContacts.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mContacts.size();
         }
 
         @Override
@@ -590,27 +633,27 @@ public class PerfilActivity extends NavDrawerActivity {
             View itemView = convertView;
             if (itemView == null) {
                 itemView = LayoutInflater.from(getContext())
-                        .inflate(R.layout.list_item_borrable, parent, false);
+                        .inflate(R.layout.contact_card, parent, false);
             }
 
-            User user = getItem(position);
-            if (user != null) {
+            Contact contact = (Contact) getItem(position);
+            if (contact != null) {
 
                 Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
-                        .appendPath(getString(R.string.perfil_get_photo_path))  // TODO: Thumbnail sale de otro lado??
-                        .appendPath(Long.toString(user.getId()))
+                        .appendPath(getString(R.string.perfil_get_thumbnail_path))
+                        .appendPath(Long.toString(contact.getId()))
                         .build();
                 Utils.cargarImagenDeURLenImageView(getApplicationContext(),
                         (ImageView) findViewById(R.id.contact_card_foto),
-                        builtUri.toString(), LOG_TAG);
+                        builtUri.toString(), LOG_TAG+"CC");
 
                 TextView tv_nombre  = (TextView) itemView.findViewById(R.id.contact_card_nombre);
                 if (tv_nombre != null)
-                    tv_nombre.setText(user.getFullName());
+                    tv_nombre.setText(contact.getFullName());
 
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.contact_card_trabajo);
                 if (tv_trabajo != null)
-                    tv_trabajo.setText(user.getUltimoTrabajoActual());
+                    tv_trabajo.setText(contact.getTrabajoActual().getOneLiner());
             }
 
             return itemView;

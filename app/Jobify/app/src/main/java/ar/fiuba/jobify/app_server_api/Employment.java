@@ -20,6 +20,19 @@ public class Employment implements Nombrable {
         this.positionTitle = nombre;// Constructor de prueba nomás, depender de Fábrica
     }
 
+    public Employment(String nombre, String compania) {
+        this.positionTitle = nombre;// Constructor de prueba nomás, depender de Fábrica
+        this.company = compania;
+    }
+
+    // copy constructor
+    public Employment(Employment o) {
+        this.positionTitle = o.positionTitle;
+        this.company = o.company;
+        this.fromDate = o.fromDate;
+        this.toDate = o.toDate;
+    }
+
     public String getPositionTitle() {
         return positionTitle;
     }

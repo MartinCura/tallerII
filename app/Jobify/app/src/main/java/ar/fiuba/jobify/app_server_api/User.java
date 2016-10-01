@@ -24,7 +24,7 @@ public class User {
     public final static int MAX_CHAR_NAMES = 35;
     public final static int MAX_CHAR_SUMMARY = 1000;
 
-    int id;
+    long id;
     String  firstName = "",
             lastName = "",
             email = "",
@@ -60,7 +60,7 @@ public class User {
         this.workHistory = new ArrayList<>(o.workHistory);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
     public String getFirstName() {

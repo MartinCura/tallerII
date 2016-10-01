@@ -23,6 +23,7 @@
 
     <string name="perfil_contactos_title">Contactos</string>
     <string name="perfil_cant_amigos_default">0</string>
+    <string name="perfil_contact_card_foto_description">Foto perfil de contact card</string>
 
     <string name="perfil_exp_laboral_title">Experiencia Laboral</string>
     <string name="perfil_skills_title">Skills</string>
@@ -115,4 +116,5 @@
     <string name="location_icon_description">Ícono de locación</string>
     <string name="add_item_description">Add item</string>
     <string name="remove_item_description">Remove item</string>
+    <string name="nav_drawer_thumbnail_description">Thumbnail del usuario conectado en el navigation drawer</string>
 </resources>
