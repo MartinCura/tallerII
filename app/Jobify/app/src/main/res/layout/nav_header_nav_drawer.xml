@@ -14,7 +14,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
-        android:id="@+id/nav_drawer_thumbnail"
+        android:id="@+id/nav_drawer_user_thumbnail"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
@@ -29,7 +29,7 @@
         <!--android:src="@android:drawable/sym_def_app_icon" />-->
 
     <TextView
-        android:id="@+id/nav_drawer_nombre"
+        android:id="@+id/nav_drawer_user_nombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
@@ -37,7 +37,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
-        android:id="@+id/nav_drawer_mail"
+        android:id="@+id/nav_drawer_user_mail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/perfil_mail_default" />

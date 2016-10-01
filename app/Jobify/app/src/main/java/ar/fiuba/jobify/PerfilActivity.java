@@ -94,6 +94,7 @@ public class PerfilActivity extends NavDrawerActivity {
             fabAmigar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    startActivity(new Intent(getContext(), UserListActivity.class));
                     // TODO: Amigar
                 }
             });
@@ -141,7 +142,7 @@ public class PerfilActivity extends NavDrawerActivity {
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
-        onCreateDrawer();
+        onCreateDrawer(R.id.perfil_toolbar, R.id.perfil_drawer_layout, R.id.perfil_nav_view);
     }
 
     @Override

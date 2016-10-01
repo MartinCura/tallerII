@@ -364,7 +364,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     public void iniciarPerfilActivity() {
-        long fetchedUserId = 2;// HARDCODEO
+        long fetchedUserId = 1;// HARDCODEO
 
         startActivity(
                 new Intent(LoginActivity.this, PerfilActivity.class)

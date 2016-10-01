@@ -1,5 +1,6 @@
 package ar.fiuba.jobify;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -7,31 +8,44 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.ParseError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.User;
 
 public class UserListActivity extends NavDrawerActivity {
 
     private final String LOG_TAG = UserListActivity.class.getSimpleName();
 
+    private ListView mListView;
+    private UserArrayAdapter mUserArrayAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.perfil_toolbar);
-        setSupportActionBar(toolbar);
+        setContentView(R.layout.activity_user_list_drawer);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null)
@@ -46,18 +60,83 @@ public class UserListActivity extends NavDrawerActivity {
         ActionBar sab = getSupportActionBar();
         if (sab != null) sab.setDisplayHomeAsUpEnabled(true);
 
-        ListView listView = (ListView) findViewById(R.id.user_list);
-        if (listView != null) {
-            UserArrayAdapter userArrayAdapter =
-                    new UserArrayAdapter(new ArrayList<User>());//TODO hardcodeo
-            listView.setAdapter(userArrayAdapter);
+        mListView = (ListView) findViewById(R.id.user_list);
+        if (mListView == null) {
+            Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!!!!!");
+        } else {
+            listarTodosLosUsuarios();// de prueba TODO
         }
+    }
+
+    private void listarTodosLosUsuarios() {
+        Toast.makeText(this, "Listo todos los usuarios del 1 al 10", Toast.LENGTH_LONG)
+                .show();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
+        if (toolbar != null)
+            toolbar.setTitle("Todos los usuarios");
+        else
+            Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
+
+        mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
+        mListView.setAdapter(mUserArrayAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                User clickedUser = mUserArrayAdapter.getItem(position);
+                startActivity(
+                        new Intent(UserListActivity.this, PerfilActivity.class)
+                                .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
+                );
+            }
+        });
+
+        for (long id = 1; id <= 20; id++) { // HARDCODEO TODO DE PRUEBA
+            fetchAndAddUser(id);
+        }
+    }
+
+    private void fetchAndAddUser(long id) { // TODO: De prueba, CORREGIR
+
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+                .appendPath(getString(R.string.perfil_get_user_path)) // TODO: Corregir?
+                .appendPath(Long.toString(id))
+                .build();
+        final String url = builtUri.toString();
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        User mUser = User.parseJSON(response.toString());
+                        if (mUser != null) {
+                            mUserArrayAdapter.add(mUser);
+
+                        }// else {
+//                            Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el perfil");
+                        //}
+                    }
+
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Do nothing TODO
+                    }
+                });
+        jsObjRequest.setTag(LOG_TAG);
+
+        RequestQueueSingleton.getInstance(this.getApplicationContext())
+                .addToRequestQueue(jsObjRequest);
     }
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
-        onCreateDrawer();
+        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
     }
 
     public void onStop() {
@@ -111,7 +190,7 @@ public class UserListActivity extends NavDrawerActivity {
                 if (tv_trabajo != null)
                     tv_trabajo.setText(user.getTrabajosActuales());    // Revisar si cortar a una línea
                 if (tv_recom != null)
-                    tv_recom.setText(user.getCantRecomendaciones());
+                    tv_recom.setText(String.valueOf(user.getCantRecomendaciones()));
             }
             return itemView;
         }

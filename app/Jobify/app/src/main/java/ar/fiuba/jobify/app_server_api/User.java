@@ -91,7 +91,7 @@ public class User {
         return workHistory;
     }
 
-    public int getCantRecomendaciones() {   // TODO
+    public long getCantRecomendaciones() {   // TODO
         return 123;
         //return cantRecomendaciones;
     }
