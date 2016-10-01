@@ -6,6 +6,7 @@
 #include <iostream>
 #include "WorkHistory.h"
 #include "Skill.h"
+#include "Location.h"
 #include "../jsoncpp/json/json.h"
 #include "../jsoncpp/json/json-forwards.h"
 
@@ -26,6 +27,7 @@ public:
     void setDateOfBirth(string dateOfBirth);
     void setCity(string city);
     void setSummary(string summary);
+    void setLocation(double latitude, double longitude);
     void addWorkHistory(WorkHistory* workHistory);
     void addSkill(Skill* skill);
 
@@ -36,6 +38,7 @@ public:
     string getDateOfBirth();
     string getCity();
     string getSummary();
+    Location* getLocation();
     vector<WorkHistory*> getWorkHistory();
     vector<Skill*> getSkills();
 
@@ -50,6 +53,7 @@ private:
     string dateOfBirth;
     string city;
     string summary;
+    Location* location;
     vector<WorkHistory*> workHistory;
     vector<Skill*> skills;
 

@@ -8,6 +8,7 @@ Person::Person() {
     this->dateOfBirth = "";
     this->city = "";
     this->summary = "";
+    this->location = new Location();
 }
 
 Person::Person(Json::Value personAsJson) {
@@ -23,6 +24,7 @@ Person::~Person() {
     for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
         delete skillsVector[i];
     }
+    delete this->location;
 }
 
 void Person::setId(int id) {
@@ -51,6 +53,11 @@ void Person::setCity(string city) {
 
 void Person::setSummary(string summary) {
     this->summary = summary;
+}
+
+void Person::setLocation(double latitude, double longitude) {
+    this->location->setLatitude(latitude);
+    this->location->setLongitude(longitude);
 }
 
 void Person::addWorkHistory(WorkHistory* workHistory) {
@@ -89,6 +96,10 @@ string Person::getSummary() {
     return this->summary;
 }
 
+Location* Person::getLocation() {
+    return this->location;
+}
+
 vector<WorkHistory*> Person::getWorkHistory() {
     return this->workHistory;
 }
@@ -105,6 +116,9 @@ void Person::deserializeMe(Json::Value personAsJson) {
     this->dateOfBirth = personAsJson["date_of_birth"].asString();
     this->city = personAsJson["city"].asString();
     this->summary = personAsJson["summary"].asString();
+
+    this->location->setLatitude(personAsJson["location"]["latitude"].asDouble());
+    this->location->setLongitude(personAsJson["location"]["longitude"].asDouble());
 
     const Json::Value jWorkHistoryVector = personAsJson["work_history"];
     for (int index = 0; index < jWorkHistoryVector.size(); index++) {
@@ -128,6 +142,8 @@ Json::Value Person::serializeMe() {
     personAsJson["date_of_birth"] = this->dateOfBirth;
     personAsJson["city"] = this->city;
     personAsJson["summary"] = this->summary;
+    personAsJson["location"]["latitude"] = this->location->getLatitude();
+    personAsJson["location"]["longitude"] = this->location->getLongitude();
     for (vector<WorkHistory*>::size_type i = 0; i != this->workHistory.size(); i++) {
         WorkHistory* workHistory = this->workHistory[i];
         Json::Value workHistoryResponse = workHistory->serializeMe();
