@@ -38,13 +38,13 @@
     - expected_status: [400] # bad request
 
 - test:
-    - name: "Update users"
+    - name: "Add users - Missing email"
     - url: "/users"
     - method: "POST"
     - body: '{"name": "John"}'
     - validators:
-          - compare: {jsonpath_mini: "id", comparator: "eq", expected: 1}
-    - expected_status: [200] # ok
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing email"}
+    - expected_status: [400] # bad request
 
 - test:
     - name: "Get user data - missing id"
