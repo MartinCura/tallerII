@@ -47,6 +47,15 @@
     - expected_status: [400] # bad request
 
 - test:
+    - name: "Add users - Missing password"
+    - url: "/users"
+    - method: "POST"
+    - body: '{"email": "john@doe.com"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing password"}
+    - expected_status: [400] # bad request
+
+- test:
     - name: "Get user data - missing id"
     - url: "/users"
     - method: "GET"
