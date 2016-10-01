@@ -12,6 +12,7 @@ Person::Person() {
 }
 
 Person::Person(Json::Value personAsJson) {
+    this->location = new Location();
     deserializeMe(personAsJson);
 }
 
