@@ -115,9 +115,9 @@ module.exports.skills_get_by_category = function(request, response){
 }
 
 module.exports.skills_modify = function(request, response){
-  db.skills_modify(request.params.category, request.params.skill, request.body.skill.name, request.body.skill.description).then(
+  db.skills_modify(request.params.category, request.params.skill, request.body.skill.name, request.body.skill.description, request.body.skill.category).then(
     function(){
-      response.status(HttpStatus.OK).json(json_of_item(request.body.skill.name, request.body.skill.description, "skill"));
+      response.status(HttpStatus.OK).json(json_of_item(request.body.skill.name, request.body.skill.description, "skill", request.body.skill.category));
     }
   );
 }

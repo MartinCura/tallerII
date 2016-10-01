@@ -87,9 +87,9 @@ module.exports.get_skills_by_category = function function_name(category) {
 
 }
 
-module.exports.skills_modify = function(category, skill_name, new_name, new_description){
-  return  db.none('UPDATE skills set name=$1, description=$2 where name=$3 AND category=$4',
-   [new_name, new_description, skill_name, category]);
+module.exports.skills_modify = function(category, skill_name, new_name, new_description, new_category){
+  return  db.none('UPDATE skills set name=$1, description=$2, category=$5 where name=$3 AND category=$4',
+   [new_name, new_description, skill_name, category, new_category]);
 }
 
 module.exports.delete_skills = function(category, skill_name){
