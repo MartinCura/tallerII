@@ -16,6 +16,7 @@ public:
 
 private:
     Response* buildGetPictureResponse(int id);
+    string getFilePath(int id);
 };
 
 #endif //PROJECT_PICTUREHANDLER_H

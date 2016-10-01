@@ -27,9 +27,8 @@ Response* PictureHandler::handlePutRequest(http_message* httpMessage, string url
 }
 
 Response* PictureHandler::buildGetPictureResponse(int id) {
-    string path = "../ApplicationServer/img/profile/" + to_string(id) + ".jpg";
     vector<char> buffer;
-    FILE* stream = fopen(path.c_str(), "rb");
+    FILE* stream = fopen(this->getFilePath(id).c_str(), "rb");
     if (stream == NULL) {
         throw InvalidRequestException("Cannot find requested picture");
     }
@@ -46,4 +45,8 @@ Response* PictureHandler::buildGetPictureResponse(int id) {
     response->setSuccessfulHeader();
     response->setBinaryBody(&buffer[0], length);
     return response;
+}
+
+string PictureHandler::getFilePath(int id) {
+    return "../ApplicationServer/img/profile/" + to_string(id) + ".jpg";
 }
