@@ -7,11 +7,11 @@ UsersHandler::~UsersHandler() {}
 Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
     string requestBody = string(httpMessage->body.p);
     try {
-        Response* response = new Response();
         PersonManager *personManager = new PersonManager();
-        response->setSuccessfulHeader();
         Json::Value responseBody;
         responseBody["id"] = personManager->savePerson(this->parseBody(requestBody));
+        Response* response = new Response();
+        response->setSuccessfulHeader();
         response->setBody(responseBody.toStyledString());
         delete personManager;
         return response;
@@ -27,9 +27,9 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
 
 Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) {
     try {
-        Response* response = new Response();
         PersonManager *personManager = new PersonManager();
         Person *person = personManager->getPersonById(this->getUserIdFromUrl(url));
+        Response* response = new Response();
         response->setSuccessfulHeader();
         response->setBody(person->serializeMe().toStyledString());
         delete person;
