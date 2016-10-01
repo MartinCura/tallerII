@@ -2,17 +2,17 @@
 #include "../Exceptions/UserAlreadyExistsException.h"
 
 PersonManager::PersonManager() {
-
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::DB::Open(options, "/tmp/appDB", &db);
+    //FIXME: esto esta mal, todas las personas terminan teniendo el mismo id
     uniqueId = 0;
 }
 
 PersonManager::~PersonManager() {
+    //FIXME: el objeto PersonManager se contruye y elimina todo el tiempo, esta bien que destruya la db?
     delete db;
     leveldb::DestroyDB("/tmp/appDB", leveldb::Options());
-
 }
 
 Person* PersonManager::getPersonById(int id) {
