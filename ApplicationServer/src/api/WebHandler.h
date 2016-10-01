@@ -6,6 +6,7 @@
 #include "handler/Handler.h"
 #include "handler/UsersHandler.h"
 #include "handler/PictureHandler.h"
+#include "../logger/Logger.h"
 #include <regex>
 #include <cstring>
 
@@ -20,6 +21,9 @@ public:
 
 private:
     string getUrl(const struct mg_str uri);
+    string getStringFromMgStr(const struct mg_str uri);
+    void logRequest(http_message* httpMessage);
+    void logResponse(Response* response);
 };
 
 
