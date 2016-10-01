@@ -49,19 +49,3 @@ Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string ur
 Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) {
     return this->getNotImplementedResponse();
 }
-
-string UsersHandler::saveOrUpdatePerson(string body) {
-
-    //TODO: INFORMACIÓN OBLIGATORIA
-    Json::Value parsedBody = this->parseBody(body);
-    string name = parsedBody.get("name", "").asString();
-    if (name == "") {
-        throw InvalidRequestException("Missing name parameter.");
-    }
-
-    //FIXME: reemplazar por info de la base
-    Json::Value root;
-    root["id"] = 1;
-
-    return root.toStyledString();
-}

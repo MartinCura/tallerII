@@ -19,9 +19,6 @@ public:
     Response* handleGetRequest(http_message* httpMessage, string url);
     Response* handleDeleteRequest(http_message* httpMessage, string url);
     Response* handlePutRequest(http_message* httpMessage, string url);
-
-private:
-    string saveOrUpdatePerson(string body);
 };
 
 #endif //APPLICATIONSERVER_USERSHANDLER_H
