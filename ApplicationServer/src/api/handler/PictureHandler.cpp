@@ -19,7 +19,15 @@ Response* PictureHandler::handlePostRequest(http_message* httpMessage) {
 }
 
 Response* PictureHandler::handleDeleteRequest(http_message* httpMessage, string url) {
-    return this->getNotImplementedResponse();
+    int userId = this->getUserIdFromUrl(url);
+    Response* response = new Response();
+    if(remove(this->getFilePath(userId).c_str()) != 0) {
+        response->setNotFoundHeader();
+        response->setErrorBody("No such image");
+    } else {
+        response->setSuccessfulHeader();
+    }
+    return response;
 }
 
 Response* PictureHandler::handlePutRequest(http_message* httpMessage, string url) {
