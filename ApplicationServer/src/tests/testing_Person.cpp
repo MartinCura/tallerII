@@ -6,7 +6,6 @@
 #include <iostream>
 
 Json::Value generatePersonJson() {
-
 	Json::Value user;
 	user["id"] = 1;
 	user["first_name"] = "Carlos";
@@ -16,6 +15,8 @@ Json::Value generatePersonJson() {
 	user["city"] = "CABA";
 	user["profile_picture"] = "";
 	user["summary"] = "Me gusta el arrte";
+	user["location"]["latitude"] = -58.368368;
+	user["location"]["longitude"] = -34.617589;
 
 	Json::Value jskill;
 	jskill["name"] = "java";
@@ -28,25 +29,22 @@ Json::Value generatePersonJson() {
 	jWorkHistory["from_date"] = "2012";
 	jWorkHistory["to_date"] = "2014";
 
-
 	user["skills"].append(jskill);
 	user["work_history"].append(jWorkHistory);
 
 	return user;
-
-
 }
 
 TEST(NewUser, FromJson) {
-
 	Json::Value user = generatePersonJson();
-
 	Person pUser = Person(user);
 
 	EXPECT_EQ(pUser.getFirstName(), "Carlos");
 	EXPECT_EQ(pUser.getLastName(), "Rodriguez");
 	EXPECT_EQ(pUser.getEmail(), "crodriguez@gmail.com");
 	EXPECT_EQ(pUser.getDateOfBirth(), "01/01/1990" );
+	EXPECT_EQ(pUser.getLocation()->getLatitude(), -58.368368);
+	EXPECT_EQ(pUser.getLocation()->getLongitude(), -34.617589);
 
 	vector<Skill*> skills = pUser.getSkills();
  	Skill* skill = skills[0];	
@@ -62,10 +60,6 @@ TEST(NewUser, FromJson) {
  	EXPECT_EQ(wh->getPositionTitle(), "Developer");
  	EXPECT_EQ(wh->getFromDate(), "2012");
  	EXPECT_EQ(wh->getToDate(), "2014");
-
-
-
-;
 }
 
 TEST(NewUser, EmptyUser) {
@@ -74,7 +68,6 @@ TEST(NewUser, EmptyUser) {
 }
 
 TEST(NewUser, CompleteUser) {
-
 	Person user = Person();
 	
 	user.setCity("Mar del Plata");
@@ -85,11 +78,8 @@ TEST(NewUser, CompleteUser) {
 }
 
 TEST(User, GetUserJson) {
-
 	Json::Value user = generatePersonJson();
-
 	Person pUser = Person(user);
-
 	Json::Value jUser = pUser.serializeMe();
 
 	EXPECT_EQ(jUser["id"].asInt(), 1);
@@ -100,6 +90,8 @@ TEST(User, GetUserJson) {
 	EXPECT_EQ(jUser["city"].asString(), "CABA");
 	EXPECT_EQ(jUser["profile_picture"].asString(), "");
 	EXPECT_EQ(jUser["summary"].asString(), "Me gusta el arrte");
+	EXPECT_EQ(jUser["location"]["latitude"].asDouble(), -58.368368);
+	EXPECT_EQ(jUser["location"]["longitude"].asDouble(), -34.617589);
 
 	EXPECT_EQ(jUser["skills"][0]["name"].asString(), "java");
 	EXPECT_EQ(jUser["skills"][0]["description"].asString(), "jdescription");
@@ -109,7 +101,4 @@ TEST(User, GetUserJson) {
 	EXPECT_EQ(jUser["work_history"][0]["position_title"].asString(), "Developer");
 	EXPECT_EQ(jUser["work_history"][0]["from_date"].asString(), "2012");
 	EXPECT_EQ(jUser["work_history"][0]["to_date"].asString(), "2014");
-		
-
-
 }

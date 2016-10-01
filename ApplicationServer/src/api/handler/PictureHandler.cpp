@@ -18,18 +18,25 @@ Response* PictureHandler::handlePostRequest(http_message* httpMessage) {
     return this->getNotImplementedResponse();
 }
 
-Response* PictureHandler::handleDeleteRequest(http_message* httpMessage) {
-    return this->getNotImplementedResponse();
+Response* PictureHandler::handleDeleteRequest(http_message* httpMessage, string url) {
+    int userId = this->getUserIdFromUrl(url);
+    Response* response = new Response();
+    if(remove(this->getFilePath(userId).c_str()) != 0) {
+        response->setNotFoundHeader();
+        response->setErrorBody("No such image");
+    } else {
+        response->setSuccessfulHeader();
+    }
+    return response;
 }
 
-Response* PictureHandler::handlePutRequest(http_message* httpMessage) {
+Response* PictureHandler::handlePutRequest(http_message* httpMessage, string url) {
     return this->getNotImplementedResponse();
 }
 
 Response* PictureHandler::buildGetPictureResponse(int id) {
-    string path = "../ApplicationServer/img/profile/" + to_string(id) + ".jpg";
     vector<char> buffer;
-    FILE* stream = fopen(path.c_str(), "rb");
+    FILE* stream = fopen(this->getFilePath(id).c_str(), "rb");
     if (stream == NULL) {
         throw InvalidRequestException("Cannot find requested picture");
     }
@@ -46,4 +53,8 @@ Response* PictureHandler::buildGetPictureResponse(int id) {
     response->setSuccessfulHeader();
     response->setBinaryBody(&buffer[0], length);
     return response;
+}
+
+string PictureHandler::getFilePath(int id) {
+    return "../ApplicationServer/img/profile/" + to_string(id) + ".jpg";
 }

@@ -37,6 +37,7 @@ Person* PersonManager::getFakePerson1() {
     person->setDateOfBirth("01/01/1990");
     person->setCity("Buenos Aires");
     person->setSummary("Hi, this is John Doe");
+    person->setLocation(-58.368368, -34.617589);
 
     WorkHistory* workHistory1 = new WorkHistory();
     workHistory1->setCompany("IBM");
@@ -77,6 +78,7 @@ Person* PersonManager::getFakePerson2() {
     person->setDateOfBirth("01/11/1991");
     person->setCity("Madrid");
     person->setSummary("Hi, this is Jane Doe");
+    person->setLocation(-58.368368, -34.617589);
 
     WorkHistory* workHistory1 = new WorkHistory();
     workHistory1->setCompany("Microsoft");
@@ -107,10 +109,13 @@ Person* PersonManager::getFakePerson2() {
     return person;
 }
 
-void PersonManager::savePerson(Json::Value person_json) {
+long PersonManager::savePerson(Json::Value person_json) {
     std::string user_mail, user_information, output;
     long user_id;
     Json::FastWriter fastWriter;
+
+    if (!person_json.isMember("email")) throw InvalidRequestException("Missing email");
+    //if (!person_json.isMember("password")) throw InvalidRequestException("Missing password");
 
     user_mail=  person_json["email"].asString();
     user_id = person_json["id"].asLargestInt();
@@ -126,14 +131,15 @@ void PersonManager::savePerson(Json::Value person_json) {
             output = fastWriter.write(person_json);
             db->puTKey("user_" + user_mail, &output);
             db->puTKey("user_" + std::to_string(uniqueId), &user_mail);
+            return uniqueId;
             //db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
             //db->Put(leveldb::WriteOptions(), "user_" + std::to_string(uniqueId), user_mail );
         }
     } else {
         //The person already exists in the system and it wants to refresh his information
         output = fastWriter.write(person_json);
-        db->puTKey( "user_" + user_mail, &output);
-
+        db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
+        return uniqueId;
     }
 }
 

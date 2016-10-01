@@ -8,6 +8,7 @@
 #include <exception>
 
 class UserAlreadyExistsException: public std::exception {
+public:
     virtual const char* what() const throw() {
         return "El usuario ya existe en el sistema";
     }

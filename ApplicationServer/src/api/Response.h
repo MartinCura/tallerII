@@ -22,6 +22,7 @@ public:
 
     void setSuccessfulHeader();
     void setNotFoundHeader();
+    void setConflictHeader();
     void setBadRequestHeader();
     void setNotImplementedHeader();
 private:

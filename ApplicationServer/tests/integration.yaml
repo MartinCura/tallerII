@@ -3,6 +3,15 @@
     - testset: "Application Server tests"
 
 - test:
+    - name: "Get all users"
+    - url: "/allusers"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "all_users.0", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "all_users.1", comparator: "eq", expected: 2}
+    - expected_status: [200] # ok
+
+- test:
     - name: "Get positions"
     - url: "/positions"
     - method: "GET"
@@ -38,13 +47,13 @@
     - expected_status: [400] # bad request
 
 - test:
-    - name: "Update users"
+    - name: "Add users - Missing email"
     - url: "/users"
     - method: "POST"
     - body: '{"name": "John"}'
     - validators:
-          - compare: {jsonpath_mini: "id", comparator: "eq", expected: 1}
-    - expected_status: [200] # ok
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing email"}
+    - expected_status: [400] # bad request
 
 - test:
     - name: "Get user data - missing id"
@@ -66,6 +75,8 @@
           - compare: {jsonpath_mini: "date_of_birth", comparator: "eq", expected: "01/01/1990"}
           - compare: {jsonpath_mini: "city", comparator: "eq", expected: "Buenos Aires"}
           - compare: {jsonpath_mini: "summary", comparator: "eq", expected: "Hi, this is John Doe"}
+          - compare: {jsonpath_mini: "location.latitude", comparator: "eq", expected: -58.368368}
+          - compare: {jsonpath_mini: "location.longitude", comparator: "eq", expected: -34.617589}
           - compare: {jsonpath_mini: "skills.0.category", comparator: "eq", expected: "software"}
           - compare: {jsonpath_mini: "skills.0.description", comparator: "eq", expected: "JavaScrip programming language"}
           - compare: {jsonpath_mini: "skills.0.name", comparator: "eq", expected: "JavaScript"}

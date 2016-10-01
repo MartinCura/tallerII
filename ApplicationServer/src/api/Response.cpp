@@ -64,6 +64,10 @@ void Response::setNotFoundHeader() {
     this->header = "404 Not Found";
 }
 
+void Response::setConflictHeader() {
+    this->header = "409 Conflict";
+}
+
 void Response::setNotImplementedHeader() {
     this->header = "501 Not Implemented";
 }
