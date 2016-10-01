@@ -138,7 +138,7 @@ long PersonManager::savePerson(Json::Value person_json) {
     } else {
         //The person already exists in the system and it wants to refresh his information
         output = fastWriter.write(person_json);
-        db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
+        db->puTKey("user_" + user_mail, &output);
         return uniqueId;
     }
 }

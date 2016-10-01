@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Response.h"
 
 Response::Response() {
@@ -10,11 +11,14 @@ Response::Response() {
 Response::~Response() {}
 
 const char *Response::getHeader() {
-    string fullHeader = "HTTP/1.1 " + this->header + "\r\n";
-    fullHeader += "Transfer-Encoding: chunked\r\n";
-    fullHeader += "Content-Length: " + to_string(this->bodyLength) + "\r\n";
-    fullHeader += "\r\n";
-    return fullHeader.c_str();
+
+    string *fullHeader = new string();
+    *fullHeader = "HTTP/1.1 " + this->header + "\r\n";
+    *fullHeader += "Transfer-Encoding: chunked\r\n";
+    *fullHeader += "Content-Type: text/json\r\n";
+    *fullHeader += "Content-Length: " + to_string(this->bodyLength) + "\r\n";
+    *fullHeader += "\r\n";
+    return (*fullHeader).c_str();
 }
 
 const char *Response::getBody() {
@@ -30,7 +34,7 @@ unsigned long Response::getBodyLength() {
 
 void Response::setBody(string body) {
     this->body = body;
-    this->bodyLength = body.length();
+    this->bodyLength = std::strlen(body.c_str());
 }
 
 void Response::setBinaryBody(char* body, unsigned long length) {

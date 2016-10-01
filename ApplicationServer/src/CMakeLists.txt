@@ -22,7 +22,7 @@ add_subdirectory(tests)
 
 # Used to set a variable(SOURCE_FILES) that contains the name values of all of the source
 # files (.cpp) in the project
-file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp logger/*.cpp person/*.cpp)
+file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp logger/*.cpp person/*.cpp api/handler/*.cpp)
 
 # Requests that an executable is to be built using ${SOURCE_FILES}. 
 # The first argument is the name of the executable
