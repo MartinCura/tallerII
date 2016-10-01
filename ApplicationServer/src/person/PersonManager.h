@@ -15,7 +15,7 @@ public:
     Person* getPersonById(long id);
     Person* getPersonByMail(string* user_mail);
 
-    void savePerson(Json::Value person_json);
+    long savePerson(Json::Value person_json);
     void deletePerson(long id);
 
 private:

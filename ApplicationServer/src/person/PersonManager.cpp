@@ -108,7 +108,7 @@ Person* PersonManager::getFakePerson2() {
     return person;
 }
 
-void PersonManager::savePerson(Json::Value person_json) {
+long PersonManager::savePerson(Json::Value person_json) {
     std::string user_mail, user_information, output;
     long user_id;
     Json::FastWriter fastWriter;
@@ -127,12 +127,13 @@ void PersonManager::savePerson(Json::Value person_json) {
             output = fastWriter.write(person_json);
             db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
             db->Put(leveldb::WriteOptions(), "user_" + std::to_string(uniqueId), user_mail );
+            return uniqueId;
         }
     } else {
         //The person already exists in the system and it wants to refresh his information
         output = fastWriter.write(person_json);
         db->Put(leveldb::WriteOptions(), "user_" + user_mail, output);
-
+        return uniqueId;
     }
 }
 

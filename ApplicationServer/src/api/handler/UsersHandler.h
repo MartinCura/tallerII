@@ -7,6 +7,7 @@
 #include "../../person/WorkHistory.h"
 #include "../../Exceptions/UserNotFoundException.h"
 #include "../../Exceptions/InvalidRequestException.h"
+#include "../../Exceptions/UserAlreadyExistsException.h"
 #include <vector>
 
 class UsersHandler : public Handler {

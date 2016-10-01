@@ -8,9 +8,17 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
     string requestBody = string(httpMessage->body.p);
     try {
         Response* response = new Response();
+        PersonManager *personManager = new PersonManager();
         response->setSuccessfulHeader();
-        string responseBody = this->saveOrUpdatePerson(requestBody);
-        response->setBody(responseBody);
+        Json::Value responseBody;
+        responseBody["id"] = personManager->savePerson(this->parseBody(requestBody));
+        response->setBody(responseBody.toStyledString());
+        delete personManager;
+        return response;
+    } catch (UserAlreadyExistsException& e) {
+        Response* response = new Response();
+        response->setConflictHeader();
+        response->setErrorBody(e.what());
         return response;
     } catch (InvalidRequestException& e) {
         return this->getBadRequestResponse(e.getMessage());
