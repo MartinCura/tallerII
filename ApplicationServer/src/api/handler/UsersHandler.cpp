@@ -20,9 +20,12 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
 Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) {
     try {
         Response* response = new Response();
+        PersonManager *personManager = new PersonManager();
+        Person *person = personManager->getPersonById(this->getUserIdFromUrl(url));
         response->setSuccessfulHeader();
-        int userId = this->getUserIdFromUrl(url);
-        response->setBody(this->buildGetUserResponse(userId));
+        response->setBody(person->serializeMe().toStyledString());
+        delete person;
+        delete personManager;
         return response;
     } catch (InvalidRequestException& e) {
         return this->getBadRequestResponse(e.getMessage());
@@ -37,15 +40,6 @@ Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string ur
 
 Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) {
     return this->getNotImplementedResponse();
-}
-
-string UsersHandler::buildGetUserResponse(int id) {
-    PersonManager *personManager = new PersonManager();
-    Person *person = personManager->getPersonById(id);
-    Json::Value response = person->serializeMe();
-    delete person;
-    delete personManager;
-    return response.toStyledString();
 }
 
 string UsersHandler::saveOrUpdatePerson(string body) {
