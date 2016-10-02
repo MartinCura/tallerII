@@ -63,9 +63,9 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
     }
 }
 
-vector<string> * PersonManager::getAllUsersIds() {
+vector<long> * PersonManager::getAllUsersIds() {
     // Get a database iterator
-    std::vector<string>* ids = new vector<string>();
+    std::vector<long>* ids = new vector<long>();
 
     leveldb::Slice startSlice = USER_UUID_ID;
     leveldb::Slice endSlice = USER_MAIL_ID;
@@ -78,7 +78,7 @@ vector<string> * PersonManager::getAllUsersIds() {
         // Read the record
         if( !iterator->value().empty() )
         {
-            ids->push_back(iterator->key().ToString().replace(0,strlen(USER_UUID_ID),""));
+            ids->push_back(std::stol(iterator->key().ToString().replace(0,strlen(USER_UUID_ID),"")));
         }
     }
     return ids;

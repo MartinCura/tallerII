@@ -18,7 +18,7 @@ public:
     void destroyDB();
 
     long savePerson(Json::Value person_json, long forceID = -1);
-    vector<string> * getAllUsersIds();
+    vector<long> * getAllUsersIds();
     void deletePerson(long id);
 
 private:

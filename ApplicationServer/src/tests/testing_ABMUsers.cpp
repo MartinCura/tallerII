@@ -130,10 +130,8 @@ TEST(UserExists, GetUserByMail) {
 
     EXPECT_EQ(person->getCity(), "CABA");
 
-    personManager->getAllUsersIds();
-
-        personManager->destroyDB();
-        delete personManager;
+    personManager->destroyDB();
+    delete personManager;
 }
 
 /// Delete User that doesn't exists
@@ -182,4 +180,46 @@ TEST(UserExists, DeleteUser) {
     personManager->destroyDB();
     delete personManager;
 
+}
+
+TEST(PersonManagerTest, GetAllUsers) {
+    Json::Value user;
+    long userId;
+    PersonManager *personManager;
+    vector<long>* getAllUsersResult;
+    unsigned long getAllUsersResultSize;
+    bool existsId;
+
+    personManager = new PersonManager(NAME_DB);
+
+    for( int i = 0 ; i < 5 ; i++) {
+
+        user["id"] = 0;
+        user["first_name"] = "Carlos";
+        user["last_name"] = "Rodriguez";
+        user["email"] = std::to_string(i) + "@gmail.com";
+        user["date_of_birth"] = "01/01/1990";
+        user["city"] = "CABA";
+        user["profile_picture"] = "";
+        user["summary"] = "Me gusta el arrte";
+
+        userId = personManager->savePerson(user);
+
+        sleep(1);
+
+        getAllUsersResult = personManager->getAllUsersIds();
+
+        getAllUsersResultSize = getAllUsersResult->size();
+
+        EXPECT_EQ(getAllUsersResultSize,i+1);
+
+        existsId = std::find(getAllUsersResult->begin(), getAllUsersResult->end(), userId) != getAllUsersResult->end();
+        EXPECT_TRUE(existsId);
+
+        delete getAllUsersResult;
+
+    }
+
+    personManager->destroyDB();
+    delete personManager;
 }

@@ -9,12 +9,13 @@ Response* AllUsersHandler::handleGetRequest(http_message* httpMessage, string ur
     Response* response = new Response();
     response->setSuccessfulHeader();
     Json::Value responseBody;
-    //FIXME: path de db a config
+    responseBody["all_users"];
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
-    std::vector<string>* ids = personManager->getAllUsersIds();
-    for (vector<string>::iterator iter = ids->begin() ; iter != ids->end() ; iter++) {
+    std::vector<long>* ids = personManager->getAllUsersIds();
+    for (vector<long>::iterator iter = ids->begin() ; iter != ids->end() ; iter++) {
         responseBody["all_users"].append(*iter);
     }
+    delete ids;
 
     response->setBody(responseBody.toStyledString());
     return response;
