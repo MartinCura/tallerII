@@ -128,6 +128,31 @@ public class Utils {
         RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
     }
 
+    // TODO: Refactorizar mediante parámetro vectorizado
+    public static void getJsonFromAppServer(Context context, String getPathSegment,
+                                            Response.Listener<JSONObject> responseListener,
+                                            final String logTag) {
+
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
+                .build();
+        final String url = builtUri.toString();
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, responseListener,
+                        new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d(logTag, "url: "+url);//
+                                error.printStackTrace();
+                            }
+                        });
+        jsObjRequest.setTag(logTag);
+
+        RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
+    }
+
 
     public static @IdRes int[] perfilVisibilityViews = {
             R.id.perfil_toolbar, R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,

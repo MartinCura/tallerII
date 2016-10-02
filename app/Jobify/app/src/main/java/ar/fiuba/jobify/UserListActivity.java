@@ -25,6 +25,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -144,9 +146,27 @@ public class UserListActivity extends NavDrawerActivity {
         else
             Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
 
-        for (long id = 1; id <= 20; id++) { // HARDCODEO TODO DE PRUEBA
-            fetchAndAddUser(id);
-        }
+        Utils.getJsonFromAppServer(this, getString(R.string.get_all_users_path),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            JSONArray jsonArray = new JSONArray(response.toString());
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                fetchAndAddUser((long)jsonArray.get(i));
+                            }
+
+                        } catch (JSONException ex) {
+                            Log.e(LOG_TAG, "JSON Exception!");
+                            ex.printStackTrace();
+                        }
+                    }
+        }, LOG_TAG);
+//        for (long id = 1; id <= 20; id++) { // HARDCODEO TODO DE PRUEBA
+//            fetchAndAddUser(id);
+//        }
     }
 
     private void fetchAndAddUser(long id) { // TODO: De prueba, CORREGIR

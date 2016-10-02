@@ -122,4 +122,5 @@
     <string name="dialog_aceptar_contacto">¿Aceptar como contacto?</string>
     <string name="nav_solicitudes_option">Solicitudes</string>
     <string name="nav_all_users_option">Ver todos los usuarios</string>
+    <string name="get_all_users_path">allusers</string>
 </resources>
