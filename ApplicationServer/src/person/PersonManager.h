@@ -21,6 +21,8 @@ public:
     vector<long> * getAllUsersIds();
     void deletePerson(long id);
 
+    bool login(string user_mail, string user_password);
+
 private:
     DBWrapper* db;
     std::string nameDB;

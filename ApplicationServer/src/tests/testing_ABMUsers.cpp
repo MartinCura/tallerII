@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include "json/json.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
+#include "../Exceptions/InvalidPasswordException.h"
 #include <PersonManager.h>
 
 #define NAME_DB "/tmp/testDB/"
@@ -160,6 +161,7 @@ TEST(UserExists, DeleteUser) {
     personManager = new PersonManager(NAME_DB);
 
     user["id"] = 0;
+    user["password"] = "123";
     user["first_name"] = "Carlos";
     user["last_name"] = "Rodriguez";
     user["email"] = "crodriguez@gmail.com";
@@ -195,6 +197,7 @@ TEST(PersonManagerTest, GetAllUsers) {
     for( int i = 0 ; i < 5 ; i++) {
 
         user["id"] = 0;
+        user["password"] = "123";
         user["first_name"] = "Carlos";
         user["last_name"] = "Rodriguez";
         user["email"] = std::to_string(i) + "@gmail.com";
@@ -222,4 +225,71 @@ TEST(PersonManagerTest, GetAllUsers) {
 
     personManager->destroyDB();
     delete personManager;
+}
+
+TEST(PersonManagerTest, loginOK){
+    PersonManager* personManager;
+    std::string user_mail;
+    Json::Value user;
+    long id;
+
+    personManager = new PersonManager(NAME_DB);
+
+    user["id"] = 0;
+    user["password"] = "123";
+    user["first_name"] = "Carlos";
+    user["last_name"] = "Rodriguez";
+    user["email"] = "crodriguez@gmail.com";
+    user["date_of_birth"] = "01/01/1990";
+    user["city"] = "CABA";
+    user["profile_picture"] = "";
+    user["summary"] = "Me gusta el arrte";
+
+    id = personManager->savePerson(user);
+
+    EXPECT_EQ(personManager->login("crodriguez@gmail.com", "123"), true);
+
+    personManager->destroyDB();
+    delete personManager;
+
+}
+
+
+TEST(PersonManagerTest, loginUserNotExists){
+    PersonManager* personManager;
+
+    personManager = new PersonManager(NAME_DB);
+
+    EXPECT_THROW(personManager->login("crodriguez@gmail.com", "123"), UserNotFoundException);
+
+    personManager->destroyDB();
+    delete personManager;
+
+}
+
+TEST(PersonManagerTest, loginWrongPassword){
+    PersonManager* personManager;
+    std::string user_mail;
+    Json::Value user;
+    long id;
+
+    personManager = new PersonManager(NAME_DB);
+
+    user["id"] = 0;
+    user["password"] = "123";
+    user["first_name"] = "Carlos";
+    user["last_name"] = "Rodriguez";
+    user["email"] = "crodriguez@gmail.com";
+    user["date_of_birth"] = "01/01/1990";
+    user["city"] = "CABA";
+    user["profile_picture"] = "";
+    user["summary"] = "Me gusta el arrte";
+
+    id = personManager->savePerson(user);
+
+    EXPECT_THROW(personManager->login("crodriguez@gmail.com", "dios"), InvalidPasswordException);
+
+    personManager->destroyDB();
+    delete personManager;
+
 }

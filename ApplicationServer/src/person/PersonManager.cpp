@@ -1,11 +1,13 @@
 #include "PersonManager.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
+#include "../Exceptions/InvalidPasswordException.h"
 
 #include <chrono>
 #include <memory>
 
 #define USER_MAIL_ID "user:mail_"
 #define USER_UUID_ID "user:uuid_"
+#define USER_PASSWORD "user:password_"
 
 PersonManager::PersonManager(std::string nameDB) {
     db = new DBWrapper();
@@ -27,18 +29,19 @@ PersonManager::~PersonManager() {
 }
 
 long PersonManager::savePerson(Json::Value person_json, long forceID) {
-    std::string user_mail, user_information, output;
+    std::string user_mail, user_password, user_information, person_string;
     long user_id;
     Json::FastWriter fastWriter;
 
-    if (!person_json.isMember("email")) throw InvalidRequestException("Missing email");
+    //if (!person_json.isMember("email")) throw InvalidRequestException("Missing email");
 
     user_mail=  person_json["email"].asString();
     user_id = person_json["id"].asLargestInt();
+    user_password = person_json["password"].asString();
 
     if (user_id == 0) {
 
-        if (db->existsKey(USER_UUID_ID + user_mail, &user_information )) {
+        if (db->existsKey(USER_MAIL_ID + user_mail, &user_information )) {
             //Ya existe un usuario con dicho mail
             throw  UserAlreadyExistsException();
         } else {
@@ -50,15 +53,17 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
                 uniqueId = generateID();
             }
             person_json["id"] = uniqueId;
-            output = fastWriter.write(person_json);
-            db->puTKey(USER_MAIL_ID + user_mail, &output);
+            person_string = fastWriter.write(person_json);
+            db->puTKey(USER_MAIL_ID + user_mail, &person_string);
             db->puTKey(USER_UUID_ID + std::to_string(uniqueId), &user_mail);
+            db->puTKey(USER_PASSWORD + user_mail, &user_password);
+
             return uniqueId;
         }
     } else {
         //The person already exists in the system and it wants to refresh his information
-        output = fastWriter.write(person_json);
-        db->puTKey(USER_MAIL_ID + user_mail, &output);
+        person_string = fastWriter.write(person_json);
+        db->puTKey(USER_MAIL_ID + user_mail, &person_string);
         return uniqueId;
     }
 }
@@ -71,8 +76,7 @@ vector<long> * PersonManager::getAllUsersIds() {
     leveldb::Slice endSlice = USER_MAIL_ID;
 
     shared_ptr<leveldb::Iterator> iterator(db->newIterator());
-    // Possible optimization suggested by Google engineers
-    // for critical loops. Reduces memory thrash.
+
     for(iterator->Seek(startSlice); iterator->Valid() && (iterator->key()).ToString().compare(endSlice.ToString()) ; iterator->Next())
     {
         // Read the record
@@ -145,8 +149,6 @@ vector<Person*> PersonManager::getPersonFriendsById(long id) {
     std::string friends_result;
     vector<Person*> friends;
 
-
-
     if (!db->existsKey(USER_UUID_ID + std::to_string(id), &user_mail)) {
         throw UserNotFoundException(UserNotFoundException::Message::id);
     }
@@ -165,6 +167,27 @@ vector<Person*> PersonManager::getPersonFriendsById(long id) {
         friends.push_back(this->getPersonById(std::stol(friend_id)));
     }
     return friends;
+}
+
+bool PersonManager::login(std::string user_mail, std::string user_password) {
+
+    std::string user_bdd_pasword;
+    Json::Reader reader;
+
+    if (!db->existsKey(USER_PASSWORD + user_mail, &user_bdd_pasword )) {
+        //No existe un usuario con dicho mail en la base
+        throw  UserNotFoundException(UserNotFoundException::mail);
+    }
+
+    if (user_bdd_pasword.compare(user_password) != 0) {
+        //La contraseña almacenada y la de inicio de sesión no coinciden
+        throw InvalidPasswordException();
+    }
+
+    return true;
+    //TODO: GUARDAR CONEXIÓN ABIERTA
+    //TODO: DEVOLVER TOKEN DE SESIÓN
+
 }
 
 void PersonManager::destroyDB() {

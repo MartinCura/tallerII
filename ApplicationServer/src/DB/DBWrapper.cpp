@@ -37,14 +37,15 @@ DBWrapper::ResponseCode DBWrapper::getKey(std::string key, std::string *output) 
     return OK;
 }
 
-DBWrapper::ResponseCode DBWrapper::puTKey(std::string key, std::string *output) {
+
+DBWrapper::ResponseCode DBWrapper::puTKey(std::string key, std::string *value) {
     if (!db) {
         throw std::exception(); //Se debe primero iniciar la base
     }
 
     leveldb::Status s;
 
-    s = db->Put(leveldb::WriteOptions(), key, *output );
+    s = db->Put(leveldb::WriteOptions(), key, *value );
 
     if (!s.ok()) {
         return ERROR;
@@ -75,6 +76,7 @@ DBWrapper::ResponseCode DBWrapper::deleteDB() {
 
     delete db;
     db = nullptr;
+    return OK;
 }
 
 DBWrapper::~DBWrapper() {

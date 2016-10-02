@@ -28,6 +28,14 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
             delete handler;
             return response;
         }
+
+        if (regex_match(url, regex("/login"))) {
+            AllUsersHandler* handler = new LoginHandler();
+            response = handler->handleRequest(httpMessage, url);
+            delete handler;
+            return response;
+        }
+
     }
     response->setNotFoundHeader();
     this->logResponse(response);
