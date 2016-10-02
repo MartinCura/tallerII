@@ -150,6 +150,7 @@ Json::Value Person::serializeMe() {
     personAsJson["summary"] = this->summary;
     personAsJson["location"]["latitude"] = this->location->getLatitude();
     personAsJson["location"]["longitude"] = this->location->getLongitude();
+
     for (vector<WorkHistory*>::size_type i = 0; i != this->workHistory.size(); i++) {
         WorkHistory* workHistory = this->workHistory[i];
         Json::Value workHistoryResponse = workHistory->serializeMe();

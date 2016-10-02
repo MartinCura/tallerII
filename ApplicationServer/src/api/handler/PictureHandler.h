@@ -15,8 +15,8 @@ public:
     Response* handlePutRequest(http_message* httpMessage, string url);
 
 private:
-    Response* buildGetPictureResponse(int id);
-    string getFilePath(int id);
+    Response* buildGetPictureResponse(long id);
+    string getFilePath(long id);
 };
 
 #endif //PROJECT_PICTUREHANDLER_H

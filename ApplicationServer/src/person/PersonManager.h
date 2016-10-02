@@ -10,25 +10,22 @@
 class PersonManager {
 
 public:
-    PersonManager();
+    PersonManager(std::string nameDB);
     virtual ~PersonManager();
 
-    Person* getPersonById(int id);
     Person* getPersonById(long id);
     Person* getPersonByMail(string* user_mail);
+    void destroyDB();
 
-    long savePerson(Json::Value person_json);
+    long savePerson(Json::Value person_json, long forceID = -1);
     void deletePerson(long id);
 
 private:
     DBWrapper* db;
+    std::string nameDB;
     long uniqueId;
 
-    Person* getFakePerson1();
-    Person* getFakePerson2();
-
-   // bool userExists(long id, string *result);
-//    bool userExists(string *user_mail, string *result);
+    long generateID();
 
 
     vector<Person *> getPersonFriendsById(long id);

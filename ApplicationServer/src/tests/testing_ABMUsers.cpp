@@ -4,9 +4,11 @@
 #include "../Exceptions/UserAlreadyExistsException.h"
 #include <PersonManager.h>
 
+#define NAME_DB "/tmp/testDB/"
+
 /// Save a new user to DB
 TEST(NewUser, SaveUser) {
-    PersonManager*  personManager = new PersonManager();
+    PersonManager*  personManager = new PersonManager(NAME_DB);
     Json::Value user;
     user["id"] = 0;
     user["first_name"] = "Carlos";
@@ -19,13 +21,14 @@ TEST(NewUser, SaveUser) {
 
     personManager->savePerson(user);
 
+    personManager->destroyDB();
     delete personManager;
 }
 
 
 /// Save  User that exists already
 TEST(UserExists, SaveUserERROR) {
-    PersonManager* personManager_ = new PersonManager();
+    PersonManager* personManager_ = new PersonManager(NAME_DB);
     Json::Value user;
     user["id"] = 0;
     user["first_name"] = "Carlos";
@@ -39,13 +42,15 @@ TEST(UserExists, SaveUserERROR) {
     personManager_->savePerson(user);
     EXPECT_THROW(personManager_->savePerson(user), UserAlreadyExistsException);
 
+
+    personManager_->destroyDB();
     delete personManager_;
 
 }
 
 /// Get  User that exists already
 TEST(UserExists, GetUserById) {
-    PersonManager* personManager_ = new PersonManager();
+    PersonManager* personManager_ = new PersonManager(NAME_DB);
 
     Json::Value user;
     user["id"] = 0;
@@ -57,12 +62,13 @@ TEST(UserExists, GetUserById) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    long id = 1; //Se aumenta en 1 el id después de crearlo.
-    personManager_->savePerson(user);
+    long id = personManager_->savePerson(user);
 
     Person* person = personManager_->getPersonById(id);
     EXPECT_EQ(person->getLastName(), "Rodriguez");
 
+
+    personManager_->destroyDB();
     delete person;
     delete personManager_;
 
@@ -73,11 +79,13 @@ TEST(NewUser, GetUserById) {
     PersonManager* personManager_;
     long id;
 
-    personManager_= new PersonManager();
-    id = 3;
+    personManager_= new PersonManager(NAME_DB);
+    id = 9847899876;
 
     EXPECT_THROW(personManager_->getPersonById(id), UserNotFoundException);
 
+
+    personManager_->destroyDB();
     delete personManager_;
 
 }
@@ -87,11 +95,13 @@ TEST(NewUser, GetUserByMail) {
     PersonManager* personManager_;
     std::string user_mail;
 
-    personManager_= new PersonManager();
+    personManager_= new PersonManager(NAME_DB);
     user_mail = "cc";
 
     EXPECT_THROW(personManager_->getPersonByMail(&user_mail), UserNotFoundException);
 
+
+    personManager_->destroyDB();
     delete personManager_;
 
 }
@@ -102,7 +112,7 @@ TEST(UserExists, GetUserByMail) {
     Json::Value user;
     std::string user_mail;
 
-    personManager = new PersonManager();
+    personManager = new PersonManager(NAME_DB);
 
     user["id"] = 0;
     user["first_name"] = "Carlos";
@@ -119,6 +129,8 @@ TEST(UserExists, GetUserByMail) {
     Person* person = personManager->getPersonByMail(&user_mail);
 
     EXPECT_EQ(person->getCity(), "CABA");
+
+    personManager->destroyDB();
     delete personManager;
 }
 
@@ -127,11 +139,13 @@ TEST(NewUser, DeleteUser) {
     PersonManager* personManager;
     long id;
 
-    id = 3;
-    personManager = new PersonManager();
+    id = 3876676667899;
+    personManager = new PersonManager(NAME_DB);
 
     EXPECT_THROW(personManager->deletePerson(id), UserNotFoundException);
 
+
+    personManager->destroyDB();
     delete personManager;
 
 }
@@ -143,8 +157,7 @@ TEST(UserExists, DeleteUser) {
     Json::Value user;
     long id;
 
-    id = 1;
-    personManager = new PersonManager();
+    personManager = new PersonManager(NAME_DB);
 
     user["id"] = 0;
     user["first_name"] = "Carlos";
@@ -155,7 +168,7 @@ TEST(UserExists, DeleteUser) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    personManager->savePerson(user);
+    id = personManager->savePerson(user);
     personManager->deletePerson(id);
 
     user_mail = "crodriguez@gmail.com";
@@ -163,6 +176,8 @@ TEST(UserExists, DeleteUser) {
     EXPECT_THROW(personManager->getPersonById(id), UserNotFoundException);
     EXPECT_THROW(personManager->getPersonByMail(&user_mail), UserNotFoundException);
 
+
+    personManager->destroyDB();
     delete personManager;
 
 }

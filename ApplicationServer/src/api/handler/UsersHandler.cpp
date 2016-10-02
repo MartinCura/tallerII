@@ -1,5 +1,7 @@
 #include "UsersHandler.h"
 
+#define NAME_DB "/tmp/appDB/"
+
 UsersHandler::UsersHandler() {}
 
 UsersHandler::~UsersHandler() {}
@@ -7,7 +9,7 @@ UsersHandler::~UsersHandler() {}
 Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
     string requestBody = string(httpMessage->body.p);
     try {
-        PersonManager *personManager = new PersonManager();
+        PersonManager *personManager = new PersonManager(NAME_DB);
         Json::Value responseBody;
         responseBody["id"] = personManager->savePerson(this->parseBody(requestBody));
         Response* response = new Response();
@@ -27,7 +29,7 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
 
 Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) {
     try {
-        PersonManager *personManager = new PersonManager();
+        PersonManager *personManager = new PersonManager(NAME_DB);
         Person *person = personManager->getPersonById(this->getUserIdFromUrl(url));
         Response* response = new Response();
         response->setSuccessfulHeader();

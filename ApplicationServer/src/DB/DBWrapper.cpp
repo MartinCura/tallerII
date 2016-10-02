@@ -2,9 +2,10 @@
 // Created by milena on 28/09/16.
 //
 
+#include <iostream>
 #include "DBWrapper.h"
 
-DBWrapper::ResponseCode DBWrapper::openDb() {
+DBWrapper::ResponseCode DBWrapper::openDb(std::string nameDB) {
     if (db != nullptr) {
         throw std::exception(); //No se debería abrir una base que ya está abierta.
     }
@@ -13,12 +14,13 @@ DBWrapper::ResponseCode DBWrapper::openDb() {
     leveldb::Status s;
 
     options.create_if_missing = true;
-    s = leveldb::DB::Open(options, "/tmp/appDB", &db);
+    s = leveldb::DB::Open(options, nameDB, &db);
     if (!s.ok()) {
         return ERROR;
     }
     return OK;
 }
+
 
 DBWrapper::ResponseCode DBWrapper::getKey(std::string key, std::string *output) {
     if (!db) {
@@ -91,8 +93,8 @@ DBWrapper::ResponseCode DBWrapper::existsKey(std::string key, std::string *outpu
     return OK;
 }
 
-DBWrapper::ResponseCode DBWrapper::destroyDB() {
-    leveldb::DestroyDB("/tmp/appDB", leveldb::Options());
+DBWrapper::ResponseCode DBWrapper::destroyDB(std::string nameDB) {
+    leveldb::DestroyDB(nameDB, leveldb::Options());
     return OK;
 }
 

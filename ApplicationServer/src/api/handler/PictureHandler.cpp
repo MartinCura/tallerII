@@ -6,7 +6,7 @@ PictureHandler::~PictureHandler() {}
 
 Response* PictureHandler::handleGetRequest(http_message* httpMessage, string url) {
     try {
-        int userId = this->getUserIdFromUrl(url);
+        long userId = this->getUserIdFromUrl(url);
         Response* response = this->buildGetPictureResponse(userId);
         return response;
     } catch (InvalidRequestException& e) {
@@ -19,7 +19,7 @@ Response* PictureHandler::handlePostRequest(http_message* httpMessage) {
 }
 
 Response* PictureHandler::handleDeleteRequest(http_message* httpMessage, string url) {
-    int userId = this->getUserIdFromUrl(url);
+    long userId = this->getUserIdFromUrl(url);
     Response* response = new Response();
     if(remove(this->getFilePath(userId).c_str()) != 0) {
         response->setNotFoundHeader();
@@ -34,7 +34,7 @@ Response* PictureHandler::handlePutRequest(http_message* httpMessage, string url
     return this->getNotImplementedResponse();
 }
 
-Response* PictureHandler::buildGetPictureResponse(int id) {
+Response* PictureHandler::buildGetPictureResponse(long id) {
     vector<char> buffer;
     FILE* stream = fopen(this->getFilePath(id).c_str(), "rb");
     if (stream == NULL) {
@@ -55,6 +55,6 @@ Response* PictureHandler::buildGetPictureResponse(int id) {
     return response;
 }
 
-string PictureHandler::getFilePath(int id) {
+string PictureHandler::getFilePath(long id) {
     return "../ApplicationServer/img/profile/" + to_string(id) + ".jpg";
 }

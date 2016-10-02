@@ -17,13 +17,13 @@ public:
     DBWrapper() { db = nullptr;};
     ~DBWrapper();
 
-    ResponseCode openDb();
+    DBWrapper::ResponseCode openDb(std::string nameDB);
     DBWrapper::ResponseCode getKey(std::string key, std::string *output);
     DBWrapper::ResponseCode puTKey(std::string key, std::string *output);
     DBWrapper::ResponseCode deleteKey(std::string key);
     DBWrapper::ResponseCode deleteDB();
     DBWrapper::ResponseCode existsKey(std::string key, std::string *output);
-    DBWrapper::ResponseCode destroyDB();
+    DBWrapper::ResponseCode destroyDB(std::string nameDB);
 
 
 private:
