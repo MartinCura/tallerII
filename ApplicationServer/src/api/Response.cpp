@@ -16,7 +16,9 @@ const char *Response::getHeader() {
     string *fullHeader = new string();
     *fullHeader = "HTTP/1.1 " + this->header + "\r\n";
     *fullHeader += "Transfer-Encoding: chunked\r\n";
-    *fullHeader += "Content-Type: " + this->contentType + "\r\n";
+    if (this->bodyLength != 0) {
+        *fullHeader += "Content-Type: " + this->contentType + "\r\n";
+    }
     *fullHeader += "Content-Length: " + to_string(this->bodyLength) + "\r\n";
     *fullHeader += "\r\n";
     return (*fullHeader).c_str();
