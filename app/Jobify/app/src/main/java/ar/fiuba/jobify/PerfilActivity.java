@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -125,6 +126,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
         FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
         if (fabEditar != null) {
+            fabEditar.setBackgroundTintList(Utils.getColorStateList(this, R.color.editar_btn_inactive));
             fabEditar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -208,19 +210,16 @@ public class PerfilActivity extends NavDrawerActivity {
 //            updateProfileInformation(fetchedUser);
 
             // Cambio color del botón de edición
-//            if (fabEditar != null)
-//                fabEditar.setBackgroundTintList(null);
+            if (fabEditar != null) {
+                fabEditar.setBackgroundTintList(Utils.getColorStateList(this, R.color.editar_btn_inactive));
+            }
 
             refreshProfileInformation(fetchedUserID);
 
         } else {    /** Cambiar a modo edición */
             // Cambia color del botón de edición
             if (fabEditar != null) {
-//                ColorStateList csl = new ColorStateList(
-//                        new int[][] { new int[] { android.R.attr.state_enabled } },
-//                        new int[] { Color.GREEN });
-////                fabEditar.setBackgroundTintList(csl);
-                fabEditar.setBackgroundColor(Color.BLUE);
+                fabEditar.setBackgroundTintList(Utils.getColorStateList(this, R.color.editar_btn_active));
             }
 
             // Cambia funcionamiento del "volver" TODO
@@ -330,6 +329,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     return;
                 }
 
+                // Obtengo el estado de amistad del usuario fetched con el connected.
                 Contact.Status estado = contactsResponse.getStatusForId(connectedUserID);
 
                 switch (estado) {
@@ -367,7 +367,7 @@ public class PerfilActivity extends NavDrawerActivity {
                         // Confirmar y cancelar amistad
                         break;
                     default:
-                        Log.e(LOG_TAG, "This is not possible...");
+                        Log.e(LOG_TAG, "This is not possible...");  // TODO: Revisar contra NONE
                 }
 
                 colorearBotonAmistad(estado);
@@ -376,9 +376,31 @@ public class PerfilActivity extends NavDrawerActivity {
     }
 
     private void colorearBotonAmistad(Contact.Status estado) {
-        // TODO: Colorear correctamente la amistad
-    }
 
+        FloatingActionButton fab_amigar = (FloatingActionButton) findViewById(R.id.fab_amigar);
+        if (fab_amigar == null) {
+            Log.e(LOG_TAG, "No pude encontrar fab_amigar");
+            return;
+        }
+        ColorStateList csl;
+
+        switch (estado) {
+           case REQUESTED:
+                csl = Utils.getColorStateList(this, R.color.amigar_btn_requested);
+                break;
+            case RECEIVED:
+                csl = Utils.getColorStateList(this, R.color.amigar_btn_received);
+                break;
+            case ACTIVE:
+                csl = Utils.getColorStateList(this, R.color.amigar_btn_active);
+                break;
+            default:  // TODO: Revisar contra NONE
+                fab_amigar.setEnabled(false);
+            case NONE:
+                csl = Utils.getColorStateList(this, R.color.amigar_btn_none);
+        }
+        fab_amigar.setBackgroundTintList(csl);
+    }
 
     public void refreshProfileInformation(final long idFetched) {
 
@@ -606,6 +628,10 @@ public class PerfilActivity extends NavDrawerActivity {
 
 
     private void populateContacts(ContactsResponse response) {
+
+        // Obtengo el estado de amistad del usuario fetched con el connected para colorear el botón
+        Contact.Status estado = response.getStatusForId(connectedUserID);
+        colorearBotonAmistad(estado);
 
 //        ArrayList<Contact> contacts = response.getContactsWithStatus(Contact.Status.ACTIVE);
 

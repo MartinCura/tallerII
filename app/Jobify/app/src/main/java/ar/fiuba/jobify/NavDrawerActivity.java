@@ -18,13 +18,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.android.volley.ParseError;
-import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import ar.fiuba.jobify.app_server_api.User;
@@ -134,19 +129,19 @@ public class NavDrawerActivity extends AppCompatActivity
 
         if (id == R.id.nav_manage) {
             startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+            return false;
         } else if (id == R.id.nav_solicitudes) {
             startActivity(
                     new Intent(this, UserListActivity.class)
                             .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_SOLICITUDES)
             );
-            return true;
+            return false;
         } else if (id == R.id.nav_all_users) {
             startActivity(
                     new Intent(this, UserListActivity.class)
                             .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_ALL_USERS)
             );
-            return true;
+            return false;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);

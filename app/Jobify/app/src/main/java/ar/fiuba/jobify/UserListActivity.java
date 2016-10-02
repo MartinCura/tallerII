@@ -48,7 +48,7 @@ public class UserListActivity extends NavDrawerActivity {
     public final static int MODE_SOLICITUDES = 1;
     public final static int MODE_ALL_USERS = 2;
     public final static int MODE_BUSQUEDA = 3;
-    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_ALL_USERS, MODE_BUSQUEDA };
+//    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_ALL_USERS, MODE_BUSQUEDA };
 
     private UserArrayAdapter mUserArrayAdapter;
     int mode = MODE_NONE;
@@ -137,8 +137,6 @@ public class UserListActivity extends NavDrawerActivity {
 
     // de prueba TODO
     private void listarTodosLosUsuarios() {
-        Toast.makeText(this, "Listo todos los usuarios del 1 al 10", Toast.LENGTH_LONG)
-                .show();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
         if (toolbar != null)
@@ -164,9 +162,13 @@ public class UserListActivity extends NavDrawerActivity {
                         }
                     }
         }, LOG_TAG);
-//        for (long id = 1; id <= 20; id++) { // HARDCODEO TODO DE PRUEBA
-//            fetchAndAddUser(id);
-//        }
+
+        //TODO: BORRAR cuando funcione la API correspondiente
+        Toast.makeText(this, "Listo todos los usuarios del 1 al 10", Toast.LENGTH_LONG)
+                .show();
+        for (long id = 1; id <= 5; id++) { // HARDCODEO TODO DE PRUEBA
+            fetchAndAddUser(id);
+        }
     }
 
     private void fetchAndAddUser(long id) { // TODO: De prueba, CORREGIR

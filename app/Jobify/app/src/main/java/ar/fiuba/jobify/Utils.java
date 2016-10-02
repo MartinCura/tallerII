@@ -3,9 +3,12 @@ package ar.fiuba.jobify;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.ColorRes;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -76,7 +79,7 @@ public class Utils {
                 ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(logTag, "Error de response, no pude cargar la imagen.");
+                        Log.e(logTag, "Error de response, no pude cargar la imagen. (url: "+url+")");
                         if (error.networkResponse == null) return;
                         Log.e(logTag, "Network response status code: "+error.networkResponse.statusCode);
                         if (error.networkResponse.statusCode == 200) {
@@ -300,6 +303,16 @@ public class Utils {
         @Override
         protected void deliverResponse(T response) {
             mListener.onResponse(response);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    public static ColorStateList getColorStateList(Context context, @ColorRes int id) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return context.getResources().getColorStateList(id, context.getTheme());
+        } else {
+            return context.getResources().getColorStateList(id);
         }
     }
 
