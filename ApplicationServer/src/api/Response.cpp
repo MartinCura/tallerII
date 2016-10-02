@@ -6,6 +6,7 @@ Response::Response() {
     this->body = "";
     this->bodyLength = 0;
     this->hasBinaryContent = false;
+    this->contentType = "text/json";
 }
 
 Response::~Response() {}
@@ -15,7 +16,7 @@ const char *Response::getHeader() {
     string *fullHeader = new string();
     *fullHeader = "HTTP/1.1 " + this->header + "\r\n";
     *fullHeader += "Transfer-Encoding: chunked\r\n";
-    *fullHeader += "Content-Type: text/json\r\n";
+    *fullHeader += "Content-Type: " + this->contentType + "\r\n";
     *fullHeader += "Content-Length: " + to_string(this->bodyLength) + "\r\n";
     *fullHeader += "\r\n";
     return (*fullHeader).c_str();
@@ -37,10 +38,11 @@ void Response::setBody(string body) {
     this->bodyLength = std::strlen(body.c_str());
 }
 
-void Response::setBinaryBody(char* body, unsigned long length) {
+void Response::setBinaryBody(char* body, unsigned long length, string contentType) {
     this->hasBinaryContent = true;
     this->binaryBody = body;
     this->bodyLength = length;
+    this->contentType = contentType;
 }
 
 void Response::setErrorBody(string errorDetails) {

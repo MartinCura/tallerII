@@ -51,7 +51,7 @@ Response* PictureHandler::buildGetPictureResponse(long id) {
     }
     Response* response = new Response();
     response->setSuccessfulHeader();
-    response->setBinaryBody(&buffer[0], length);
+    response->setBinaryBody(&buffer[0], length, "image/jpeg");
     return response;
 }
 

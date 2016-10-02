@@ -16,7 +16,7 @@ public:
     const char* getBody();
     unsigned long getBodyLength();
     void setBody(string body);
-    void setBinaryBody(char* body, unsigned long length);
+    void setBinaryBody(char* body, unsigned long length, string contentType);
     void setErrorBody(string errorDetails);
     void setSuccessfulBody();
 
@@ -25,12 +25,14 @@ public:
     void setConflictHeader();
     void setBadRequestHeader();
     void setNotImplementedHeader();
+
+    bool hasBinaryContent;
 private:
     string header;
     string body;
+    string contentType;
     const char* binaryBody;
     unsigned long bodyLength;
-    bool hasBinaryContent;
 };
 
 #endif //APPLICATIONSERVER_RESPONSE_H
