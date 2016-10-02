@@ -76,6 +76,10 @@ void Response::setConflictHeader() {
     this->header = "409 Conflict";
 }
 
+void Response::setInternalServerErrorHeader() {
+    this->header = "500 Internal Server Error";
+}
+
 void Response::setNotImplementedHeader() {
     this->header = "501 Not Implemented";
 }

@@ -24,6 +24,7 @@ public:
     void setNotFoundHeader();
     void setConflictHeader();
     void setBadRequestHeader();
+    void setInternalServerErrorHeader();
     void setNotImplementedHeader();
 
     bool hasBinaryContent;
