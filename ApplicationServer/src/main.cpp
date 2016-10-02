@@ -29,7 +29,11 @@ struct mbuf processMessage(struct mg_connection *nc, struct http_message *httpMe
     body.buf = (char*) response->getBody();
     body.len = response->getBodyLength();
     mg_printf(nc, response->getHeader());
-    mg_printf_http_chunk(nc, body.buf, body.len);
+    if (response->hasBinaryContent) {
+        mg_send_http_chunk(nc, body.buf, body.len);
+    } else {
+        mg_printf_http_chunk(nc, body.buf, body.len);
+    }
     mg_send_http_chunk(nc, "", 0);
     return body;
 }

@@ -7,6 +7,7 @@
 #include "handler/UsersHandler.h"
 #include "handler/PictureHandler.h"
 #include "handler/AllUsersHandler.h"
+#include "handler/ContactsHandler.h"
 #include "../logger/Logger.h"
 #include <regex>
 #include <cstring>

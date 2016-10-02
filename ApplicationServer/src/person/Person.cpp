@@ -111,6 +111,16 @@ vector<Skill*> Person::getSkills() {
     return this->skills;
 }
 
+WorkHistory* Person::getCurrentJob() {
+    vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
+    for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
+        if (workHistoryVector[i]->getToDate() == "") {
+            return workHistoryVector[i];
+        }
+    }
+    return nullptr;
+}
+
 void Person::deserializeMe(Json::Value personAsJson) {
     this->id = personAsJson["id"].asLargestInt();
     this->firstName = personAsJson["first_name"].asString();

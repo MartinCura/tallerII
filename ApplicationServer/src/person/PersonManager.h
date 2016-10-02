@@ -20,6 +20,7 @@ public:
     long savePerson(Json::Value person_json, long forceID = -1);
     vector<long> * getAllUsersIds();
     void deletePerson(long id);
+    vector<Person *> getPersonFriendsById(long id);
 
     bool login(string user_mail, string user_password);
 
@@ -30,10 +31,9 @@ private:
 
     long generateID();
 
-
-    vector<Person *> getPersonFriendsById(long id);
-
-
+    Person* getFakePerson1();
+    Person* getFakePerson2();
+    Person* getFakePerson3();
 };
 
 #endif //PROJECT_PERSONMANAGER_H

@@ -7,37 +7,47 @@ WebHandler::~WebHandler() {}
 Response* WebHandler::handleRequest(http_message* httpMessage) {
     Response* response = new Response();
     this->logRequest(httpMessage);
-    if (&httpMessage->uri) {
-        string url = this->getUrl(httpMessage->uri);
-        if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users"))) {
-            UsersHandler* handler = new UsersHandler();
-            response = handler->handleRequest(httpMessage, url);
-            delete handler;
-            this->logResponse(response);
-            return response;
+    try {
+        if (&httpMessage->uri) {
+            string url = this->getUrl(httpMessage->uri);
+            if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users"))) {
+                UsersHandler* handler = new UsersHandler();
+                response = handler->handleRequest(httpMessage, url);
+                delete handler;
+                this->logResponse(response);
+                return response;
+            }
+            if (regex_match(url, regex("/profilepicture/.*"))) {
+                PictureHandler* handler = new PictureHandler();
+                response = handler->handleRequest(httpMessage, url);
+                delete handler;
+                return response;
+            }
+            if (regex_match(url, regex("/allusers"))) {
+                AllUsersHandler* handler = new AllUsersHandler();
+                response = handler->handleRequest(httpMessage, url);
+                delete handler;
+                this->logResponse(response);
+                return response;
+            }
+            if (regex_match(url, regex("/contacts/.*"))) {
+                ContactsHandler *handler = new ContactsHandler();
+                response = handler->handleRequest(httpMessage, url);
+                delete handler;
+                this->logResponse(response);
+                return response;
+            }
+            if (regex_match(url, regex("/login"))) {
+                AllUsersHandler* handler = new LoginHandler();
+                response = handler->handleRequest(httpMessage, url);
+                delete handler;
+                return response;
+            }
         }
-        if (regex_match(url, regex("/profilepicture/.*"))) {
-            PictureHandler* handler = new PictureHandler();
-            response = handler->handleRequest(httpMessage, url);
-            delete handler;
-            return response;
-        }
-        if (regex_match(url, regex("/allusers"))) {
-            AllUsersHandler* handler = new AllUsersHandler();
-            response = handler->handleRequest(httpMessage, url);
-            delete handler;
-            return response;
-        }
-
-        if (regex_match(url, regex("/login"))) {
-            AllUsersHandler* handler = new LoginHandler();
-            response = handler->handleRequest(httpMessage, url);
-            delete handler;
-            return response;
-        }
-
+        response->setNotFoundHeader();
+    } catch (exception &e) {
+        response->setInternalServerErrorHeader();
     }
-    response->setNotFoundHeader();
     this->logResponse(response);
     return response;
 }
