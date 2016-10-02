@@ -38,7 +38,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 return response;
             }
             if (regex_match(url, regex("/login"))) {
-                AllUsersHandler* handler = new LoginHandler();
+                LoginHandler* handler = new LoginHandler();
                 response = handler->handleRequest(httpMessage, url);
                 delete handler;
                 return response;
