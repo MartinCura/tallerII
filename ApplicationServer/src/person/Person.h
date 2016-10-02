@@ -41,6 +41,7 @@ public:
     Location* getLocation();
     vector<WorkHistory*> getWorkHistory();
     vector<Skill*> getSkills();
+    WorkHistory* getCurrentJob();
 
     /// Converts the object Person into a Json
     Json::Value serializeMe();
