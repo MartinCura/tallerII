@@ -1,6 +1,7 @@
 package ar.fiuba.jobify;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,28 +21,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -51,7 +51,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.Contact;
+import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
+import ar.fiuba.jobify.app_server_api.Solicitud;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
@@ -94,7 +96,8 @@ public class PerfilActivity extends NavDrawerActivity {
             fabAmigar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(new Intent(getContext(), UserListActivity.class));
+                    if (fetchedUser != null && fetchedUser.getId() != connectedUserID)
+                        modificarAmistad();
                     // TODO: Amigar
                 }
             });
@@ -137,6 +140,8 @@ public class PerfilActivity extends NavDrawerActivity {
             if (fabChatear != null) fabChatear.setVisibility(View.GONE);
             if (fabEditar != null) fabEditar.setVisibility(View.VISIBLE);
         }
+
+        Utils.toggleViewVisibility(this, R.id.perfil_information_layout);
     }
 
     @Override
@@ -283,7 +288,6 @@ public class PerfilActivity extends NavDrawerActivity {
         inEditingMode = !inEditingMode;
     }
 
-
     // Si el input de algún campo es incorrecto, falla sin modificar al usuario.
     private boolean capturarInputPerfilUsuario() {
         User editedUser = new User(fetchedUser);
@@ -315,22 +319,77 @@ public class PerfilActivity extends NavDrawerActivity {
     }
 
 
+    private void modificarAmistad() {
+        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), fetchedUserID, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                ContactsResponse contactsResponse = ContactsResponse.parseJSON(response.toString());
+                if (contactsResponse == null) {
+                    Log.e(LOG_TAG, "Error de parseo de ContactsResponse");
+                    return;
+                }
+
+                Contact.Status estado = contactsResponse.getStatusForId(connectedUserID);
+
+                switch (estado) {
+                    case NONE:
+                        Utils.confirmarAccion(getContext(), "Solicitud", getString(R.string.dialog_agregar_contacto),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // TODO: Enviar solicitud
+                                        Gson gson = new GsonBuilder()
+                                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                                                .create();
+                                        String json = gson.toJson(new Solicitud(fetchedUserID, Contact.Status.REQUESTED));
+                                        // TODO: postear json
+                                    }
+                                });
+                        break;
+                    case REQUESTED:
+                        // Confirmar y cancelar?
+                        break;
+                    case RECEIVED:
+                        Utils.confirmarAccion(getContext(), "Solicitud", getString(R.string.dialog_aceptar_contacto),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Gson gson = new GsonBuilder()
+                                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                                                .create();
+                                        String json = gson.toJson(new Solicitud(fetchedUserID, Contact.Status.ACTIVE));
+                                        // TODO: Aceptar solicitud
+                                    }
+                                });
+                        break;
+                    case ACTIVE:
+                        // Confirmar y cancelar amistad
+                        break;
+                    default:
+                        Log.e(LOG_TAG, "This is not possible...");
+                }
+
+                colorearBotonAmistad(estado);
+            }
+        }, LOG_TAG);
+    }
+
+    private void colorearBotonAmistad(Contact.Status estado) {
+        // TODO: Colorear correctamente la amistad
+    }
+
+
     public void refreshProfileInformation(final long idFetched) {
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
-                .appendPath(getString(R.string.perfil_get_user_path))
-                .appendPath(Long.toString(idFetched))
-                .build();
-        final String url = builtUri.toString();
-
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
+        Utils.getJsonFromAppServer(getContext(), getString(R.string.perfil_get_user_path), idFetched,
+                new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        User mUser = User.parseJSON(response.toString());
 
+                        User mUser = User.parseJSON(response.toString());
                         if (mUser != null) {
+
                             fetchedUser = mUser;
                             fillProfile(mUser);
 
@@ -338,24 +397,9 @@ public class PerfilActivity extends NavDrawerActivity {
                             Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el perfil");
                         }
                     }
-
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(LOG_TAG, "errortostring "+error.toString());
-                        Log.d(LOG_TAG, "urrrrrrrrl: "+url);//
-                        if (error instanceof ParseError && error.getCause() instanceof JSONException) {
-                            Log.d(LOG_TAG, "JSONException! Intento refreshear de nuevo...");
-                            refreshProfileInformation(idFetched);
-                        }
-                    }
-                });
-        jsObjRequest.setTag(LOG_TAG);
-
-        RequestQueueSingleton.getInstance(this.getApplicationContext())
-                .addToRequestQueue(jsObjRequest);
+                }, LOG_TAG);
     }
+
 
     public void cargarFotoDePerfil(final long idFetched) {
 
@@ -391,6 +435,9 @@ public class PerfilActivity extends NavDrawerActivity {
     }
 
     private void fillProfile(User mUser) {
+        LinearLayout layout = (LinearLayout) findViewById(R.id.perfil_information_layout);
+        if (layout != null) layout.setVisibility(View.VISIBLE);
+
         collapsingToolbarLayout.setTitle(mUser.getFullName());
 
         Utils.setTextViewText(this, R.id.text_perfil_mail, mUser.getEmail());
@@ -399,10 +446,17 @@ public class PerfilActivity extends NavDrawerActivity {
         Utils.setTextViewText(this, R.id.text_perfil_resumen, mUser.getSummary(), true);
         Utils.setTextViewText(this, R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales(), true);
 
-        populateContacts();
-
         Utils.populateStringList(this, R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
         Utils.populateStringList(this, R.id.perfil_skills_list, mUser.getListaSkills());
+
+        populateContacts(new ContactsResponse());// TODO: DE PRUEBA, BORRAR
+
+        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), fetchedUserID, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        populateContacts(ContactsResponse.parseJSON(response.toString()));
+                    }
+                }, LOG_TAG);
     }
 
 
@@ -551,24 +605,25 @@ public class PerfilActivity extends NavDrawerActivity {
     }
 
 
-    private void populateContacts() {
+    private void populateContacts(ContactsResponse response) {
+
+//        ArrayList<Contact> contacts = response.getContactsWithStatus(Contact.Status.ACTIVE);
 
         /// TODO: hardcodeado, de prueba
         ArrayList<Contact> contacts = new ArrayList<>();
-        contacts.add(new Contact(1, "John", "Roberts", new Employment("CEO", "FBI"), Contact.ACTIVE));
-        contacts.add(new Contact(2, "Joan", "Roberts", new Employment("ZEO", "NSA"), Contact.ACTIVE));
-        contacts.add(new Contact(3, "Sean", "Roberts", new Employment("CTO", "FBI"), Contact.ACTIVE));
-        contacts.add(new Contact(4, "Jon", "Roberts", new Employment("CFO", "GitHub"), Contact.ACTIVE));
-        contacts.add(new Contact(5, "Jone", "Roberts", new Employment("Toilet cleaner", "Zoo"), Contact.ACTIVE));
-        contacts.add(new Contact(6, "Mark", "Zuckerberg", new Employment("CEO", "Facebook"), Contact.REQUESTED));
-        ///
-
-        // Solo mostrar contactos activos
+        contacts.add(new Contact(1, "John", "Roberts", new Employment("CEO", "FBI"), Contact.Status.ACTIVE));
+        contacts.add(new Contact(2, "Joan", "Roberts", new Employment("ZEO", "NSA"), Contact.Status.ACTIVE));
+        contacts.add(new Contact(3, "Sean", "Roberts", new Employment("CTO", "FBI"), Contact.Status.ACTIVE));
+        contacts.add(new Contact(4, "Jon", "Roberts", new Employment("CFO", "GitHub"), Contact.Status.ACTIVE));
+        contacts.add(new Contact(5, "Jone", "Roberts", new Employment("Toilet cleaner", "Zoo"), Contact.Status.ACTIVE));
+        contacts.add(new Contact(6, "Mark", "Zuckerberg", new Employment("CEO", "Facebook"), Contact.Status.REQUESTED));
+        // Solo mostrar contactos activos TODO: BORRAR
         ArrayList<Contact> activeContacts = new ArrayList<>();
         for (Contact c : contacts) {
-            if (c.getEstado().equals(Contact.ACTIVE))
+            if (c.getStatus().equals(Contact.Status.ACTIVE))
                 activeContacts.add(c);
         }
+        ///
 
         if (activeContacts.size() == 0) {
             FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
@@ -654,7 +709,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.contact_card_trabajo);
                 if (tv_trabajo != null)
-                    tv_trabajo.setText(contact.getTrabajoActual().getOneLiner());
+                    tv_trabajo.setText(contact.getCurrentJob().getOneLiner());
             }
 
             return itemView;

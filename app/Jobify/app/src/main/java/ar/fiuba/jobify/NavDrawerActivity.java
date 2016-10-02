@@ -43,10 +43,8 @@ public class NavDrawerActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(toolbarResId);
         setSupportActionBar(toolbar);
 
-        SharedPreferences sharedPref =
-                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
-        connectedUserID = sharedPref
-                .getLong(getString(R.string.stored_connected_user_id), connectedUserID);
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        connectedUserID = sharedPref.getLong(getString(R.string.stored_connected_user_id), connectedUserID);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(drawerResId);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -76,7 +74,8 @@ public class NavDrawerActivity extends AppCompatActivity
                     if (connectedUserID != 0) {
                         startActivity(
                                 new Intent(NavDrawerActivity.this, PerfilActivity.class)
-                                        .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, connectedUserID)
+                                        .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE,
+                                                connectedUserID)
                         );
                     }
                 }
@@ -136,8 +135,19 @@ public class NavDrawerActivity extends AppCompatActivity
         if (id == R.id.nav_manage) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
+        } else if (id == R.id.nav_solicitudes) {
+            startActivity(
+                    new Intent(this, UserListActivity.class)
+                            .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_SOLICITUDES)
+            );
+            return true;
+        } else if (id == R.id.nav_all_users) {
+            startActivity(
+                    new Intent(this, UserListActivity.class)
+                            .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_ALL_USERS)
+            );
+            return true;
         }
-//        } else if (id == R.id.nav_gallery) {
 
         DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
         if (drawer != null)
@@ -155,46 +165,23 @@ public class NavDrawerActivity extends AppCompatActivity
 
     public void setUpDrawerHeaderUser() {
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
-                .appendPath(getString(R.string.perfil_get_user_path))
-                .appendPath(Long.toString(connectedUserID))
-                .build();
-        final String urlGetUser = builtUri.toString();
-
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, urlGetUser, null, new Response.Listener<JSONObject>() {
-
+        Utils.getJsonFromAppServer(this, getString(R.string.perfil_get_user_path), connectedUserID,
+                new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        User mUser = User.parseJSON(response.toString());
 
+                        User mUser = User.parseJSON(response.toString());
                         if (mUser != null) {
                             fillDrawerHeaderText(mUser);
+
                         } else {
                             Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el header del ND");
                         }
                     }
-
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(LOG_TAG, "errortostring "+error.toString());
-                        Log.d(LOG_TAG, "urrrrrrrrl: "+urlGetUser);//
-                        if (error instanceof ParseError && error.getCause() instanceof JSONException) {
-                            Log.d(LOG_TAG, "JSONException! Intento refreshear de nuevo...");
-                            setUpDrawerHeaderUser();
-                        }
-                    }
-                });
-        jsObjRequest.setTag(LOG_TAG);
-
-        RequestQueueSingleton.getInstance(this.getApplicationContext())
-                .addToRequestQueue(jsObjRequest);
-
+                }, LOG_TAG);
 
         ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
-        builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
                 .appendPath(getString(R.string.perfil_get_thumbnail_path))
                 .appendPath(Long.toString(connectedUserID))
                 .build();

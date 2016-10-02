@@ -19,7 +19,7 @@
         android:layout_height="72dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:contentDescription="@string/nav_drawer_thumbnail_description"
-        android:src="@drawable/placeholder_image" />
+        android:src="@drawable/ic_refreshing" />
 
     <!--<ImageView-->
         <!--android:id="@+id/imageView"-->

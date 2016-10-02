@@ -27,7 +27,7 @@
                 android:id="@+id/perfil_image"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/app_bar_height"
-                android:src="@drawable/placeholder_image"
+                android:src="@drawable/ic_refreshing"
                 android:scaleType="centerCrop"
                 android:contentDescription="@string/perfil_foto_description"
                 app:layout_collapseMode="parallax" />

@@ -24,7 +24,7 @@
                 android:layout_width="@dimen/contact_card_picture_width"
                 android:layout_height="@dimen/contact_card_picture_height"
                 android:layout_centerHorizontal="true"
-                android:src="@drawable/placeholder_image"
+                android:src="@drawable/ic_refreshing"
                 android:contentDescription="@string/perfil_contact_card_foto_description" />
 
             <TextView

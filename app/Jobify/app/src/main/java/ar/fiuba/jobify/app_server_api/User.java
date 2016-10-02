@@ -31,7 +31,6 @@ public class User {
             city = "",
             dateOfBirth = "",
             summary = "";
-//    String profilePicture = ""; // URL? Imagen? TODO revisar    BORRAR
     List<Skill> skills;
     List<Employment> workHistory;
 
@@ -55,7 +54,6 @@ public class User {
         this.city = o.city;
         this.dateOfBirth = o.dateOfBirth;
         this.summary = o.summary;
-//        this.profilePicture = o.profilePicture;
         this.skills = new ArrayList<>(o.skills);
         this.workHistory = new ArrayList<>(o.workHistory);
     }

@@ -1,10 +1,13 @@
 package ar.fiuba.jobify;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,10 +25,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,6 +87,45 @@ public class Utils {
                 }) ;
         RequestQueueSingleton.getInstance(context)
                 .addToRequestQueue(request);
+    }
+
+    /**
+     * Obtiene el JSON devuelto tras requestear un GET al AppServer a .../[getPath]/[idFetched]
+     * En caso de éxito, se correrá responseListener.onResponse()
+     */
+    public static void getJsonFromAppServer(Context context, String getPathSegment, long idFetched,
+                                            Response.Listener<JSONObject> responseListener,
+                                            final String logTag) {
+        getJsonFromAppServer(context, getPathSegment, idFetched, null, responseListener, logTag);
+    }
+
+    /**
+     * Forma genérica que además permite enviar un parámetro JSON.
+     */
+    public static void getJsonFromAppServer(Context context, String getPathSegment, long idFetched,
+                                            JSONObject jsonRequest,
+                                            Response.Listener<JSONObject> responseListener,
+                                            final String logTag) {
+
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
+                .appendPath(Long.toString(idFetched))
+                .build();
+        final String url = builtUri.toString();
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, jsonRequest, responseListener,
+                        new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d(logTag, "url: "+url);//
+                                error.printStackTrace();
+                            }
+                        });
+        jsObjRequest.setTag(logTag);
+
+        RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
     }
 
 
@@ -234,4 +278,14 @@ public class Utils {
         }
     }
 
+    public static void confirmarAccion(Context context, String title, String message,
+                                       DialogInterface.OnClickListener listener) {
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, listener)
+                .setNegativeButton(android.R.string.no, null)
+                .show();
+    }
 }

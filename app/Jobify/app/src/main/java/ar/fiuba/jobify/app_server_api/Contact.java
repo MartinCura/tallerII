@@ -1,31 +1,26 @@
 package ar.fiuba.jobify.app_server_api;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by martín on 30/09/16.
  * Versión reducida de un usuario, para mostrarse como relacionado a otro.
  */
 public class Contact {
 
-    // TODO: Lo prolijo sería hacerlo con ints (y un serializer para Gson)
-    public static final String ACTIVE = "active",
-                            REQUESTED = "requested",
-                            RECEIVED = "received";
-
-    public static final String[] ContactEstados = { ACTIVE, REQUESTED, RECEIVED };
-
-    long    id;
-    String  firstName = "",
-            lastName = "";
-    Employment trabajoActual;
-    String  estado = "";
+    long        id;
+    String      firstName = "",
+                lastName = "";
+    Employment  currentJob;
+    Status      status = Status.NONE;
 
 
-    public Contact(long id, String firstName, String lastName, Employment trabajo, String estado) {
+    public Contact(long id, String firstName, String lastName, Employment trabajo, Status status) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.trabajoActual = new Employment(trabajo);
-        this.estado = estado;
+        this.currentJob = new Employment(trabajo);
+        this.status = status;
     }
 
 
@@ -45,11 +40,39 @@ public class Contact {
         return getFirstName() + " " + getLastName();
     }
 
-    public Employment getTrabajoActual() {
-        return trabajoActual;
+    public Employment getCurrentJob() {
+        return currentJob;
     }
 
-    public String getEstado() {
-        return estado;
+    public Status getStatus() {
+        return status;
+    }
+
+
+
+    public enum Status {
+
+        @SerializedName("") //;// Puede causar errores
+        NONE (0),
+
+        @SerializedName("requested")
+        REQUESTED (1),
+
+        @SerializedName("received")
+        RECEIVED (2),
+
+        @SerializedName("active")
+        ACTIVE (3);
+
+        private final int value;
+
+        Status(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
     }
 }

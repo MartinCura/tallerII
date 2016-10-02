@@ -117,4 +117,9 @@
     <string name="add_item_description">Add item</string>
     <string name="remove_item_description">Remove item</string>
     <string name="nav_drawer_thumbnail_description">Thumbnail del usuario conectado en el navigation drawer</string>
+    <string name="get_contacts_path">contacts</string>
+    <string name="dialog_agregar_contacto">¿Quiere agregarlo como contacto?</string>
+    <string name="dialog_aceptar_contacto">¿Aceptar como contacto?</string>
+    <string name="nav_solicitudes_option">Solicitudes</string>
+    <string name="nav_all_users_option">Ver todos los usuarios</string>
 </resources>

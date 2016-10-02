@@ -12,7 +12,7 @@
         android:layout_height="100dp"
         android:layout_alignParentLeft="true"
         android:contentDescription="@string/perfil_foto_description"
-        android:src="@drawable/placeholder_image" />
+        android:src="@drawable/ic_refreshing" />
     <!--TODO Fijarse si cambiar dimensiones por constantes-->
 
     <TextView

@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Created by martín on 06/09/16.
+ * Estructura API para las categorías del sistema.
  */
 public class CategoriesResponse {
 

@@ -19,28 +19,37 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.Contact;
+import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.User;
 
 public class UserListActivity extends NavDrawerActivity {
 
     private final String LOG_TAG = UserListActivity.class.getSimpleName();
 
-    private ListView mListView;
+    private final static String package_name = "ar.fiuba.jobify.USER_LIST";
+    public final static String LIST_MODE = package_name+"_MODE";
+//    public final static String _PARAMETER = package_name+_TODO;
+
+    public final static int MODE_NONE = 0;
+    public final static int MODE_SOLICITUDES = 1;
+    public final static int MODE_ALL_USERS = 2;
+    public final static int MODE_BUSQUEDA = 3;
+    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_ALL_USERS, MODE_BUSQUEDA };
+
     private UserArrayAdapter mUserArrayAdapter;
+    int mode = MODE_NONE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,14 +69,71 @@ public class UserListActivity extends NavDrawerActivity {
         ActionBar sab = getSupportActionBar();
         if (sab != null) sab.setDisplayHomeAsUpEnabled(true);
 
-        mListView = (ListView) findViewById(R.id.user_list);
-        if (mListView == null) {
+
+        // Obtengo el modo
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(LIST_MODE)) {
+            mode = intent.getIntExtra(LIST_MODE, mode);
+        }
+
+        ListView listView = (ListView) findViewById(R.id.user_list);
+        if (listView == null) {
             Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!!!!!");
-        } else {
-            listarTodosLosUsuarios();// de prueba TODO
+            return;
+        }
+        mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
+        listView.setAdapter(mUserArrayAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Al cliquear un usuario, abrir su perfil
+                User clickedUser = mUserArrayAdapter.getItem(position);
+                startActivity(
+                        new Intent(UserListActivity.this, PerfilActivity.class)
+                                .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
+                );
+            }
+        });
+
+        switch (mode) {
+            case MODE_SOLICITUDES:
+                listarSolicitudesReceived();
+                break;
+            case MODE_ALL_USERS:
+                listarTodosLosUsuarios();
+                break;
+            case MODE_BUSQUEDA:
+                // TODO
+                break;
+            case MODE_NONE:
+            default:
         }
     }
 
+    private void listarSolicitudesReceived() {
+        Toast.makeText(this, "Listo las solicitudes pendientes", Toast.LENGTH_LONG)
+                .show();
+
+        Utils.getJsonFromAppServer(this, getString(R.string.get_contacts_path), connectedUserID,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        ContactsResponse contactsResponse = ContactsResponse.parseJSON(response.toString());
+                        if (contactsResponse == null)
+                            return;
+                        ArrayList<Contact> contacts =
+                                contactsResponse.getContactsWithStatus(Contact.Status.RECEIVED);
+
+                        for ( Contact c : contacts ) {
+                            fetchAndAddUser(c.getId());
+                        }
+                    }
+        }, LOG_TAG);
+    }
+
+    // de prueba TODO
     private void listarTodosLosUsuarios() {
         Toast.makeText(this, "Listo todos los usuarios del 1 al 10", Toast.LENGTH_LONG)
                 .show();
@@ -77,20 +143,6 @@ public class UserListActivity extends NavDrawerActivity {
             toolbar.setTitle("Todos los usuarios");
         else
             Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
-
-        mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
-        mListView.setAdapter(mUserArrayAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                User clickedUser = mUserArrayAdapter.getItem(position);
-                startActivity(
-                        new Intent(UserListActivity.this, PerfilActivity.class)
-                                .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
-                );
-            }
-        });
 
         for (long id = 1; id <= 20; id++) { // HARDCODEO TODO DE PRUEBA
             fetchAndAddUser(id);
@@ -188,7 +240,7 @@ public class UserListActivity extends NavDrawerActivity {
                 if (tv_nombre != null)
                     tv_nombre.setText(user.getFullName());
                 if (tv_trabajo != null)
-                    tv_trabajo.setText(user.getTrabajosActuales());    // Revisar si cortar a una línea
+                    tv_trabajo.setText(user.getTrabajosActuales());    // TODO: Revisar si cortar a una línea
                 if (tv_recom != null)
                     tv_recom.setText(String.valueOf(user.getCantRecomendaciones()));
             }
