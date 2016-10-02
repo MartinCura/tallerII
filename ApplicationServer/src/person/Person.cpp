@@ -30,7 +30,7 @@ Person::~Person() {
     delete this->location;
 }
 
-void Person::setId(int id) {
+void Person::setId(long id) {
     this->id = id;
 }
 
@@ -71,7 +71,7 @@ void Person::addSkill(Skill *skill){
     this->skills.push_back(skill);
 }
 
-int Person::getId() {
+long Person::getId() {
     return this->id;
 }
 
@@ -112,7 +112,7 @@ vector<Skill*> Person::getSkills() {
 }
 
 void Person::deserializeMe(Json::Value personAsJson) {
-    this->id = personAsJson["id"].asInt();
+    this->id = personAsJson["id"].asLargestInt();
     this->firstName = personAsJson["first_name"].asString();
     this->lastName = personAsJson["last_name"].asString();
     this->email = personAsJson["email"].asString();

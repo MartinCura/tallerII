@@ -1,4 +1,5 @@
 #include "AllUsersHandler.h"
+#include "../../person/PersonManager.h"
 
 AllUsersHandler::AllUsersHandler() {}
 
@@ -8,9 +9,13 @@ Response* AllUsersHandler::handleGetRequest(http_message* httpMessage, string ur
     Response* response = new Response();
     response->setSuccessfulHeader();
     Json::Value responseBody;
-    //FIXME: obtener de la base
-    responseBody["all_users"].append(1);
-    responseBody["all_users"].append(2);
+    //FIXME: path de db a config
+    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    std::vector<string>* ids = personManager->getAllUsersIds();
+    for (vector<string>::iterator iter = ids->begin() ; iter != ids->end() ; iter++) {
+        responseBody["all_users"].append(*iter);
+    }
+
     response->setBody(responseBody.toStyledString());
     return response;
 }

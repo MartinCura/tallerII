@@ -20,7 +20,7 @@ public:
     Person();
     ~Person();
 
-    void setId(int id);
+    void setId(long id);
     void setFirstName(string firstName);
     void setLastName(string lastName);
     void setEmail(string email);
@@ -31,7 +31,7 @@ public:
     void addWorkHistory(WorkHistory* workHistory);
     void addSkill(Skill* skill);
 
-    int getId();
+    long getId();
     string getFirstName();
     string getLastName();
     string getEmail();
@@ -46,7 +46,7 @@ public:
     Json::Value serializeMe();
 
 private:
-    int id;
+    long id;
     string firstName;
     string lastName;
     string email;

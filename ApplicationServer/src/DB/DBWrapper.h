@@ -24,7 +24,7 @@ public:
     DBWrapper::ResponseCode deleteDB();
     DBWrapper::ResponseCode existsKey(std::string key, std::string *output);
     DBWrapper::ResponseCode destroyDB(std::string nameDB);
-
+    leveldb::Iterator * newIterator();
 
 private:
     leveldb::DB* db;

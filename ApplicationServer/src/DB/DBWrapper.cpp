@@ -98,5 +98,10 @@ DBWrapper::ResponseCode DBWrapper::destroyDB(std::string nameDB) {
     return OK;
 }
 
+leveldb::Iterator* DBWrapper::newIterator() {
+    return db->NewIterator(leveldb::ReadOptions());
+
+}
+
 
 

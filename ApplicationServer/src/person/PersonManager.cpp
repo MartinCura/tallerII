@@ -2,7 +2,10 @@
 #include "../Exceptions/UserAlreadyExistsException.h"
 
 #include <chrono>
-#include <cstdlib>
+#include <memory>
+
+#define USER_MAIL_ID "user:mail_"
+#define USER_UUID_ID "user:uuid_"
 
 PersonManager::PersonManager(std::string nameDB) {
     db = new DBWrapper();
@@ -35,7 +38,7 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
 
     if (user_id == 0) {
 
-        if (db->existsKey("user_" + user_mail, &user_information )) {
+        if (db->existsKey(USER_UUID_ID + user_mail, &user_information )) {
             //Ya existe un usuario con dicho mail
             throw  UserAlreadyExistsException();
         } else {
@@ -48,34 +51,53 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
             }
             person_json["id"] = uniqueId;
             output = fastWriter.write(person_json);
-            db->puTKey("user_" + user_mail, &output);
-            db->puTKey("user_" + std::to_string(uniqueId), &user_mail);
+            db->puTKey(USER_MAIL_ID + user_mail, &output);
+            db->puTKey(USER_UUID_ID + std::to_string(uniqueId), &user_mail);
             return uniqueId;
         }
     } else {
         //The person already exists in the system and it wants to refresh his information
         output = fastWriter.write(person_json);
-        db->puTKey("user_" + user_mail, &output);
+        db->puTKey(USER_MAIL_ID + user_mail, &output);
         return uniqueId;
     }
 }
 
+vector<string> * PersonManager::getAllUsersIds() {
+    // Get a database iterator
+    std::vector<string>* ids = new vector<string>();
 
+    leveldb::Slice startSlice = USER_UUID_ID;
+    leveldb::Slice endSlice = USER_MAIL_ID;
+
+    shared_ptr<leveldb::Iterator> iterator(db->newIterator());
+    // Possible optimization suggested by Google engineers
+    // for critical loops. Reduces memory thrash.
+    for(iterator->Seek(startSlice); iterator->Valid() && (iterator->key()).ToString().compare(endSlice.ToString()) ; iterator->Next())
+    {
+        // Read the record
+        if( !iterator->value().empty() )
+        {
+            ids->push_back(iterator->key().ToString().replace(0,strlen(USER_UUID_ID),""));
+        }
+    }
+    return ids;
+}
 void PersonManager::deletePerson(long id) {
 
     std::string user_mail, user_information;
 
-    if (!db->existsKey("user_"+std::to_string(id), &user_mail)) {
+    if (!db->existsKey(USER_UUID_ID+std::to_string(id), &user_mail)) {
         throw UserNotFoundException(UserNotFoundException::Message::id);
     }
 
-    db->deleteKey("user_" + std::to_string(id));
+    db->deleteKey(USER_UUID_ID + std::to_string(id));
 
-    if (!db->existsKey("user_" + user_mail, &user_information)) {
+    if (!db->existsKey(USER_MAIL_ID + user_mail, &user_information)) {
         throw  UserNotFoundException(UserNotFoundException::Message::mail);
     }
 
-    db->deleteKey("user_" + user_mail);
+    db->deleteKey(USER_MAIL_ID + user_mail);
 }
 
 
@@ -85,7 +107,7 @@ Person* PersonManager::getPersonById(long id) {
     Json::Reader reader;
     Json::Value json_user;
 
-    if (db->existsKey("user_" + std::to_string(id), &user_mail)) {
+    if (db->existsKey(USER_UUID_ID + std::to_string(id), &user_mail)) {
         try {
             return getPersonByMail(&user_mail);
         } catch (UserNotFoundException& exception1) {
@@ -107,7 +129,7 @@ Person* PersonManager::getPersonByMail(std::string* user_mail) {
     Json::Value json_user;
     Json::Reader reader;
 
-    if (!db->existsKey("user_" + *user_mail, &result)) {
+    if (!db->existsKey(USER_MAIL_ID + *user_mail, &result)) {
         throw UserNotFoundException(UserNotFoundException::Message::mail);
     }
 
@@ -125,11 +147,11 @@ vector<Person*> PersonManager::getPersonFriendsById(long id) {
 
 
 
-    if (!db->existsKey("user_" + std::to_string(id), &user_mail)) {
+    if (!db->existsKey(USER_UUID_ID + std::to_string(id), &user_mail)) {
         throw UserNotFoundException(UserNotFoundException::Message::id);
     }
 
-    if (!db->existsKey("user_" + user_mail, &user)) {
+    if (!db->existsKey(USER_MAIL_ID + user_mail, &user)) {
         throw std::exception();
     }
 

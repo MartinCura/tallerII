@@ -18,6 +18,7 @@ public:
     void destroyDB();
 
     long savePerson(Json::Value person_json, long forceID = -1);
+    vector<string> * getAllUsersIds();
     void deletePerson(long id);
 
 private:
@@ -29,6 +30,8 @@ private:
 
 
     vector<Person *> getPersonFriendsById(long id);
+
+
 };
 
 #endif //PROJECT_PERSONMANAGER_H

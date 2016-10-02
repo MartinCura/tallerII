@@ -130,8 +130,10 @@ TEST(UserExists, GetUserByMail) {
 
     EXPECT_EQ(person->getCity(), "CABA");
 
-    personManager->destroyDB();
-    delete personManager;
+    personManager->getAllUsersIds();
+
+        personManager->destroyDB();
+        delete personManager;
 }
 
 /// Delete User that doesn't exists
