@@ -7,8 +7,10 @@
     - url: "/allusers"
     - method: "GET"
     - validators:
+          - compare: {jsonpath_mini: "metadata.count", comparator: "eq", expected: 3}
           - compare: {jsonpath_mini: "all_users.0", comparator: "eq", expected: 1}
           - compare: {jsonpath_mini: "all_users.1", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "all_users.2", comparator: "eq", expected: 3}
     - expected_status: [200] # ok
 
 - test:
@@ -21,7 +23,9 @@
     - name: "Delete users"
     - url: "/users"
     - method: "DELETE"
-    - expected_status: [501] # not implemented
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Cannot get user id from url."}
+    - expected_status: [400] # bad request
 
 - test:
     - name: "Update users"
@@ -93,4 +97,28 @@
           - compare: {jsonpath_mini: "work_history.1.from_date", comparator: "eq", expected: "12/2015"}
           - compare: {jsonpath_mini: "work_history.1.position_title", comparator: "eq", expected: "Php Developer"}
           - compare: {jsonpath_mini: "work_history.1.to_date", comparator: "eq", expected: ""}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Delete nonexistent user"
+    - url: "/users/4"
+    - method: "DELETE"
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "User id 4 doesn't exist"}
+    - expected_status: [404] # not found
+
+- test:
+    - name: "Delete users"
+    - url: "/users/3"
+    - method: "DELETE"
+    - expected_status: [200] # ok
+
+- test:
+    - name: "User has been successfully deleted"
+    - url: "/allusers"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.count", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "all_users.0", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "all_users.1", comparator: "eq", expected: 2}
     - expected_status: [200] # ok

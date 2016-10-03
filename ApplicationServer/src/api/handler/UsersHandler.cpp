@@ -46,7 +46,19 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
 }
 
 Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string url) {
-    return this->getNotImplementedResponse();
+    PersonManager *personManager = new PersonManager(NAME_DB);
+    Response* response = new Response();
+    try {
+        long userId = this->getUserIdFromUrl(url);
+        personManager->deletePerson(userId);
+        response->setSuccessfulHeader();
+    } catch (InvalidRequestException& e) {
+        response = this->getBadRequestResponse(e.getMessage());
+    } catch (UserNotFoundException& e) {
+        response = this->getNotFoundResponse(e.getMessage(UserNotFoundException::Message::id));
+    }
+    delete personManager;
+    return response;
 }
 
 Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) {
