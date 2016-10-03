@@ -7,7 +7,8 @@ UsersHandler::UsersHandler() {}
 UsersHandler::~UsersHandler() {}
 
 Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
-    string requestBody = string(httpMessage->body.p);
+    return this->getNotImplementedResponse();
+    /*string requestBody = string(httpMessage->body.p);
     PersonManager *personManager = new PersonManager(NAME_DB);
     Response* response = new Response();
     try {
@@ -23,7 +24,7 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
         response = this->getBadRequestResponse(e.getMessage());
     }
     delete personManager;
-    return response;
+    return response;*/
 }
 
 Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) {
