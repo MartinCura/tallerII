@@ -147,14 +147,14 @@ void Person::deserializeMe(Json::Value personAsJson) {
 }
 
 void Person::updateMe(Json::Value values) {
-    if (values.isMember("id")) this->id = personAsJson["id"].asLargestInt();
-    if (values.isMember("first_name")) this->firstName = personAsJson["first_name"].asString();
-    if (values.isMember("last_name")) this->lastName = personAsJson["last_name"].asString();
-    if (values.isMember("date_of_birth")) this->dateOfBirth = personAsJson["date_of_birth"].asString();
-    if (values.isMember("city")) this->city = personAsJson["city"].asString();
-    if (values.isMember("summary")) this->summary = personAsJson["summary"].asString();
-    if (values.isMember("latitude")) this->location->setLatitude(personAsJson["location"]["latitude"].asDouble());
-    if (values.isMember("longitude")) this->location->setLongitude(personAsJson["location"]["longitude"].asDouble());
+    this->firstName = personAsJson["first_name"].asString();
+    this->lastName = personAsJson["last_name"].asString();
+    this->dateOfBirth = personAsJson["date_of_birth"].asString();
+    this->city = personAsJson["city"].asString();
+    this->summary = personAsJson["summary"].asString();
+
+    this->location->setLatitude(personAsJson["location"]["latitude"].asDouble());
+    this->location->setLongitude(personAsJson["location"]["longitude"].asDouble());
 
     this->deleteWorkHistory();
     if (values.isMember("work_history")) {

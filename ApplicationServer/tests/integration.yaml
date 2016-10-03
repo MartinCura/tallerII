@@ -7,10 +7,8 @@
     - url: "/allusers"
     - method: "GET"
     - validators:
-          - compare: {jsonpath_mini: "metadata.count", comparator: "eq", expected: 3}
           - compare: {jsonpath_mini: "all_users.0", comparator: "eq", expected: 1}
           - compare: {jsonpath_mini: "all_users.1", comparator: "eq", expected: 2}
-          - compare: {jsonpath_mini: "all_users.2", comparator: "eq", expected: 3}
     - expected_status: [200] # ok
 
 - test:
