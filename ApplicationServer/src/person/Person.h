@@ -63,6 +63,8 @@ private:
 
     /// Creates an object Person from a Json
     void deserializeMe(Json::Value personAsJson);
+    void deleteWorkHistory();
+    void deleteSkills();
 };
 
 #endif //PROJECT_PERSON_H

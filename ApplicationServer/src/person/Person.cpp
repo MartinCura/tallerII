@@ -20,14 +20,8 @@ Person::Person(Json::Value personAsJson) {
 }
 
 Person::~Person() {
-    vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
-    for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
-        delete workHistoryVector[i];
-    }
-    vector<Skill*> skillsVector = this->getSkills();
-    for (vector<Skill*>::size_type i = 0; i != skillsVector.size(); i++) {
-        delete skillsVector[i];
-    }
+    this->deleteWorkHistory();
+    this->deleteSkills();
     delete this->location;
 }
 
@@ -178,4 +172,20 @@ Json::Value Person::serializeMe() {
         personAsJson["skills"].append(skillsResponse);
     }
     return personAsJson;
+}
+
+void Person::deleteWorkHistory() {
+    vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
+    for (vector<WorkHistory*>::size_type i = workHistoryVector.size() - 1; i == 0; i--) {
+        delete workHistoryVector[i];
+        workHistoryVector.pop_back();
+    }
+}
+
+void Person::deleteSkills() {
+    vector<Skill*> skillsVector = this->getSkills();
+    for (vector<Skill*>::size_type i = skillsVector.size() - 1; i == 0; i--) {
+        delete skillsVector[i];
+        skillsVector.pop_back();
+    }
 }
