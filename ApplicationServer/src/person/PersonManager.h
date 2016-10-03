@@ -22,7 +22,7 @@ public:
     void deletePerson(long id);
     vector<Person *> getPersonFriendsById(long id);
 
-    bool login(string user_mail, string user_password);
+    void login(string user_mail, string user_password);
 
 private:
     DBWrapper* db;

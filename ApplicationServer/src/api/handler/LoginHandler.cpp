@@ -4,6 +4,8 @@
 
 #include "LoginHandler.h"
 #include "../../person/PersonManager.h"
+#include "../../session/SessionManager.h"
+#include "../../Exceptions/InvalidPasswordException.h"
 
 #define NAME_DB "/tmp/appDB/"
 
@@ -11,12 +13,12 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     string user_password, user_mail;
     Json::Value body;
     PersonManager* personManager;
+    SessionManager* sessionManager;
+    std::string token;
 
     body = this->parseBody(string(httpMessage->body.p));
 
     //Validations
-
-    //TODO: SEE VALIDATIONS
 
     if (!body.isMember("mail")) {
         throw InvalidRequestException("Mail member is missing");
@@ -32,16 +34,25 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
         personManager = new PersonManager(NAME_DB);
         personManager->login(user_mail, user_password);
 
+        //Loggin aceptado
         delete personManager;
-        //TODO: MISSING RESPONSE
-        return new Response();
+        sessionManager = new SessionManager(NAME_DB); //TODO: VERIFICAR MULTIPLES CONEXIONES DE BD
+        token = sessionManager->getNewToken(user_mail);
+        Json::Value responseBody; //TODO: METERLO EN COOKIE
+        responseBody["token"] = token;
+        Response* response = new Response();
+        response->setSuccessfulHeader();
+        response->setBody(responseBody.toStyledString());
 
-    } catch (UserNotFoundException& e) {
+        return response;
+
+    } catch (std::exception& e) {
         Response* response = new Response();
         response->setConflictHeader();
         response->setErrorBody(e.what());
         return response;
     }
+
 }
 
 Response* LoginHandler::handleGetRequest(http_message* httpMessage, string url) {

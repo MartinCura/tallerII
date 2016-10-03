@@ -247,7 +247,7 @@ TEST(PersonManagerTest, loginOK){
 
     id = personManager->savePerson(user);
 
-    EXPECT_EQ(personManager->login("crodriguez@gmail.com", "123"), true);
+    personManager->login("crodriguez@gmail.com", "123");
 
     personManager->destroyDB();
     delete personManager;

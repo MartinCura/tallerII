@@ -105,9 +105,6 @@ void PersonManager::deletePerson(long id) {
 
 
 Person* PersonManager::getPersonById(long id) {
-    if (id == 1) return this->getFakePerson1();
-    if (id == 2) return this->getFakePerson2();
-    if (id == 3) return this->getFakePerson3();
 
     std::string  user_mail, user;
     Json::Reader reader;
@@ -177,7 +174,7 @@ vector<Person*> PersonManager::getPersonFriendsById(long id) {
     return friends;
 }
 
-bool PersonManager::login(std::string user_mail, std::string user_password) {
+void PersonManager::login(std::string user_mail, std::string user_password) {
 
     std::string user_bdd_pasword;
     Json::Reader reader;
@@ -192,7 +189,6 @@ bool PersonManager::login(std::string user_mail, std::string user_password) {
         throw InvalidPasswordException();
     }
 
-    return true;
     //TODO: GUARDAR CONEXIÓN ABIERTA
     //TODO: DEVOLVER TOKEN DE SESIÓN
 

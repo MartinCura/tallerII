@@ -7,6 +7,9 @@
 #include <json/json.h>
 #include "time.h"
 #include "SessionManager.h"
+#include "../Exceptions/InvalidTokenException.h"
+#include "../Exceptions/TokenExpiredException.h"
+
 #define USER_TOKEN "user:token_"
 
 std::string SessionManager::createSessionToken() {
@@ -54,8 +57,8 @@ std::string SessionManager::getNewToken(std::string user_mail) {
     time_t creation_time;
     Json::Value token, token2;
     Json::FastWriter fastWriter;
-
     char buff[20];
+
     creation_time = time(NULL);
     strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&creation_time));
 
@@ -74,33 +77,20 @@ std::string SessionManager::getNewToken(std::string user_mail) {
 
     db->puTKey(USER_TOKEN + user_mail, &token_string);
     db->puTKey(USER_TOKEN + new_token, &token2_string);
-/*
-    char buff[20];
-    time_t now = time(NULL);
-    strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&now));
 
-    std::string s_now = std::string(buff);
-
-    const char *time_details = s_now.c_str();
-    struct tm tm;
-    strptime(time_details, "%Y-%m-%d %H:%M:%S", &tm);
-    time_t t = mktime(&tm);
-
-    double dif = difftime(t, now);*/
     return new_token;
 }
 
 std::string SessionManager::checkSession(std::string token) {
 
-    std::string token_information, last_use, user_mail;
+    std::string token_information, last_use;
     Json::Reader reader;
     Json::Value json_token_information;
 
 
     if (!db->existsKey(USER_TOKEN + token, &token_information)) {
         //El token pasado por parámetro no existe
-        throw  std::exception();
-        //TODO: IMPLEMENTAR EXCEPCIÓN EXPRESIVA
+        throw  InvalidTokenException();
     }
 
 
@@ -120,8 +110,7 @@ std::string SessionManager::checkSession(std::string token) {
     double diff = difftime(now, t);
 
     if (diff > max_time_diff) {
-        throw std::exception();
-        //TODO: IMPLEMENTAR EXCEPCION DESCRIPTIVA
+        throw TokenExpiredException();
     }
 
     return json_token_information["user_mail"].asString();
