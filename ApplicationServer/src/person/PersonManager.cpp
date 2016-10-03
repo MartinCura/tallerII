@@ -92,13 +92,13 @@ void PersonManager::deletePerson(long id) {
     std::string user_mail, user_information;
 
     if (!db->existsKey(USER_UUID_ID+std::to_string(id), &user_mail)) {
-        throw UserNotFoundException(UserNotFoundException::Message::id);
+        throw UserNotFoundException(id);
     }
 
     db->deleteKey(USER_UUID_ID + std::to_string(id));
 
     if (!db->existsKey(USER_MAIL_ID + user_mail, &user_information)) {
-        throw  UserNotFoundException(UserNotFoundException::Message::mail);
+        throw  UserNotFoundException(user_mail);
     }
 
     db->deleteKey(USER_MAIL_ID + user_mail);
@@ -123,7 +123,7 @@ Person* PersonManager::getPersonById(long id) {
 
     } else {
         //No se encontro el usuario
-        throw UserNotFoundException(UserNotFoundException::Message::id);
+        throw UserNotFoundException(id);
     }
 
 }
@@ -134,7 +134,7 @@ Person* PersonManager::getPersonByMail(std::string* user_mail) {
     Json::Reader reader;
 
     if (!db->existsKey(USER_MAIL_ID + *user_mail, &result)) {
-        throw UserNotFoundException(UserNotFoundException::Message::mail);
+        throw UserNotFoundException(*user_mail);
     }
 
     reader.parse( result.c_str(), json_user );
@@ -186,7 +186,7 @@ void PersonManager::login(std::string user_mail, std::string user_password) {
 
     if (!db->existsKey(USER_PASSWORD + user_mail, &user_bdd_pasword )) {
         //No existe un usuario con dicho mail en la base
-        throw  UserNotFoundException(UserNotFoundException::mail);
+        throw  UserNotFoundException(user_mail);
     }
 
     if (user_bdd_pasword.compare(user_password) != 0) {

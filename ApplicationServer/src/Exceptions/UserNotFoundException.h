@@ -10,7 +10,7 @@ public:
 
     enum Message {id, mail};
 
-    UserNotFoundException(int userId) {
+    UserNotFoundException(long userId) {
         this->userId = userId;
     }
 
@@ -31,7 +31,7 @@ public:
     }
 
 private:
-    int userId;
+    long userId;
     string userMail;
 };
 
