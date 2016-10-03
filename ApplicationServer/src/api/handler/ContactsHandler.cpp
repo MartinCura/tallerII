@@ -12,7 +12,7 @@ Response* ContactsHandler::handleGetRequest(http_message* httpMessage, string ur
     try {
         vector<Person *> contacts = personManager->getPersonFriendsById(userId);
         Json::Value responseBody;
-        responseBody["metada"]["count"] = contacts.size();
+        responseBody["metadata"]["count"] = contacts.size();
         for (vector<Person *>::size_type i = 0; i < contacts.size(); i++) {
             Json::Value contactAsJson;
             contactAsJson["id"] = contacts[i]->getId();
