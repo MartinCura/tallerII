@@ -15,9 +15,9 @@ Response* AllUsersHandler::handleGetRequest(http_message* httpMessage, string ur
     for (vector<long>::iterator iter = ids->begin() ; iter != ids->end() ; iter++) {
         responseBody["all_users"].append(*iter);
     }
-    delete ids;
-
     response->setBody(responseBody.toStyledString());
+    delete ids;
+    delete personManager;
     return response;
 }
 
