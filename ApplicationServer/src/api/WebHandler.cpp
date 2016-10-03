@@ -48,6 +48,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
         response->setNotFoundHeader();
     } catch (exception &e) {
         response->setInternalServerErrorHeader();
+        response->setErrorBody(e.what());
     }
     this->logResponse(response);
     return response;

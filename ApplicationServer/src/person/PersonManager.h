@@ -6,6 +6,7 @@
 #include "../Exceptions/UserNotFoundException.h"
 #include "../DB/DBWrapper.h"
 #include "../Exceptions/InvalidRequestException.h"
+#include "../Exceptions/ErrorOpeningDatabaseException.h"
 
 class PersonManager {
 

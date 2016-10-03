@@ -12,9 +12,10 @@
 PersonManager::PersonManager(std::string nameDB) {
     db = new DBWrapper();
     this->nameDB = nameDB;
+
     DBWrapper::ResponseCode status = db->openDb(nameDB);
     if (status == DBWrapper::ResponseCode::ERROR) {
-        throw exception();
+        throw ErrorOpeningDatabaseException();
     }
 
 }
