@@ -10,17 +10,19 @@ void DbBuilder::loadUsers() {
     PersonManager *personManager = new PersonManager(NAME_DB);
     try {
         Person* person1 = this->getFakePerson1();
-        Person* person2 = this->getFakePerson2();
-        Person* person3 = this->getFakePerson3();
         personManager->savePerson(person1->serializeMe(), (long) 1);
-        personManager->savePerson(person2->serializeMe(), (long) 2);
-        personManager->savePerson(person3->serializeMe(), (long) 3);
         delete person1;
+    } catch (UserAlreadyExistsException &exception) {}
+    try {
+        Person* person2 = this->getFakePerson2();
+        personManager->savePerson(person2->serializeMe(), (long) 2);
         delete person2;
+    } catch (UserAlreadyExistsException &exception) {}
+    try {
+        Person* person3 = this->getFakePerson3();
+        personManager->savePerson(person3->serializeMe(), (long) 3);
         delete person3;
-    } catch (UserAlreadyExistsException &exception) {
-        Logger::getInstance()->warn("Error al inicializar la base de datos");
-    }
+    } catch (UserAlreadyExistsException &exception) {}
     delete personManager;
 }
 
