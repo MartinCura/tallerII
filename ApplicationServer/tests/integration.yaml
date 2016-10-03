@@ -100,9 +100,3 @@
     - validators:
           - compare: {jsonpath_mini: "error", comparator: "eq", expected: "User id 4 doesn't exist"}
     - expected_status: [404] # not found
-
-- test:
-    - name: "Delete users"
-    - url: "/users/3"
-    - method: "DELETE"
-    - expected_status: [200] # ok
