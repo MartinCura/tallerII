@@ -145,8 +145,12 @@ Person* PersonManager::getPersonByMail(std::string* user_mail) {
 vector<Person*> PersonManager::getPersonFriendsById(long id) {
 
     vector<Person*> f;
-    f.push_back(this->getFakePerson2());
-    f.push_back(this->getFakePerson3());
+    if (id == 1) {
+        f.push_back(this->getPersonById(2));
+    }
+    if (id == 2) {
+        f.push_back(this->getPersonById(1));
+    }
     return f;
 
     std::string  user_mail, user, friend_user;
@@ -206,119 +210,4 @@ long PersonManager::generateID() {
     srand (time(NULL));
     int rand = std::rand();
     return  ms.count() << 3 + rand % 100;
-}
-
-
-Person* PersonManager::getFakePerson1() {
-    Person* person = new Person();
-    person->setId(1);
-    person->setFirstName("John");
-    person->setLastName("Doe");
-    person->setEmail("John@doe.com");
-    person->setDateOfBirth("01/01/1990");
-    person->setCity("Buenos Aires");
-    person->setSummary("Hi, this is John Doe");
-    person->setLocation(-58.368368, -34.617589);
-
-    WorkHistory* workHistory1 = new WorkHistory();
-    workHistory1->setCompany("IBM");
-    workHistory1->setPositionTitle("JavaScript Developer");
-    workHistory1->setFromDate("10/2012");
-    workHistory1->setToDate("11/2014");
-    person->addWorkHistory(workHistory1);
-
-    WorkHistory* workHistory2 = new WorkHistory();
-    workHistory2->setCompany("Amazon");
-    workHistory2->setPositionTitle("Project Manager");
-    workHistory2->setFromDate("12/2014");
-    workHistory2->setToDate("");
-    person->addWorkHistory(workHistory2);
-
-    Skill* skill1 = new Skill();
-    skill1->setName("JavaScript");
-    skill1->setDescription("JavaScrip programming language");
-    skill1->setCategory("software");
-    person->addSkill(skill1);
-
-    Skill* skill2 = new Skill();
-    skill2->setName("PM");
-    skill2->setDescription("Project Management");
-    skill2->setCategory("management");
-    person->addSkill(skill2);
-
-    return person;
-}
-
-Person* PersonManager::getFakePerson2() {
-    Person* person = new Person();
-    person->setId(2);
-    person->setFirstName("Jane");
-    person->setLastName("Doe");
-    person->setEmail("Jane@doe.com");
-    person->setDateOfBirth("01/11/1991");
-    person->setCity("Madrid");
-    person->setSummary("Hi, this is Jane Doe");
-    person->setLocation(-58.368368, -34.617589);
-
-    WorkHistory* workHistory1 = new WorkHistory();
-    workHistory1->setCompany("Microsoft");
-    workHistory1->setPositionTitle("QA");
-    workHistory1->setFromDate("10/2013");
-    workHistory1->setToDate("11/2015");
-    person->addWorkHistory(workHistory1);
-
-    WorkHistory* workHistory2 = new WorkHistory();
-    workHistory2->setCompany("E-bay");
-    workHistory2->setPositionTitle("Php Developer");
-    workHistory2->setFromDate("12/2015");
-    workHistory2->setToDate("");
-    person->addWorkHistory(workHistory2);
-
-    Skill* skill1 = new Skill();
-    skill1->setName("Php");
-    skill1->setDescription("Php programming language");
-    skill1->setCategory("software");
-    person->addSkill(skill1);
-
-    Skill* skill2 = new Skill();
-    skill2->setName("QA");
-    skill2->setDescription("Software Quality Assurance");
-    skill2->setCategory("software");
-    person->addSkill(skill2);
-
-    return person;
-}
-
-Person* PersonManager::getFakePerson3() {
-    Person* person = new Person();
-    person->setId(3);
-    person->setFirstName("Kent");
-    person->setLastName("Brockman");
-    person->setEmail("Kent.Brockman@channel6.com");
-    person->setDateOfBirth("01/11/1920");
-    person->setCity("Springfield");
-    person->setSummary("Conductor en canal 6");
-    person->setLocation(-58.368368, -34.617589);
-
-    WorkHistory* workHistory1 = new WorkHistory();
-    workHistory1->setCompany("Cronica Tv");
-    workHistory1->setPositionTitle("TV host");
-    workHistory1->setFromDate("10/2013");
-    workHistory1->setToDate("11/2015");
-    person->addWorkHistory(workHistory1);
-
-    WorkHistory* workHistory2 = new WorkHistory();
-    workHistory2->setCompany("Canal 6");
-    workHistory2->setPositionTitle("TV host");
-    workHistory2->setFromDate("12/2015");
-    workHistory2->setToDate("");
-    person->addWorkHistory(workHistory2);
-
-    Skill* skill1 = new Skill();
-    skill1->setName("Conducir");
-    skill1->setDescription("Conducri programas de tv");
-    skill1->setCategory("TV");
-    person->addSkill(skill1);
-
-    return person;
 }

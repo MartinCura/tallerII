@@ -30,10 +30,6 @@ private:
     std::string nameDB;
 
     long generateID();
-
-    Person* getFakePerson1();
-    Person* getFakePerson2();
-    Person* getFakePerson3();
 };
 
 #endif //PROJECT_PERSONMANAGER_H
