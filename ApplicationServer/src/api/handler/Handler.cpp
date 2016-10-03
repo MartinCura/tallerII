@@ -20,7 +20,7 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
         return this->handlePostRequest(httpMessage);
     }
     Response* response = new Response();
-    //response->setNotImplementedHeader();
+    response->setNotImplementedHeader();
     return response;
 }
 
