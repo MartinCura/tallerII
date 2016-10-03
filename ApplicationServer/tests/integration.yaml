@@ -28,12 +28,6 @@
     - expected_status: [400] # bad request
 
 - test:
-    - name: "Update users"
-    - url: "/users"
-    - method: "PUT"
-    - expected_status: [501] # not implemented
-
-- test:
     - name: "Get user data - missing id"
     - url: "/users"
     - method: "GET"
