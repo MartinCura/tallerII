@@ -5,6 +5,7 @@ Person::Person() {
     this->firstName = "";
     this->lastName = "" ;
     this->email = "";
+    this->password = "";
     this->dateOfBirth = "";
     this->city = "";
     this->summary = "";
@@ -44,6 +45,10 @@ void Person::setLastName(string lastName) {
 
 void Person::setEmail(string email) {
     this->email = email;
+}
+
+void Person::setPassword(string password) {
+    this->password = password;
 }
 
 void Person::setDateOfBirth(string dateOfBirth) {
@@ -126,6 +131,7 @@ void Person::deserializeMe(Json::Value personAsJson) {
     this->firstName = personAsJson["first_name"].asString();
     this->lastName = personAsJson["last_name"].asString();
     this->email = personAsJson["email"].asString();
+    this->password = personAsJson["password"].asString();
     this->dateOfBirth = personAsJson["date_of_birth"].asString();
     this->city = personAsJson["city"].asString();
     this->summary = personAsJson["summary"].asString();

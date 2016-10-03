@@ -1,6 +1,7 @@
 #include "Mongoose/mongoose.h"
 #include "api/WebHandler.h"
 #include "logger/Logger.h"
+#include "tools/DbBuilder.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -131,6 +132,11 @@ int main(int argc, char *argv[]) {
     s_http_server_opts.enable_directory_listing = "yes";
 
     Logger::getInstance()->info("Iniciando server en puerto " + string(s_http_port));
+
+    Logger::getInstance()->info("Iniciando base de datos");
+    DbBuilder* dbb = new DbBuilder();
+    dbb->loadUsers();
+    delete dbb;
 
     while (s_sig_num == 0) {
         mg_mgr_poll(&mgr, 1000);

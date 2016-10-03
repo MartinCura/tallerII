@@ -24,6 +24,7 @@ public:
     void setFirstName(string firstName);
     void setLastName(string lastName);
     void setEmail(string email);
+    void setPassword(string password);
     void setDateOfBirth(string dateOfBirth);
     void setCity(string city);
     void setSummary(string summary);
@@ -51,6 +52,7 @@ private:
     string firstName;
     string lastName;
     string email;
+    string password;
     string dateOfBirth;
     string city;
     string summary;
