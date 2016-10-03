@@ -46,6 +46,7 @@ public:
 
     /// Converts the object Person into a Json
     Json::Value serializeMe();
+    void updateMe(Json::Value values);
 
 private:
     long id;
