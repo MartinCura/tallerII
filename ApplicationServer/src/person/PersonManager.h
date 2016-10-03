@@ -27,7 +27,6 @@ public:
 private:
     DBWrapper* db;
     std::string nameDB;
-    long uniqueId;
 
     long generateID();
 

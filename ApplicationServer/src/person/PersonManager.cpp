@@ -17,8 +17,6 @@ PersonManager::PersonManager(std::string nameDB) {
         throw exception();
     }
 
-    this->uniqueId = 0;
-
 }
 
 PersonManager::~PersonManager() {
@@ -32,6 +30,7 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
     std::string user_mail, user_password, user_information, person_string;
     long user_id;
     Json::FastWriter fastWriter;
+    long uniqueId;
 
     //if (!person_json.isMember("email")) throw InvalidRequestException("Missing email");
 
@@ -207,6 +206,7 @@ void PersonManager::destroyDB() {
 
 long PersonManager::generateID() {
     std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::system_clock::now().time_since_epoch() );
+    srand (time(NULL));
     int rand = std::rand();
     return  ms.count() << 3 + rand % 100;
 }
