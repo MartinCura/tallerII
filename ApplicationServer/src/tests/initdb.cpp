@@ -14,6 +14,7 @@ TEST(InitDB, init) {
 
     Json::Value user;
     user["id"] = 0;
+    user["password"] = "123";
     user["first_name"] = "Carlos";
     user["last_name"] = "Rodriguez";
     user["email"] = "crodriguez@gmail.com";
