@@ -1,5 +1,6 @@
 package ar.fiuba.jobify;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
 import android.support.annotation.IdRes;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -45,6 +47,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ar.fiuba.jobify.shared_server_api.CategoriesResponse;
+import ar.fiuba.jobify.shared_server_api.Category;
+import ar.fiuba.jobify.shared_server_api.JobPosition;
+import ar.fiuba.jobify.shared_server_api.JobPositionsResponse;
+import ar.fiuba.jobify.shared_server_api.Skill;
+import ar.fiuba.jobify.shared_server_api.SkillsResponse;
+
 /**
  * Created by martín on 29/09/16.
  * Wrapper para herramientas.
@@ -60,6 +69,12 @@ public class Utils {
         String puerto = sharedPref.getString("pref_appServer_puerto", c.getString(R.string.pref_default_appServer_puerto));
 
         return "http://" + ip + ":" + puerto + "/";
+    }
+
+    public static String getSharedServerBaseURL() {
+        return "https://intense-plains-63100.herokuapp.com/";
+        ////////////////////// TODO
+//        return "";
     }
 
     public static void cargarImagenDeURLenImageView(final Context context, final ImageView imageView,
@@ -99,6 +114,7 @@ public class Utils {
     public static void getJsonFromAppServer(Context context, String getPathSegment, long idFetched,
                                             Response.Listener<JSONObject> responseListener,
                                             final String logTag) {
+
         getJsonFromAppServer(context, getPathSegment, idFetched, null, responseListener, logTag);
     }
 
@@ -116,19 +132,7 @@ public class Utils {
                 .build();
         final String url = builtUri.toString();
 
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, jsonRequest, responseListener,
-                        new Response.ErrorListener() {
-
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d(logTag, "url: "+url);//
-                                error.printStackTrace();
-                            }
-                        });
-        jsObjRequest.setTag(logTag);
-
-        RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
+        getJsonFromUrl(context, url, jsonRequest, responseListener, logTag);
     }
 
     // TODO: Refactorizar mediante parámetro vectorizado
@@ -141,16 +145,32 @@ public class Utils {
                 .build();
         final String url = builtUri.toString();
 
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, responseListener,
-                        new Response.ErrorListener() {
+        getJsonFromUrl(context, url, null, responseListener, logTag);
+    }
 
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d(logTag, "url: "+url);//
-                                error.printStackTrace();
-                            }
-                        });
+    public static void getJsonFromSharedServer(Context context, String getPathSegment,
+                                               Response.Listener<JSONObject> listener,
+                                               final String logTag) {
+
+        Uri builtUri = Uri.parse(Utils.getSharedServerBaseURL()).buildUpon()
+                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
+                .build();
+        final String url = builtUri.toString();
+
+        getJsonFromUrl(context, url, null, listener, logTag);
+    }
+
+    public static void getJsonFromUrl(Context context, final String url, JSONObject jsonRequest,
+                                      Response.Listener<JSONObject> responseListener,
+                                      final String logTag) {
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, jsonRequest, responseListener, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(logTag, "url: "+url);//
+                        error.printStackTrace();
+                    }
+                });
         jsObjRequest.setTag(logTag);
 
         RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
@@ -250,7 +270,8 @@ public class Utils {
 
         public PhotoMultipartRequest(String url, File imageFile, Response.Listener<T> listener,
                                      Response.ErrorListener errorListener) {
-            super(Method.POST, url, errorListener);
+//            super(Method.POST, url, errorListener);
+            super(Method.PUT, url, errorListener);
 
             mListener = listener;
             mImageFile = imageFile;
@@ -304,6 +325,76 @@ public class Utils {
         protected void deliverResponse(T response) {
             mListener.onResponse(response);
         }
+    }
+
+    // Solo busca si no lo tiene ya TODO: revisar
+//    public static List<Category> getCategories(Activity activity) {
+//
+//        String json = getSharedServerDataJsonString(activity,
+//                CategoriesResponse.class.getSimpleName(), R.string.ss_get_categories_path);
+//
+//        CategoriesResponse categoriesResponse = CategoriesResponse.parseJSON(json);
+//        if (categoriesResponse == null) {
+//            // TODO!!!
+//            return null;
+//        }
+//        return categoriesResponse.getCategories();
+//    }
+
+    public static List<JobPosition> getJobPositions(Activity activity) {
+
+        String json = getSharedServerDataJsonString(activity,
+                JobPositionsResponse.class.getSimpleName(), R.string.ss_get_job_positions_path);
+
+        JobPositionsResponse jobPositionsResponse = JobPositionsResponse.parseJSON(json);
+        if (jobPositionsResponse == null) {
+            // TODO!!!
+            return null;
+        }
+        return jobPositionsResponse.getJobPositions();
+    }
+
+    public static List<Skill> getSkills(Activity activity) {
+
+        String json = getSharedServerDataJsonString(activity,
+                SkillsResponse.class.getSimpleName(), R.string.ss_get_skills_path);
+
+        SkillsResponse skillsResponse = SkillsResponse.parseJSON(json);
+        if (skillsResponse == null) {
+            // TODO!!!
+            return null;
+        }
+        return skillsResponse.getSkills();
+    }
+
+    public static String getSharedServerDataJsonString(Activity activity,
+                                                  final String className, @StringRes int SsGetPath) {
+        SharedPreferences mPrefs = activity.getPreferences(Activity.MODE_PRIVATE);
+        final SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        String json = mPrefs.getString(className, "");
+
+        if (json.equals("")) {
+            getJsonFromSharedServer(activity, activity.getString(SsGetPath),
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            prefsEditor.putString(className, response.toString());
+                            prefsEditor.apply();
+                            Log.d(LOG_TAG, "Fetcheé "+className);
+                        }
+                    }, LOG_TAG);
+            return null;
+        }
+
+        return json;
+
+        // TODO: Tendría que hacer este chequeo todavía
+//        if (categoriesResponse == null) {
+//            // Borrar entrada en preferences y busca nuevamente
+//            prefsEditor.remove(CategoriesResponse.class.getSimpleName());
+//            getCategories(activity);
+//            return null;
+//        }
     }
 
     @SuppressWarnings("deprecation")

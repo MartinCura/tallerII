@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,12 +15,15 @@ import android.support.annotation.LayoutRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -37,25 +39,22 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.StringRequest;
-import com.google.gson.FieldNamingPolicy;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
-import ar.fiuba.jobify.app_server_api.Solicitud;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.shared_server_api.JobPosition;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
 public class PerfilActivity extends NavDrawerActivity {
@@ -67,6 +66,7 @@ public class PerfilActivity extends NavDrawerActivity {
     private User fetchedUser;
 
     static final int REQUEST_TAKE_PHOTO = 1;
+    static final int REQUEST_PICK_IMAGE = 2;
     String mCurrentPhotoPath = null;
     Uri mPhotoURI;
 
@@ -136,6 +136,8 @@ public class PerfilActivity extends NavDrawerActivity {
             });
         }
 
+        populateAutoCompleteLists();
+
         if (fetchedUserID == connectedUserID) {
             if (fabAmigar != null) fabAmigar.setVisibility(View.GONE);
             if (fabRecomendar != null) fabRecomendar.setVisibility(View.GONE);
@@ -144,6 +146,37 @@ public class PerfilActivity extends NavDrawerActivity {
         }
 
         Utils.toggleViewVisibility(this, R.id.perfil_information_layout);
+    }
+
+
+    // TODO: refactorizar
+    private void populateAutoCompleteLists() {
+
+        AutoCompleteTextView et_employment =
+                (AutoCompleteTextView) findViewById(R.id.text_perfil_experiencia_laboral_new);
+        List<JobPosition> jobPositions = Utils.getJobPositions(this);
+        if (jobPositions != null && et_employment != null) {
+            ArrayList<String> jpArray = new ArrayList<>();
+            for (JobPosition jp : jobPositions) {
+                jpArray.add(jp.getNombre());
+            }
+            ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_dropdown_item_1line, jpArray);
+            et_employment.setAdapter(employmentsAdapter);
+        }
+
+        AutoCompleteTextView et_skill =
+                (AutoCompleteTextView) findViewById(R.id.text_perfil_skill_new);
+        List<Skill> skills = Utils.getSkills(this);
+        if (skills != null && et_skill != null) {
+            ArrayList<String> skArray = new ArrayList<>();
+            for (Skill sk : skills) {
+                skArray.add(sk.getNombre());
+            }
+            ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_dropdown_item_1line, skArray);
+            et_skill.setAdapter(skillsAdapter);
+        }
     }
 
     @Override
@@ -206,8 +239,8 @@ public class PerfilActivity extends NavDrawerActivity {
             }
 
             Log.d(LOG_TAG, fetchedUser.toJSON());//
-            // Postear usuario editado TODO
-//            updateProfileInformation(fetchedUser);
+            // PUT-tear usuario posiblemente editado
+            updateProfileInformation();
 
             // Cambio color del botón de edición
             if (fabEditar != null) {
@@ -229,8 +262,30 @@ public class PerfilActivity extends NavDrawerActivity {
                 iv_foto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
-                            dispatchTakePictureIntent();
+                        // TODO: Emprolijar
+                        final CharSequence[] options = {"Cámara", "Galería", "Cancelar"};
+                        new AlertDialog.Builder(getContext())
+                                .setTitle("Nueva imagen de perfil")
+//                                .setMessage()
+                                .setIcon(android.R.drawable.ic_input_add)
+                                .setItems(options, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (options[which] == "Cámara") {
+                                            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
+                                                dispatchTakePictureIntent();
+//                                            dialog.dismiss();// Hace falta?
+
+                                        } else if (options[which] == "Galería") {
+                                            dispatchChoosePictureIntent();
+//                                            dialog.dismiss();// Hace falta?
+
+                                        } else {
+                                            dialog.dismiss();
+                                        }
+                                    }
+                                })
+                                .show();
                     }
                 });
 
@@ -269,7 +324,9 @@ public class PerfilActivity extends NavDrawerActivity {
                 ib_workHistory.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        EditText et_employment = (EditText) findViewById(R.id.text_perfil_experiencia_laboral_new);
+                        AutoCompleteTextView et_employment =
+                                (AutoCompleteTextView) findViewById(R.id.text_perfil_experiencia_laboral_new);
+                        // TODO: revisar también que esté en la lista de posibles
                         if (et_employment == null || et_employment.length() == 0) return;
                         mJobsAdapter.add(new Employment(et_employment.getText().toString()));
                         et_employment.setText("");
@@ -339,10 +396,10 @@ public class PerfilActivity extends NavDrawerActivity {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         // TODO: Enviar solicitud
-                                        Gson gson = new GsonBuilder()
-                                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                                                .create();
-                                        String json = gson.toJson(new Solicitud(fetchedUserID, Contact.Status.REQUESTED));
+//                                        Gson gson = new GsonBuilder()
+//                                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+//                                                .create();
+//                                        String json = gson.toJson(new Solicitud(fetchedUserID, Contact.Status.REQUESTED));
                                         // TODO: postear json
                                     }
                                 });
@@ -355,10 +412,10 @@ public class PerfilActivity extends NavDrawerActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        Gson gson = new GsonBuilder()
-                                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                                                .create();
-                                        String json = gson.toJson(new Solicitud(fetchedUserID, Contact.Status.ACTIVE));
+//                                        Gson gson = new GsonBuilder()
+//                                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+//                                                .create();
+//                                        String json = gson.toJson(new Solicitud(fetchedUserID, Contact.Status.ACTIVE));
                                         // TODO: Aceptar solicitud
                                     }
                                 });
@@ -430,7 +487,7 @@ public class PerfilActivity extends NavDrawerActivity {
             ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
 //            File file = new File(mCurrentPhotoPath);
             if (imageView != null) {// && file.exists()) {
-                // Forma URI:
+                // Forma Uri:
 //                Uri imageContentUri = Uri.fromFile(file);
 //                imageView.setImageURI(imageContentUri);
                 // Forma Bitmap:
@@ -476,52 +533,83 @@ public class PerfilActivity extends NavDrawerActivity {
         Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), fetchedUserID, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        populateContacts(ContactsResponse.parseJSON(response.toString()));
+                        ContactsResponse cs = ContactsResponse.parseJSON(response.toString());
+                        if (cs != null) populateContacts(cs);
                     }
                 }, LOG_TAG);
     }
 
 
-    // TODO
+    // TODO: testear
     public void updateProfileInformation() {
 
-        String username = "Robert";//
+        if (fetchedUserID != connectedUserID)
+            return;
 
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
-                .appendPath("user")
-                .appendPath(username)
+                .appendPath(getString(R.string.post_user_path))
+                .appendPath(Long.toString(fetchedUserID))
                 .build();
         String url = builtUri.toString();
 
-        final String mRequestBody = "Lottto";
+        final JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(new Gson().toJson(fetchedUser));    // TODO: Revisar
+        } catch (JSONException ex) {
+            Log.e(LOG_TAG, "JSON EXCEPTION!");
+            ex.printStackTrace();
+            return;
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response != null) {
+                            Log.d(LOG_TAG, "Json Post Response: "+response.toString());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse != null)
+                            Log.d(LOG_TAG, "Post Json Error, status code: "+error.networkResponse.statusCode);
+                        error.printStackTrace();
+                    }
+        });
+        jsonObjectRequest.setTag(LOG_TAG);
+        RequestQueueSingleton.getInstance(getContext()).addToRequestQueue(jsonObjectRequest);
 
-        StringRequest mStringRequest = new StringRequest(Request.Method.POST,
-                url, new Response.Listener<String>() {
 
-            @Override
-            public void onResponse(String response) {
-                Log.i("VOLLEY", response);
-            }
 
-        }, new Response.ErrorListener() {
+//        final String mRequestBody = "Lottto";
 
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(LOG_TAG, "stringoferror "+error.toString());
-                Toast.makeText(PerfilActivity.this, ":(", Toast.LENGTH_SHORT).show();
-            }
-        }) {
-
-            @Override
-            public byte[] getBody() throws AuthFailureError {
-                try {
-                    return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
-                } catch (UnsupportedEncodingException uee) {
-                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
-                            mRequestBody, "utf-8");
-                    return null;
-                }
-            }
+//        StringRequest mStringRequest = new StringRequest(Request.Method.POST,
+//                url, new Response.Listener<String>() {
+//
+//            @Override
+//            public void onResponse(String response) {
+//                Log.i("VOLLEY", response);
+//            }
+//
+//        }, new Response.ErrorListener() {
+//
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Log.e(LOG_TAG, "stringoferror "+error.toString());
+//                Toast.makeText(PerfilActivity.this, ":(", Toast.LENGTH_SHORT).show();
+//            }
+//        }) {
+//
+//            @Override
+//            public byte[] getBody() throws AuthFailureError {
+//                try {
+//                    return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
+//                } catch (UnsupportedEncodingException uee) {
+//                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
+//                            mRequestBody, "utf-8");
+//                    return null;
+//                }
+//            }
 
 //            @Override
 //            protected Response<String> parseNetworkResponse(NetworkResponse response) {
@@ -532,14 +620,49 @@ public class PerfilActivity extends NavDrawerActivity {
 //                }
 //                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
 //            }
-        };
+//        };
 
-        mStringRequest.setTag(LOG_TAG);
+//        mStringRequest.setTag(LOG_TAG);
 
-        RequestQueueSingleton.getInstance(this.getApplicationContext())
-                .addToRequestQueue(mStringRequest);
+//        RequestQueueSingleton.getInstance(this.getApplicationContext())
+//                .addToRequestQueue(mStringRequest);
     }
 
+    private void dispatchChoosePictureIntent() {
+        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        getIntent.setType("image/*");
+
+        Intent pickIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+
+        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+        if (chooserIntent.resolveActivity(getPackageManager()) != null) {
+
+            /// No parece hacer mucho
+            File photoFile;
+            try {
+                photoFile = createImageFile("new_profile");
+
+            } catch (IOException ex) {
+                // Error occured while creating the File
+                Log.e(LOG_TAG, "Error al intentar crear el archivo de foto.");
+                return;
+            }
+            if (photoFile != null) {
+                mPhotoURI = FileProvider.getUriForFile(this,
+                        "ar.fiuba.jobify.fileprovider",
+                        photoFile);
+
+                chooserIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoURI);
+            /// No parece hacer mucho
+
+                startActivityForResult(chooserIntent, REQUEST_PICK_IMAGE);
+            }
+        }
+    }
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -579,14 +702,30 @@ public class PerfilActivity extends NavDrawerActivity {
         return imageFile;
     }
 
+    // TODO: Emprolijar, extraer, generalizar.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+        if ((requestCode == REQUEST_TAKE_PHOTO || requestCode == REQUEST_PICK_IMAGE)
+                && resultCode == RESULT_OK) {
 
-            /** Enviar la imagen al servidor como foto de perfil */ // TODO: EXTRAER
-            File imageFile = new File(mCurrentPhotoPath);
+            File imageFile;
+
+            if (requestCode == REQUEST_TAKE_PHOTO) {
+                imageFile = new File(mCurrentPhotoPath);
+
+            } else {        // REQUEST_PICK_IMAGE
+                Uri imageUri = data.getData();
+                if (imageUri == null) {
+                    Log.d(LOG_TAG, "Hay que conseguir la imagen de otra forma");
+                    Toast.makeText(this, ">:(", Toast.LENGTH_LONG)
+                            .show();
+                    return;
+                }
+                Log.d(LOG_TAG, "image Uri get path: " + imageUri.getPath());
+                imageFile = new File(imageUri.getPath());
+            }
 
             Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
                     .appendPath(getString(R.string.perfil_post_photo_path))

@@ -288,7 +288,7 @@
                             android:contentDescription="@string/add_item_description"
                             android:layout_gravity="end"
                             android:src="@drawable/ic_add" />
-                        <EditText
+                        <AutoCompleteTextView
                             android:id="@+id/text_perfil_experiencia_laboral_new"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -358,7 +358,7 @@
                             android:layout_alignParentRight="true"
                             android:layout_gravity="end"
                             android:src="@drawable/ic_add" />
-                        <EditText
+                        <AutoCompleteTextView
                             android:id="@+id/text_perfil_skill_new"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
