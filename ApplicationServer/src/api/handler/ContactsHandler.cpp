@@ -8,25 +8,31 @@ Response* ContactsHandler::handleGetRequest(http_message* httpMessage, string ur
     long userId = this->getUserIdFromUrl(url);
     //FIXME: path de db a config
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
-    vector<Person*> contacts = personManager->getPersonFriendsById(userId);
-    Json::Value responseBody;
-    responseBody["metada"]["count"] = contacts.size();
-    for (vector<Person*>::size_type i = 0; i < contacts.size(); i++) {
-        Json::Value contactAsJson;
-        contactAsJson["id"] = contacts[i]->getId();
-        contactAsJson["first_name"] = contacts[i]->getFirstName();
-        contactAsJson["last_name"] = contacts[i]->getLastName();
-        WorkHistory* currentJob = contacts[i]->getCurrentJob();
-        if (currentJob != nullptr) {
-            contactAsJson["current_job"] = currentJob->serializeMe();
-        }
-        //FIXME: soportar los requested status
-        contactAsJson["status"] = "active";
-        responseBody["contacts"].append(contactAsJson);
-    }
     Response* response = new Response();
-    response->setSuccessfulHeader();
-    response->setBody(responseBody.toStyledString());
+    try {
+        vector<Person *> contacts = personManager->getPersonFriendsById(userId);
+        Json::Value responseBody;
+        responseBody["metada"]["count"] = contacts.size();
+        for (vector<Person *>::size_type i = 0; i < contacts.size(); i++) {
+            Json::Value contactAsJson;
+            contactAsJson["id"] = contacts[i]->getId();
+            contactAsJson["first_name"] = contacts[i]->getFirstName();
+            contactAsJson["last_name"] = contacts[i]->getLastName();
+            WorkHistory *currentJob = contacts[i]->getCurrentJob();
+            if (currentJob != nullptr) {
+                contactAsJson["current_job"] = currentJob->serializeMe();
+            }
+            //FIXME: soportar los requested status
+            contactAsJson["status"] = "active";
+            responseBody["contacts"].append(contactAsJson);
+        }
+        response->setSuccessfulHeader();
+        response->setBody(responseBody.toStyledString());
+    } catch (UserNotFoundException &e) {
+        response->setNotFoundHeader();
+        response->setErrorBody(e.what());
+    }
+    delete personManager;
     return response;
 }
 

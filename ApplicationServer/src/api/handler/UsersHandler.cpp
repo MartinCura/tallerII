@@ -8,40 +8,40 @@ UsersHandler::~UsersHandler() {}
 
 Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
     string requestBody = string(httpMessage->body.p);
+    PersonManager *personManager = new PersonManager(NAME_DB);
+    Response* response = new Response();
     try {
-        PersonManager *personManager = new PersonManager(NAME_DB);
         Json::Value responseBody;
-        responseBody["id"] = personManager->savePerson(this->parseBody(requestBody));
-        Response* response = new Response();
+        Json::Value parsedBody = this->parseBody(requestBody);
+        responseBody["id"] = personManager->savePerson(parsedBody);
         response->setSuccessfulHeader();
         response->setBody(responseBody.toStyledString());
-        delete personManager;
-        return response;
     } catch (UserAlreadyExistsException& e) {
-        Response* response = new Response();
         response->setConflictHeader();
         response->setErrorBody(e.what());
-        return response;
     } catch (InvalidRequestException& e) {
-        return this->getBadRequestResponse(e.getMessage());
+        response = this->getBadRequestResponse(e.getMessage());
     }
+    delete personManager;
+    return response;
 }
 
 Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) {
+    PersonManager *personManager = new PersonManager(NAME_DB);
+    Response* response = new Response();
     try {
-        PersonManager *personManager = new PersonManager(NAME_DB);
-        Person *person = personManager->getPersonById(this->getUserIdFromUrl(url));
-        Response* response = new Response();
+        long userId = this->getUserIdFromUrl(url);
+        Person *person = personManager->getPersonById(userId);
         response->setSuccessfulHeader();
         response->setBody(person->serializeMe().toStyledString());
         delete person;
-        delete personManager;
-        return response;
     } catch (InvalidRequestException& e) {
-        return this->getBadRequestResponse(e.getMessage());
+        response = this->getBadRequestResponse(e.getMessage());
     } catch (UserNotFoundException& e) {
-        return this->getNotFoundResponse(e.getMessage(UserNotFoundException::Message::id));
+        response = this->getNotFoundResponse(e.getMessage(UserNotFoundException::Message::id));
     }
+    delete personManager;
+    return response;
 }
 
 Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string url) {
