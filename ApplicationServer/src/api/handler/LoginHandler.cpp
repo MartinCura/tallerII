@@ -16,15 +16,19 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     SessionManager* sessionManager;
     std::string token;
 
-    body = this->parseBody(string(httpMessage->body.p));
+    try {
+        body = this->parseBody(string(httpMessage->body.p));
 
-    //Validations
+        //Validations
 
-    if (!body.isMember("mail")) {
-        throw InvalidRequestException("Mail member is missing");
-    }
-    if (!body.isMember("password")) {
-        throw InvalidRequestException("Password member is missing");
+        if (!body.isMember("mail")) {
+            throw InvalidRequestException("Mail member is missing");
+        }
+        if (!body.isMember("password")) {
+            throw InvalidRequestException("Password member is missing");
+        }
+    } catch (InvalidRequestException &e) {
+        return this->getBadRequestResponse(e.getMessage());
     }
 
     user_mail = body["mail"].asString();
