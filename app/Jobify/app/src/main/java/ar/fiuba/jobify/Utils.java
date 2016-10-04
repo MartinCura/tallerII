@@ -157,6 +157,8 @@ public class Utils {
                 .build();
         final String url = builtUri.toString();
 
+        Log.d(LOG_TAG, "SS url: "+url);//
+
         getJsonFromUrl(context, url, null, listener, logTag);
     }
 
@@ -327,46 +329,19 @@ public class Utils {
         }
     }
 
-    // Solo busca si no lo tiene ya TODO: revisar
-//    public static List<Category> getCategories(Activity activity) {
-//
-//        String json = getSharedServerDataJsonString(activity,
-//                CategoriesResponse.class.getSimpleName(), R.string.ss_get_categories_path);
-//
-//        CategoriesResponse categoriesResponse = CategoriesResponse.parseJSON(json);
-//        if (categoriesResponse == null) {
-//            // TODO!!!
-//            return null;
-//        }
-//        return categoriesResponse.getCategories();
-//    }
 
-    public static List<JobPosition> getJobPositions(Activity activity) {
 
-        String json = getSharedServerDataJsonString(activity,
-                JobPositionsResponse.class.getSimpleName(), R.string.ss_get_job_positions_path);
-
-        JobPositionsResponse jobPositionsResponse = JobPositionsResponse.parseJSON(json);
-        if (jobPositionsResponse == null) {
-            // TODO!!!
-            return null;
-        }
-        return jobPositionsResponse.getJobPositions();
+    public static void borrarSharedServerData(Activity activity, String className) {
+        SharedPreferences mPrefs = activity.getPreferences(Activity.MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.remove(className);
+        prefsEditor.apply();
     }
 
-    public static List<Skill> getSkills(Activity activity) {
-
-        String json = getSharedServerDataJsonString(activity,
-                SkillsResponse.class.getSimpleName(), R.string.ss_get_skills_path);
-
-        SkillsResponse skillsResponse = SkillsResponse.parseJSON(json);
-        if (skillsResponse == null) {
-            // TODO!!!
-            return null;
-        }
-        return skillsResponse.getSkills();
-    }
-
+    /**
+     * Busca los datos primero en las preferencias y a falta de ello la fetchea.
+     * @param className Se usará para buscar los datos en las preferencias.
+     */
     public static String getSharedServerDataJsonString(Activity activity,
                                                   final String className, @StringRes int SsGetPath) {
         SharedPreferences mPrefs = activity.getPreferences(Activity.MODE_PRIVATE);
@@ -387,14 +362,6 @@ public class Utils {
         }
 
         return json;
-
-        // TODO: Tendría que hacer este chequeo todavía
-//        if (categoriesResponse == null) {
-//            // Borrar entrada en preferences y busca nuevamente
-//            prefsEditor.remove(CategoriesResponse.class.getSimpleName());
-//            getCategories(activity);
-//            return null;
-//        }
     }
 
     @SuppressWarnings("deprecation")

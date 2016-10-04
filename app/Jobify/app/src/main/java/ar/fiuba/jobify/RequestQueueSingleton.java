@@ -11,6 +11,7 @@ import com.android.volley.toolbox.Volley;
 
 /**
  * Created by martín on 06/09/16.
+ * Singleton para manejar cómodamente la RequestQueue de Volley a usar en cada actividad.
  */
 
 

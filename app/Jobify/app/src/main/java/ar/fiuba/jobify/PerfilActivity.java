@@ -55,6 +55,7 @@ import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.shared_server_api.JobPosition;
+import ar.fiuba.jobify.shared_server_api.SharedDataSingleton;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
 public class PerfilActivity extends NavDrawerActivity {
@@ -131,7 +132,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 @Override
                 public void onClick(View view) {
                     if (fetchedUser != null)
-                        switchEditMode();
+                        toggleEditMode();
                 }
             });
         }
@@ -146,37 +147,6 @@ public class PerfilActivity extends NavDrawerActivity {
         }
 
         Utils.toggleViewVisibility(this, R.id.perfil_information_layout);
-    }
-
-
-    // TODO: refactorizar
-    private void populateAutoCompleteLists() {
-
-        AutoCompleteTextView et_employment =
-                (AutoCompleteTextView) findViewById(R.id.text_perfil_experiencia_laboral_new);
-        List<JobPosition> jobPositions = Utils.getJobPositions(this);
-        if (jobPositions != null && et_employment != null) {
-            ArrayList<String> jpArray = new ArrayList<>();
-            for (JobPosition jp : jobPositions) {
-                jpArray.add(jp.getNombre());
-            }
-            ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(this,
-                    android.R.layout.simple_dropdown_item_1line, jpArray);
-            et_employment.setAdapter(employmentsAdapter);
-        }
-
-        AutoCompleteTextView et_skill =
-                (AutoCompleteTextView) findViewById(R.id.text_perfil_skill_new);
-        List<Skill> skills = Utils.getSkills(this);
-        if (skills != null && et_skill != null) {
-            ArrayList<String> skArray = new ArrayList<>();
-            for (Skill sk : skills) {
-                skArray.add(sk.getNombre());
-            }
-            ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(this,
-                    android.R.layout.simple_dropdown_item_1line, skArray);
-            et_skill.setAdapter(skillsAdapter);
-        }
     }
 
     @Override
@@ -215,14 +185,14 @@ public class PerfilActivity extends NavDrawerActivity {
      * Cambia entre los estados normal y de edición.
      */
     // TODO: nacimiento
-    private void switchEditMode() {
+    private void toggleEditMode() {
         FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
         ImageView iv_foto = (ImageView) findViewById(R.id.perfil_image);
 
         if (inEditingMode) {    /** Cambiar a modo normal */
             // Modificar usuario con contenido de los campos; si hay errores de input cancelar
             if (!capturarInputPerfilUsuario()) {
-                Toast.makeText(this, "Usuario no modificado", Toast.LENGTH_LONG)
+                Toast.makeText(this, "Usuario no fue modificado", Toast.LENGTH_LONG)
                         .show();
                 return;
             }
@@ -234,7 +204,7 @@ public class PerfilActivity extends NavDrawerActivity {
             // Esconder teclado
             View view = this.getCurrentFocus();
             if (view != null) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
 
@@ -294,6 +264,8 @@ public class PerfilActivity extends NavDrawerActivity {
             Utils.setTextViewText(this, R.id.text_perfil_apellido_editable, fetchedUser.getLastName());
             Utils.setTextViewText(this, R.id.text_perfil_ciudad_editable, fetchedUser.getCity());
             Utils.setTextViewText(this, R.id.text_perfil_resumen_editable, fetchedUser.getSummary());
+
+            populateAutoCompleteLists();
 
             mSkillAdapter = EditableListAdapter.populateEditableList(this,
                     (ListView) findViewById(R.id.perfil_skills_list_editable),
@@ -551,6 +523,8 @@ public class PerfilActivity extends NavDrawerActivity {
                 .appendPath(Long.toString(fetchedUserID))
                 .build();
         String url = builtUri.toString();
+
+        Log.d(LOG_TAG, "put user url: "+url);
 
         final JSONObject jsonObject;
         try {
@@ -821,6 +795,50 @@ public class PerfilActivity extends NavDrawerActivity {
 
         } else {
             Log.e(LOG_TAG, "No se encontró el gridview de contactos!");
+        }
+    }
+
+    // TODO: refactorizar?
+    private void populateAutoCompleteLists() {
+
+        try {
+            AutoCompleteTextView et_employment =
+                    (AutoCompleteTextView) findViewById(R.id.text_perfil_experiencia_laboral_new);
+            List<JobPosition> jobPositions = SharedDataSingleton.getInstance(this).getJobPositions();
+
+            if (jobPositions != null && et_employment != null) {
+                ArrayList<String> jpArray = new ArrayList<>();
+                for (JobPosition jp : jobPositions) {
+                    jpArray.add(jp.getNombre());
+                }
+                ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(this,
+                        android.R.layout.simple_dropdown_item_1line, jpArray);
+                et_employment.setAdapter(employmentsAdapter);
+                Log.d(LOG_TAG, "Setteado el autocomplete adapter de Employments");
+            }
+        } catch (SharedDataSingleton.NoDataException ex) {
+            Toast.makeText(getContext(), "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
+                    .show();
+        }
+
+        try {
+            AutoCompleteTextView et_skill =
+                    (AutoCompleteTextView) findViewById(R.id.text_perfil_skill_new);
+            List<Skill> skills = SharedDataSingleton.getInstance(this).getSkills();
+
+            if (skills != null && et_skill != null) {
+                ArrayList<String> skArray = new ArrayList<>();
+                for (Skill sk : skills) {
+                    skArray.add(sk.getNombre());
+                }
+                ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(this,
+                        android.R.layout.simple_dropdown_item_1line, skArray);
+                et_skill.setAdapter(skillsAdapter);
+                Log.d(LOG_TAG, "Setteado el autocomplete adapter de Skills");
+            }
+        } catch (SharedDataSingleton.NoDataException ex) {
+            Toast.makeText(getContext(), "Problemas con SS.Skills", Toast.LENGTH_LONG)
+                    .show();
         }
     }
 
