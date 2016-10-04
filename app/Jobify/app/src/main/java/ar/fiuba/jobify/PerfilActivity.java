@@ -537,7 +537,7 @@ public class PerfilActivity extends NavDrawerActivity {
             return;
 
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
-                .appendPath(getString(R.string.post_user_path))
+                .appendPath(getString(R.string.put_user_path))
                 .appendPath(Long.toString(fetchedUserID))
                 .build();
         String url = builtUri.toString();

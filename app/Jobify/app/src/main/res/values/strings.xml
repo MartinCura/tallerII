@@ -85,8 +85,9 @@
     <string name="title_activity_login">Inicia sesión</string>
 
     <string name="prompt_email">Correo electrónico</string>
-    <string name="prompt_password">Contraseña (opcional)</string>
-    <string name="action_sign_in">Iniciar sesión o registrarse</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="action_sign_in">Iniciar sesión</string>
+    <string name="action_register">Nuevo usuario</string>
     <string name="action_sign_in_short">Login</string>
     <string name="error_invalid_email">Correo electrónico inválido</string>
     <string name="error_invalid_password">Contraseña muy corta</string>
@@ -127,4 +128,6 @@
     <string name="ss_get_job_positions_path">job_positions</string>
     <string name="ss_get_skills_path">skills</string>
     <string name="post_user_path">users</string>
+    <string name="put_user_path">users</string>
+    <string name="get_login_path">login</string>
 </resources>

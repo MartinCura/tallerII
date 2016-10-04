@@ -3,6 +3,7 @@ package ar.fiuba.jobify;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -15,12 +16,12 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,8 +33,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import ar.fiuba.jobify.app_server_api.LoginResponse;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -42,22 +52,12 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+    private final static String LOG_TAG = LoginActivity.class.getSimpleName();
+
     /**
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "martin@jobify.ar:calonico", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -96,6 +96,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             });
         }
 
+        Button mRegisterButton = (Button) findViewById(R.id.email_register_button);
+        if (mRegisterButton != null) {
+            mRegisterButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    attemptRegister();
+                }
+            });
+        }
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
@@ -104,7 +114,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (!mayRequestContacts()) {
             return;
         }
-
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -144,17 +153,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-
     /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
+     * If there are form errors (invalid email, missing fields, etc.),
+     * the errors are presented and false is returned.
      */
-    private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
+    private boolean validateLoginInput() {
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -183,18 +186,122 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             focusView = mEmailView;
             cancel = true;
         }
-
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
+        }
+        return !cancel;
+    }
+
+    /**
+     * Attempts to sign in the account specified by the login form.
+     */
+    private void attemptLogin() {
+        // Store values at the time of the login attempt.
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
+
+        if (email.isEmpty() && password.isEmpty()) {
+            fakeLogin();
+            return;
+        }
+
+        if (validateLoginInput()) {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+
+            final Context ctx = getApplicationContext();
+            JSONObject jsonRequest = new LoginResponse(email, password).toJsonObject();
+
+            Utils.getJsonFromAppServer(this, getString(R.string.get_login_path), jsonRequest,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            showProgress(false);
+                            try {
+                                long connectedUserId = new Gson().fromJson(response.toString(), long.class);
+                                guardarConnectedId(connectedUserId);
+
+                                Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
+                                        .show();//
+
+                                iniciarPerfilActivity(connectedUserId);
+
+                            } catch (JsonSyntaxException ex) {
+                                ex.printStackTrace();
+                                Log.e(LOG_TAG, "Error en recepción de login id, not valid json");
+                                Log.e(LOG_TAG, "Recibido: "+response.toString());
+                            }
+                        }
+
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            showProgress(false);
+                            if (error.networkResponse != null) {
+                                int statusCode = error.networkResponse.statusCode;
+                                Toast.makeText(ctx, "Login error status code: "+ statusCode, Toast.LENGTH_LONG)
+                                            .show();//
+                                Log.d(LOG_TAG, "Login error status code: " + statusCode);
+                                if (statusCode == 404) {// hardcodeo
+                                    Toast.makeText(ctx, "Email no registrado", Toast.LENGTH_LONG)
+                                            .show();
+                                } else if (statusCode == 407) {// hardcodeo, adivinado
+                                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                                    mPasswordView.requestFocus();
+                                } // TODO: Otros status codes?
+                            }
+                        }
+                    }, LOG_TAG);
         }
+    }
+
+    private void attemptRegister() {
+
+        // Store values at the time of the login attempt.
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
+
+        if (validateLoginInput()) {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            showProgress(true);
+
+            final Context ctx = getApplicationContext();
+            JSONObject jsonRequest = new LoginResponse(email, password).toJsonObject();
+
+            Utils.postJsonToAppServer(this, getString(R.string.post_user_path), jsonRequest,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            showProgress(false);
+                            long connectedUserId = new Gson().fromJson(response.toString(), long.class);
+                            guardarConnectedId(connectedUserId);
+                            iniciarPerfilActivity(connectedUserId);// TODO: Empezar en modo de edición
+                        }
+
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            showProgress(false);
+                            if (error.networkResponse != null
+                                    && error.networkResponse.statusCode == 409) {// hardcodeo
+                                Toast.makeText(ctx, "Email ya registrado", Toast.LENGTH_LONG)
+                                        .show();
+                            } // TODO: Otros status codes?
+                        }
+                    }, LOG_TAG);
+        }
+    }
+
+    private void guardarConnectedId(long id) {
+        SharedPreferences.Editor editor =
+                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                        .edit();
+        editor.putLong(getString(R.string.stored_connected_user_id), id);
+        editor.apply();
     }
 
     private boolean isEmailValid(String email) {
@@ -297,79 +404,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(500);//
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-//                finish();   // TODO
-                Toast.makeText(LoginActivity.this, "Login correcto\n"+mEmail, Toast.LENGTH_LONG)
-                        .show();//
-
-                SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).edit();
-                editor.putLong(getString(R.string.stored_connected_user_id), 2);//  HARDCODEO
-                editor.apply();
-
-                iniciarPerfilActivity();
-
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
-
-    public void iniciarPerfilActivity() {
-        long fetchedUserId = 1;// HARDCODEO
+    //TODO: FORMA DE EMPEZAR EN MODO DE EDICIÓN
+    public void iniciarPerfilActivity(long fetchedUserId) {
 
         startActivity(
                 new Intent(LoginActivity.this, PerfilActivity.class)
                         .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, fetchedUserId)
         );
     }
+
+    // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
+    private void fakeLogin() {
+        long connectedUserId = 1;
+        guardarConnectedId(connectedUserId);
+
+        Toast.makeText(LoginActivity.this, "Fake login,\n" +
+                "user id: "+connectedUserId, Toast.LENGTH_LONG)
+                .show();
+
+        iniciarPerfilActivity(connectedUserId);
+    }//;//
 }
 

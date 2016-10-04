@@ -144,6 +144,20 @@ public class Utils {
         getJsonFromUrl(context, url, null, responseListener, logTag);
     }
 
+    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
+                                            JSONObject jsonRequest,
+                                            Response.Listener<JSONObject> responseListener,
+                                            Response.ErrorListener errorListener,
+                                            final String logTag) {
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
+                .build();
+        final String url = builtUri.toString();
+
+        fetchJsonFromUrl(ctx, Request.Method.GET, url, jsonRequest, responseListener,
+                errorListener, logTag);
+    }
+
     public static void getJsonFromSharedServer(Context context, String getPathSegment,
                                                Response.Listener<JSONObject> listener,
                                                final String logTag) {
@@ -161,16 +175,45 @@ public class Utils {
     public static void getJsonFromUrl(Context context, final String url, JSONObject jsonRequest,
                                       Response.Listener<JSONObject> responseListener,
                                       final String logTag) {
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, jsonRequest, responseListener, new Response.ErrorListener() {
+        fetchJsonFromUrl(context, Request.Method.GET, url, jsonRequest, responseListener, logTag);
+    }
+
+    public static void postJsonToAppServer(Context context, String getPathSegment, JSONObject jsonRequest,
+                                     Response.Listener<JSONObject> responseListener,
+                                           Response.ErrorListener errorListener,
+                                     final String logTag) {
+
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
+                .build();
+        final String url = builtUri.toString();
+
+        fetchJsonFromUrl(context, Request.Method.POST, url, jsonRequest, responseListener,
+                errorListener, logTag);
+    }
+
+    public static void fetchJsonFromUrl(Context context, int method, final String url,
+                                        JSONObject jsonRequest,
+                                      Response.Listener<JSONObject> responseListener,
+                                      final String logTag) {
+        fetchJsonFromUrl(context, method, url, jsonRequest, responseListener,
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d(logTag, "url: "+url);//
                         error.printStackTrace();
                     }
-                });
-        jsObjRequest.setTag(logTag);
+                }, logTag);
+    }
 
+    public static void fetchJsonFromUrl(Context context, int method, final String url,
+                                        JSONObject jsonRequest,
+                                        Response.Listener<JSONObject> responseListener,
+                                        Response.ErrorListener errorListener,
+                                        final String logTag) {
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (method, url, jsonRequest, responseListener, errorListener);
+        jsObjRequest.setTag(logTag);
         RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
     }
 
