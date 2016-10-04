@@ -37,9 +37,11 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
         response->setBody(person->serializeMe().toStyledString());
         delete person;
     } catch (InvalidRequestException& e) {
-        response = this->getBadRequestResponse(e.getMessage());
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
     } catch (UserNotFoundException& e) {
-        response = this->getNotFoundResponse(e.getMessage(UserNotFoundException::Message::id));
+        response->setNotFoundHeader();
+        response->setErrorBody(e.getMessage(UserNotFoundException::Message::id));
     }
     delete personManager;
     return response;
@@ -53,9 +55,11 @@ Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string ur
         personManager->deletePerson(userId);
         response->setSuccessfulHeader();
     } catch (InvalidRequestException& e) {
-        response = this->getBadRequestResponse(e.getMessage());
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
     } catch (UserNotFoundException& e) {
-        response = this->getNotFoundResponse(e.getMessage(UserNotFoundException::Message::id));
+        response->setNotFoundHeader();
+        response->setErrorBody(e.getMessage(UserNotFoundException::Message::id));
     }
     delete personManager;
     return response;
@@ -74,9 +78,11 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) 
         delete person;
         response->setSuccessfulHeader();
     } catch (InvalidRequestException& e) {
-        response = this->getBadRequestResponse(e.getMessage());
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
     } catch (UserNotFoundException& e) {
-        response = this->getNotFoundResponse(e.getMessage(UserNotFoundException::Message::id));
+        response->setNotFoundHeader();
+        response->setErrorBody(e.getMessage(UserNotFoundException::Message::id));
     }
     delete personManager;
     return response;

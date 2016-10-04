@@ -5,13 +5,15 @@ PictureHandler::PictureHandler() {}
 PictureHandler::~PictureHandler() {}
 
 Response* PictureHandler::handleGetRequest(http_message* httpMessage, string url) {
+    Response* response = new Response();
     try {
         long userId = this->getUserIdFromUrl(url);
-        Response* response = this->buildGetPictureResponse(userId);
-        return response;
+        response = this->buildGetPictureResponse(userId);
     } catch (InvalidRequestException& e) {
-        return this->getBadRequestResponse(e.getMessage());
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
     }
+    return response;
 }
 
 Response* PictureHandler::handlePostRequest(http_message* httpMessage) {

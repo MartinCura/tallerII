@@ -27,28 +27,6 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
 Response* Handler::getNotImplementedResponse() {
     Response* response = new Response();
     response->setNotImplementedHeader();
-    return response;
-}
-
-Response* Handler::getSuccessfulResponse() {
-    Response* response = new Response();
-    response->setSuccessfulHeader();
-    response->setSuccessfulBody();
-    return response;
-}
-
-Response* Handler::getBadRequestResponse(string errorDetails) {
-    Response* response = new Response();
-    response->setBadRequestHeader();
-    response->setErrorBody(errorDetails);
-    return response;
-}
-
-Response* Handler::getNotFoundResponse(string errorDetails) {
-    Response* response = new Response();
-    response->setNotFoundHeader();
-    response->setErrorBody(errorDetails);
-    return response;
 }
 
 int Handler::isEqual(const struct mg_str *s1, const struct mg_str *s2) {

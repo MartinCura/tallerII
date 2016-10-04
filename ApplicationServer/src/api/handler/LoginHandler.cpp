@@ -28,7 +28,10 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
             throw InvalidRequestException("Password member is missing");
         }
     } catch (InvalidRequestException &e) {
-        return this->getBadRequestResponse(e.getMessage());
+        Response* response = new Response();
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
+        return response;
     }
 
     user_mail = body["email"].asString();

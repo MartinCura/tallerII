@@ -23,9 +23,6 @@ public:
 
 protected:
     Response* getNotImplementedResponse();
-    Response* getSuccessfulResponse();
-    Response* getBadRequestResponse(string errorDetails);
-    Response* getNotFoundResponse(string errorDetails);
     Json::Value parseBody(string body);
     vector<string> parseUrl(string url);
     long getUserIdFromUrl(string url);
