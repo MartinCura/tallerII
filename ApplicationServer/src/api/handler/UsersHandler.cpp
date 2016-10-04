@@ -7,8 +7,7 @@ UsersHandler::UsersHandler() {}
 UsersHandler::~UsersHandler() {}
 
 Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
-    return this->getNotImplementedResponse();
-    /*string requestBody = string(httpMessage->body.p);
+    string requestBody = string(httpMessage->body.p);
     PersonManager *personManager = new PersonManager(NAME_DB);
     Response* response = new Response();
     try {
@@ -21,10 +20,11 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
         response->setConflictHeader();
         response->setErrorBody(e.what());
     } catch (InvalidRequestException& e) {
-        response = this->getBadRequestResponse(e.getMessage());
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
     }
     delete personManager;
-    return response;*/
+    return response;
 }
 
 Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) {
