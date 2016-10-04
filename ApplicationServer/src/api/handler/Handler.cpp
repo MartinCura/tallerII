@@ -27,6 +27,7 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
 Response* Handler::getNotImplementedResponse() {
     Response* response = new Response();
     response->setNotImplementedHeader();
+    return response;
 }
 
 int Handler::isEqual(const struct mg_str *s1, const struct mg_str *s2) {
