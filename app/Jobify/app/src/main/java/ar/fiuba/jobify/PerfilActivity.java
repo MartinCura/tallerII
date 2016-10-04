@@ -15,6 +15,8 @@ import android.support.annotation.LayoutRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,7 +42,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,6 +81,7 @@ public class PerfilActivity extends NavDrawerActivity {
     private boolean inEditingMode = false;  // TODO: revisar qué ocurre si giro la pantalla
     private EditableListAdapter<Skill> mSkillAdapter;
     private EditableListAdapter<Employment> mJobsAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +178,18 @@ public class PerfilActivity extends NavDrawerActivity {
                     .getInstance(this.getApplicationContext())
                     .getRequestQueue();
             mRequestQueue.cancelAll(LOG_TAG);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
+        if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else if (inEditingMode) {
+            toggleEditMode();
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -500,9 +517,10 @@ public class PerfilActivity extends NavDrawerActivity {
         Utils.populateStringList(this, R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
         Utils.populateStringList(this, R.id.perfil_skills_list, mUser.getListaSkills());
 
-        populateContacts(new ContactsResponse());// TODO: DE PRUEBA, BORRAR
+//        populateContacts(new ContactsResponse());// TODO: DE PRUEBA, BORRAR
 
-        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), fetchedUserID, new Response.Listener<JSONObject>() {
+        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), fetchedUserID,
+                new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         ContactsResponse cs = ContactsResponse.parseJSON(response.toString());
@@ -528,7 +546,11 @@ public class PerfilActivity extends NavDrawerActivity {
 
         final JSONObject jsonObject;
         try {
-            jsonObject = new JSONObject(new Gson().toJson(fetchedUser));    // TODO: Revisar
+            Gson gson = new GsonBuilder()
+                    .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                    .create();
+            jsonObject = new JSONObject(gson.toJson(fetchedUser));    // TODO: Revisar
+
         } catch (JSONException ex) {
             Log.e(LOG_TAG, "JSON EXCEPTION!");
             ex.printStackTrace();
@@ -746,35 +768,38 @@ public class PerfilActivity extends NavDrawerActivity {
         Contact.Status estado = response.getStatusForId(connectedUserID);
         colorearBotonAmistad(estado);
 
-//        ArrayList<Contact> contacts = response.getContactsWithStatus(Contact.Status.ACTIVE);
+        ArrayList<Contact> contacts = response.getContactsWithStatus(Contact.Status.ACTIVE);
 
         /// TODO: hardcodeado, de prueba
-        ArrayList<Contact> contacts = new ArrayList<>();
-        contacts.add(new Contact(1, "John", "Roberts", new Employment("CEO", "FBI"), Contact.Status.ACTIVE));
-        contacts.add(new Contact(2, "Joan", "Roberts", new Employment("ZEO", "NSA"), Contact.Status.ACTIVE));
-        contacts.add(new Contact(3, "Sean", "Roberts", new Employment("CTO", "FBI"), Contact.Status.ACTIVE));
-        contacts.add(new Contact(4, "Jon", "Roberts", new Employment("CFO", "GitHub"), Contact.Status.ACTIVE));
-        contacts.add(new Contact(5, "Jone", "Roberts", new Employment("Toilet cleaner", "Zoo"), Contact.Status.ACTIVE));
-        contacts.add(new Contact(6, "Mark", "Zuckerberg", new Employment("CEO", "Facebook"), Contact.Status.REQUESTED));
-        // Solo mostrar contactos activos TODO: BORRAR
-        ArrayList<Contact> activeContacts = new ArrayList<>();
-        for (Contact c : contacts) {
-            if (c.getStatus().equals(Contact.Status.ACTIVE))
-                activeContacts.add(c);
-        }
+//        ArrayList<Contact> contacts = new ArrayList<>();
+//        contacts.add(new Contact(1, "John", "Roberts", new Employment("CEO", "FBI"), Contact.Status.ACTIVE));
+//        contacts.add(new Contact(2, "Joan", "Roberts", new Employment("ZEO", "NSA"), Contact.Status.ACTIVE));
+//        contacts.add(new Contact(3, "Sean", "Roberts", new Employment("CTO", "FBI"), Contact.Status.ACTIVE));
+//        contacts.add(new Contact(4, "Jon", "Roberts", new Employment("CFO", "GitHub"), Contact.Status.ACTIVE));
+//        contacts.add(new Contact(5, "Jone", "Roberts", new Employment("Toilet cleaner", "Zoo"), Contact.Status.ACTIVE));
+//        contacts.add(new Contact(6, "Mark", "Zuckerberg", new Employment("CEO", "Facebook"), Contact.Status.REQUESTED));
+//        // Solo mostrar contactos activos TODO: BORRAR
+//        ArrayList<Contact> activeContacts = new ArrayList<>();
+//        for (Contact c : contacts) {
+//            if (c.getStatus().equals(Contact.Status.ACTIVE))
+//                activeContacts.add(c);
+//        }
         ///
 
-        if (activeContacts.size() == 0) {
-            FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
-            if (contactsFrameLayout != null)
+        FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
+        if (contactsFrameLayout != null) {
+            if (contacts.size() == 0) {
                 contactsFrameLayout.setVisibility(View.GONE);
-            return;
+                return;
+            } else {
+                contactsFrameLayout.setVisibility(View.VISIBLE);
+            }
         }
 
         HorizontalListView mHLView = (HorizontalListView) findViewById(R.id.perfil_contactos_list);
         if (mHLView != null) {
 
-            final ContactCardAdapter mAdapter = new ContactCardAdapter(activeContacts);
+            final ContactCardAdapter mAdapter = new ContactCardAdapter(contacts);
             mHLView.setAdapter(mAdapter);
             mHLView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override

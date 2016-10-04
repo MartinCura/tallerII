@@ -25,13 +25,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.fiuba.jobify.app_server_api.AllUsersResponse;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.User;
@@ -149,26 +148,26 @@ public class UserListActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
 
-                        try {
-                            JSONArray jsonArray = new JSONArray(response.toString());
+                        AllUsersResponse allUsersResponse =
+                                AllUsersResponse.parseJSON(response.toString());
 
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                fetchAndAddUser((long)jsonArray.get(i));
-                            }
+                        if (allUsersResponse == null) {
+                            Log.d(LOG_TAG, "Null parsed JSON from all_users");
+                            return;
+                        }
 
-                        } catch (JSONException ex) {
-                            Log.e(LOG_TAG, "JSON Exception!");
-                            ex.printStackTrace();
+                        for (long id : allUsersResponse.getAllUsers()) {
+                            fetchAndAddUser(id);
                         }
                     }
         }, LOG_TAG);
 
-        //TODO: BORRAR cuando funcione la API correspondiente
-        Toast.makeText(this, "Listo todos los usuarios del 1 al 10", Toast.LENGTH_LONG)
-                .show();
-        for (long id = 1; id <= 5; id++) { // HARDCODEO TODO DE PRUEBA
-            fetchAndAddUser(id);
-        }
+//        //TODO: BORRAR cuando funcione la API correspondiente
+//        Toast.makeText(this, "Listo todos los usuarios del 1 al 10", Toast.LENGTH_LONG)
+//                .show();
+//        for (long id = 1; id <= 5; id++) {
+//            fetchAndAddUser(id);
+//        }
     }
 
     private void fetchAndAddUser(long id) { // TODO: De prueba, CORREGIR

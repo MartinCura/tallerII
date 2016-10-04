@@ -53,16 +53,24 @@ public class NavDrawerActivity extends AppCompatActivity
         }
 
         NavigationView navigationView = (NavigationView) findViewById(navResId);
-        if (navigationView != null) navigationView.setNavigationItemSelectedListener(this);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+        }
+
 
         setUpDrawerHeader();
     }
 
     private void setUpDrawerHeader() {
-        setUpDrawerHeaderUser();
 
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.nav_drawer_header_layout);
+//        if (headerLayout == null) {
+//            LayoutInflater inflater = (LayoutInflater) this.getSystemService
+//                    (Context.LAYOUT_INFLATER_SERVICE);
+//            headerLayout = (LinearLayout) inflater.inflate(R.layout.nav_header_nav_drawer, null, false);
+//        }
         if (headerLayout != null) {
+            Log.d(LOG_TAG, "Sí puedo encontrar el headerLayout... :)");
             headerLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -75,7 +83,11 @@ public class NavDrawerActivity extends AppCompatActivity
                     }
                 }
             });
+        } else {
+            Log.d(LOG_TAG, "No puedo encontrar el headerLayout... :(");
         }
+
+        setUpDrawerHeaderUser();
     }
 
     private void fillDrawerHeaderText(User user) {
@@ -175,12 +187,12 @@ public class NavDrawerActivity extends AppCompatActivity
                     }
                 }, LOG_TAG);
 
-        ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
                 .appendPath(getString(R.string.perfil_get_thumbnail_path))
                 .appendPath(Long.toString(connectedUserID))
                 .build();
         String urlGetThumbnail = builtUri.toString();
+        ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
 
         Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG);
     }

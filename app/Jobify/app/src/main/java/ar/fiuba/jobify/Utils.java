@@ -47,12 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ar.fiuba.jobify.shared_server_api.CategoriesResponse;
-import ar.fiuba.jobify.shared_server_api.Category;
-import ar.fiuba.jobify.shared_server_api.JobPosition;
-import ar.fiuba.jobify.shared_server_api.JobPositionsResponse;
-import ar.fiuba.jobify.shared_server_api.Skill;
-import ar.fiuba.jobify.shared_server_api.SkillsResponse;
 
 /**
  * Created by martín on 29/09/16.
@@ -94,12 +88,14 @@ public class Utils {
                 ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(logTag, "Error de response, no pude cargar la imagen. (url: "+url+")");
+//                        Log.e(logTag, "Error de response, no pude cargar la imagen. (url: "+url+")");
                         if (error.networkResponse == null) return;
-                        Log.e(logTag, "Network response status code: "+error.networkResponse.statusCode);
                         if (error.networkResponse.statusCode == 200) {
                             Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(context, imageView, url, logTag);
+                        } else {
+                            Log.e(logTag, "Error cargando imagen, response code: "
+                                    +error.networkResponse.statusCode);
                         }
                     }
                 }) ;

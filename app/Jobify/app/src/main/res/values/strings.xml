@@ -8,7 +8,7 @@
     <string name="action_settings">Settings</string>
 
     <!-- Perfil -->
-    <string name="title_activity_perfil">Perfil</string>
+    <string name="title_activity_perfil">Cargando perfil…</string>
 
     <string name="perfil_foto_description">Foto perfil</string>
     <string name="perfil_nombre_y_apellido_default">Joan of Arc</string>
@@ -112,7 +112,7 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="stored_connected_user_id">connected_user_id</string>
     <string name="shared_pref_connected_user">connected_user</string>
-    <string name="title_activity_user_list">User List</string>
+    <string name="title_activity_user_list">Listado</string>
     <string name="location_icon_description">Ícono de locación</string>
     <string name="add_item_description">Add item</string>
     <string name="remove_item_description">Remove item</string>
