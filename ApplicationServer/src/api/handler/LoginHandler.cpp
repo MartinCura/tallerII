@@ -21,7 +21,7 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
 
         //Validations
 
-        if (!body.isMember("mail")) {
+        if (!body.isMember("email")) {
             throw InvalidRequestException("Mail member is missing");
         }
         if (!body.isMember("password")) {
@@ -31,7 +31,7 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
         return this->getBadRequestResponse(e.getMessage());
     }
 
-    user_mail = body["mail"].asString();
+    user_mail = body["email"].asString();
     user_password = body["password"].asString();
 
     try {
