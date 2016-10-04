@@ -147,18 +147,18 @@ void Person::deserializeMe(Json::Value personAsJson) {
 }
 
 void Person::updateMe(Json::Value values) {
-    this->firstName = personAsJson["first_name"].asString();
-    this->lastName = personAsJson["last_name"].asString();
-    this->dateOfBirth = personAsJson["date_of_birth"].asString();
-    this->city = personAsJson["city"].asString();
-    this->summary = personAsJson["summary"].asString();
+    this->firstName = values["first_name"].asString();
+    this->lastName = values["last_name"].asString();
+    this->dateOfBirth = values["date_of_birth"].asString();
+    this->city = values["city"].asString();
+    this->summary = values["summary"].asString();
 
-    this->location->setLatitude(personAsJson["location"]["latitude"].asDouble());
-    this->location->setLongitude(personAsJson["location"]["longitude"].asDouble());
+    this->location->setLatitude(values["location"]["latitude"].asDouble());
+    this->location->setLongitude(values["location"]["longitude"].asDouble());
 
     this->deleteWorkHistory();
     if (values.isMember("work_history")) {
-        const Json::Value jWorkHistoryVector = personAsJson["work_history"];
+        const Json::Value jWorkHistoryVector = values["work_history"];
         for (int index = 0; index < jWorkHistoryVector.size(); index++) {
             WorkHistory *workHistory = new WorkHistory(jWorkHistoryVector[index]);
             this->addWorkHistory(workHistory);
@@ -167,12 +167,14 @@ void Person::updateMe(Json::Value values) {
 
     this->deleteSkills();
     if (values.isMember("skills")) {
-        const Json::Value jSkillVector = personAsJson["skills"];
+        const Json::Value jSkillVector = values["skills"];
         for (int index2 = 0; index2 < jSkillVector.size(); index2++) {
             Skill *skill = new Skill(jSkillVector[index2]);
             this->addSkill(skill);
         }
     }
+
+    this->personAsJson = "";
 }
 
 Json::Value Person::serializeMe() {
