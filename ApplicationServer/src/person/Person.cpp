@@ -201,17 +201,15 @@ Json::Value Person::serializeMe() {
 }
 
 void Person::deleteWorkHistory() {
-    vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
-    for (vector<WorkHistory*>::size_type i = workHistoryVector.size() - 1; i == 0; i--) {
-        delete workHistoryVector[i];
-        workHistoryVector.pop_back();
+    int size = this->workHistory.size();
+    for (int i = 0; i != size; i++) {
+        this->workHistory.pop_back();
     }
 }
 
 void Person::deleteSkills() {
-    vector<Skill*> skillsVector = this->getSkills();
-    for (vector<Skill*>::size_type i = skillsVector.size() - 1; i == 0; i--) {
-        delete skillsVector[i];
-        skillsVector.pop_back();
+    int size = this->skills.size();
+    for (int i = 0; i != size; i++) {
+        skills.pop_back();
     }
 }
