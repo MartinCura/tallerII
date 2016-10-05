@@ -43,6 +43,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.fiuba.jobify.app_server_api.LoginRequest;
 import ar.fiuba.jobify.app_server_api.LoginResponse;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -217,29 +218,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
 
             final Context ctx = getApplicationContext();
-            JSONObject jsonRequest = new LoginResponse(email, password).toJsonObject();
+            JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
 
             Utils.getJsonFromAppServer(this, getString(R.string.get_login_path), jsonRequest,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             showProgress(false);
-                            try {
-                                long connectedUserId = new Gson().fromJson(response.toString(), long.class);
-                                guardarConnectedId(connectedUserId);
 
-                                Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
-                                        .show();//
-
-                                iniciarPerfilActivity(connectedUserId, false);
-
-                            } catch (JsonSyntaxException ex) {
-                                ex.printStackTrace();
-                                Log.e(LOG_TAG, "Error en recepción de login id, not valid json");
-                                Log.e(LOG_TAG, "Recibido: "+response.toString());
+                            LoginResponse loginResponse = LoginResponse.parseJSON(response.toString());
+                            if (loginResponse == null) {
+                                Log.e(LOG_TAG, "Error de parseo de LoginResponse");
+                                return;
                             }
-                        }
+                            Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
+                                    .show();//
 
+                            long connectedUserId = loginResponse.getId();
+                            guardarConnectedId(connectedUserId);
+                            iniciarPerfilActivity(connectedUserId, false);
+                        }
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
@@ -274,7 +272,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
 
             final Context ctx = getApplicationContext();
-            JSONObject jsonRequest = new LoginResponse(email, password).toJsonObject();
+            JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
             Log.d(LOG_TAG, "POST de registro:\n"+jsonRequest.toString());//
 
             Utils.postJsonToAppServer(this, getString(R.string.post_user_path), jsonRequest,
@@ -282,7 +280,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         @Override
                         public void onResponse(JSONObject response) {
                             showProgress(false);
-                            long connectedUserId = new Gson().fromJson(response.toString(), long.class);
+
+                            LoginResponse loginResponse = LoginResponse.parseJSON(response.toString());
+                            if (loginResponse == null) {
+                                Log.e(LOG_TAG, "Error de parseo de LoginResponse");
+                                return;
+                            }
+                            Toast.makeText(LoginActivity.this, "Registro correcto", Toast.LENGTH_LONG)
+                                    .show();//
+
+                            long connectedUserId = loginResponse.getId();
+                            Log.d(LOG_TAG, "connectedUserId: "+connectedUserId);//
                             guardarConnectedId(connectedUserId);
                             iniciarPerfilActivity(connectedUserId, true);
                         }
@@ -291,11 +299,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             showProgress(false);
-                            if (error.networkResponse != null
-                                    && error.networkResponse.statusCode == 409) {// hardcodeo
-                                Toast.makeText(ctx, "Email ya registrado", Toast.LENGTH_LONG)
-                                        .show();
-                            } // TODO: Otros status codes?
+                            if (error.networkResponse != null) {
+                                int statusCode = error.networkResponse.statusCode;
+                                Log.d(LOG_TAG, "Register error status code: " + statusCode);
+                                if (error.networkResponse.statusCode == 409) {// hardcodeo
+                                    Toast.makeText(ctx, "Email ya registrado", Toast.LENGTH_LONG)
+                                            .show();
+                                } // TODO: Otros status codes?
+                            }
                         }
                     }, LOG_TAG);
         }

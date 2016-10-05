@@ -5,53 +5,37 @@ import android.util.Log;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonSyntaxException;
 
 /**
- * Created by martín on 04/10/16.
- * Estructura API para login/registro.
+ * Created by martín on 05/10/16.
+ * Estructura API para devoluciôn de login/registro.
  */
 public class LoginResponse {
 
-    // TODO: Revisar manera en que se guarda la contraseña
-    String email;
-    String password;
+    long id;
+    long token; // ????
 
-    // Acá podría validarse algo más si hiciera falta
-
-    public LoginResponse(String email, String password) {
-        setEmail(email);
-        setPassword(password);
+    public long getId() {
+        return id;
     }
 
-    private void setEmail(String email) {
-        this.email = email.toLowerCase();
+    public long getToken() {
+        return token;
     }
 
-    private void setPassword(String password) {
-        // TODO: Hashear?
-        this.password = password;
-    }
-
-    public String toJson() {
+    public static LoginResponse parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
 
-        return gson.toJson(this);
-    }
-
-    public JSONObject toJsonObject() {
         try {
-            return new JSONObject(toJson());
+            return gson.fromJson(response, LoginResponse.class);
 
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-            Log.e("LoginResponse", "No se convirtió correctamente, bizarro, ¿culpa de gson?");
+        } catch (JsonSyntaxException e) {
+            Log.e("API", "Json Syntax exception!");
+            e.printStackTrace();
             return null;
         }
     }
-
 }

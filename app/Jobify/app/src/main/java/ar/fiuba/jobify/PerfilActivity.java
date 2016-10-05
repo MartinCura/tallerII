@@ -176,6 +176,10 @@ public class PerfilActivity extends NavDrawerActivity {
 
             boolean empezarEnModoEdicion = intent.getBooleanExtra(MODO_PERFIL_MESSAGE, false);
             if (empezarEnModoEdicion) {
+
+                LinearLayout layout = (LinearLayout) findViewById(R.id.perfil_information_layout);
+                if (layout != null) layout.setVisibility(View.VISIBLE);
+
                 inEditingMode = false;
                 toggleEditMode();
             }
@@ -291,16 +295,22 @@ public class PerfilActivity extends NavDrawerActivity {
                 });
 
             // Precargar campos con valores actuales
-            Utils.setTextViewText(this, R.id.text_perfil_nombre_editable, fetchedUser.getFirstName());
-            Utils.setTextViewText(this, R.id.text_perfil_apellido_editable, fetchedUser.getLastName());
-            Utils.setTextViewText(this, R.id.text_perfil_ciudad_editable, fetchedUser.getCity());
-            Utils.setTextViewText(this, R.id.text_perfil_resumen_editable, fetchedUser.getSummary());
+            if (fetchedUser != null) {
+                Utils.setTextViewText(this, R.id.text_perfil_nombre_editable, fetchedUser.getFirstName());
+                Utils.setTextViewText(this, R.id.text_perfil_apellido_editable, fetchedUser.getLastName());
+                Utils.setTextViewText(this, R.id.text_perfil_ciudad_editable, fetchedUser.getCity());
+                Utils.setTextViewText(this, R.id.text_perfil_resumen_editable, fetchedUser.getSummary());
+            }
 
+            // Cargo autocompletado de JobPositions y Skills según SharedData
             populateAutoCompleteLists();
 
+            List<Skill> skillsList = new ArrayList<>();
+            if (fetchedUser != null)
+                skillsList = fetchedUser.getSkills();
             mSkillAdapter = EditableListAdapter.populateEditableList(this,
                     (ListView) findViewById(R.id.perfil_skills_list_editable),
-                    fetchedUser.getSkills()
+                    skillsList
             );
             ImageButton ib_skills =
                     (ImageButton) findViewById(R.id.boton_perfil_skill_agregar_item);
@@ -309,6 +319,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     @Override
                     public void onClick(View v) {
                         EditText et_skill = (EditText) findViewById(R.id.text_perfil_skill_new);
+                        // TODO: revisar también que esté en la lista de posibles
                         if (et_skill == null || et_skill.length() == 0) return;
                         mSkillAdapter.add(new Skill(et_skill.getText().toString()));
                         et_skill.setText("");
@@ -317,9 +328,12 @@ public class PerfilActivity extends NavDrawerActivity {
                 });
             }
 
+            List<Employment> employmentsList = new ArrayList<>();
+            if (fetchedUser != null)
+                employmentsList = fetchedUser.getWorkHistory();
             mJobsAdapter = EditableListAdapter.populateEditableList(this,
                     (ListView) findViewById(R.id.perfil_experiencia_laboral_list_editable),
-                    fetchedUser.getWorkHistory()
+                    employmentsList
             );
             ImageButton ib_workHistory =
                     (ImageButton) findViewById(R.id.boton_perfil_experiencia_laboral_agregar_item);

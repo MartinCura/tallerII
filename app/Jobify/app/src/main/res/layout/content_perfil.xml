@@ -47,7 +47,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:text="@string/perfil_nombre_y_apellido_default"
                         android:inputType="textCapWords" />
 
                     <EditText
@@ -55,7 +54,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:text="@string/perfil_nombre_y_apellido_default"
                         android:inputType="textCapWords" />
 
                 </LinearLayout>
@@ -113,7 +111,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/small_margin"
                             android:layout_marginTop="@dimen/text_margin"
-                            android:text="@string/perfil_ciudad_y_pais_default"
                             android:layout_toLeftOf="@id/boton_perfil_location"
                             android:visibility="gone"
                             android:inputType="textAutoComplete" />
