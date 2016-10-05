@@ -560,66 +560,24 @@ public class PerfilActivity extends NavDrawerActivity {
         if (fetchedUserID != connectedUserID)
             return;
 
+        JSONObject jsonObject = fetchedUser.toJsonObject();
+
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                 .appendPath(getString(R.string.put_user_path))
                 .appendPath(Long.toString(fetchedUserID))
                 .build();
         String url = builtUri.toString();
 
-        Log.d(LOG_TAG, "put user url: "+url);
-
-        final JSONObject jsonObject;
-        try {
-            Gson gson = new GsonBuilder()
-                    .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                    .create();
-            jsonObject = new JSONObject(gson.toJson(fetchedUser));    // TODO: Revisar
-
-        } catch (JSONException ex) {
-            Log.e(LOG_TAG, "JSON EXCEPTION!");
-            ex.printStackTrace();
-            return;
-        }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonObject,
+        Utils.fetchJsonFromUrl(getContext(), Request.Method.PUT, url, jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response != null) {
-                            Log.d(LOG_TAG, "Json Post Response: "+response.toString());
+                            Log.d(LOG_TAG, "User PUT Response: "+response.toString());
                         }
                     }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        if (error.networkResponse != null)
-                            Log.d(LOG_TAG, "Post Json Error, status code: "+error.networkResponse.statusCode);
-                        error.printStackTrace();
-                    }
-        });
-        jsonObjectRequest.setTag(LOG_TAG);
-        RequestQueueSingleton.getInstance(getContext()).addToRequestQueue(jsonObjectRequest);
+                }, LOG_TAG);
 
-
-
-//        final String mRequestBody = "Lottto";
-
-//        StringRequest mStringRequest = new StringRequest(Request.Method.POST,
-//                url, new Response.Listener<String>() {
-//
-//            @Override
-//            public void onResponse(String response) {
-//                Log.i("VOLLEY", response);
-//            }
-//
-//        }, new Response.ErrorListener() {
-//
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.e(LOG_TAG, "stringoferror "+error.toString());
-//                Toast.makeText(PerfilActivity.this, ":(", Toast.LENGTH_SHORT).show();
-//            }
-//        }) {
-//
 //            @Override
 //            public byte[] getBody() throws AuthFailureError {
 //                try {
@@ -640,12 +598,7 @@ public class PerfilActivity extends NavDrawerActivity {
 //                }
 //                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
 //            }
-//        };
 
-//        mStringRequest.setTag(LOG_TAG);
-
-//        RequestQueueSingleton.getInstance(this.getApplicationContext())
-//                .addToRequestQueue(mStringRequest);
     }
 
     private void dispatchChoosePictureIntent() {

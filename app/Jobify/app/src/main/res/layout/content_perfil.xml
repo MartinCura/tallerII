@@ -28,8 +28,8 @@
         <FrameLayout
             android:id="@+id/perfil_nombre_editable_frame"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:layout_height="wrap_content">
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
@@ -37,26 +37,36 @@
                 app:cardElevation="@dimen/spacing_medium"
                 app:cardUseCompatPadding="true">
 
-                <LinearLayout
+                <GridLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal">
+                    android:padding="6dp">
 
-                    <EditText
-                        android:id="@+id/text_perfil_nombre_editable"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:inputType="textCapWords" />
+                    <android.support.design.widget.TextInputLayout>
+                        <EditText
+                            android:id="@+id/text_perfil_nombre_editable"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="2dp"
+                            android:minWidth="150dp"
+                            android:layout_gravity="center_horizontal"
+                            android:hint="@string/perfil_nombre_editable_hint"
+                            android:inputType="textCapWords" />
+                    </android.support.design.widget.TextInputLayout>
 
-                    <EditText
-                        android:id="@+id/text_perfil_apellido_editable"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:inputType="textCapWords" />
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_marginLeft="20dp">
+                        <EditText
+                            android:id="@+id/text_perfil_apellido_editable"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="150dp"
+                            android:layout_gravity="center_horizontal"
+                            android:hint="@string/perfil_apellido_editable_hint"
+                            android:inputType="textCapWords" />
+                    </android.support.design.widget.TextInputLayout>
 
-                </LinearLayout>
+                </GridLayout>
 
             </android.support.v7.widget.CardView>
         </FrameLayout>
@@ -75,6 +85,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -105,15 +116,21 @@
                             android:layout_alignParentRight="true"
                             android:visibility="gone"
                             android:src="@drawable/ic_location" />
-                        <EditText
-                            android:id="@+id/text_perfil_ciudad_editable"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/small_margin"
-                            android:layout_marginTop="@dimen/text_margin"
-                            android:layout_toLeftOf="@id/boton_perfil_location"
-                            android:visibility="gone"
-                            android:inputType="textAutoComplete" />
+                        <android.support.design.widget.TextInputLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <EditText
+                                android:id="@+id/text_perfil_ciudad_editable"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minWidth="200dp"
+                                android:layout_marginLeft="@dimen/small_margin"
+                                android:layout_marginTop="@dimen/text_margin"
+                                android:layout_toLeftOf="@id/boton_perfil_location"
+                                android:hint="@string/perfil_ciudad_editable_hint"
+                                android:visibility="gone"
+                                android:inputType="textAutoComplete" />
+                        </android.support.design.widget.TextInputLayout>
                     </RelativeLayout>
 
                     <TextView
@@ -152,14 +169,19 @@
                         android:textStyle="italic"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:text="@string/perfil_resumen_default" />
-                    <EditText
-                        android:id="@+id/text_perfil_resumen_editable"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/text_margin"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    <android.support.design.widget.TextInputLayout
                         android:visibility="gone"
-                        android:inputType="textMultiLine" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <EditText
+                            android:id="@+id/text_perfil_resumen_editable"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:hint="@string/perfil_resumen_editable_hint"
+                            android:inputType="textMultiLine" />
+                    </android.support.design.widget.TextInputLayout>
 
                     <TextView
                         android:id="@+id/text_perfil_nacimiento"
@@ -174,7 +196,7 @@
             </android.support.v7.widget.CardView>
         </FrameLayout>
 
-        <!-- TODO: Si no tiene amigos, debería esconder esta sección-->
+        <!-- FRAME DE CONTACTOS -->
         <FrameLayout
             android:id="@+id/perfil_contactos_frame"
             android:layout_width="match_parent"
@@ -289,6 +311,7 @@
                             android:id="@+id/text_perfil_experiencia_laboral_new"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="Nuevo trabajo previo"
                             android:layout_toLeftOf="@id/boton_perfil_experiencia_laboral_agregar_item"
                             android:inputType="text" />
                     </RelativeLayout>
@@ -359,6 +382,7 @@
                             android:id="@+id/text_perfil_skill_new"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="Nuevo skill"
                             android:layout_toLeftOf="@id/boton_perfil_skill_agregar_item"
                             android:inputType="text" />
                     </RelativeLayout>

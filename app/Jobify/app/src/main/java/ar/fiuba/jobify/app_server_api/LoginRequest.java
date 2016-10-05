@@ -53,5 +53,4 @@ public class LoginRequest {
             return null;
         }
     }
-
 }

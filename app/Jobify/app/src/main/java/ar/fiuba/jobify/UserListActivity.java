@@ -170,40 +170,18 @@ public class UserListActivity extends NavDrawerActivity {
 //        }
     }
 
-    private void fetchAndAddUser(long id) { // TODO: De prueba, CORREGIR
+    private void fetchAndAddUser(long id) { // TODO: De prueba, CAMBIAR POR GET REDUCIDO
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
-                .appendPath(getString(R.string.perfil_get_user_path)) // TODO: Corregir?
-                .appendPath(Long.toString(id))
-                .build();
-        final String url = builtUri.toString();
-
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
+        Utils.getJsonFromAppServer(this, getString(R.string.perfil_get_user_path), id,
+                new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
                         User mUser = User.parseJSON(response.toString());
                         if (mUser != null) {
                             mUserArrayAdapter.add(mUser);
-
-                        }// else {
-//                            Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el perfil");
-                        //}
+                        }
                     }
-
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Do nothing TODO
-                    }
-                });
-        jsObjRequest.setTag(LOG_TAG);
-
-        RequestQueueSingleton.getInstance(this.getApplicationContext())
-                .addToRequestQueue(jsObjRequest);
+                }, LOG_TAG);
     }
 
     @Override

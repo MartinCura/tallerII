@@ -56,6 +56,8 @@ public class Utils {
 
     private final static String LOG_TAG = Utils.class.getSimpleName();
 
+    /////////////////////////////////////////// FETCHER ////////////////////////////////////////////
+
     public static String getAppServerBaseURL(Context ctx) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
         String ip = sharedPref.getString("pref_appServer_ip", ctx.getString(R.string.pref_default_appServer_ip));
@@ -66,8 +68,121 @@ public class Utils {
 
     public static String getSharedServerBaseURL(Context ctx) {
         return ctx.getString(R.string.shared_server_base_url);
-        /// TODO
-//        return "";
+    }
+
+    public static String getAppServerUrl(Context ctx, long idFetched, String ... paths) {
+        Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
+        for (String path : paths)
+            builder = builder.appendPath(path);
+        Uri builtUri = builder.appendPath(Long.toString(idFetched)).build();
+        return builtUri.toString();
+    }
+
+    public static String getAppServerUrl(Context ctx, String ... paths) {
+        Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
+        for (String path : paths)
+            builder = builder.appendPath(path);
+        Uri builtUri = builder.build();
+        return builtUri.toString();
+    }
+
+    /**
+     * Obtiene el JSON devuelto tras requestear un GET al AppServer a .../[getPath]/[idFetched]
+     * En caso de éxito, se correrá responseListener.onResponse()
+     */
+    public static void getJsonFromAppServer(Context context, String getPathSegment, long idFetched,
+                                            Response.Listener<JSONObject> responseListener,
+                                            final String logTag) {
+
+        getJsonFromAppServer(context, getPathSegment, idFetched, null, responseListener, logTag);
+    }
+
+    /**
+     * Forma genérica que además permite enviar un parámetro JSON.
+     */
+    public static void getJsonFromAppServer(Context context, String getPathSegment, long idFetched,
+                                            JSONObject jsonRequest,
+                                            Response.Listener<JSONObject> responseListener,
+                                            final String logTag) {
+
+        getJsonFromUrl(context, getAppServerUrl(context, idFetched, getPathSegment), jsonRequest,
+                responseListener, logTag);
+    }
+
+    public static void getJsonFromAppServer(Context context, String getPathSegment,
+                                            Response.Listener<JSONObject> responseListener,
+                                            final String logTag) {
+
+        getJsonFromUrl(context, getAppServerUrl(context, getPathSegment), null, responseListener,
+                logTag);
+    }
+
+    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
+                                            JSONObject jsonRequest,
+                                            Response.Listener<JSONObject> responseListener,
+                                            Response.ErrorListener errorListener,
+                                            final String logTag) {
+
+        fetchJsonFromUrl(ctx, Request.Method.GET, getAppServerUrl(ctx, getPathSegment), jsonRequest,
+                responseListener, errorListener, logTag);
+    }
+
+    // TEMPORAL, si es cambiado por un acceso al AppServer
+    public static void getJsonFromSharedServer(Context context, String getPathSegment,
+                                               Response.Listener<JSONObject> listener,
+                                               final String logTag) {
+
+        Uri builtUri = Uri.parse(Utils.getSharedServerBaseURL(context)).buildUpon()
+                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
+                .build();
+        final String url = builtUri.toString();
+        Log.d(LOG_TAG, "SS url: "+url);//
+
+        getJsonFromUrl(context, url, null, listener, logTag);
+    }
+
+    public static void getJsonFromUrl(Context context, final String url, JSONObject jsonRequest,
+                                      Response.Listener<JSONObject> responseListener,
+                                      final String logTag) {
+        fetchJsonFromUrl(context, Request.Method.GET, url, jsonRequest, responseListener, logTag);
+    }
+
+    public static void postJsonToAppServer(Context context, String getPathSegment, JSONObject jsonRequest,
+                                           Response.Listener<JSONObject> responseListener,
+                                           Response.ErrorListener errorListener,
+                                           final String logTag) {
+
+        fetchJsonFromUrl(context, Request.Method.POST, getAppServerUrl(context, getPathSegment),
+                jsonRequest, responseListener, errorListener, logTag);
+    }
+
+    public static void fetchJsonFromUrl(Context context, int method, final String url,
+                                        JSONObject jsonRequest,
+                                        Response.Listener<JSONObject> responseListener,
+                                        final String logTag) {
+
+        fetchJsonFromUrl(context, method, url, jsonRequest, responseListener,
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(logTag, "url: "+url);//
+                        if (error.networkResponse != null)
+                            Log.d(logTag, "Status code: "+error.networkResponse.statusCode);
+                        error.printStackTrace();
+                    }
+                }, logTag);
+    }
+
+    public static void fetchJsonFromUrl(Context context, int method, final String url,
+                                        JSONObject jsonRequest,
+                                        Response.Listener<JSONObject> responseListener,
+                                        Response.ErrorListener errorListener, final String logTag) {
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (method, url, jsonRequest, responseListener, errorListener);
+        // TODO: Agregar token al Header
+        jsObjRequest.setTag(logTag);
+        RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
     }
 
     public static void cargarImagenDeURLenImageView(final Context context, final ImageView imageView,
@@ -102,121 +217,7 @@ public class Utils {
                 .addToRequestQueue(request);
     }
 
-    /**
-     * Obtiene el JSON devuelto tras requestear un GET al AppServer a .../[getPath]/[idFetched]
-     * En caso de éxito, se correrá responseListener.onResponse()
-     */
-    public static void getJsonFromAppServer(Context context, String getPathSegment, long idFetched,
-                                            Response.Listener<JSONObject> responseListener,
-                                            final String logTag) {
-
-        getJsonFromAppServer(context, getPathSegment, idFetched, null, responseListener, logTag);
-    }
-
-    /**
-     * Forma genérica que además permite enviar un parámetro JSON.
-     */
-    public static void getJsonFromAppServer(Context context, String getPathSegment, long idFetched,
-                                            JSONObject jsonRequest,
-                                            Response.Listener<JSONObject> responseListener,
-                                            final String logTag) {
-
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(context)).buildUpon()
-                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
-                .appendPath(Long.toString(idFetched))
-                .build();
-        final String url = builtUri.toString();
-
-        getJsonFromUrl(context, url, jsonRequest, responseListener, logTag);
-    }
-
-    // TODO: Refactorizar mediante parámetro vectorizado
-    public static void getJsonFromAppServer(Context context, String getPathSegment,
-                                            Response.Listener<JSONObject> responseListener,
-                                            final String logTag) {
-
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(context)).buildUpon()
-                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
-                .build();
-        final String url = builtUri.toString();
-
-        getJsonFromUrl(context, url, null, responseListener, logTag);
-    }
-
-    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
-                                            JSONObject jsonRequest,
-                                            Response.Listener<JSONObject> responseListener,
-                                            Response.ErrorListener errorListener,
-                                            final String logTag) {
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon()
-                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
-                .build();
-        final String url = builtUri.toString();
-
-        fetchJsonFromUrl(ctx, Request.Method.GET, url, jsonRequest, responseListener,
-                errorListener, logTag);
-    }
-
-    public static void getJsonFromSharedServer(Context context, String getPathSegment,
-                                               Response.Listener<JSONObject> listener,
-                                               final String logTag) {
-
-        Uri builtUri = Uri.parse(Utils.getSharedServerBaseURL(context)).buildUpon()
-                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
-                .build();
-        final String url = builtUri.toString();
-
-        Log.d(LOG_TAG, "SS url: "+url);//
-
-        getJsonFromUrl(context, url, null, listener, logTag);
-    }
-
-    public static void getJsonFromUrl(Context context, final String url, JSONObject jsonRequest,
-                                      Response.Listener<JSONObject> responseListener,
-                                      final String logTag) {
-        fetchJsonFromUrl(context, Request.Method.GET, url, jsonRequest, responseListener, logTag);
-    }
-
-    public static void postJsonToAppServer(Context context, String getPathSegment, JSONObject jsonRequest,
-                                     Response.Listener<JSONObject> responseListener,
-                                           Response.ErrorListener errorListener,
-                                     final String logTag) {
-
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(context)).buildUpon()
-                .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
-                .build();
-        final String url = builtUri.toString();
-        Log.d(LOG_TAG, "post a AS url: "+url);//
-
-        fetchJsonFromUrl(context, Request.Method.POST, url, jsonRequest, responseListener,
-                errorListener, logTag);
-    }
-
-    public static void fetchJsonFromUrl(Context context, int method, final String url,
-                                        JSONObject jsonRequest,
-                                      Response.Listener<JSONObject> responseListener,
-                                      final String logTag) {
-        fetchJsonFromUrl(context, method, url, jsonRequest, responseListener,
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(logTag, "url: "+url);//
-                        error.printStackTrace();
-                    }
-                }, logTag);
-    }
-
-    public static void fetchJsonFromUrl(Context context, int method, final String url,
-                                        JSONObject jsonRequest,
-                                        Response.Listener<JSONObject> responseListener,
-                                        Response.ErrorListener errorListener,
-                                        final String logTag) {
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (method, url, jsonRequest, responseListener, errorListener);
-        jsObjRequest.setTag(logTag);
-        RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
-    }
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static @IdRes int[] perfilVisibilityViews = {
             R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,

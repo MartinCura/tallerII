@@ -17,7 +17,7 @@
     <string name="perfil_trabajo_actual_default">CEO en Jobify</string>
     <string name="perfil_ciudad_y_pais_default">Brasilia, Brasil</string>
     <string name="perfil_cant_recomendaciones_default"># recomendaciones</string>
-    <string name="perfil_nacimiento_default">Fecha de nacimiento (¿o edad?)</string>
+    <string name="perfil_nacimiento_default">Fecha de nacimiento</string>
 
     <string name="perfil_resumen_default">Me need job.</string>
 
@@ -132,4 +132,8 @@
     <string name="get_login_path">login</string>
     <string name="shared_server_base_url">https://intense-plains-63100.herokuapp.com/</string>
     <string name="login_invalid_empty_password">Contraseña vacía</string>
+    <string name="perfil_nombre_editable_hint">Nombre</string>
+    <string name="perfil_apellido_editable_hint">Apellido</string>
+    <string name="perfil_ciudad_editable_hint">Ciudad donde vive</string>
+    <string name="perfil_resumen_editable_hint">Cuente un poco de usted...</string>
 </resources>

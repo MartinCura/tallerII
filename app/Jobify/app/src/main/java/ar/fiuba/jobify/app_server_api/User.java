@@ -7,6 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -209,6 +212,25 @@ public class User {
         } catch (JsonSyntaxException e) {
             Log.e("API", "Json Syntax exception!");
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String toJson() {
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
+
+        return gson.toJson(this);
+    }
+
+    public JSONObject toJsonObject() {
+        try {
+            return new JSONObject(toJson());
+
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+            Log.e("User", "No se convirtió correctamente, bizarro, ¿culpa de gson?");
             return null;
         }
     }
