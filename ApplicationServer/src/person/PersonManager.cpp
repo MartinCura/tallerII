@@ -213,5 +213,5 @@ long PersonManager::generateID() {
     std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::system_clock::now().time_since_epoch() );
     srand (time(NULL));
     int rand = std::rand();
-    return  ms.count() << 3 + rand % 100;
+    return  labs(ms.count() << 3 + rand % 100);
 }
