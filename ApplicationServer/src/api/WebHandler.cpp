@@ -42,6 +42,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 LoginHandler* handler = new LoginHandler();
                 response = handler->handleRequest(httpMessage, url);
                 delete handler;
+                this->logResponse(response);
                 return response;
             }
         }
