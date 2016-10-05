@@ -170,7 +170,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.login_invalid_empty_password));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (!isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -271,6 +275,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             final Context ctx = getApplicationContext();
             JSONObject jsonRequest = new LoginResponse(email, password).toJsonObject();
+            Log.d(LOG_TAG, "POST de registro:\n"+jsonRequest.toString());//
 
             Utils.postJsonToAppServer(this, getString(R.string.post_user_path), jsonRequest,
                     new Response.Listener<JSONObject>() {
@@ -405,7 +410,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
 
-    //TODO: FORMA DE EMPEZAR EN MODO DE EDICIÓN
     public void iniciarPerfilActivity(long fetchedUserId, boolean comenzarEnModoEdicion) {
 
         startActivity(
@@ -417,10 +421,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
-        long connectedUserId = 96706967051108352L;
+        long connectedUserId = 1L;
         guardarConnectedId(connectedUserId);
 
-        Toast.makeText(LoginActivity.this, "Fake login,\n" +
+        Toast.makeText(LoginActivity.this, "Fake login\n" +
                 "user id: "+connectedUserId, Toast.LENGTH_LONG)
                 .show();
 

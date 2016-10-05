@@ -131,4 +131,5 @@
     <string name="put_user_path">users</string>
     <string name="get_login_path">login</string>
     <string name="shared_server_base_url">https://intense-plains-63100.herokuapp.com/</string>
+    <string name="login_invalid_empty_password">Contraseña vacía</string>
 </resources>

@@ -186,6 +186,7 @@ public class Utils {
                 .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
                 .build();
         final String url = builtUri.toString();
+        Log.d(LOG_TAG, "post a AS url: "+url);//
 
         fetchJsonFromUrl(context, Request.Method.POST, url, jsonRequest, responseListener,
                 errorListener, logTag);
