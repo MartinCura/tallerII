@@ -53,6 +53,8 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
                 uniqueId = generateID();
             }
             person_json["id"] = uniqueId;
+            std::string password = "password";
+            person_json.removeMember(password.c_str());
             person_string = fastWriter.write(person_json);
             db->puTKey(USER_MAIL_ID + user_mail, &person_string);
             db->puTKey(USER_UUID_ID + std::to_string(uniqueId), &user_mail);
@@ -117,8 +119,9 @@ Person* PersonManager::getPersonById(long id) {
         } catch (UserNotFoundException& exception1) {
             std::exception();
         }
-
+        //TODO Y ESTO PARA QUE ESTÁ?
         reader.parse( user.c_str(), json_user );
+        json_user["password"] = ""; //Todo: a lo wacho
         return new Person(json_user);
 
     } else {
@@ -138,6 +141,8 @@ Person* PersonManager::getPersonByMail(std::string* user_mail) {
     }
 
     reader.parse( result.c_str(), json_user );
+    std::string password = "password";
+    json_user.removeMember(password.c_str()); //TODO a lo wacho
     return new Person(json_user);
 }
 
