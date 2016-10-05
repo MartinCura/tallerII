@@ -11,10 +11,12 @@
 
 Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     string user_password, user_mail;
+    long user_id;
     Json::Value body;
     PersonManager* personManager;
     SessionManager* sessionManager = nullptr;
-    std::string token;
+    std::string user_token;
+
 
     try {
         body = this->parseBody(string(httpMessage->body.p));
@@ -61,9 +63,11 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     delete personManager;
 
     sessionManager = new SessionManager(NAME_DB); //TODO: VERIFICAR MULTIPLES CONEXIONES DE BD
-    token = sessionManager->getNewToken(user_mail);
+    user_token = sessionManager->getNewToken(user_mail);
+    user_id = sessionManager->getUserId(user_token);
     Json::Value responseBody; //TODO: METERLO EN COOKIE
-    responseBody["token"] = token;
+    responseBody["user_token"] = user_token; //TODO: ASK FOR DTO.
+    responseBody["user_id"] = user_id;
     Response* response = new Response();
     response->setSuccessfulHeader();
     response->setBody(responseBody.toStyledString());

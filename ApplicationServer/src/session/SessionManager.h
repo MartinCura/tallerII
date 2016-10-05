@@ -15,11 +15,13 @@ public:
     std::string createSessionToken();
     std::string getNewToken(std::string user_mail);
     std::string checkSession(std::string token);
+    long getUserId(std::string token);
     void destroyDB();
 
 private:
     DBWrapper* db;
     std::string nameDB;
+
 
 };
 

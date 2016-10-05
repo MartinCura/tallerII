@@ -11,6 +11,8 @@
 #include "../Exceptions/TokenExpiredException.h"
 
 #define USER_TOKEN "user:token_"
+#define USER_MAIL_ID "user:mail_"
+
 
 std::string SessionManager::createSessionToken() {
     int token_length;
@@ -79,6 +81,25 @@ std::string SessionManager::getNewToken(std::string user_mail) {
     db->puTKey(USER_TOKEN + new_token, &token2_string);
 
     return new_token;
+}
+
+long SessionManager::getUserId(std::string token) {
+    std::string token_information, user_information;
+    Json::Reader reader;
+    Json::Value token_information_json, user_information_json;
+
+    db->getKey(USER_TOKEN + token, &token_information);
+
+    reader.parse(token_information.c_str(), token_information_json);
+
+    //TODO: CAMBIAR LA FORMA DE ACCEDER A LA INFORMACIÓN DEL USUARIO MEDIANTE ID.
+    db->getKey(USER_MAIL_ID + token_information_json["user_mail"].asString(), &user_information);
+
+    reader.parse(user_information.c_str(), user_information_json);
+
+
+    return user_information_json["id"].asLargestInt();
+
 }
 
 std::string SessionManager::checkSession(std::string token) {
