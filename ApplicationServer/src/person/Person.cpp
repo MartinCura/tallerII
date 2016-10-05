@@ -173,14 +173,9 @@ void Person::updateMe(Json::Value values) {
             this->addSkill(skill);
         }
     }
-
-    this->personAsJson = "";
 }
 
 Json::Value Person::serializeMe() {
-    if (this->personAsJson != "") {
-        return this->personAsJson;
-    }
     Json::Value personAsJson;
     personAsJson["id"] = this->id;
     personAsJson["first_name"] = this->firstName;
