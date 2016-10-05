@@ -210,6 +210,6 @@ void Person::deleteWorkHistory() {
 void Person::deleteSkills() {
     int size = this->skills.size();
     for (int i = 0; i != size; i++) {
-        skills.pop_back();
+        this->skills.pop_back();
     }
 }
