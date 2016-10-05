@@ -187,7 +187,7 @@ public class NavDrawerActivity extends AppCompatActivity
                     }
                 }, LOG_TAG);
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                 .appendPath(getString(R.string.perfil_get_thumbnail_path))
                 .appendPath(Long.toString(connectedUserID))
                 .build();

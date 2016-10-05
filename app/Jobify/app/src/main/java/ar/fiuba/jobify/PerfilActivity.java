@@ -50,6 +50,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,7 @@ public class PerfilActivity extends NavDrawerActivity {
     private final String LOG_TAG = PerfilActivity.class.getSimpleName();
 
     public final static String FETCHED_USER_ID_MESSAGE = "ar.fiuba.jobify.FETCHED_USER_ID_MESSAGE";
+    public final static String MODO_PERFIL_MESSAGE = "ar.fiuba.jobify.MODO_PERFIL_MESSAGE";
     private long fetchedUserID = 2;
     private User fetchedUser;
 
@@ -166,6 +168,18 @@ public class PerfilActivity extends NavDrawerActivity {
 
         refreshProfileInformation(fetchedUserID);
         cargarFotoDePerfil(fetchedUserID);
+
+        // TODO: REVISAR, YA QUE ESTÁ EN EL onResume
+        // Obtengo el modo en el que debe comenzar
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(MODO_PERFIL_MESSAGE)) {
+
+            boolean empezarEnModoEdicion = intent.getBooleanExtra(MODO_PERFIL_MESSAGE, false);
+            if (empezarEnModoEdicion) {
+                inEditingMode = false;
+                toggleEditMode();
+            }
+        }
     }
 
     @Override
@@ -323,11 +337,13 @@ public class PerfilActivity extends NavDrawerActivity {
                     }
                 });
             }
+
+            Utils.hideView(this, R.id.perfil_contactos_frame);
         }
 
         // Togglear la visibilidad de views pertinentes a cada modo
-        for (@IdRes int v : Utils.perfilVisibilityViews) {
-            Utils.toggleViewVisibility(this, v);
+        for (@IdRes int vId : Utils.perfilVisibilityViews) {
+            Utils.toggleViewVisibility(this, vId);
         }
 
         inEditingMode = !inEditingMode;
@@ -474,13 +490,7 @@ public class PerfilActivity extends NavDrawerActivity {
         // TODO / DE PRUEBA
         if (mCurrentPhotoPath != null) {
             ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
-//            File file = new File(mCurrentPhotoPath);
-            if (imageView != null) {// && file.exists()) {
-                // Forma Uri:
-//                Uri imageContentUri = Uri.fromFile(file);
-//                imageView.setImageURI(imageContentUri);
-                // Forma Bitmap:
-//                Bitmap imageBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+            if (imageView != null) {
                 try {
                     Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mPhotoURI);
                     imageView.setImageBitmap(imageBitmap);
@@ -491,7 +501,7 @@ public class PerfilActivity extends NavDrawerActivity {
             }
         }
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                 .appendPath(getString(R.string.perfil_get_photo_path))
                 .appendPath(Long.toString(idFetched))
                 .build();
@@ -536,7 +546,7 @@ public class PerfilActivity extends NavDrawerActivity {
         if (fetchedUserID != connectedUserID)
             return;
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                 .appendPath(getString(R.string.put_user_path))
                 .appendPath(Long.toString(fetchedUserID))
                 .build();
@@ -638,25 +648,25 @@ public class PerfilActivity extends NavDrawerActivity {
         if (chooserIntent.resolveActivity(getPackageManager()) != null) {
 
             /// No parece hacer mucho
-            File photoFile;
-            try {
-                photoFile = createImageFile("new_profile");
-
-            } catch (IOException ex) {
-                // Error occured while creating the File
-                Log.e(LOG_TAG, "Error al intentar crear el archivo de foto.");
-                return;
-            }
-            if (photoFile != null) {
-                mPhotoURI = FileProvider.getUriForFile(this,
-                        "ar.fiuba.jobify.fileprovider",
-                        photoFile);
-
-                chooserIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoURI);
+//            File photoFile;
+//            try {
+//                photoFile = createImageFile("new_profile");
+//
+//            } catch (IOException ex) {
+//                // Error occured while creating the File
+//                Log.e(LOG_TAG, "Error al intentar crear el archivo de foto.");
+//                return;
+//            }
+//            if (photoFile != null) {
+//                mPhotoURI = FileProvider.getUriForFile(this,
+//                        "ar.fiuba.jobify.fileprovider",
+//                        photoFile);
+//
+//                chooserIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoURI);
             /// No parece hacer mucho
 
                 startActivityForResult(chooserIntent, REQUEST_PICK_IMAGE);
-            }
+//            }
         }
     }
 
@@ -692,7 +702,7 @@ public class PerfilActivity extends NavDrawerActivity {
         if (storageDir == null)
             throw new IOException("getExternalFilesDir dio error");
 //        File imageFile = File.createTempFile(imageFileName, ".jpg", storageDir); TODO: REVISAR SI VOLVER A ESTO
-        File imageFile = new File(storageDir.getPath() + File.separator + imageFileName + ".jpg");
+        File imageFile = new File(storageDir, imageFileName + ".jpg");
 
         mCurrentPhotoPath = imageFile.getAbsolutePath();//"file:" + imageFile.getAbsolutePath();//"content:" ?
         return imageFile;
@@ -710,26 +720,53 @@ public class PerfilActivity extends NavDrawerActivity {
 
             if (requestCode == REQUEST_TAKE_PHOTO) {
                 imageFile = new File(mCurrentPhotoPath);
+                Log.d(LOG_TAG, "Absolute path al sacar una foto: "+mCurrentPhotoPath);
+
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mPhotoURI);
+
+                    bitmap = normalizarBitmap(bitmap);
+                    imageFile = guardarImagen(bitmap);
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
 
             } else {        // REQUEST_PICK_IMAGE
                 Uri imageUri = data.getData();
                 if (imageUri == null) {
                     Log.d(LOG_TAG, "Hay que conseguir la imagen de otra forma");
-                    Toast.makeText(this, ">:(", Toast.LENGTH_LONG)
-                            .show();
                     return;
                 }
-                Log.d(LOG_TAG, "image Uri get path: " + imageUri.getPath());
-                imageFile = new File(imageUri.getPath());
+
+                try {
+                    Log.d(LOG_TAG, "imageUri al elegir una imagen: "+imageUri);
+                    mPhotoURI = imageUri;
+
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                    bitmap = normalizarBitmap(bitmap);
+
+                    imageFile = guardarImagen(bitmap);
+
+                    if (imageFile == null) {
+                        Log.d(LOG_TAG, "Imagen guardada con éxito");
+                        return;
+                    } else {
+                        Log.d(LOG_TAG, "Problema al guardar la imagen");
+                    }
+
+                } catch (IOException ex) {
+                    return;
+                }
             }
 
-            Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+            Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                     .appendPath(getString(R.string.perfil_post_photo_path))
                     .appendPath(Long.toString(fetchedUserID))
                     .build();
             final String url = builtUri.toString();
 
-            if (imageFile.exists()) {
+            if (imageFile != null && imageFile.exists()) {
                 Utils.PhotoMultipartRequest<String> imageUploadReq =
                         new Utils.PhotoMultipartRequest<>(url, imageFile, new Response.Listener<String>() {
                             @Override
@@ -759,6 +796,36 @@ public class PerfilActivity extends NavDrawerActivity {
                 Log.w(LOG_TAG, "Archivo en " + mPhotoURI.getPath() + " no existe.");
             }
         }
+    }
+
+    private Bitmap normalizarBitmap(Bitmap bitmap) {
+        int newWidth = bitmap.getWidth() > 1000 ? 1000 : bitmap.getWidth(); // HARDCODEO
+        int newHeight = (int) Math.round((1.0 * bitmap.getHeight() / bitmap.getWidth()) * newWidth);
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+    }
+
+    private File guardarImagen(Bitmap bitmap) {
+        boolean success = false;
+        File imageFile = null;
+        try {
+            imageFile = createImageFile("new_profile");
+
+            FileOutputStream outStream = new FileOutputStream(imageFile);
+
+            // Pierdo calidad ;//
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outStream);
+
+            outStream.flush();
+            outStream.close();
+            success = true;
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        if (!success)
+            return null;
+        return imageFile;
     }
 
 
@@ -903,7 +970,7 @@ public class PerfilActivity extends NavDrawerActivity {
             Contact contact = (Contact) getItem(position);
             if (contact != null) {
 
-                Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+                Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
                         .appendPath(getString(R.string.perfil_get_thumbnail_path))
                         .appendPath(Long.toString(contact.getId()))
                         .build();

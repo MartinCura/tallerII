@@ -22,7 +22,16 @@ public class LoginResponse {
     // Acá podría validarse algo más si hiciera falta
 
     public LoginResponse(String email, String password) {
-        this.email = email;
+        setEmail(email);
+        setPassword(password);
+    }
+
+    private void setEmail(String email) {
+        this.email = email.toLowerCase();
+    }
+
+    private void setPassword(String password) {
+        // TODO: Hashear?
         this.password = password;
     }
 

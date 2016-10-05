@@ -172,7 +172,7 @@ public class UserListActivity extends NavDrawerActivity {
 
     private void fetchAndAddUser(long id) { // TODO: De prueba, CORREGIR
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                 .appendPath(getString(R.string.perfil_get_user_path)) // TODO: Corregir?
                 .appendPath(Long.toString(id))
                 .build();
@@ -248,7 +248,7 @@ public class UserListActivity extends NavDrawerActivity {
                 TextView tv_recom   = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
 
                 if (iv_thumbnail != null) {
-                    Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+                    Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
                             .appendPath(getString(R.string.perfil_get_thumbnail_path))
                             .appendPath(Long.toString(user.getId()))
                             .build();

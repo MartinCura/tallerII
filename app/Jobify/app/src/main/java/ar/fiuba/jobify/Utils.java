@@ -56,18 +56,17 @@ public class Utils {
 
     private final static String LOG_TAG = Utils.class.getSimpleName();
 
-    public static String getAppServerBaseURL() {
-        Context c = PerfilActivity.getContext();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
-        String ip = sharedPref.getString("pref_appServer_ip", c.getString(R.string.pref_default_appServer_ip));
-        String puerto = sharedPref.getString("pref_appServer_puerto", c.getString(R.string.pref_default_appServer_puerto));
+    public static String getAppServerBaseURL(Context ctx) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
+        String ip = sharedPref.getString("pref_appServer_ip", ctx.getString(R.string.pref_default_appServer_ip));
+        String puerto = sharedPref.getString("pref_appServer_puerto", ctx.getString(R.string.pref_default_appServer_puerto));
 
         return "http://" + ip + ":" + puerto + "/";
     }
 
-    public static String getSharedServerBaseURL() {
-        return "https://intense-plains-63100.herokuapp.com/";
-        ////////////////////// TODO
+    public static String getSharedServerBaseURL(Context ctx) {
+        return ctx.getString(R.string.shared_server_base_url);
+        /// TODO
 //        return "";
     }
 
@@ -122,7 +121,7 @@ public class Utils {
                                             Response.Listener<JSONObject> responseListener,
                                             final String logTag) {
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(context)).buildUpon()
                 .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
                 .appendPath(Long.toString(idFetched))
                 .build();
@@ -136,7 +135,7 @@ public class Utils {
                                             Response.Listener<JSONObject> responseListener,
                                             final String logTag) {
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(context)).buildUpon()
                 .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
                 .build();
         final String url = builtUri.toString();
@@ -149,7 +148,7 @@ public class Utils {
                                             Response.Listener<JSONObject> responseListener,
                                             Response.ErrorListener errorListener,
                                             final String logTag) {
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon()
                 .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
                 .build();
         final String url = builtUri.toString();
@@ -162,7 +161,7 @@ public class Utils {
                                                Response.Listener<JSONObject> listener,
                                                final String logTag) {
 
-        Uri builtUri = Uri.parse(Utils.getSharedServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getSharedServerBaseURL(context)).buildUpon()
                 .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
                 .build();
         final String url = builtUri.toString();
@@ -183,7 +182,7 @@ public class Utils {
                                            Response.ErrorListener errorListener,
                                      final String logTag) {
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL()).buildUpon()
+        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(context)).buildUpon()
                 .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
                 .build();
         final String url = builtUri.toString();
@@ -219,10 +218,10 @@ public class Utils {
 
 
     public static @IdRes int[] perfilVisibilityViews = {
-            R.id.perfil_toolbar, R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,
+            R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,
             R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
-            R.id.text_perfil_cant_recomendaciones, R.id.text_perfil_resumen, R.id.text_perfil_resumen_editable,
-            R.id.perfil_contactos_frame, R.id.perfil_experiencia_laboral_list,
+            R.id.text_perfil_cant_recomendaciones, R.id.text_perfil_resumen,
+            R.id.text_perfil_resumen_editable, R.id.perfil_experiencia_laboral_list,
             R.id.perfil_experiencia_laboral_list_editable, R.id.perfil_experiencia_laboral_list_new,
             R.id.perfil_skills_list, R.id.perfil_skills_list_editable, R.id.perfil_skills_list_new
     };
@@ -268,6 +267,12 @@ public class Utils {
                 v.setVisibility(View.GONE);
             }
         }
+    }
+
+    public static void hideView(AppCompatActivity activity, @IdRes int idRes) {
+        View v = activity.findViewById(idRes);
+        if (v != null)
+            v.setVisibility(View.GONE);
     }
 
     public static void editTextSetErrorAndFocus(AppCompatActivity activity, @IdRes int resId, String errorMessage) {

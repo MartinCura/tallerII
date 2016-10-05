@@ -227,7 +227,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
                                         .show();//
 
-                                iniciarPerfilActivity(connectedUserId);
+                                iniciarPerfilActivity(connectedUserId, false);
 
                             } catch (JsonSyntaxException ex) {
                                 ex.printStackTrace();
@@ -279,7 +279,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             showProgress(false);
                             long connectedUserId = new Gson().fromJson(response.toString(), long.class);
                             guardarConnectedId(connectedUserId);
-                            iniciarPerfilActivity(connectedUserId);// TODO: Empezar en modo de edición
+                            iniciarPerfilActivity(connectedUserId, true);
                         }
 
                     }, new Response.ErrorListener() {
@@ -401,29 +401,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         };
 
         int ADDRESS = 0;
-        int IS_PRIMARY = 1;
+//        int IS_PRIMARY = 1;
     }
 
 
     //TODO: FORMA DE EMPEZAR EN MODO DE EDICIÓN
-    public void iniciarPerfilActivity(long fetchedUserId) {
+    public void iniciarPerfilActivity(long fetchedUserId, boolean comenzarEnModoEdicion) {
 
         startActivity(
                 new Intent(LoginActivity.this, PerfilActivity.class)
                         .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, fetchedUserId)
+                        .putExtra(PerfilActivity.MODO_PERFIL_MESSAGE, comenzarEnModoEdicion)
         );
     }
 
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
-        long connectedUserId = 1;
+        long connectedUserId = 96706967051108352L;
         guardarConnectedId(connectedUserId);
 
         Toast.makeText(LoginActivity.this, "Fake login,\n" +
                 "user id: "+connectedUserId, Toast.LENGTH_LONG)
                 .show();
 
-        iniciarPerfilActivity(connectedUserId);
+        iniciarPerfilActivity(connectedUserId, false);
     }//;//
 }
 
