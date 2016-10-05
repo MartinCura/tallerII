@@ -181,6 +181,7 @@ Json::Value Person::serializeMe() {
     personAsJson["first_name"] = this->firstName;
     personAsJson["last_name"] = this->lastName;
     personAsJson["email"] = this->email;
+    personAsJson["password"] = this->password;
     personAsJson["date_of_birth"] = this->dateOfBirth;
     personAsJson["city"] = this->city;
     personAsJson["summary"] = this->summary;

@@ -13,7 +13,7 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     string user_password, user_mail;
     Json::Value body;
     PersonManager* personManager;
-    SessionManager* sessionManager;
+    SessionManager* sessionManager = nullptr;
     std::string token;
 
     try {
@@ -41,24 +41,35 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
         personManager = new PersonManager(NAME_DB);
         personManager->login(user_mail, user_password);
 
-        //Loggin aceptado
-        delete personManager;
-        sessionManager = new SessionManager(NAME_DB); //TODO: VERIFICAR MULTIPLES CONEXIONES DE BD
-        token = sessionManager->getNewToken(user_mail);
-        Json::Value responseBody; //TODO: METERLO EN COOKIE
-        responseBody["token"] = token;
-        Response* response = new Response();
-        response->setSuccessfulHeader();
-        response->setBody(responseBody.toStyledString());
+    } catch (InvalidPasswordException& e) {
 
-        return response;
-
-    } catch (std::exception& e) {
-        Response* response = new Response();
+        Response *response = new Response();
         response->setConflictHeader();
         response->setErrorBody(e.what());
+        delete personManager;
+        return response;
+    } catch (UserNotFoundException& e) {
+        Response *response = new Response();
+        response->setConflictHeader();
+        response->setErrorBody(e.getMessage(UserNotFoundException::Message::mail));
+        //TODO no tiene sentido que repita logica porque los mensajes se manejan distintos para este tipo de excepción, MEjorar.
+        delete personManager;
         return response;
     }
+
+    //Loggin aceptado
+    delete personManager;
+
+    sessionManager = new SessionManager(NAME_DB); //TODO: VERIFICAR MULTIPLES CONEXIONES DE BD
+    token = sessionManager->getNewToken(user_mail);
+    Json::Value responseBody; //TODO: METERLO EN COOKIE
+    responseBody["token"] = token;
+    Response* response = new Response();
+    response->setSuccessfulHeader();
+    response->setBody(responseBody.toStyledString());
+
+    delete sessionManager;
+    return response;
 
 }
 

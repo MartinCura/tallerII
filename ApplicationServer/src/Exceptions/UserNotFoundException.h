@@ -25,7 +25,7 @@ public:
                 return (string("User id " + to_string(this->userId) + " doesn't exist"));
             case mail:
             default:
-                return (string("User mail " + this->userMail + "doesn't exist"));
+                return (string("User mail " + this->userMail + " doesn't exist"));
         }
 
     }

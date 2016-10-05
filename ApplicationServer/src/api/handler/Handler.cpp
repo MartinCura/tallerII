@@ -1,4 +1,6 @@
+#include <iostream>
 #include "Handler.h"
+#include "../../session/SessionManager.h"
 
 static const struct mg_str s_get_method = MG_MK_STR("GET");
 static const struct mg_str s_put_method = MG_MK_STR("PUT");
@@ -10,6 +12,25 @@ Handler::Handler() {}
 Handler::~Handler() {}
 
 Response* Handler::handleRequest(http_message* httpMessage, string url) {
+    if (isPublic == false ) {
+        //Se necesita verificar primero que la sesión esté abierta
+
+        Json::Value b = httpMessage->header_values->p;
+        std::string token;
+        /*Json::Value body = this->parseBody(string(httpMessage->body.p));
+        if (!body.isMember("token")) {
+            throw InvalidRequestException("Token missing");
+        }
+
+        token = body["token"].asString();
+        SessionManager* sessionManager = new SessionManager("/tmp/appDB");
+
+        //si no falla es porque la sesión esta abierta.
+        //TODO: VERIFICAR COMO AGREGAR LA INFORMACIÓN AL BODY
+        body["user_mail_id"] = sessionManager->checkSession(token);
+        httpMessage->body.p = body.toStyledString().c_str();*/
+    }
+
     if (this->isEqual(&httpMessage->method, &s_get_method)) {
         return this->handleGetRequest(httpMessage, url);
     } else if (this->isEqual(&httpMessage->method, &s_put_method)) {

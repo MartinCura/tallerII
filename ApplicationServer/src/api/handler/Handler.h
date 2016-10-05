@@ -26,6 +26,7 @@ protected:
     Json::Value parseBody(string body);
     vector<string> parseUrl(string url);
     long getUserIdFromUrl(string url);
+    bool isPublic = false;
 
 private:
     int isEqual(const struct mg_str *s1, const struct mg_str *s2);

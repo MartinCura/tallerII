@@ -182,7 +182,6 @@ vector<Person*> PersonManager::getPersonFriendsById(long id) {
 void PersonManager::login(std::string user_mail, std::string user_password) {
 
     std::string user_bdd_pasword;
-    Json::Reader reader;
 
     if (!db->existsKey(USER_PASSWORD + user_mail, &user_bdd_pasword )) {
         //No existe un usuario con dicho mail en la base

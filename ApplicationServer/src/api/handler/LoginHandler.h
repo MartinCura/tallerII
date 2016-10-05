@@ -11,6 +11,10 @@
 class LoginHandler : public Handler{
 public:
 
+    LoginHandler() {
+        isPublic = true;
+    }
+
     Response* handlePostRequest(http_message* httpMessage);
     Response* handleGetRequest(http_message* httpMessage, string url);
     Response* handleDeleteRequest(http_message* httpMessage, string url);

@@ -31,7 +31,7 @@ Person* DbBuilder::getFakePerson1() {
     person->setId(0);
     person->setFirstName("John");
     person->setLastName("Doe");
-    person->setEmail("John@doe.com");
+    person->setEmail("john@doe.com");
     person->setPassword("123");
     person->setDateOfBirth("01/01/1990");
     person->setCity("Buenos Aires");
@@ -72,7 +72,7 @@ Person* DbBuilder::getFakePerson2() {
     person->setId(0);
     person->setFirstName("Jane");
     person->setLastName("Doe");
-    person->setEmail("Jane@doe.com");
+    person->setEmail("jane@doe.com");
     person->setPassword("123");
     person->setDateOfBirth("01/11/1991");
     person->setCity("Madrid");

@@ -16,7 +16,9 @@ DBWrapper::ResponseCode DBWrapper::openDb(std::string nameDB) {
     options.create_if_missing = true;
     s = leveldb::DB::Open(options, nameDB, &db);
     if (!s.ok()) {
+        std::string ss = s.ToString();
         return ERROR;
+
     }
     return OK;
 }
@@ -70,7 +72,7 @@ DBWrapper::ResponseCode DBWrapper::deleteKey(std::string key) {
 }
 
 DBWrapper::ResponseCode DBWrapper::deleteDB() {
-    if (!db) {
+    if (db == nullptr) {
         return OK;
     }
 
