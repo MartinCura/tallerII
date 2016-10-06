@@ -46,4 +46,12 @@ public class SkillsResponse {
     public ResponseMetadata getMetadata() {
         return metadata;
     }
+
+    public Skill findSkill(String skillName) {
+        for (Skill sk : skills) {
+            if (sk.getName().equalsIgnoreCase(skillName))
+                return sk;
+        }
+        return null;
+    }
 }

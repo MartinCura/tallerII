@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        actualizarAlturaDeListView(adaptedListView, this);
+        actualizarAlturaDeListViewHardcode(adaptedListView, this);
     }
 
     @Override
@@ -50,7 +51,7 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
         String itemString = item.getNombre();
         if (itemString != null) {
 
-            EditText item_tv = (EditText) itemView.findViewById(R.id.text_list_item_editable);
+            TextView item_tv = (TextView) itemView.findViewById(R.id.text_list_item_editable);
             if (item_tv != null)
                 item_tv.setText(itemString);
 
@@ -89,7 +90,7 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
 
             EditableListAdapter<T> mAdapter = new EditableListAdapter<>(context, mListView, list);
             mListView.setAdapter(mAdapter);
-            actualizarAlturaDeListView(mListView, mAdapter);
+            actualizarAlturaDeListViewHardcode(mListView, mAdapter);
 
             return mAdapter;
 
@@ -107,6 +108,25 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
             listItem.measure(0, 0);
             totalHeight += listItem.getMeasuredHeight();
         }
+        ViewGroup.LayoutParams params = mListView.getLayoutParams();
+        params.height = totalHeight +
+                (mListView.getDividerHeight() * (mAdapter.getCount() - 1));
+        mListView.setLayoutParams(params);
+    }
+
+    public static void actualizarAlturaDeListViewHardcode(ListView mListView, ArrayAdapter mAdapter) {
+        //        int totalHeight = 0;
+        int lastHeight = 0;
+        for (int i = 0; i < mAdapter.getCount(); i++) {
+            View listItem = mAdapter.getView(i, null, mListView);
+            listItem.measure(0, 0);
+            // tramposo
+            lastHeight = listItem.getMeasuredHeight();
+            Log.d("shuddup", lastHeight+" (lastHeight");
+//            totalHeight += listItem.getMeasuredHeight();
+        }
+        int totalHeight = 140 * mAdapter.getCount();//hardcodeo
+        Log.d("shudduuup", "lastHeight="+lastHeight+", total="+totalHeight);
         ViewGroup.LayoutParams params = mListView.getLayoutParams();
         params.height = totalHeight +
                 (mListView.getDividerHeight() * (mAdapter.getCount() - 1));

@@ -47,4 +47,13 @@ public class JobPositionsResponse {
     public ResponseMetadata getMetadata() {
         return metadata;
     }
+
+    public String findPosition(String jobPos) {
+        for (JobPosition jp : jobPositions) {
+            String title = jp.getName();
+            if (title.equalsIgnoreCase(jobPos))
+                return title;
+        }
+        return null;
+    }
 }

@@ -223,7 +223,7 @@ public class Utils {
             R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,
             R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
             R.id.text_perfil_cant_recomendaciones, R.id.text_perfil_resumen,
-            R.id.text_perfil_resumen_editable, R.id.perfil_experiencia_laboral_list,
+            R.id.text_perfil_resumen_editable_wrapper, R.id.perfil_experiencia_laboral_list,
             R.id.perfil_experiencia_laboral_list_editable, R.id.perfil_experiencia_laboral_list_new,
             R.id.perfil_skills_list, R.id.perfil_skills_list_editable, R.id.perfil_skills_list_new
     };
@@ -250,7 +250,7 @@ public class Utils {
             tv.setText(text);
 
             if (hideEmptyText) {
-                if (text.equals(""))
+                if (text.length() == 0)
                     tv.setVisibility(View.GONE);
                 else
                     tv.setVisibility(View.VISIBLE);
@@ -275,6 +275,12 @@ public class Utils {
         View v = activity.findViewById(idRes);
         if (v != null)
             v.setVisibility(View.GONE);
+    }
+
+    public static void showView(AppCompatActivity activity, @IdRes int idRes) {
+        View v = activity.findViewById(idRes);
+        if (v != null)
+            v.setVisibility(View.VISIBLE);
     }
 
     public static void editTextSetErrorAndFocus(AppCompatActivity activity, @IdRes int resId, String errorMessage) {

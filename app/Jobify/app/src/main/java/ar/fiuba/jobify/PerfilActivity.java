@@ -41,12 +41,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -177,8 +172,7 @@ public class PerfilActivity extends NavDrawerActivity {
             boolean empezarEnModoEdicion = intent.getBooleanExtra(MODO_PERFIL_MESSAGE, false);
             if (empezarEnModoEdicion) {
 
-                LinearLayout layout = (LinearLayout) findViewById(R.id.perfil_information_layout);
-                if (layout != null) layout.setVisibility(View.VISIBLE);
+                Utils.showView(this, R.id.perfil_information_layout);
 
                 inEditingMode = false;
                 toggleEditMode();
@@ -318,12 +312,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 ib_skills.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        EditText et_skill = (EditText) findViewById(R.id.text_perfil_skill_new);
-                        // TODO: revisar también que esté en la lista de posibles
-                        if (et_skill == null || et_skill.length() == 0) return;
-                        mSkillAdapter.add(new Skill(et_skill.getText().toString()));
-                        et_skill.setText("");
-                        mSkillAdapter.notifyDataSetChanged();
+                        agregarSkill();
                     }
                 });
             }
@@ -341,13 +330,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 ib_workHistory.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        AutoCompleteTextView et_employment =
-                                (AutoCompleteTextView) findViewById(R.id.text_perfil_experiencia_laboral_new);
-                        // TODO: revisar también que esté en la lista de posibles
-                        if (et_employment == null || et_employment.length() == 0) return;
-                        mJobsAdapter.add(new Employment(et_employment.getText().toString()));
-                        et_employment.setText("");
-                        mJobsAdapter.notifyDataSetChanged();
+                        agregarEmployment();
                     }
                 });
             }
@@ -361,6 +344,82 @@ public class PerfilActivity extends NavDrawerActivity {
         }
 
         inEditingMode = !inEditingMode;
+    }
+
+    private boolean agregarEmployment() {
+        EditText et_company = (EditText) findViewById(R.id.text_perfil_employment_new_company);
+        AutoCompleteTextView et_position =
+                (AutoCompleteTextView) findViewById(R.id.text_perfil_employment_new_position);
+        EditText et_desde_mes =  (EditText) findViewById(R.id.perfil_employment_desde_mes);
+        EditText et_desde_anio = (EditText) findViewById(R.id.perfil_employment_desde_anio);
+        EditText et_hasta_mes =  (EditText) findViewById(R.id.perfil_employment_hasta_mes);
+        EditText et_hasta_anio = (EditText) findViewById(R.id.perfil_employment_hasta_anio);
+
+        if (et_company == null || et_company.length() == 0
+                || et_position == null || et_position.length() == 0
+                || et_desde_mes == null || et_desde_mes.length() == 0
+                || et_desde_anio == null || et_desde_anio.length() == 0
+                || et_hasta_mes == null || et_hasta_anio == null) {
+            if (et_position != null)
+                et_position.setError("Salvo 'hasta', ningún campo puede quedar vacío");
+            return false;
+        }
+        et_position.setError(null);
+
+        if ((et_hasta_mes.length() == 0 && et_hasta_anio.length() != 0)
+            || et_hasta_mes.length() != 0 && et_hasta_anio.length() == 0) {
+            et_position.setError("Para un trabajo actual, deje mes y año de 'hasta' vacíos");
+            return false;
+        }
+
+        // "Hasta" puede estar vacío
+        int hastaMes = (et_hasta_mes.length() == 0) ? 0 : Integer.valueOf(et_hasta_mes.getText().toString());
+        int hastaAnio = (et_hasta_anio.length() == 0) ? 0 : Integer.valueOf(et_hasta_anio.getText().toString());
+
+        try {
+            Employment nuevoEmployment = Employment.create(this,
+                            et_company.getText().toString(),
+                            et_position.getText().toString(),
+                            Integer.valueOf(et_desde_mes.getText().toString()),
+                            Integer.valueOf(et_desde_anio.getText().toString()),
+                            hastaMes, hastaAnio);
+            if (nuevoEmployment == null) return false;
+            mJobsAdapter.add(nuevoEmployment);
+            et_company.setText(null);
+            et_position.setText(null);
+            et_desde_mes.setText(null);
+            et_desde_anio.setText(null);
+            et_hasta_mes.setText(null);
+            et_hasta_anio.setText(null);
+            mJobsAdapter.notifyDataSetChanged();
+
+        } catch (IllegalArgumentException ex) {
+            et_position.setError("Valor inválido para " + ex.getMessage());
+            et_position.requestFocus();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean agregarSkill() {
+        EditText et_skill = (EditText) findViewById(R.id.text_perfil_skill_new);
+        // TODO: revisar también que esté en la lista de posibles
+        if (et_skill == null || et_skill.length() == 0) return false;
+
+        try {
+            Skill nuevoSkill = Skill.create(this, et_skill.getText().toString());
+            if (nuevoSkill == null) return false;
+            mSkillAdapter.add(nuevoSkill);
+            et_skill.setText("");
+            mSkillAdapter.notifyDataSetChanged();
+
+        } catch (IllegalArgumentException ex) {
+            et_skill.setError("Skill desconocido");
+            et_skill.requestFocus();
+            return false;
+        }
+
+        return true;
     }
 
     // Si el input de algún campo es incorrecto, falla sin modificar al usuario.
@@ -527,8 +586,7 @@ public class PerfilActivity extends NavDrawerActivity {
     }
 
     private void fillProfile(User mUser) {
-        LinearLayout layout = (LinearLayout) findViewById(R.id.perfil_information_layout);
-        if (layout != null) layout.setVisibility(View.VISIBLE);
+        Utils.showView(this, R.id.perfil_information_layout);
 
         collapsingToolbarLayout.setTitle(mUser.getFullName());
 
@@ -541,8 +599,6 @@ public class PerfilActivity extends NavDrawerActivity {
         Utils.populateStringList(this, R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
         Utils.populateStringList(this, R.id.perfil_skills_list, mUser.getListaSkills());
 
-//        populateContacts(new ContactsResponse());// TODO: DE PRUEBA, BORRAR
-
         Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), fetchedUserID,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -554,7 +610,6 @@ public class PerfilActivity extends NavDrawerActivity {
     }
 
 
-    // TODO: testear
     public void updateProfileInformation() {
 
         if (fetchedUserID != connectedUserID)
@@ -613,27 +668,7 @@ public class PerfilActivity extends NavDrawerActivity {
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
 
         if (chooserIntent.resolveActivity(getPackageManager()) != null) {
-
-            /// No parece hacer mucho
-//            File photoFile;
-//            try {
-//                photoFile = createImageFile("new_profile");
-//
-//            } catch (IOException ex) {
-//                // Error occured while creating the File
-//                Log.e(LOG_TAG, "Error al intentar crear el archivo de foto.");
-//                return;
-//            }
-//            if (photoFile != null) {
-//                mPhotoURI = FileProvider.getUriForFile(this,
-//                        "ar.fiuba.jobify.fileprovider",
-//                        photoFile);
-//
-//                chooserIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoURI);
-            /// No parece hacer mucho
-
                 startActivityForResult(chooserIntent, REQUEST_PICK_IMAGE);
-//            }
         }
     }
 
@@ -820,14 +855,11 @@ public class PerfilActivity extends NavDrawerActivity {
 //        }
         ///
 
-        FrameLayout contactsFrameLayout = (FrameLayout) findViewById(R.id.perfil_contactos_frame);
-        if (contactsFrameLayout != null) {
-            if (contacts.size() == 0) {
-                contactsFrameLayout.setVisibility(View.GONE);
-                return;
-            } else {
-                contactsFrameLayout.setVisibility(View.VISIBLE);
-            }
+        if (contacts.size() == 0) {
+            Utils.hideView(this, R.id.perfil_contactos_frame);
+            return;
+        } else {
+            Utils.showView(this, R.id.perfil_contactos_frame);
         }
 
         HorizontalListView mHLView = (HorizontalListView) findViewById(R.id.perfil_contactos_list);
@@ -862,7 +894,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
         try {
             AutoCompleteTextView et_employment =
-                    (AutoCompleteTextView) findViewById(R.id.text_perfil_experiencia_laboral_new);
+                    (AutoCompleteTextView) findViewById(R.id.text_perfil_employment_new_position);
             List<JobPosition> jobPositions = SharedDataSingleton.getInstance(this).getJobPositions();
 
             if (jobPositions != null && et_employment != null) {

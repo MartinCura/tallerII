@@ -1,8 +1,10 @@
 package ar.fiuba.jobify.shared_server_api;
 
+import android.app.Activity;
+
 /**
  * Created by martín on 06/09/16.
- * Simple estructura que contiene un skill. TODO: Crear únicamente a través de Fábrica.
+ * Simple estructura que contiene un skill.
  */
 public class Skill implements Nombrable {
 
@@ -12,8 +14,11 @@ public class Skill implements Nombrable {
             category = "";
 
 
-    public Skill(String nombre) {
-        this.name = nombre;// Constructor de prueba nomás, depender de Fábrica
+    // copy constructor
+    private Skill(Skill o) {
+        this.name = o.name;
+        this.description = o.description;
+        this.category = o.category;
     }
 
     public String getName() {
@@ -29,5 +34,14 @@ public class Skill implements Nombrable {
 
     public String getCategory() {
         return category;
+    }
+
+    // Solo permite obtener un Skill que ya exista en el SharedData
+    public static Skill create(Activity activity, String skillName) {
+        SkillsResponse skr = SharedDataSingleton.getInstance(activity).getSkillsResponse();
+        Skill found;
+        if ((found = skr.findSkill(skillName)) == null)
+            throw new IllegalArgumentException();
+        return new Skill(found);
     }
 }

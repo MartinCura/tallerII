@@ -179,7 +179,7 @@ public class User {
     public List<String> getListaJobs() {
         List<String> lista = new ArrayList<>();
         for (Employment job : getWorkHistory()) {
-            lista.add(job.getOneLiner());
+            lista.add(job.getCompleto());
         }
         return lista;
     }

@@ -134,6 +134,15 @@
     <string name="login_invalid_empty_password">Contraseña vacía</string>
     <string name="perfil_nombre_editable_hint">Nombre</string>
     <string name="perfil_apellido_editable_hint">Apellido</string>
-    <string name="perfil_ciudad_editable_hint">Ciudad donde vive</string>
-    <string name="perfil_resumen_editable_hint">Cuente un poco de usted...</string>
+    <string name="perfil_ciudad_editable_hint">Ciudad</string>
+    <string name="perfil_resumen_editable_hint">Cuente un poco de usted…</string>
+    <string name="perfil_employment_new_position_hint">Puesto</string>
+    <string name="perfil_skill_new_hint">Nuevo skill</string>
+    <string name="perfil_employment_new_company_hint">Compañía</string>
+    <string name="perfil_agregar_item_titulo">Agregar</string>
+    <string name="desde">Desde</string>
+    <string name="mes">mes</string>
+    <string name="barra">/</string>
+    <string name="anio">año</string>
+    <string name="hasta">Hasta</string>
 </resources>
