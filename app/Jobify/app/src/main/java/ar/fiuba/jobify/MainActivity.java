@@ -3,7 +3,6 @@ package ar.fiuba.jobify;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.net.Uri;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         startActivity(new Intent(this, LoginActivity.class));
-        return;
+        //return;
 
 //        setContentView(R.layout.activity_main);
     }

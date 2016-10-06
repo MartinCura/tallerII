@@ -24,9 +24,6 @@ public class Skill implements Nombrable {
     public String getName() {
         return name;
     }
-    public String getNombre() {
-        return getName();
-    }
 
     public String getDescription() {
         return description;
@@ -35,6 +32,19 @@ public class Skill implements Nombrable {
     public String getCategory() {
         return category;
     }
+
+    // Pedido por la interfaz Nombrable para obtener un String que lo represente en una lista
+    public String getNombre() {
+        return getName();
+    }
+
+    // Igualdad se determina por igual nombre
+    @Override
+    public boolean equals(Object o) {
+        return ((o instanceof Skill)
+                && (this.getName().equals(((Skill) o).getName())));
+    }
+
 
     // Solo permite obtener un Skill que ya exista en el SharedData
     public static Skill create(Activity activity, String skillName) {

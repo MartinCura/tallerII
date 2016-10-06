@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,6 +35,14 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
         actualizarAlturaDeListViewHardcode(adaptedListView, this);
+    }
+
+    public boolean add(T object, boolean rechazarRepetidos) {
+        if (!rechazarRepetidos || this.getPosition(object) == -1) {
+            add(object);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -125,7 +132,7 @@ class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
             Log.d("shuddup", lastHeight+" (lastHeight");
 //            totalHeight += listItem.getMeasuredHeight();
         }
-        int totalHeight = 140 * mAdapter.getCount();//hardcodeo
+        int totalHeight = 150 * mAdapter.getCount();//hardcodeo
         Log.d("shudduuup", "lastHeight="+lastHeight+", total="+totalHeight);
         ViewGroup.LayoutParams params = mListView.getLayoutParams();
         params.height = totalHeight +

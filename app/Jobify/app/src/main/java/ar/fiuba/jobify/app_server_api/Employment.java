@@ -60,9 +60,6 @@ public class Employment implements Nombrable {
     public String getOneLiner() {
         return getPositionTitle() + " en " + getCompany();
     }
-    public String getNombre() {
-        return getOneLiner();
-    }
 
     public String getCompleto() {
         String ret = getPositionTitle() + " en " + getCompany() + "\n"
@@ -70,6 +67,21 @@ public class Employment implements Nombrable {
         if (!getToDate().isEmpty())
             ret += " hasta " +getToDate();
         return ret;
+    }
+
+    // Pedido por la interfaz Nombrable para obtener un String que lo represente en una listaZ
+    public String getNombre() {
+        return getCompleto();
+    }
+
+    // Igualdad se determina por igual puesto, compañía, e inicio o fin
+    @Override
+    public boolean equals(Object o) {
+        return ((o instanceof Employment)
+                && (this.getCompany().equals(((Employment) o).getCompany()))
+                && (this.getPositionTitle().equals(((Employment) o).getPositionTitle()))
+                && ((this.getFromDate().equals(((Employment) o).getFromDate()))
+                    || this.getToDate().equals(((Employment) o).getToDate())));
     }
 
     // Solo permite obtener un Employment con un JobPosition que ya exista en el SharedData

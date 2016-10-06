@@ -43,6 +43,7 @@ public class User {
         workHistory = new ArrayList<>();
     }
 
+    // Borrar?
     public User(String email) {
         this();
         this.email = email;

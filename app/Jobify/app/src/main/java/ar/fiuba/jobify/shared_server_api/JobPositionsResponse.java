@@ -1,7 +1,6 @@
 package ar.fiuba.jobify.shared_server_api;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -13,6 +12,7 @@ import java.util.List;
 
 /**
  * Created by martín on 06/09/16.
+ * Estructura API para los puestos de trabajo en el sistema.
  */
 public class JobPositionsResponse {
 
@@ -30,8 +30,7 @@ public class JobPositionsResponse {
                 .create();
 
         try {
-            JobPositionsResponse jobPositionsResponse = gson.fromJson(response, JobPositionsResponse.class);
-            return jobPositionsResponse;
+            return gson.fromJson(response, JobPositionsResponse.class);
 
         } catch (JsonSyntaxException e) {
             Log.e("API", "Json Syntax exception!");

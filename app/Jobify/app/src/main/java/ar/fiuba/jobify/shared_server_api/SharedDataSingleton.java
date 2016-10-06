@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.util.Log;
 
 import java.util.List;
-import java.util.prefs.NodeChangeEvent;
 
 import ar.fiuba.jobify.R;
 import ar.fiuba.jobify.Utils;

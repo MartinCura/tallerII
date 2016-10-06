@@ -30,8 +30,7 @@ public class CategoriesResponse {
                 .create();
 
         try {
-            CategoriesResponse cateogoriesResponse = gson.fromJson(response, CategoriesResponse.class);
-            return cateogoriesResponse;
+            return gson.fromJson(response, CategoriesResponse.class);
 
         } catch (JsonSyntaxException e) {
             Log.e("API", "Json Syntax exception!");

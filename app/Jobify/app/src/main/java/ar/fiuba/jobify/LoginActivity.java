@@ -35,8 +35,6 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONObject;
 

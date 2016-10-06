@@ -28,10 +28,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -384,7 +382,11 @@ public class PerfilActivity extends NavDrawerActivity {
                             Integer.valueOf(et_desde_anio.getText().toString()),
                             hastaMes, hastaAnio);
             if (nuevoEmployment == null) return false;
-            mJobsAdapter.add(nuevoEmployment);
+            if (!mJobsAdapter.add(nuevoEmployment, true)) {
+                Toast.makeText(getContext(), "Empleo ya listado", Toast.LENGTH_LONG)
+                        .show();
+                return false;
+            }
             et_company.setText(null);
             et_position.setText(null);
             et_desde_mes.setText(null);
@@ -403,13 +405,16 @@ public class PerfilActivity extends NavDrawerActivity {
 
     private boolean agregarSkill() {
         EditText et_skill = (EditText) findViewById(R.id.text_perfil_skill_new);
-        // TODO: revisar también que esté en la lista de posibles
         if (et_skill == null || et_skill.length() == 0) return false;
 
         try {
             Skill nuevoSkill = Skill.create(this, et_skill.getText().toString());
             if (nuevoSkill == null) return false;
-            mSkillAdapter.add(nuevoSkill);
+            if (!mSkillAdapter.add(nuevoSkill, true)) {
+                Toast.makeText(getContext(), "Skill ya listado", Toast.LENGTH_LONG)
+                        .show();
+                return false;
+            }
             et_skill.setText("");
             mSkillAdapter.notifyDataSetChanged();
 
