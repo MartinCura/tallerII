@@ -7,11 +7,11 @@ WebHandler::~WebHandler() {}
 
 Response* WebHandler::handleRequest(http_message* httpMessage) {
     Response* response = new Response();
-    this->logRequest(httpMessage);
     try {
         if (&httpMessage->uri) {
             string url = this->getUrl(httpMessage->uri);
             if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users"))) {
+                this->logRequest(httpMessage);
                 UsersHandler* handler = new UsersHandler();
                 response = handler->handleRequest(httpMessage, url);
                 delete handler;
@@ -19,12 +19,15 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 return response;
             }
             if (regex_match(url, regex("/profilepicture/.*"))) {
+                this->logRequest(httpMessage, false);
                 PictureHandler* handler = new PictureHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response, false);
                 delete handler;
                 return response;
             }
             if (regex_match(url, regex("/allusers"))) {
+                this->logRequest(httpMessage);
                 AllUsersHandler* handler = new AllUsersHandler();
                 response = handler->handleRequest(httpMessage, url);
                 delete handler;
@@ -32,6 +35,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 return response;
             }
             if (regex_match(url, regex("/contacts/.*"))) {
+                this->logRequest(httpMessage);
                 ContactsHandler *handler = new ContactsHandler();
                 response = handler->handleRequest(httpMessage, url);
                 delete handler;
@@ -39,6 +43,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 return response;
             }
             if (regex_match(url, regex("/login"))) {
+                this->logRequest(httpMessage);
                 LoginHandler* handler = new LoginHandler();
                 response = handler->handleRequest(httpMessage, url);
                 delete handler;
@@ -69,13 +74,15 @@ string WebHandler::getStringFromMgStr(const struct mg_str structMgStr) {
     return asString;
 }
 
-void WebHandler::logRequest(http_message* httpMessage) {
+void WebHandler::logRequest(http_message* httpMessage, bool logBody) {
     Logger::getInstance()->debug(this->getStringFromMgStr(httpMessage->method) + " request recibido");
     Logger::getInstance()->debug("URL: " + this->getStringFromMgStr(httpMessage->uri));
-    Logger::getInstance()->debug("Body: " + this->getStringFromMgStr(httpMessage->body));
+    string body = logBody ? this->getStringFromMgStr(httpMessage->body) : "**Body no logueado**";
+    Logger::getInstance()->debug("Body: " + body);
 }
 
-void WebHandler::logResponse(Response* response) {
+void WebHandler::logResponse(Response* response, bool logBody) {
    Logger::getInstance()->debug("Response header: " + string(response->getHeader()));
-   Logger::getInstance()->debug("Response body: " + string(response->getBody()));
+   string body = logBody ? string(response->getBody()) : "**Body no logueado**";
+   Logger::getInstance()->debug("Response body: " + body);
 }

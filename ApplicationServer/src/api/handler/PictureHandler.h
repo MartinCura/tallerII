@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include "Handler.h"
+#include "../../Exceptions/ErrorDeletingFileException.h"
 
 class PictureHandler : public Handler {
 public:
@@ -17,6 +18,9 @@ public:
 private:
     Response* buildGetPictureResponse(long id);
     string getFilePath(long id);
+    bool existsPictureForId(long id);
+    void deletePicture(long id);
+    void savePicture(long id, const char* body, size_t size);
 };
 
 #endif //PROJECT_PICTUREHANDLER_H

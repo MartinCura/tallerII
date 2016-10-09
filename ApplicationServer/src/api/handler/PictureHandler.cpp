@@ -23,17 +23,36 @@ Response* PictureHandler::handlePostRequest(http_message* httpMessage) {
 Response* PictureHandler::handleDeleteRequest(http_message* httpMessage, string url) {
     long userId = this->getUserIdFromUrl(url);
     Response* response = new Response();
-    if(remove(this->getFilePath(userId).c_str()) != 0) {
+    if(!this->existsPictureForId(userId)) {
         response->setNotFoundHeader();
         response->setErrorBody("No such image");
     } else {
-        response->setSuccessfulHeader();
+        try {
+            this->deletePicture(userId);
+            response->setSuccessfulHeader();
+        } catch (ErrorDeletingFileException &e) {
+            response->setInternalServerErrorHeader();
+            response->setErrorBody(e.getMessage());
+        }
     }
     return response;
 }
 
 Response* PictureHandler::handlePutRequest(http_message* httpMessage, string url) {
-    return this->getNotImplementedResponse();
+    long userId = this->getUserIdFromUrl(url);
+    Response* response = new Response;
+    if (this->existsPictureForId(userId)) {
+        try {
+            this->deletePicture(userId);
+        } catch (ErrorDeletingFileException &e) {
+            response->setInternalServerErrorHeader();
+            response->setErrorBody(e.getMessage());
+            return response;
+        }
+    }
+    this->savePicture(userId, httpMessage->body.p, httpMessage->body.len);
+    response->setSuccessfulHeader();
+    return response;
 }
 
 Response* PictureHandler::buildGetPictureResponse(long id) {
@@ -59,4 +78,28 @@ Response* PictureHandler::buildGetPictureResponse(long id) {
 
 string PictureHandler::getFilePath(long id) {
     return "../ApplicationServer/img/profile/" + to_string(id) + ".jpg";
+}
+
+bool PictureHandler::existsPictureForId(long id) {
+    string path = this->getFilePath(id);
+    if (FILE *file = fopen(path.c_str(), "r")) {
+        fclose(file);
+        return true;
+    }
+    return false;
+}
+
+void PictureHandler::deletePicture(long id) {
+    string path = this->getFilePath(id);
+    if(remove(path.c_str()) != 0) {
+        throw ErrorDeletingFileException("An error has occurred trying to delete file " + path);
+    }
+}
+
+void PictureHandler::savePicture(long id, const char* body, size_t size) {
+    string path = this->getFilePath(id);
+    ofstream outfile;
+    outfile.open(path, ios::binary | ios::out);
+    outfile.write(body, size);
+    outfile.close();
 }

@@ -25,8 +25,8 @@ public:
 private:
     string getUrl(const struct mg_str uri);
     string getStringFromMgStr(const struct mg_str uri);
-    void logRequest(http_message* httpMessage);
-    void logResponse(Response* response);
+    void logRequest(http_message* httpMessage, bool logBody = true);
+    void logResponse(Response* response, bool logBody = true);
 };
 
 
