@@ -41,7 +41,7 @@
           - compare: {jsonpath_mini: "id", comparator: "eq", expected: 1}
           - compare: {jsonpath_mini: "first_name", comparator: "eq", expected: "John"}
           - compare: {jsonpath_mini: "last_name", comparator: "eq", expected: "Doe"}
-          - compare: {jsonpath_mini: "email", comparator: "eq", expected: "John@doe.com"}
+          - compare: {jsonpath_mini: "email", comparator: "eq", expected: "john@doe.com"}
           - compare: {jsonpath_mini: "date_of_birth", comparator: "eq", expected: "01/01/1990"}
           - compare: {jsonpath_mini: "city", comparator: "eq", expected: "Buenos Aires"}
           - compare: {jsonpath_mini: "summary", comparator: "eq", expected: "Hi, this is John Doe"}
@@ -71,7 +71,7 @@
           - compare: {jsonpath_mini: "id", comparator: "eq", expected: 2}
           - compare: {jsonpath_mini: "first_name", comparator: "eq", expected: "Jane"}
           - compare: {jsonpath_mini: "last_name", comparator: "eq", expected: "Doe"}
-          - compare: {jsonpath_mini: "email", comparator: "eq", expected: "Jane@doe.com"}
+          - compare: {jsonpath_mini: "email", comparator: "eq", expected: "jane@doe.com"}
           - compare: {jsonpath_mini: "date_of_birth", comparator: "eq", expected: "01/11/1991"}
           - compare: {jsonpath_mini: "city", comparator: "eq", expected: "Madrid"}
           - compare: {jsonpath_mini: "summary", comparator: "eq", expected: "Hi, this is Jane Doe"}
