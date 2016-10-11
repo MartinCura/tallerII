@@ -51,6 +51,7 @@ import java.util.List;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
+import ar.fiuba.jobify.app_server_api.Solicitud;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.shared_server_api.JobPosition;
 import ar.fiuba.jobify.shared_server_api.SharedDataSingleton;
@@ -100,7 +101,6 @@ public class PerfilActivity extends NavDrawerActivity {
                 public void onClick(View view) {
                     if (fetchedUser != null && fetchedUser.getId() != connectedUserID)
                         modificarAmistad();
-                    // TODO: Amigar
                 }
             });
         }
@@ -459,7 +459,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
 
     private void modificarAmistad() {
-        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), fetchedUserID, new Response.Listener<JSONObject>() {
+        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), connectedUserID, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
@@ -470,7 +470,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 }
 
                 // Obtengo el estado de amistad del usuario fetched con el connected.
-                Contact.Status estado = contactsResponse.getStatusForId(connectedUserID);
+                Contact.Status estado = contactsResponse.getStatusForId(fetchedUserID);
 
                 switch (estado) {
                     case NONE:
@@ -478,33 +478,41 @@ public class PerfilActivity extends NavDrawerActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        // TODO: Enviar solicitud
-//                                        Gson gson = new GsonBuilder()
-//                                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-//                                                .create();
-//                                        String json = gson.toJson(new Solicitud(fetchedUserID, Contact.Status.REQUESTED));
-                                        // TODO: postear json
+                                        enviarModificacionDeAmistad(Solicitud.Action.ADD, "Solicitud enviada");
                                     }
                                 });
                         break;
                     case REQUESTED:
-                        // Confirmar y cancelar?
+                        Utils.confirmarAccion(getContext(), "Solicitud", getString(R.string.dialog_cancelar_contacto),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        enviarModificacionDeAmistad(Solicitud.Action.UNFRIEND, "Solicitud cancelada");
+                                    }
+                                });
                         break;
                     case RECEIVED:
                         Utils.confirmarAccion(getContext(), "Solicitud", getString(R.string.dialog_aceptar_contacto),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-//                                        Gson gson = new GsonBuilder()
-//                                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-//                                                .create();
-//                                        String json = gson.toJson(new Solicitud(fetchedUserID, Contact.Status.ACTIVE));
-                                        // TODO: Aceptar solicitud
+                                        enviarModificacionDeAmistad(Solicitud.Action.ACCEPT, "Solicitud aceptada");
                                     }
-                                });
+                                }, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        enviarModificacionDeAmistad(Solicitud.Action.UNFRIEND, "Solicitud rechazada");
+                                    }
+                                }, R.string.dialog_no);
                         break;
                     case ACTIVE:
-                        // Confirmar y cancelar amistad
+                        Utils.confirmarAccion(getContext(), "Solicitud", getString(R.string.dialog_eliminar_contacto),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        enviarModificacionDeAmistad(Solicitud.Action.UNFRIEND, "Contacto eliminado");
+                                    }
+                                });
                         break;
                     default:
                         Log.e(LOG_TAG, "This is not possible...");  // TODO: Revisar contra NONE
@@ -513,6 +521,21 @@ public class PerfilActivity extends NavDrawerActivity {
                 colorearBotonAmistad(estado);
             }
         }, LOG_TAG);
+    }
+
+    public void enviarModificacionDeAmistad(Solicitud.Action action, final String responseStr) {
+        JSONObject jsonRequest =
+                new Solicitud(connectedUserID, fetchedUserID, action)
+                        .toJsonObject();
+        Utils.putJsonToAppServer(getContext(), getString(R.string.put_contacts_path),
+                jsonRequest, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // TODO Ignorando response, algo que hacer con ello?
+                        Toast.makeText(PerfilActivity.this, responseStr, Toast.LENGTH_LONG)
+                                .show();
+                    }
+                }, LOG_TAG);
     }
 
     private void colorearBotonAmistad(Contact.Status estado) {
@@ -575,6 +598,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     return;
                 } catch (IOException ex) {
                     ex.printStackTrace();
+                    Log.e(LOG_TAG, "Error en cargado de imagen de perfil");
                 }
             }
         }
@@ -723,7 +747,7 @@ public class PerfilActivity extends NavDrawerActivity {
         if ((requestCode == REQUEST_TAKE_PHOTO || requestCode == REQUEST_PICK_IMAGE)
                 && resultCode == RESULT_OK) {
 
-            File imageFile;
+            File imageFile; // TODO: sacar repetición
 
             if (requestCode == REQUEST_TAKE_PHOTO) {
                 imageFile = new File(mCurrentPhotoPath);
@@ -737,6 +761,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
                 } catch (IOException ex) {
                     ex.printStackTrace();
+                    Log.e(LOG_TAG, "Error en cargado de imagen sacada");
                 }
 
             } else {        // REQUEST_PICK_IMAGE
@@ -767,38 +792,39 @@ public class PerfilActivity extends NavDrawerActivity {
                 }
             }
 
-            Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
-                    .appendPath(getString(R.string.perfil_post_photo_path))
-                    .appendPath(Long.toString(fetchedUserID))
-                    .build();
-            final String url = builtUri.toString();
+            final String url = Utils.getAppServerUrl(this, fetchedUserID,
+                                getString(R.string.perfil_post_photo_path));
 
             if (imageFile != null && imageFile.exists()) {
-                Utils.PhotoMultipartRequest<String> imageUploadReq =
-                        new Utils.PhotoMultipartRequest<>(url, imageFile, new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                Log.d(LOG_TAG, "Response correcta i guess. " + response);
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.e(LOG_TAG, "Volley image post error");
-                                if (error.networkResponse != null)
-                                    Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
-                                error.printStackTrace();
-                            }
-                        });
-
                 try {
-                    Log.d(LOG_TAG, "Headers: " + imageUploadReq.getHeaders().toString());//
-                    Log.d(LOG_TAG, "BodyContentType: " + imageUploadReq.getBodyContentType());//
-                } catch (AuthFailureError er) {
-                    Log.d(LOG_TAG, "AuthFailureError in test Logs");//
-                    er.printStackTrace();
+                    Utils.PhotoMultipartRequest<String> imageUploadReq =
+                            new Utils.PhotoMultipartRequest<>(url, imageFile, new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    Log.d(LOG_TAG, "Response correcta i guess. " + response);
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.e(LOG_TAG, "Volley image post error");
+                                    if (error.networkResponse != null)
+                                        Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
+                                    error.printStackTrace();
+                                }
+                            });
+                    try {
+                        Log.d(LOG_TAG, "Headers: " + imageUploadReq.getHeaders().toString());//
+                        Log.d(LOG_TAG, "BodyContentType: " + imageUploadReq.getBodyContentType());//
+                    } catch (AuthFailureError er) {
+                        Log.d(LOG_TAG, "AuthFailureError in test Logs");//
+                        er.printStackTrace();
+                    }
+                    RequestQueueSingleton.getInstance(this)
+                            .addToRequestQueue(imageUploadReq);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    Log.e(LOG_TAG, "Error en subido de imagen.");
                 }
-                RequestQueueSingleton.getInstance(this)
-                        .addToRequestQueue(imageUploadReq);
             } else {
                 Log.w(LOG_TAG, "Archivo en " + mPhotoURI.getPath() + " no existe.");
             }
@@ -828,6 +854,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
         } catch (IOException ex) {
             ex.printStackTrace();
+            Log.e(LOG_TAG, "Error en guardado de imagen");
         }
 
         if (!success)

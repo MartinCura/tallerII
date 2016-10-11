@@ -119,8 +119,11 @@
     <string name="remove_item_description">Remove item</string>
     <string name="nav_drawer_thumbnail_description">Thumbnail del usuario conectado en el navigation drawer</string>
     <string name="get_contacts_path">contacts</string>
-    <string name="dialog_agregar_contacto">¿Quiere agregarlo como contacto?</string>
+    <string name="put_contacts_path">contacts</string>
+    <string name="dialog_agregar_contacto">¿Enviar solicitud para agregar como contacto?</string>
     <string name="dialog_aceptar_contacto">¿Aceptar como contacto?</string>
+    <string name="dialog_cancelar_contacto">¿Quiere cancelar su solicitud de contacto?</string>
+    <string name="dialog_eliminar_contacto">¿Quiere eliminar a este contacto?</string>
     <string name="nav_solicitudes_option">Solicitudes</string>
     <string name="nav_all_users_option">Ver todos los usuarios</string>
     <string name="get_all_users_path">allusers</string>
@@ -145,4 +148,5 @@
     <string name="barra">/</string>
     <string name="anio">año</string>
     <string name="hasta">Hasta</string>
+    <string name="dialog_no">No</string>
 </resources>

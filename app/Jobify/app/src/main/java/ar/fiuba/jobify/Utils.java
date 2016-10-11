@@ -156,6 +156,14 @@ public class Utils {
                 jsonRequest, responseListener, errorListener, logTag);
     }
 
+    public static void putJsonToAppServer(Context context, String getPathSegment, JSONObject jsonRequest,
+                                           Response.Listener<JSONObject> responseListener,
+                                           final String logTag) {
+
+        fetchJsonFromUrl(context, Request.Method.PUT, getAppServerUrl(context, getPathSegment),
+                jsonRequest, responseListener, logTag);
+    }
+
     public static void fetchJsonFromUrl(Context context, int method, final String url,
                                         JSONObject jsonRequest,
                                         Response.Listener<JSONObject> responseListener,
@@ -165,7 +173,7 @@ public class Utils {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d(logTag, "url: "+url);//
+                        Log.d(logTag, "Error Listener. URL: "+url);//
                         if (error.networkResponse != null)
                             Log.d(logTag, "Status code: "+error.networkResponse.statusCode);
                         error.printStackTrace();
@@ -323,7 +331,7 @@ public class Utils {
 //        protected Map<String, String> headers;
 
         public PhotoMultipartRequest(String url, File imageFile, Response.Listener<T> listener,
-                                     Response.ErrorListener errorListener) {
+                                     Response.ErrorListener errorListener) throws IOException {
 //            super(Method.POST, url, errorListener);
             super(Method.PUT, url, errorListener);
 
@@ -347,10 +355,24 @@ public class Utils {
             return headers;
         }
 
-        private void buildMultipartEntity() {
-            mBuilder.addBinaryBody(FILE_PART_NAME, mImageFile, ContentType.create("image/jpeg"), mImageFile.getName());
+        private void buildMultipartEntity() throws IOException {
+            mBuilder.addBinaryBody(FILE_PART_NAME, mImageFile, ContentType.create("image/jpeg"),
+                    mImageFile.getName());
             mBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             mBuilder.setLaxMode().setBoundary("xx").setCharset(Charset.forName("UTF-8"));
+
+//            byte[] fileData = new byte[(int) mImageFile.length()];
+//            DataInputStream dis = new DataInputStream(new FileInputStream(mImageFile));
+//            dis.readFully(fileData);
+//            dis.close();
+
+//            FileBody fileBody = new FileBody(mImageFile);
+//            mBuilder.addPart(FILE_PART_NAME, fileBody);
+
+//            mBuilder.addBinaryBody(FILE_PART_NAME, fileData);
+//            mBuilder.setLaxMode();
+//            mBuilder.setBoundary("");
+//            mBuilder.setCharset(Charset.forName("UTF-8"));
         }
 
         @Override
@@ -364,7 +386,8 @@ public class Utils {
             try {
                 mBuilder.build().writeTo(bos);
             } catch (IOException e) {
-                VolleyLog.e("IOException writing to ByteArrayOutputStream bos, building the multipart request.");
+                VolleyLog.e("IOException writing to ByteArrayOutputStream bos, " +
+                            "building the multipart request.");
             }
 
             return bos.toByteArray();
@@ -427,13 +450,20 @@ public class Utils {
     }
 
     public static void confirmarAccion(Context context, String title, String message,
-                                       DialogInterface.OnClickListener listener) {
+                                       DialogInterface.OnClickListener yesListener) {
+        confirmarAccion(context, title, message, yesListener, null, android.R.string.no);
+    }
+
+    public static void confirmarAccion(Context context, String title, String message,
+                                       DialogInterface.OnClickListener yesListener,
+                                       DialogInterface.OnClickListener noListener,
+                                       int negativeButtonStringId) {
         new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(message)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes, listener)
-                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, yesListener)
+                .setNegativeButton(negativeButtonStringId, noListener)
                 .show();
     }
 }
