@@ -6,6 +6,7 @@ const string RECEIVED = "received";
 const string REQUESTED = "requested";
 const  string ADD_CONTACT_ACTION = "add_contact";
 const  string ACCEPT_CONTACT_ACTION = "accept_contact";
+const  string REMOVE_CONTACT_ACTION = "remove_contact";
 
 RelationsManager::RelationsManager(DBWrapper* db) {
     this->db = db;
@@ -20,6 +21,9 @@ void RelationsManager::saveRelation(long authorId, long contactId, string action
     } else if (action == ACCEPT_CONTACT_ACTION) {
         this->addOrUpdateRelation(authorId, contactId, ACTIVE);
         this->addOrUpdateRelation(contactId, authorId, ACTIVE);
+    } else if (action == REMOVE_CONTACT_ACTION) {
+        this->removeRelation(authorId, contactId);
+        this->removeRelation(contactId, authorId);
     }
 }
 
@@ -40,6 +44,31 @@ void RelationsManager::addOrUpdateRelation(long keyUserId, long contactId, strin
         contact->setUserId(contactId);
         contact->setStatus(status);
         newRelationships.push_back(contact);
+    }
+    Json::Value allContactsAsJson;
+    for (vector<Contact *>::size_type i = 0; i < newRelationships.size(); i++) {
+        Contact* contact = newRelationships[i];
+        Json::Value contactAsJson;
+        contactAsJson["user_id"] = contact->getUserId();
+        contactAsJson["status"] = contact->getStatus();
+        allContactsAsJson.append(contactAsJson);
+        delete contact;
+    }
+    Json::FastWriter fastWriter;
+    string allContactsAsString = fastWriter.write(allContactsAsJson);
+    this->db->puTKey(CONTACT_KEY + to_string(keyUserId), &allContactsAsString);
+}
+
+void RelationsManager::removeRelation(long keyUserId, long contactId) {
+    vector<Contact*> currentRelationships = this->getContactsByUserId(keyUserId);
+    vector<Contact*> newRelationships;
+    for (vector<Contact *>::size_type i = 0; i < currentRelationships.size(); i++) {
+        Contact* contact = currentRelationships[i];
+        if (contact->getUserId() != contactId) {
+            newRelationships.push_back(contact);
+        } else {
+            delete contact;
+        }
     }
     Json::Value allContactsAsJson;
     for (vector<Contact *>::size_type i = 0; i < newRelationships.size(); i++) {

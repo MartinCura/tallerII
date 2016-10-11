@@ -21,6 +21,7 @@ private:
     DBWrapper* db;
 
     void addOrUpdateRelation(long keyUserId, long contactId, string status);
+    void removeRelation(long keyUserId, long contactId);
 };
 
 #endif //PROJECT_RELATIONSMANAGER_H
