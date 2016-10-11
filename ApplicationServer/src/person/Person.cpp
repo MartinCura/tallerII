@@ -202,14 +202,14 @@ Json::Value Person::serializeMe() {
 }
 
 void Person::deleteWorkHistory() {
-    int size = this->workHistory.size();
+    long size = this->workHistory.size();
     for (int i = 0; i != size; i++) {
         this->workHistory.pop_back();
     }
 }
 
 void Person::deleteSkills() {
-    int size = this->skills.size();
+    long size = this->skills.size();
     for (int i = 0; i != size; i++) {
         this->skills.pop_back();
     }
