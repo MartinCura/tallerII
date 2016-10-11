@@ -146,42 +146,32 @@ Person* PersonManager::getPersonByMail(std::string* user_mail) {
     return new Person(json_user);
 }
 
-//TODO: SEE IF IT WORKS
-vector<Person*> PersonManager::getPersonFriendsById(long id) {
-
-    vector<Person*> f;
-    if (id == 1) {
-        f.push_back(this->getPersonById(2));
+vector<Contact*> PersonManager::getContactsByUserId(long id) {
+    if (!this->userExists(id)) {
+        throw UserNotFoundException(id);
     }
-    if (id == 2) {
-        f.push_back(this->getPersonById(1));
-    }
-    return f;
+    RelationsManager *relationsManager = new RelationsManager(this->db);
+    vector<Contact *> contacts = relationsManager->getContactsByUserId(id);
+    delete relationsManager;
+    return contacts;
+}
 
-    std::string  user_mail, user, friend_user;
-    Json::Reader reader;
-    Json::Value json_friends;
-    std::string friends_result;
-    vector<Person*> friends;
+void PersonManager::saveRelation(Json::Value relation) {
+    if (!relation.isMember("action")) throw InvalidRequestException("Missing action");
+    if (!relation.isMember("author_id")) throw InvalidRequestException("Missing author_id");
+    if (!relation.isMember("contact_id")) throw InvalidRequestException("Missing contact_id");
 
-    if (!db->existsKey(USER_UUID_ID + std::to_string(id), &user_mail)) {
-        throw UserNotFoundException(UserNotFoundException::Message::id);
-    }
+    long authorId = relation["author_id"].asLargestInt();
+    long contactId = relation["contact_id"].asLargestInt();
+    if (!this->userExists(authorId)) throw UserNotFoundException(authorId);
+    if (!this->userExists(contactId)) throw UserNotFoundException(contactId);
+    if (authorId == contactId) throw InvalidRequestException("Author user and contact user cannot be equals");
 
-    if (!db->existsKey(USER_MAIL_ID + user_mail, &user)) {
-        throw std::exception();
-    }
+    string action = relation["action"].asString();
 
-    db->getKey( "user_friends_" + std::to_string(id), &friends_result);
-    //Friends result has de id of every friend of the user_id
-    reader.parse(friends_result.c_str(), json_friends);
-    const Json::Value jfriends = json_friends["friends"];
-    for (int index = 0; index < jfriends.size(); index++) {
-        std::string friend_id = jfriends[index].asString();
-
-        friends.push_back(this->getPersonById(std::stol(friend_id)));
-    }
-    return friends;
+    RelationsManager* relationsManager = new RelationsManager(this->db);
+    relationsManager->saveRelation(authorId, contactId, action);
+    delete relationsManager;
 }
 
 void PersonManager::login(std::string user_mail, std::string user_password) {
@@ -214,4 +204,9 @@ long PersonManager::generateID() {
     srand (time(NULL));
     int rand = std::rand();
     return  labs(ms.count() << 3 + rand % 100);
+}
+
+bool PersonManager::userExists(long userId) {
+    std::string result;
+    return (db->existsKey(USER_UUID_ID + to_string(userId), &result));
 }

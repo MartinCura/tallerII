@@ -5,32 +5,37 @@ ContactsHandler::ContactsHandler() {}
 ContactsHandler::~ContactsHandler() {}
 
 Response* ContactsHandler::handleGetRequest(http_message* httpMessage, string url) {
-    long userId = this->getUserIdFromUrl(url);
-    //FIXME: path de db a config
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
     try {
-        vector<Person *> contacts = personManager->getPersonFriendsById(userId);
+        long userId = this->getUserIdFromUrl(url);
+        vector<Contact*> contacts = personManager->getContactsByUserId(userId);
         Json::Value responseBody;
         responseBody["metadata"]["count"] = contacts.size();
-        for (vector<Person *>::size_type i = 0; i < contacts.size(); i++) {
+        for (vector<Contact*>::size_type i = 0; i < contacts.size(); i++) {
+            Contact* contact = contacts[i];
+            Person* person = personManager->getPersonById(contact->getUserId());
             Json::Value contactAsJson;
-            contactAsJson["id"] = contacts[i]->getId();
-            contactAsJson["first_name"] = contacts[i]->getFirstName();
-            contactAsJson["last_name"] = contacts[i]->getLastName();
-            WorkHistory *currentJob = contacts[i]->getCurrentJob();
+            contactAsJson["id"] = person->getId();
+            contactAsJson["first_name"] = person->getFirstName();
+            contactAsJson["last_name"] = person->getLastName();
+            WorkHistory *currentJob = person->getCurrentJob();
             if (currentJob != nullptr) {
                 contactAsJson["current_job"] = currentJob->serializeMe();
             }
-            //FIXME: soportar los requested status
-            contactAsJson["status"] = "active";
+            contactAsJson["status"] = contact->getStatus();
             responseBody["contacts"].append(contactAsJson);
+            delete person;
+            delete contact;
         }
         response->setSuccessfulHeader();
         response->setBody(responseBody.toStyledString());
     } catch (UserNotFoundException &e) {
         response->setNotFoundHeader();
-        response->setErrorBody(e.what());
+        response->setErrorBody(e.getMessage(UserNotFoundException::Message::id));
+    } catch (InvalidRequestException &e) {
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
     }
     delete personManager;
     return response;
@@ -45,5 +50,20 @@ Response* ContactsHandler::handleDeleteRequest(http_message* httpMessage, string
 }
 
 Response* ContactsHandler::handlePutRequest(http_message* httpMessage, string url) {
-    return this->getNotImplementedResponse();
+    string requestBody = string(httpMessage->body.p);
+    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    Response* response = new Response();
+    try {
+        Json::Value parsedBody = this->parseBody(requestBody);
+        personManager->saveRelation(parsedBody);
+        response->setSuccessfulHeader();
+    } catch (UserNotFoundException &e) {
+        response->setNotFoundHeader();
+        response->setErrorBody(e.getMessage(UserNotFoundException::Message::id));
+    } catch (InvalidRequestException &e) {
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
+    }
+    delete personManager;
+    return response;
 }

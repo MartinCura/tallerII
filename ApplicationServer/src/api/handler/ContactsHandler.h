@@ -2,6 +2,7 @@
 #define PROJECT_CONTACTSHANDLER_H
 
 #include "../../person/PersonManager.h"
+#include "../../person/relation/Contact.h"
 #include "../../api/handler/Handler.h"
 
 class ContactsHandler : public Handler {

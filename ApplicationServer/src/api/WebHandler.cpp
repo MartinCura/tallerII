@@ -34,7 +34,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 this->logResponse(response);
                 return response;
             }
-            if (regex_match(url, regex("/contacts/.*"))) {
+            if (regex_match(url, regex("/contacts/.*")) || regex_match(url, regex("/contacts"))) {
                 this->logRequest(httpMessage);
                 ContactsHandler *handler = new ContactsHandler();
                 response = handler->handleRequest(httpMessage, url);
