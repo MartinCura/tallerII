@@ -77,7 +77,7 @@ Response* PictureHandler::buildGetPictureResponse(long id) {
 }
 
 string PictureHandler::getFilePath(long id) {
-    return "../ApplicationServer/img/profile/" + to_string(id) + ".jpg";
+    return "../ApplicationServer/img/profile/" + to_string(id) + ".jpeg";
 }
 
 bool PictureHandler::existsPictureForId(long id) {
@@ -98,8 +98,19 @@ void PictureHandler::deletePicture(long id) {
 
 void PictureHandler::savePicture(long id, const char* body, size_t size) {
     string path = this->getFilePath(id);
+    const char* lineBreak= "\n";
+    int lineBreaksCounter = 0;
+    int charactersCounter = 0;
+    for (int i = 0; i < 200; i++) {
+        if (lineBreaksCounter == 4) break;
+        if (*body == *lineBreak) {
+            lineBreaksCounter++;
+        }
+        body++;
+        charactersCounter++;
+    }
     ofstream outfile;
     outfile.open(path, ios::binary | ios::out);
-    outfile.write(body, size);
+    outfile.write(body, (size - charactersCounter - 4));
     outfile.close();
 }
