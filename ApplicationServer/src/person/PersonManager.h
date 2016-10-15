@@ -24,7 +24,7 @@ public:
     vector<long> * getAllUsersIds();
     void deletePerson(long id);
     vector<Contact*> getContactsByUserId(long id);
-    void saveRelation(Json::Value relation);
+    void saveOrUpdateRelation(Json::Value relation);
     void login(string user_mail, string user_password);
     bool userExists(long userId);
 private:

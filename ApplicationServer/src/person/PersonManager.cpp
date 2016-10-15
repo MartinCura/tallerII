@@ -156,7 +156,7 @@ vector<Contact*> PersonManager::getContactsByUserId(long id) {
     return contacts;
 }
 
-void PersonManager::saveRelation(Json::Value relation) {
+void PersonManager::saveOrUpdateRelation(Json::Value relation) {
     if (!relation.isMember("action")) throw InvalidRequestException("Missing action");
     if (!relation.isMember("author_id")) throw InvalidRequestException("Missing author_id");
     if (!relation.isMember("contact_id")) throw InvalidRequestException("Missing contact_id");

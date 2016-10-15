@@ -55,7 +55,7 @@ Response* ContactsHandler::handlePutRequest(http_message* httpMessage, string ur
     Response* response = new Response();
     try {
         Json::Value parsedBody = this->parseBody(requestBody);
-        personManager->saveRelation(parsedBody);
+        personManager->saveOrUpdateRelation(parsedBody);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {
         response->setNotFoundHeader();
