@@ -24,6 +24,8 @@ void RelationsManager::saveRelation(long authorId, long contactId, string action
     } else if (action == REMOVE_CONTACT_ACTION) {
         this->removeRelation(authorId, contactId);
         this->removeRelation(contactId, authorId);
+    } else {
+        throw InvalidRequestException(action + " is not a valid action");
     }
 }
 
