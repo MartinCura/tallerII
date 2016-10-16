@@ -9,3 +9,11 @@ html {
 .hiden {
 	display: none;
 }
+
+.righty {
+	float: right;
+}
+
+.bold {
+    font-weight: bold;
+}

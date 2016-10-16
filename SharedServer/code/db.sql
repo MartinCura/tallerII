@@ -1,4 +1,4 @@
-/*DROP TABLE IF EXISTS categories, job_positions, skills cascade;*/
+DROP TABLE IF EXISTS categories, job_positions, skills cascade;
 
 CREATE TABLE IF NOT EXISTS categories (
   name VARCHAR UNIQUE PRIMARY KEY,

@@ -9,19 +9,21 @@
 </div>
 
 <div id="job_positions-list" class="row">
-    <ul class="col-sm-4 list-group">
+
+    <ul class="col-sm-10 list-group">
         
         <li class="checkbox list-group-item" ng-repeat="item in items">
             <label>
             <!-- type="checkbox" ng-click="deleteTodo(todo._id)">  -->
                 <span>
-                	<span  onclick="$(this).parent().find('.info').toggleClass('hidden')">{{ item.name }}<span class="glyphicon glyphicon-pencil"></span></span>
-                	<span class="glyphicon glyphicon-remove" ng-click="delete(item.name, item.category)"></span>
-	                
-	                <div class="info hidden">
-		                <div class="" ng-repeat="(key, value) in item">
-		                	<span>{{key}}: {{value}}</span>
-		                </div>
+                    <span  onclick="$(this).parent().find('.info').toggleClass('hidden')">{{ item.name }}<span class="glyphicon glyphicon-pencil righty"></span></span>
+                    <span class="glyphicon glyphicon-remove righty" ng-click="delete(item.name, item.category)"></span>
+                    
+                    <div class="info hidden">
+                        <div class="" ng-repeat="(key, value) in item">
+                            <span><span class="bold">{{key}}</span>: {{value}}</span>
+                        </div>
+                        <span class="label label-success">Modificar</span>
                         <div id="add-form">
                             <form novalidate ng-submit="vm.onSubmit($index)">
                                 <formly-form model="vm.items[$index]" fields="vm.fields" form="vm.editForm">

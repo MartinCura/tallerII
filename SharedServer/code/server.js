@@ -23,5 +23,6 @@ app.get('*', function(req, res) {
 
 
 // listen (start app with node server.js) ====================================== 
-app.listen(80);
-console.log("App listening on port 80");
+port = process.env.PORT ? process.env.PORT : 80;
+app.listen(port);
+console.log("App listening on port " + port);
