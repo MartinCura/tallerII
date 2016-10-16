@@ -17,3 +17,7 @@ html {
 .bold {
     font-weight: bold;
 }
+
+.main-list {
+	width: 100%;
+}
