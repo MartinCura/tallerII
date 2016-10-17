@@ -4,6 +4,9 @@ RUN apt-get update && apt-get install -y python-pycurl python-pip
 
 RUN pip install pyresttest
 
-COPY integration.yaml /home
+COPY testing_allusers.yaml /home
+COPY testing_users.yaml /home
+COPY testing_contacts.yaml /home
 
-CMD resttest.py http://appserverhost:8000 /home/integration.yaml
+COPY entrypoint.sh /home/entrypoint.sh
+ENTRYPOINT /home/entrypoint.sh

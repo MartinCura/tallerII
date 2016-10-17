@@ -1,0 +1,45 @@
+---
+- config:
+    - testset: "Testing contacts url"
+
+- test:
+    - name: "Get contacts - missing id"
+    - url: "/contacts"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Cannot get user id from url."}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Send contact request - missing author_id"
+    - url: "/contacts"
+    - method: "PUT"
+    - body: '{"contact_id": 2,"action": "add_contact"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing author_id"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Send contact request - missing contact_id"
+    - url: "/contacts"
+    - method: "PUT"
+    - body: '{"author_id": 1,"action": "add_contact"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing contact_id"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Send contact request - missing action"
+    - url: "/contacts"
+    - method: "PUT"
+    - body: '{"author_id": 1,"contact_id": 2}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing action"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Send contact request from contact 1 to contact 2"
+    - url: "/contacts"
+    - method: "PUT"
+    - body: '{"author_id": 1,"contact_id": 2,"action": "add_contact"}'
+    - expected_status: [200] # ok

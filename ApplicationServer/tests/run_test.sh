@@ -9,7 +9,7 @@ docker run --name testingappserver --link appserver:appserverhost -ti testingapp
 docker stop appserver;
 docker stop testingappserver;
 
-#sudo docker rm appserver;
-#sudo docker rm testingappserver;
-#sudo docker rmi appserverimg;
-#sudo docker rmi testingappserverimg;
+sudo docker rm appserver;
+sudo docker rm testingappserver;
+sudo docker rmi appserverimg;
+sudo docker rmi testingappserverimg;
