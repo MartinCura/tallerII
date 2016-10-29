@@ -9,6 +9,7 @@
 #include "handler/AllUsersHandler.h"
 #include "handler/ContactsHandler.h"
 #include "handler/LoginHandler.h"
+#include "handler/RecommendationsHandler.h"
 #include "../logger/Logger.h"
 #include <regex>
 #include <cstring>

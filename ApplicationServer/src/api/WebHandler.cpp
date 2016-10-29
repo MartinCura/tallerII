@@ -50,6 +50,14 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 this->logResponse(response);
                 return response;
             }
+            if (regex_match(url, regex("/recommendations"))) {
+                this->logRequest(httpMessage);
+                RecommendationsHandler *handler = new RecommendationsHandler();
+                response = handler->handleRequest(httpMessage, url);
+                delete handler;
+                this->logResponse(response);
+                return response;
+            }
         }
         response->setNotFoundHeader();
     } catch (exception &e) {

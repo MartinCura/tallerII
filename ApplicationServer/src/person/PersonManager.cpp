@@ -174,6 +174,21 @@ void PersonManager::saveOrUpdateRelation(Json::Value relation) {
     delete relationsManager;
 }
 
+void PersonManager::saveRecommendation(Json::Value recommendation) {
+    if (!recommendation.isMember("from")) throw InvalidRequestException("Missing from user");
+    if (!recommendation.isMember("to")) throw InvalidRequestException("Missing to user");
+
+    long fromUserId = recommendation["from"].asLargestInt();
+    long toUserId = recommendation["to"].asLargestInt();
+    if (!this->userExists(fromUserId)) throw UserNotFoundException(fromUserId);
+    if (!this->userExists(toUserId)) throw UserNotFoundException(toUserId);
+    if (fromUserId == toUserId) throw InvalidRequestException("From user and to user cannot be equals");
+
+    RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
+    recommendationsManager->addRecommendation(fromUserId, toUserId);
+    delete recommendationsManager;
+}
+
 void PersonManager::login(std::string user_mail, std::string user_password) {
 
     std::string user_bdd_pasword;
