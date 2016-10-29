@@ -193,6 +193,67 @@
                         android:text="@string/perfil_nacimiento_default"
                         android:textStyle="bold" />
                     <!--android:textAppearance="@style/TextAppearance.AppCompat.Body2"-->
+                    <RelativeLayout
+                        android:id="@+id/perfil_nacimiento_editable"
+                        android:layout_margin="@dimen/text_margin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
+                        <TextView
+                            android:id="@+id/perfil_nacimiento_editable_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
+                            android:textStyle="bold"
+                            android:text="@string/perfil_nacimiento_title" />
+                        <LinearLayout
+                            android:id="@+id/perfil_nacimiento_editable_campos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/perfil_nacimiento_editable_title"
+                            android:orientation="horizontal">
+                            <EditText
+                                android:id="@+id/perfil_nacimiento_dia"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:textSize="15sp"
+                                android:maxLength="2"
+                                android:hint="@string/dia" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/barra" />
+                            <EditText
+                                android:id="@+id/perfil_nacimiento_mes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:textSize="15sp"
+                                android:maxLength="2"
+                                android:hint="@string/mes" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/barra" />
+                            <EditText
+                                android:id="@+id/perfil_nacimiento_anio"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="@dimen/width_4_digitos"
+                                android:inputType="number"
+                                android:textSize="15sp"
+                                android:maxLength="4"
+                                android:hint="@string/anio" />
+                        </LinearLayout>
+                        <ImageButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:onClick="showDatePickerDialog"
+                            android:contentDescription="@string/pick_date_description"
+                            android:src="@drawable/ic_calendar" />
+                    </RelativeLayout>
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>

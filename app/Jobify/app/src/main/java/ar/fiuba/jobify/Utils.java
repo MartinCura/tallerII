@@ -36,6 +36,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -231,14 +232,28 @@ public class Utils {
             R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,
             R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
             R.id.text_perfil_cant_recomendaciones, R.id.text_perfil_resumen,
+            R.id.text_perfil_nacimiento, R.id.perfil_nacimiento_editable,
             R.id.text_perfil_resumen_editable_wrapper, R.id.perfil_experiencia_laboral_list,
             R.id.perfil_experiencia_laboral_list_editable, R.id.perfil_experiencia_laboral_list_new,
             R.id.perfil_skills_list, R.id.perfil_skills_list_editable, R.id.perfil_skills_list_new
     };
 
+    // Devuelve -1 en caso de error
+    public static int getTextViewInt(AppCompatActivity activity, @IdRes int idRes) {
+        int ret = -1;
+        try {
+            ret = Integer.parseInt(getTextViewText(activity, idRes));
+        } catch (NumberFormatException ex) {
+            Log.i(LOG_TAG, "No se pudo parsear un número");
+        }
+        return ret;
+    }
+
+    // Devuelve string vacío en caso de error
     public static String getTextViewText(AppCompatActivity activity, @IdRes int idRes) {
         String text = "";
         EditText et = (EditText) activity.findViewById(idRes);
+//        TextView et = (TextView) activity.findViewById(idRes);
         if (et != null) {
             text = et.getText().toString();
         }
@@ -465,5 +480,20 @@ public class Utils {
                 .setPositiveButton(android.R.string.yes, yesListener)
                 .setNegativeButton(negativeButtonStringId, noListener)
                 .show();
+    }
+
+
+    public static boolean validarFecha(int dia, int mes, int anio) {
+        int diaLimite = 31;
+        switch (mes) {
+            case 2:
+                if (anio % 4 == 0 && (anio % 100 != 0 || anio % 400 == 0))
+                    diaLimite = 29;
+                else diaLimite = 28;
+                break;
+            case 4:case 6:case 9:case 11:
+                diaLimite = 30;
+        }
+        return !(dia <= 0 || dia > diaLimite || mes <= 0);
     }
 }

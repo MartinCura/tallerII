@@ -144,9 +144,12 @@
     <string name="perfil_employment_new_company_hint">Compañía</string>
     <string name="perfil_agregar_item_titulo">Agregar</string>
     <string name="desde">Desde</string>
+    <string name="dia">día</string>
     <string name="mes">mes</string>
     <string name="barra">/</string>
     <string name="anio">año</string>
     <string name="hasta">Hasta</string>
     <string name="dialog_no">No</string>
+    <string name="perfil_nacimiento_title">Fecha de nacimiento:</string>
+    <string name="pick_date_description">Elegir fecha</string>
 </resources>
