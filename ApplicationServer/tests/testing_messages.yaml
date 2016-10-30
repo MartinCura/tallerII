@@ -1,0 +1,55 @@
+---
+- config:
+    - testset: "Testing messages url"
+
+- test:
+    - name: "Add messages - missing from id"
+    - url: "/messages"
+    - method: "PUT"
+    - body: '{"to": 1, "message": "hello"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing from user"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Add messages - missing to id"
+    - url: "/messages"
+    - method: "PUT"
+    - body: '{"from": 1, "message": "hello"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing to user"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Add recommendation - equals ids"
+    - url: "/messages"
+    - method: "PUT"
+    - body: '{"to": 1, "from": 1, "message": "hello"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "From user and to user cannot be equals"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Add recommendation - nonexistent to user"
+    - url: "/messages"
+    - method: "PUT"
+    - body: '{"to": 12, "from": 1, "message": "hello"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "User id 12 doesn't exist"}
+    - expected_status: [404] # not found
+
+- test:
+    - name: "Add recommendation - nonexistent from user"
+    - url: "/recommendations"
+    - method: "PUT"
+    - body: '{"from": 12, "to": 1, "message": "hello"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "User id 12 doesn't exist"}
+    - expected_status: [404] # not found
+
+- test:
+    - name: "Add recommendation"
+    - url: "/messages"
+    - method: "PUT"
+    - body: '{"from": 1, "to": 2, "message": "hello"}'
+    - expected_status: [200] # ok

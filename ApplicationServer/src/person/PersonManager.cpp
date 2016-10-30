@@ -175,10 +175,10 @@ void PersonManager::saveOrUpdateRelation(Json::Value relation) {
 }
 
 void PersonManager::saveRecommendation(Json::Value recommendation) {
-    this->validateParametersOfRecommendationRequest(recommendation);
+    this->validateParametersOfRequest(recommendation);
     long fromUserId = recommendation["from"].asLargestInt();
     long toUserId = recommendation["to"].asLargestInt();
-    this->validateUsersOfRecommendationRequest(fromUserId, toUserId);
+    this->validateUsersOfRequest(fromUserId, toUserId);
     RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
     recommendationsManager->addRecommendation(fromUserId, toUserId);
     delete recommendationsManager;
@@ -192,21 +192,41 @@ Json::Value PersonManager::getRecommendationsByUserId(long userId) {
 }
 
 void PersonManager::removeRecommendation(Json::Value recommendation) {
-    this->validateParametersOfRecommendationRequest(recommendation);
+    this->validateParametersOfRequest(recommendation);
     long fromUserId = recommendation["from"].asLargestInt();
     long toUserId = recommendation["to"].asLargestInt();
-    this->validateUsersOfRecommendationRequest(fromUserId, toUserId);
+    this->validateUsersOfRequest(fromUserId, toUserId);
     RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
     recommendationsManager->removeRecommendation(fromUserId, toUserId);
     delete recommendationsManager;
 }
 
-void PersonManager::validateParametersOfRecommendationRequest(Json::Value recommendation) {
-    if (!recommendation.isMember("from")) throw InvalidRequestException("Missing from user");
-    if (!recommendation.isMember("to")) throw InvalidRequestException("Missing to user");
+void PersonManager::saveMessage(Json::Value request) {
+    this->validateParametersOfRequest(request);
+    if (!request.isMember("message")) throw InvalidRequestException("Missing message");
+    long fromUserId = request["from"].asLargestInt();
+    long toUserId = request["to"].asLargestInt();
+    string messageToSave = request["message"].asString();
+    this->validateUsersOfRequest(fromUserId, toUserId);
+    MessagesManager* messagesManager = new MessagesManager(this->db);
+    messagesManager->saveMessage(fromUserId, toUserId, messageToSave);
+    delete messagesManager;
 }
 
-void PersonManager::validateUsersOfRecommendationRequest(long fromUserId, long toUserId) {
+vector<Message*> PersonManager::getMessages(long fromUserId, long toUserId) {
+    this->validateUsersOfRequest(fromUserId, toUserId);
+    MessagesManager* messagesManager = new MessagesManager(this->db);
+    vector<Message*> messages = messagesManager->getMessages(fromUserId, toUserId);
+    delete messagesManager;
+    return messages;
+}
+
+void PersonManager::validateParametersOfRequest(Json::Value request) {
+    if (!request.isMember("from")) throw InvalidRequestException("Missing from user");
+    if (!request.isMember("to")) throw InvalidRequestException("Missing to user");
+}
+
+void PersonManager::validateUsersOfRequest(long fromUserId, long toUserId) {
     if (!this->userExists(fromUserId)) throw UserNotFoundException(fromUserId);
     if (!this->userExists(toUserId)) throw UserNotFoundException(toUserId);
     if (fromUserId == toUserId) throw InvalidRequestException("From user and to user cannot be equals");

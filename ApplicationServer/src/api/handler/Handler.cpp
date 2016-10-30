@@ -95,3 +95,24 @@ long Handler::getUserIdFromUrl(string url) {
         throw InvalidRequestException("Not a numeric id");
     }
 }
+
+string Handler::getStringFromMgStr(const struct mg_str structMgStr) {
+    string asString = "";
+    const char* pointer = structMgStr.p;
+    for(int i = 0; i < structMgStr.len; i++) {
+        asString = asString + *pointer;
+        pointer++;
+    }
+    return asString;
+}
+
+string Handler::getParameterFromQueryParams(string queryParams, string parameter) {
+    size_t found = queryParams.find(parameter);
+    if (found == string::npos) {
+        throw InvalidRequestException("Missing " + parameter + " parameter");
+    }
+    if ((found + parameter.length() + 2) > queryParams.length()) {
+        throw InvalidRequestException("Invalid query params");
+    }
+    return queryParams.substr(found + parameter.length() + 1, found + parameter.length() + 2);
+}

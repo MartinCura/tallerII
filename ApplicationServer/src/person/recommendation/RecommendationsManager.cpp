@@ -55,6 +55,7 @@ Json::Value RecommendationsManager::getRecommendationsAsJson(long userId) {
     }
     return recommendationsAsJson;
 }
+
 bool RecommendationsManager::recommendationAlreadyExists(vector<long> currentRecommendations, long fromId) {
     for (vector<long>::size_type i = 0; i < currentRecommendations.size(); i++) {
         if (currentRecommendations[i] == fromId) {

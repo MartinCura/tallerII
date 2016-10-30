@@ -58,6 +58,14 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 this->logResponse(response);
                 return response;
             }
+            if (regex_match(url, regex("/messages/.*")) || regex_match(url, regex("/messages"))) {
+                this->logRequest(httpMessage);
+                MessagesHandler *handler = new MessagesHandler();
+                response = handler->handleRequest(httpMessage, url);
+                delete handler;
+                this->logResponse(response);
+                return response;
+            }
         }
         response->setNotFoundHeader();
     } catch (exception &e) {

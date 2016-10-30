@@ -27,6 +27,8 @@ protected:
     vector<string> parseUrl(string url);
     long getUserIdFromUrl(string url);
     bool isPublic = false;
+    string getStringFromMgStr(const struct mg_str uri);
+    string getParameterFromQueryParams(string queryParams, string parameter);
 
 private:
     int isEqual(const struct mg_str *s1, const struct mg_str *s2);
