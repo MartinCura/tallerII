@@ -49,7 +49,7 @@ vector<long> RecommendationsManager::getRecommendationsByUserId(long userId) {
 
 Json::Value RecommendationsManager::getRecommendationsAsJson(long userId) {
     vector<long> recommendations = this->getRecommendationsByUserId(userId);
-    Json::Value recommendationsAsJson;
+    Json::Value recommendationsAsJson = Json::Value(Json::arrayValue);
     for (vector<long>::size_type i = 0; i < recommendations.size(); i++) {
         recommendationsAsJson.append(recommendations[i]);
     }
