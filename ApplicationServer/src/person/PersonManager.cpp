@@ -175,18 +175,41 @@ void PersonManager::saveOrUpdateRelation(Json::Value relation) {
 }
 
 void PersonManager::saveRecommendation(Json::Value recommendation) {
-    if (!recommendation.isMember("from")) throw InvalidRequestException("Missing from user");
-    if (!recommendation.isMember("to")) throw InvalidRequestException("Missing to user");
-
+    this->validateParametersOfRecommendationRequest(recommendation);
     long fromUserId = recommendation["from"].asLargestInt();
     long toUserId = recommendation["to"].asLargestInt();
-    if (!this->userExists(fromUserId)) throw UserNotFoundException(fromUserId);
-    if (!this->userExists(toUserId)) throw UserNotFoundException(toUserId);
-    if (fromUserId == toUserId) throw InvalidRequestException("From user and to user cannot be equals");
-
+    this->validateUsersOfRecommendationRequest(fromUserId, toUserId);
     RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
     recommendationsManager->addRecommendation(fromUserId, toUserId);
     delete recommendationsManager;
+}
+
+Json::Value PersonManager::getRecommendationsByUserId(long userId) {
+    RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
+    Json::Value recommendations = recommendationsManager->getRecommendationsAsJson(userId);
+    delete recommendationsManager;
+    return recommendations;
+}
+
+void PersonManager::removeRecommendation(Json::Value recommendation) {
+    this->validateParametersOfRecommendationRequest(recommendation);
+    long fromUserId = recommendation["from"].asLargestInt();
+    long toUserId = recommendation["to"].asLargestInt();
+    this->validateUsersOfRecommendationRequest(fromUserId, toUserId);
+    RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
+    recommendationsManager->removeRecommendation(fromUserId, toUserId);
+    delete recommendationsManager;
+}
+
+void PersonManager::validateParametersOfRecommendationRequest(Json::Value recommendation) {
+    if (!recommendation.isMember("from")) throw InvalidRequestException("Missing from user");
+    if (!recommendation.isMember("to")) throw InvalidRequestException("Missing to user");
+}
+
+void PersonManager::validateUsersOfRecommendationRequest(long fromUserId, long toUserId) {
+    if (!this->userExists(fromUserId)) throw UserNotFoundException(fromUserId);
+    if (!this->userExists(toUserId)) throw UserNotFoundException(toUserId);
+    if (fromUserId == toUserId) throw InvalidRequestException("From user and to user cannot be equals");
 }
 
 void PersonManager::login(std::string user_mail, std::string user_password) {

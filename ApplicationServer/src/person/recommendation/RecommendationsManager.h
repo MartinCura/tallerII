@@ -17,12 +17,14 @@ public:
     void addRecommendation(long fromId, long toId);
     void removeRecommendation(long fromId, long toId);
     vector<long> getRecommendationsByUserId(long userId);
+    Json::Value getRecommendationsAsJson(long userId);
 
 private:
     DBWrapper* db;
 
     bool recommendationAlreadyExists(vector<long> currentRecommendations, long fromId);
-    string buildStringToSave(vector<long> currentRecommendations);
+    Json::Value buildJsonToSave(vector<long> currentRecommendations);
+    vector<long> parseRecommendationsString(string recommendationsAsString);
 };
 
 #endif //PROJECT_RECOMMENDATIONSMANAGER_H

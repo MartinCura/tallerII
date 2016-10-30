@@ -1,7 +1,7 @@
 #include "RecommendationsManager.h"
 
 const string RECOMMENDATION_KEY = "recommendation_";
-const string DELIMITER = "-";
+const string ARRAY_KEY = "recommendations";
 
 RecommendationsManager::RecommendationsManager(DBWrapper* db) {
     this->db = db;
@@ -14,9 +14,9 @@ void RecommendationsManager::addRecommendation(long fromId, long toId) {
     vector<long> currentRecommendations = this->getRecommendationsByUserId(toId);
     if (!this->recommendationAlreadyExists(currentRecommendations, fromId)) {
         currentRecommendations.push_back(fromId);
-        string allRecommendationsAsString = this->buildStringToSave(currentRecommendations);
+        Json::Value recommendationsAsJson = this->buildJsonToSave(currentRecommendations);
         Json::FastWriter fastWriter;
-        string valueToSave = fastWriter.write(allRecommendationsAsString);
+        string valueToSave = fastWriter.write(recommendationsAsJson);
         this->db->puTKey(RECOMMENDATION_KEY + to_string(toId), &valueToSave);
     }
 }
@@ -30,9 +30,9 @@ void RecommendationsManager::removeRecommendation(long fromId, long toId) {
                 newRecommendations.push_back(currentRecommendations[i]);
             }
         }
-        string allRecommendationsAsString = this->buildStringToSave(newRecommendations);
+        Json::Value recommendationsAsJson = this->buildJsonToSave(newRecommendations);
         Json::FastWriter fastWriter;
-        string valueToSave = fastWriter.write(allRecommendationsAsString);
+        string valueToSave = fastWriter.write(recommendationsAsJson);
         this->db->puTKey(RECOMMENDATION_KEY + to_string(toId), &valueToSave);
     }
 }
@@ -43,10 +43,18 @@ vector<long> RecommendationsManager::getRecommendationsByUserId(long userId) {
     if (!this->db->existsKey(RECOMMENDATION_KEY + to_string(userId), &result)) {
         return recommendations;
     }
-    //TODO: FALTA AGREGAR LOGICA
+    recommendations = this->parseRecommendationsString(result);
     return recommendations;
 }
 
+Json::Value RecommendationsManager::getRecommendationsAsJson(long userId) {
+    vector<long> recommendations = this->getRecommendationsByUserId(userId);
+    Json::Value recommendationsAsJson;
+    for (vector<long>::size_type i = 0; i < recommendations.size(); i++) {
+        recommendationsAsJson.append(recommendations[i]);
+    }
+    return recommendationsAsJson;
+}
 bool RecommendationsManager::recommendationAlreadyExists(vector<long> currentRecommendations, long fromId) {
     for (vector<long>::size_type i = 0; i < currentRecommendations.size(); i++) {
         if (currentRecommendations[i] == fromId) {
@@ -56,12 +64,28 @@ bool RecommendationsManager::recommendationAlreadyExists(vector<long> currentRec
     return false;
 }
 
-string RecommendationsManager::buildStringToSave(vector<long> currentRecommendations) {
-    string allRecommendationsAsString = "";
+Json::Value RecommendationsManager::buildJsonToSave(vector<long> currentRecommendations) {
+    Json::Value recommendationsAsJson;
     for (vector<long>::size_type i = 0; i < currentRecommendations.size(); i++) {
-        allRecommendationsAsString = allRecommendationsAsString + to_string(currentRecommendations[i]);
-        if (i != (currentRecommendations.size() - 1)) {
-            allRecommendationsAsString = allRecommendationsAsString + DELIMITER;
-        }
+        Json::Value item;
+        item[to_string(i)] = currentRecommendations[i];
+        recommendationsAsJson[ARRAY_KEY].append(item);
     }
+    return recommendationsAsJson;
+}
+
+vector<long> RecommendationsManager::parseRecommendationsString(string recommendationsAsString) {
+    vector<long> recommendations;
+    Json::Value root;
+    Json::Reader reader;
+    bool parsingSuccessful = reader.parse(recommendationsAsString, root);
+    if (!parsingSuccessful) {
+        throw exception();
+    }
+    Json::Value recommendationsAsJson = root[ARRAY_KEY];
+    for(int i = 0; i < recommendationsAsJson.size(); i++) {
+        long recommendationItem = recommendationsAsJson[i][to_string(i)].asLargestInt();
+        recommendations.push_back(recommendationItem);
+    }
+    return recommendations;
 }

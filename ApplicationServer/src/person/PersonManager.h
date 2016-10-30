@@ -27,6 +27,8 @@ public:
     vector<Contact*> getContactsByUserId(long id);
     void saveOrUpdateRelation(Json::Value relation);
     void saveRecommendation(Json::Value recommendation);
+    void removeRecommendation(Json::Value recommendation);
+    Json::Value getRecommendationsByUserId(long userId);
     void login(string user_mail, string user_password);
     bool userExists(long userId);
 private:
@@ -34,6 +36,8 @@ private:
     std::string nameDB;
 
     long generateID();
+    void validateParametersOfRecommendationRequest(Json::Value recommendation);
+    void validateUsersOfRecommendationRequest(long fromUserId, long toUserId);
 };
 
 #endif //PROJECT_PERSONMANAGER_H

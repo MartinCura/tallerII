@@ -34,7 +34,9 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
         long userId = this->getUserIdFromUrl(url);
         Person *person = personManager->getPersonById(userId);
         response->setSuccessfulHeader();
-        response->setBody(person->serializeMe().toStyledString());
+        Json::Value body = person->serializeMe();
+        body["recommendations"] = personManager->getRecommendationsByUserId(userId);
+        response->setBody(body.toStyledString());
         delete person;
     } catch (InvalidRequestException& e) {
         response->setBadRequestHeader();
