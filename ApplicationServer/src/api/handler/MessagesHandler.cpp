@@ -16,8 +16,9 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
         long fromUserId = this->getUserIdFromUrl(url);
         long toUserId = this->getToUserFromQueryParams(queryParams);
         vector<Message*> messages = personManager->getMessages(fromUserId, toUserId);
-        messages = this->truncateMessagesIfNeeded(messages, queryParams);
-        Json::Value messagesAsJson = this->buildJsonResponse(messages);
+        int totalCount = messages.size();
+        messages = this->truncateMessages(messages, queryParams);
+        Json::Value messagesAsJson = this->buildJsonResponse(messages, totalCount);
         response->setBody(messagesAsJson.toStyledString());
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {
@@ -58,9 +59,10 @@ Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string ur
     return response;
 }
 
-Json::Value MessagesHandler::buildJsonResponse(vector<Message*> messages) {
+Json::Value MessagesHandler::buildJsonResponse(vector<Message*> messages, int totalCount) {
     Json::Value messagesAsJson;
     messagesAsJson["metadata"]["count"] = messages.size();
+    messagesAsJson["metadata"]["total_count"] = totalCount;
     for (vector<long>::size_type i = 0; i < messages.size(); i++) {
         Message* message = messages[i];
         messagesAsJson["messages"].append(message->serializeMe());
@@ -105,8 +107,7 @@ int MessagesHandler::getToParameterFromQueryParamsIfExists(string queryParams) {
     }
 }
 
-vector<Message*> MessagesHandler::truncateMessagesIfNeeded(vector<Message*> messages, string queryParams) {
-
+vector<Message*> MessagesHandler::truncateMessages(vector<Message*> messages, string queryParams) {
     int fromParameter = this->getFromParameterFromQueryParamsIfExists(queryParams);
     int toParameter = this->getToParameterFromQueryParamsIfExists(queryParams);
     if (
@@ -115,21 +116,31 @@ vector<Message*> MessagesHandler::truncateMessagesIfNeeded(vector<Message*> mess
         (toParameter > fromParameter) &&
         (toParameter <= messages.size())
     ) {
-        vector<Message*> messagesToReturn;
-        for (vector<long>::size_type i = 1; i <= fromParameter - 1; i++) {
-            Message* message = messages[i - 1];
-            delete message;
-        }
-        for (vector<long>::size_type i = fromParameter; i <= toParameter; i++) {
-            Message* message = messages[i - 1];
-            messagesToReturn.push_back(message);
-        }
-        for (vector<long>::size_type i = toParameter + 1; i <= messages.size(); i++) {
-            Message* message = messages[i - 1];
-            delete message;
-        }
-        return messagesToReturn;
+        return this->doTruncate(messages, fromParameter, toParameter);
+    } else if (messages.size() >= 10) {
+        int fromParameter = 1;
+        int toParameter = 10;
+        return this->doTruncate(messages, fromParameter, toParameter);
     } else {
         return messages;
     }
+}
+
+vector<Message*> MessagesHandler::doTruncate(vector<Message*> messages, int from, int to) {
+    int toParameter = messages.size() - from + 1;
+    int fromParameter = messages.size() - to + 1;
+    vector<Message*> messagesToReturn;
+    for (vector<long>::size_type i = 1; i <= fromParameter - 1; i++) {
+        Message* message = messages[i - 1];
+        delete message;
+    }
+    for (vector<long>::size_type i = fromParameter; i <= toParameter; i++) {
+        Message* message = messages[i - 1];
+        messagesToReturn.push_back(message);
+    }
+    for (vector<long>::size_type i = toParameter + 1; i <= messages.size(); i++) {
+        Message* message = messages[i - 1];
+        delete message;
+    }
+    return messagesToReturn;
 }

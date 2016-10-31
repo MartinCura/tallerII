@@ -19,8 +19,9 @@ private:
     long getToUserFromQueryParams(string queryParams);
     int getFromParameterFromQueryParamsIfExists(string queryParams);
     int getToParameterFromQueryParamsIfExists(string queryParams);
-    vector<Message*> truncateMessagesIfNeeded(vector<Message*> messages, string queryParams);
-    Json::Value buildJsonResponse(vector<Message*> messages);
+    vector<Message*> truncateMessages(vector<Message*> messages, string queryParams);
+    vector<Message*> doTruncate(vector<Message*> messages, int from, int to);
+    Json::Value buildJsonResponse(vector<Message*> messages, int totalCount);
 };
 
 #endif //PROJECT_MESSAGESHANDLER_H
