@@ -28,7 +28,7 @@ public:
     vector<Contact*> getContactsByUserId(long id);
     void saveOrUpdateRelation(Json::Value relation);
     void saveRecommendation(Json::Value recommendation);
-    void removeRecommendation(Json::Value recommendation);
+    void removeRecommendation(long fromUserId, long toUserId);
     Json::Value getRecommendationsByUserId(long userId);
     void saveMessage(Json::Value request);
     vector<Message*> getMessages(long fromUserId, long toUserId);

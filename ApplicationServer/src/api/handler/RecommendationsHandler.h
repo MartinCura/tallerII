@@ -13,6 +13,9 @@ public:
     Response* handleGetRequest(http_message* httpMessage, string url);
     Response* handleDeleteRequest(http_message* httpMessage, string url);
     Response* handlePutRequest(http_message* httpMessage, string url);
+
+private:
+    long getToUserFromQueryParams(string queryParams);
 };
 
 #endif //PROJECT_RECOMMENDATIONSHANDLER_H

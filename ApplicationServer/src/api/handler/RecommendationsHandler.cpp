@@ -1,5 +1,7 @@
 #include "RecommendationsHandler.h"
 
+const string TO = "to";
+
 RecommendationsHandler::RecommendationsHandler() {}
 
 RecommendationsHandler::~RecommendationsHandler() {}
@@ -13,12 +15,13 @@ Response* RecommendationsHandler::handlePostRequest(http_message* httpMessage) {
 }
 
 Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage, string url) {
-    string requestBody = string(httpMessage->body.p);
+    string queryParams = this->getStringFromMgStr(httpMessage->query_string);
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
     try {
-        Json::Value parsedBody = this->parseBody(requestBody);
-        personManager->removeRecommendation(parsedBody);
+        long fromUserId = this->getUserIdFromUrl(url);
+        long toUserId = this->getToUserFromQueryParams(queryParams);
+        personManager->removeRecommendation(fromUserId, toUserId);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {
         response->setNotFoundHeader();
@@ -48,5 +51,15 @@ Response* RecommendationsHandler::handlePutRequest(http_message* httpMessage, st
     }
     delete personManager;
     return response;
+}
+
+long RecommendationsHandler::getToUserFromQueryParams(string queryParams) {
+    try {
+        string toUserIdAsString = this->getParameterFromQueryParams(queryParams, TO);
+        long userId = stol(toUserIdAsString);
+        return userId;
+    } catch (invalid_argument e) {
+        throw InvalidRequestException("Not a numeric id");
+    }
 }
 

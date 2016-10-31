@@ -191,10 +191,7 @@ Json::Value PersonManager::getRecommendationsByUserId(long userId) {
     return recommendations;
 }
 
-void PersonManager::removeRecommendation(Json::Value recommendation) {
-    this->validateParametersOfRequest(recommendation);
-    long fromUserId = recommendation["from"].asLargestInt();
-    long toUserId = recommendation["to"].asLargestInt();
+void PersonManager::removeRecommendation(long fromUserId, long toUserId) {
     this->validateUsersOfRequest(fromUserId, toUserId);
     RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
     recommendationsManager->removeRecommendation(fromUserId, toUserId);
