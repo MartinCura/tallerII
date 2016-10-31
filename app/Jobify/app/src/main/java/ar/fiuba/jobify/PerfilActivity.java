@@ -52,11 +52,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
+import ar.fiuba.jobify.app_server_api.Recommendation;
 import ar.fiuba.jobify.app_server_api.Solicitud;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.shared_server_api.JobPosition;
@@ -68,7 +70,7 @@ public class PerfilActivity extends NavDrawerActivity {
     private final String LOG_TAG = PerfilActivity.class.getSimpleName();
 
     public final static String FETCHED_USER_ID_MESSAGE = "ar.fiuba.jobify.FETCHED_USER_ID_MESSAGE";
-    public final static String MODO_PERFIL_MESSAGE = "ar.fiuba.jobify.MODO_PERFIL_MESSAGE";
+    public final static String PERFIL_MODE_MESSAGE = "ar.fiuba.jobify.PERFIL_MODE_MESSAGE";
     private long fetchedUserID = 2;
     private User fetchedUser;
 
@@ -116,7 +118,7 @@ public class PerfilActivity extends NavDrawerActivity {
             fabRecomendar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO: Recomendar
+                    toggleRecomendar(fetchedUserID);
                 }
             });
         }
@@ -171,9 +173,9 @@ public class PerfilActivity extends NavDrawerActivity {
         // TODO: REVISAR, YA QUE ESTÁ EN EL onResume
         // Obtengo el modo en el que debe comenzar
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(MODO_PERFIL_MESSAGE)) {
+        if (intent != null && intent.hasExtra(PERFIL_MODE_MESSAGE)) {
 
-            boolean empezarEnModoEdicion = intent.getBooleanExtra(MODO_PERFIL_MESSAGE, false);
+            boolean empezarEnModoEdicion = intent.getBooleanExtra(PERFIL_MODE_MESSAGE, false);
             if (empezarEnModoEdicion) {
 
                 Utils.showView(this, R.id.perfil_information_layout);
@@ -547,7 +549,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 jsonRequest, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // TODO Ignorando response, algo que hacer con ello?
+                        // TODO: Ignorando response, algo que hacer con ello?
                         Toast.makeText(PerfilActivity.this, responseStr, Toast.LENGTH_LONG)
                                 .show();
                     }
@@ -652,6 +654,8 @@ public class PerfilActivity extends NavDrawerActivity {
                         if (cs != null) populateContacts(cs);
                     }
                 }, LOG_TAG);
+
+        colorearBotonRecomendar(mUser.fueRecomendadoPor(connectedUserID));
     }
 
 
@@ -673,7 +677,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response != null) {
-                            Log.d(LOG_TAG, "User PUT Response: "+response.toString());
+                            Log.d(LOG_TAG, "User PUT Response: " + response.toString());
                         }
                     }
                 }, LOG_TAG);
@@ -915,7 +919,6 @@ public class PerfilActivity extends NavDrawerActivity {
                 ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(this,
                         android.R.layout.simple_dropdown_item_1line, jpArray);
                 et_employment.setAdapter(employmentsAdapter);
-                Log.d(LOG_TAG, "Setteado el autocomplete adapter de Employments");
             }
         } catch (SharedDataSingleton.NoDataException ex) {
             Toast.makeText(getContext(), "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
@@ -935,11 +938,9 @@ public class PerfilActivity extends NavDrawerActivity {
                 ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(this,
                         android.R.layout.simple_dropdown_item_1line, skArray);
                 et_skill.setAdapter(skillsAdapter);
-                Log.d(LOG_TAG, "Setteado el autocomplete adapter de Skills");
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(getContext(), "Problemas con SS.Skills", Toast.LENGTH_LONG)
-                    .show();
+            Log.e(LOG_TAG, "Problemas con SS.Skills");
         }
     }
 
@@ -1033,6 +1034,71 @@ public class PerfilActivity extends NavDrawerActivity {
             Utils.setTextViewText(activity, R.id.perfil_nacimiento_mes, Integer.toString(mesBien));
             Utils.setTextViewText(activity, R.id.perfil_nacimiento_anio, Integer.toString(year));
         }
+    }
+
+    private void toggleRecomendar(final long recomendadoID) {
+
+        final boolean yaRecomendado = fetchedUser.fueRecomendadoPor(connectedUserID);
+        final int method;
+        final String url, mensajeDialogo;
+        final Recommendation recom = new Recommendation(connectedUserID, recomendadoID);
+
+        if (!yaRecomendado) {
+            method = Request.Method.PUT;
+            String path = getString(R.string.as_make_recommendation_path);
+            url = Utils.getAppServerUrl(getContext(), path);
+            mensajeDialogo = getString(R.string.confirmacion_recomendar);
+        } else {
+            method = Request.Method.DELETE;
+            String path = getString(R.string.as_cancel_recommendation_path);
+            // En el caso de DELETE, lo que realmente importa son los queries en la url
+            url = Utils.getAppServerUrl(getContext(), path, recom.toQueries());
+            mensajeDialogo = getString(R.string.confirmacion_desrecomendar);
+        }
+
+        Utils.confirmarAccion(getContext(), "Recomendación", mensajeDialogo,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Utils.fetchJsonFromUrl(getContext(), method, url, recom.toJsonObject(),
+                                new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        // TODO: No chequea que el status sea 200, será inmediato?
+
+                                        boolean ahoraRecomendado = !yaRecomendado;
+                                        colorearBotonRecomendar(ahoraRecomendado);
+
+                                        // TODO: Mover a R.string
+                                        if (ahoraRecomendado) {
+                                            Toast.makeText(getContext(), "¡Usuario recomendado!",
+                                                    Toast.LENGTH_LONG).show();
+                                        } else {
+                                            Toast.makeText(getContext(), "Se ha quitado la recomendación :(",
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                        refreshProfileInformation(fetchedUserID);
+                                    }
+                                }, LOG_TAG);
+                    }
+                });
+    }
+
+    private void colorearBotonRecomendar(boolean recomendado) {
+
+        FloatingActionButton fab_recomendar = (FloatingActionButton) findViewById(R.id.fab_recomendar);
+        if (fab_recomendar == null) {
+            Log.e(LOG_TAG, "No pude encontrar fab_recomendar");
+            return;
+        }
+
+        ColorStateList csl;
+        if (recomendado) {
+            csl = Utils.getColorStateList(this, R.color.recomendar_btn_true);
+        } else {
+            csl = Utils.getColorStateList(this, R.color.recomendar_btn_false);
+        }
+        fab_recomendar.setBackgroundTintList(csl);
     }
 
 }

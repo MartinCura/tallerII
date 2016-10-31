@@ -43,7 +43,7 @@ public class SharedDataSingleton {
         if (mCategoriesResponse == null) {
             String json = Utils.getSharedServerDataJsonString(mActivity,
                     CategoriesResponse.class.getSimpleName(), R.string.ss_get_categories_path);
-            Log.d("testin", "JobPositionsResponse Json: "+json);
+            //Log.d("testin", "CategoriesResponse Json: "+json);//
             mCategoriesResponse = CategoriesResponse.parseJSON(json);
 
             if (mCategoriesResponse == null) {
@@ -68,7 +68,7 @@ public class SharedDataSingleton {
         if (mJobPositionsResponse == null) {
             String json = Utils.getSharedServerDataJsonString(mActivity,
                     JobPositionsResponse.class.getSimpleName(), R.string.ss_get_job_positions_path);
-            Log.d("testin", "JobPositionsResponse Json: "+json);
+            //Log.d("testin", "JobPositionsResponse Json: "+json);//
             mJobPositionsResponse = JobPositionsResponse.parseJSON(json);
 
             if (mJobPositionsResponse == null) {
@@ -93,7 +93,7 @@ public class SharedDataSingleton {
         if (mSkillsResponse == null) {
             String json = Utils.getSharedServerDataJsonString(mActivity,
                     SkillsResponse.class.getSimpleName(), R.string.ss_get_skills_path);
-            Log.d("testin", "SkillsResponse Json: "+json);
+            //Log.d("testin", "SkillsResponse Json: "+json);//
             mSkillsResponse = SkillsResponse.parseJSON(json);
 
             if (mSkillsResponse == null) {

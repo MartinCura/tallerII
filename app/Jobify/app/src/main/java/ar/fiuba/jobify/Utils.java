@@ -35,8 +35,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -64,13 +64,37 @@ public class Utils {
         String ip = sharedPref.getString("pref_appServer_ip", ctx.getString(R.string.pref_default_appServer_ip));
         String puerto = sharedPref.getString("pref_appServer_puerto", ctx.getString(R.string.pref_default_appServer_puerto));
 
+        try {
+            if (Integer.parseInt(puerto) <= 0)
+                return "http://" + ip + "/";
+        } catch (NumberFormatException ex) {
+            Log.e(LOG_TAG, "Puerto no es un número");
+        }
+
         return "http://" + ip + ":" + puerto + "/";
     }
 
     public static String getSharedServerBaseURL(Context ctx) {
-        return ctx.getString(R.string.shared_server_base_url);
+        return ctx.getString(R.string.shared_server_base_url); // hardcodeado
     }
 
+    /**
+     * Devuelve un String con la URL para utilizar en un fetch, en la forma:
+     * {@code http://<AppServer>/<path>/<idFetched>?<queries_y_valores>}
+     */
+    public static String getAppServerUrl(Context ctx, String path, HashMap<String, String> map) {
+        Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon()
+                .appendPath(path);
+//                .appendPath(Long.toString(idFetched));
+        for (Map.Entry<String, String> entry : map.entrySet())
+            builder.appendQueryParameter(entry.getKey(), entry.getValue());
+        return builder.build().toString();
+    }
+
+    /**
+     * Devuelve un String con la URL para utilizar en un fetch, en la forma:
+     * {@code http://<AppServer>/<paths/separados/por/barras>/<idFetched>}
+     */
     public static String getAppServerUrl(Context ctx, long idFetched, String ... paths) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
         for (String path : paths)
@@ -79,6 +103,10 @@ public class Utils {
         return builtUri.toString();
     }
 
+    /**
+     * Devuelve un String con la URL para utilizar en un fetch, en la forma:
+     * {@code http://<AppServer>/<paths/separados/por/barras>}
+     */
     public static String getAppServerUrl(Context ctx, String ... paths) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
         for (String path : paths)
@@ -137,8 +165,6 @@ public class Utils {
                 .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
                 .build();
         final String url = builtUri.toString();
-        Log.d(LOG_TAG, "SS url: "+url);//
-
         getJsonFromUrl(context, url, null, listener, logTag);
     }
 
@@ -167,20 +193,33 @@ public class Utils {
 
     public static void fetchJsonFromUrl(Context context, int method, final String url,
                                         JSONObject jsonRequest,
-                                        Response.Listener<JSONObject> responseListener,
+                                        final Response.Listener<JSONObject> responseListener,
                                         final String logTag) {
 
         fetchJsonFromUrl(context, method, url, jsonRequest, responseListener,
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d(logTag, "Error Listener. URL: "+url);//
-                        if (error.networkResponse != null)
-                            Log.d(logTag, "Status code: "+error.networkResponse.statusCode);
-                        error.printStackTrace();
+
+                        // En caso de que no debía recibirse nada y el retorno fue correcto,
+                        // correr el método para response correcto.
+                        // // No debería correrse nunca ahora que modifiqué JsonObjectRequest
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 200) {
+                            try {
+                                responseListener.onResponse(new JSONObject("{}"));
+                            } catch (JSONException ex) {
+                                Log.e(LOG_TAG, "JSON vacío no aceptado");
+                            }
+                        } else {
+                            Log.d(logTag, "Error Listener. URL: " + url);
+                            if (error.networkResponse != null)
+                                Log.d(logTag, "Status code: " + error.networkResponse.statusCode);
+                            error.printStackTrace();
+                        }
                     }
                 }, logTag);
     }
+
 
     public static void fetchJsonFromUrl(Context context, int method, final String url,
                                         JSONObject jsonRequest,
@@ -188,8 +227,22 @@ public class Utils {
                                         Response.ErrorListener errorListener, final String logTag) {
 
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (method, url, jsonRequest, responseListener, errorListener);
-        // TODO: Agregar token al Header
+                (method, url, jsonRequest, responseListener, errorListener) {
+
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        //headers.put("Content-Type", "application/json; charset=utf-8");
+                        headers.put("Connection", "close");//Te amo, header que soluciona cosas ~ mc
+                        // TODO: Agregar token al Header ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                        return headers;
+                    }
+
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/json";
+                    }
+        };
         jsObjRequest.setTag(logTag);
         RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
     }
@@ -197,7 +250,7 @@ public class Utils {
     public static void cargarImagenDeURLenImageView(final Context context, final ImageView imageView,
                                                     final String url, final String logTag) {
         if (imageView == null) {
-            Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
+            //Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
             return;
         }
         ImageRequest request = new ImageRequest(url,
@@ -205,14 +258,18 @@ public class Utils {
                     @Override
                     public void onResponse(Bitmap bitmap) {
                         imageView.setImageBitmap(bitmap);
-
                     }
+
                 }, imageView.getWidth(), imageView.getHeight(),
                 ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
-//                        Log.e(logTag, "Error de response, no pude cargar la imagen. (url: "+url+")");
-                        if (error.networkResponse == null) return;
+                        if (error.networkResponse == null) {
+                            Log.e(logTag, "Error de response, no pude cargar la imagen." +
+                                    "(url: "+url+")");
+                            return;
+                        }
+                        //error.printStackTrace();//
                         if (error.networkResponse.statusCode == 200) {
                             Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(context, imageView, url, logTag);
@@ -221,7 +278,7 @@ public class Utils {
                                     +error.networkResponse.statusCode);
                         }
                     }
-                }) ;
+                });
         RequestQueueSingleton.getInstance(context)
                 .addToRequestQueue(request);
     }
@@ -359,14 +416,11 @@ public class Utils {
         @Override
         public Map<String, String> getHeaders() throws AuthFailureError {
             Map<String, String> headers = super.getHeaders();
-
             if (headers == null
                     || headers.equals(Collections.emptyMap())) {
                 headers = new HashMap<>();
             }
-
             headers.put("Accept", "application/json");
-
             return headers;
         }
 

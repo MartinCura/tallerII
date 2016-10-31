@@ -424,7 +424,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         startActivity(
                 new Intent(LoginActivity.this, PerfilActivity.class)
                         .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, fetchedUserId)
-                        .putExtra(PerfilActivity.MODO_PERFIL_MESSAGE, comenzarEnModoEdicion)
+                        .putExtra(PerfilActivity.PERFIL_MODE_MESSAGE, comenzarEnModoEdicion)
         );
     }
 

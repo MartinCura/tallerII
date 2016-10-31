@@ -36,7 +36,7 @@ public class User {
             city = "",
             dateOfBirth = "1/1/1990",
             summary = "";
-    long cantRecomendaciones = 0;
+    long[] recommendations;
     List<Skill> skills;
     List<Employment> workHistory;
 
@@ -95,8 +95,8 @@ public class User {
     public List<Employment> getWorkHistory() {
         return workHistory;
     }
-    public long getCantRecomendaciones() {
-        return cantRecomendaciones;
+    public long[] getRecomendaciones() {
+        return recommendations;
     }
 
     public int getDiaNacimiento() {
@@ -109,6 +109,16 @@ public class User {
         return Integer.parseInt(dateOfBirth.split("/")[2]);
     }
 
+    public long getCantRecomendaciones() {
+        return recommendations.length;
+    }
+
+    public boolean fueRecomendadoPor(long pepito) {
+        for (long i : recommendations)
+            if (i == pepito)
+                return true;
+        return false;
+    }
 
     public boolean setFirstName(String firstName) {
         if (firstName.isEmpty() || firstName.length() > MAX_CHAR_NAMES)

@@ -133,6 +133,8 @@
     <string name="post_user_path">users</string>
     <string name="put_user_path">users</string>
     <string name="get_login_path">login</string>
+    <string name="as_make_recommendation_path">recommendations</string>
+    <string name="as_cancel_recommendation_path">recommendations</string>
     <string name="shared_server_base_url">https://intense-plains-63100.herokuapp.com/</string>
     <string name="login_invalid_empty_password">Contraseña vacía</string>
     <string name="perfil_nombre_editable_hint">Nombre</string>
@@ -152,4 +154,6 @@
     <string name="dialog_no">No</string>
     <string name="perfil_nacimiento_title">Fecha de nacimiento:</string>
     <string name="pick_date_description">Elegir fecha</string>
+    <string name="confirmacion_recomendar">¿Quiere recomendar a este simplón?</string>
+    <string name="confirmacion_desrecomendar">¿Está seguro que quiere eliminar su recomendación?</string>
 </resources>
