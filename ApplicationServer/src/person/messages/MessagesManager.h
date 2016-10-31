@@ -19,6 +19,7 @@ public:
 
 private:
     DBWrapper* db;
+    string getTimestamp();
 };
 
 #endif //PROJECT_MESSAGESMANAGER_H

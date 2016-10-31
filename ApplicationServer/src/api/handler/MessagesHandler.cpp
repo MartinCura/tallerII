@@ -82,7 +82,7 @@ long MessagesHandler::getToUserFromQueryParams(string queryParams) {
 int MessagesHandler::getFromParameterFromQueryParamsIfExists(string queryParams) {
     size_t found = queryParams.find(FROM);
     if (found == string::npos) {
-        return -1;
+        return 0;
     }
     try {
         string value = this->getParameterFromQueryParams(queryParams, FROM);
@@ -95,7 +95,7 @@ int MessagesHandler::getFromParameterFromQueryParamsIfExists(string queryParams)
 int MessagesHandler::getToParameterFromQueryParamsIfExists(string queryParams) {
     size_t found = queryParams.find(TO);
     if (found == string::npos) {
-        return -1;
+        return 0;
     }
     try {
         string value = this->getParameterFromQueryParams(queryParams, TO);
@@ -106,11 +106,30 @@ int MessagesHandler::getToParameterFromQueryParamsIfExists(string queryParams) {
 }
 
 vector<Message*> MessagesHandler::truncateMessagesIfNeeded(vector<Message*> messages, string queryParams) {
+
+    int fromParameter = this->getFromParameterFromQueryParamsIfExists(queryParams);
+    int toParameter = this->getToParameterFromQueryParamsIfExists(queryParams);
     if (
-        (this->getFromParameterFromQueryParamsIfExists(queryParams) != -1) &&
-        (this->getToParameterFromQueryParamsIfExists(queryParams) != -1)
+        (fromParameter != 0) &&
+        (toParameter != 0) &&
+        (toParameter > fromParameter) &&
+        (toParameter <= messages.size())
     ) {
-        //
+        vector<Message*> messagesToReturn;
+        for (vector<long>::size_type i = 1; i <= fromParameter - 1; i++) {
+            Message* message = messages[i - 1];
+            delete message;
+        }
+        for (vector<long>::size_type i = fromParameter; i <= toParameter; i++) {
+            Message* message = messages[i - 1];
+            messagesToReturn.push_back(message);
+        }
+        for (vector<long>::size_type i = toParameter + 1; i <= messages.size(); i++) {
+            Message* message = messages[i - 1];
+            delete message;
+        }
+        return messagesToReturn;
+    } else {
+        return messages;
     }
-    return messages;
 }

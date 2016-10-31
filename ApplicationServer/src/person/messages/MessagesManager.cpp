@@ -15,7 +15,7 @@ void MessagesManager::saveMessage(long fromUserId, long toUserId, string message
     messageToSave->setFromUserId(fromUserId);
     messageToSave->setToUserId(toUserId);
     messageToSave->setMessage(message);
-    messageToSave->setTimestamp("");
+    messageToSave->setTimestamp(this->getTimestamp());
     vector<Message*> currentMessages = this->getMessages(fromUserId, toUserId);
     currentMessages.push_back(messageToSave);
     Json::Value allMessagesAsJson;
@@ -44,4 +44,12 @@ vector<Message*> MessagesManager::getMessages(long fromUserId, long toUserId) {
         }
     }
     return messages;
+}
+
+string MessagesManager::getTimestamp() {
+    time_t now = time(0);
+    struct tm * timeInfo = localtime(&now);
+    char buffer[30];
+    strftime(buffer, 30, "%Y-%m-%d %H:%M:%S", timeInfo);
+    return string(buffer);
 }
