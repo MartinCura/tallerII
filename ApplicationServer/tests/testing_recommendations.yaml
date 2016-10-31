@@ -56,6 +56,6 @@
 
 - test:
     - name: "Delete recommendation"
-    - url: "/recommendations/1?to=2"
+    - url: "/recommendations?from=1&to=2"
     - method: "DELETE"
     - expected_status: [200] # ok

@@ -16,6 +16,7 @@ public:
 
 private:
     long getToUserFromQueryParams(string queryParams);
+    long getFromUserFromQueryParams(string queryParams);
 };
 
 #endif //PROJECT_RECOMMENDATIONSHANDLER_H

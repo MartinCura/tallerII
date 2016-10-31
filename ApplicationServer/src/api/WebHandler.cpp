@@ -50,7 +50,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 this->logResponse(response);
                 return response;
             }
-            if (regex_match(url, regex("/recommendations/.*")) || regex_match(url, regex("/recommendations"))) {
+            if (regex_match(url, regex("/recommendations.*"))) {
                 this->logRequest(httpMessage);
                 RecommendationsHandler *handler = new RecommendationsHandler();
                 response = handler->handleRequest(httpMessage, url);

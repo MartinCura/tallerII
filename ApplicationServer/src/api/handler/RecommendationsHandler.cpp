@@ -1,6 +1,7 @@
 #include "RecommendationsHandler.h"
 
 const string TO = "to";
+const string FROM = "from";
 
 RecommendationsHandler::RecommendationsHandler() {}
 
@@ -19,7 +20,7 @@ Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage,
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
     try {
-        long fromUserId = this->getUserIdFromUrl(url);
+        long fromUserId = this->getFromUserFromQueryParams(queryParams);
         long toUserId = this->getToUserFromQueryParams(queryParams);
         personManager->removeRecommendation(fromUserId, toUserId);
         response->setSuccessfulHeader();
@@ -56,6 +57,17 @@ Response* RecommendationsHandler::handlePutRequest(http_message* httpMessage, st
 long RecommendationsHandler::getToUserFromQueryParams(string queryParams) {
     try {
         string toUserIdAsString = this->getParameterFromQueryParams(queryParams, TO);
+        long userId = stol(toUserIdAsString);
+        return userId;
+    } catch (invalid_argument e) {
+        throw InvalidRequestException("Not a numeric id");
+    }
+}
+
+
+long RecommendationsHandler::getFromUserFromQueryParams(string queryParams) {
+    try {
+        string toUserIdAsString = this->getParameterFromQueryParams(queryParams, FROM);
         long userId = stol(toUserIdAsString);
         return userId;
     } catch (invalid_argument e) {
