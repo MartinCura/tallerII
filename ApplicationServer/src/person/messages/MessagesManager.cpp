@@ -50,6 +50,6 @@ string MessagesManager::getTimestamp() {
     time_t now = time(0);
     struct tm * timeInfo = localtime(&now);
     char buffer[30];
-    strftime(buffer, 30, "%Y-%m-%d %H:%M:%S", timeInfo);
+    strftime(buffer, 30, Message::TIMESTAMP_FORMAT, timeInfo);
     return string(buffer);
 }

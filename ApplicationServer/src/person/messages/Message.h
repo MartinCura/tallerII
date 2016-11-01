@@ -8,6 +8,8 @@ using namespace std;
 class Message {
 
 public:
+    static const char* TIMESTAMP_FORMAT;
+
     Message(Json::Value messageAsJson);
     Message();
     ~Message();
@@ -19,6 +21,7 @@ public:
 
     string getMessage();
     string getTimestamp();
+    time_t getTimestampAsTimeT();
     long getFromUserId();
     long getToUserId();
 

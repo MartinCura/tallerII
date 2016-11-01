@@ -1,5 +1,7 @@
 #include "Message.h"
 
+const char *Message::TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S";
+
 Message::Message(Json::Value messageAsJson) {
     this->message = messageAsJson["message"].asString();
     this->timestamp = messageAsJson["timestamp"].asString();
@@ -33,6 +35,12 @@ string Message::getMessage() {
 
 string Message::getTimestamp(){
     return this->timestamp;
+}
+
+time_t Message::getTimestampAsTimeT(){
+    struct tm tm2;
+    strptime(this->timestamp.c_str(), Message::TIMESTAMP_FORMAT, &tm2);
+    return mktime(&tm2);
 }
 
 long Message::getFromUserId() {

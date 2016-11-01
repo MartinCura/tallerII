@@ -4,6 +4,8 @@
 #include "../../person/PersonManager.h"
 #include "Handler.h"
 #include "../../person/messages/Message.h"
+#include <algorithm>
+#include <vector>
 
 class MessagesHandler : public Handler {
 public:
@@ -21,7 +23,8 @@ private:
     int getToParameterFromQueryParamsIfExists(string queryParams);
     vector<Message*> truncateMessages(vector<Message*> messages, string queryParams);
     vector<Message*> doTruncate(vector<Message*> messages, int from, int to);
-    Json::Value buildJsonResponse(vector<Message*> messages, int totalCount);
+    vector<Message*> getAllMessages(long userId1, long userId2, PersonManager* personManager);
+    Json::Value buildJsonResponse(vector<Message*> messages, long totalCount);
 };
 
 #endif //PROJECT_MESSAGESHANDLER_H

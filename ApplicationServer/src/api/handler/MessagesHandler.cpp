@@ -1,8 +1,8 @@
 #include "MessagesHandler.h"
 
 const string USER = "user";
-const string FROM = "from";
-const string TO = "to";
+const string FIRST = "first";
+const string LAST = "last";
 
 MessagesHandler::MessagesHandler() {}
 
@@ -15,8 +15,8 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
     try {
         long fromUserId = this->getUserIdFromUrl(url);
         long toUserId = this->getToUserFromQueryParams(queryParams);
-        vector<Message*> messages = personManager->getMessages(fromUserId, toUserId);
-        int totalCount = messages.size();
+        vector<Message*> messages = this->getAllMessages(fromUserId, toUserId, personManager);
+        long totalCount = messages.size();
         messages = this->truncateMessages(messages, queryParams);
         Json::Value messagesAsJson = this->buildJsonResponse(messages, totalCount);
         response->setBody(messagesAsJson.toStyledString());
@@ -59,7 +59,7 @@ Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string ur
     return response;
 }
 
-Json::Value MessagesHandler::buildJsonResponse(vector<Message*> messages, int totalCount) {
+Json::Value MessagesHandler::buildJsonResponse(vector<Message*> messages, long totalCount) {
     Json::Value messagesAsJson;
     messagesAsJson["metadata"]["count"] = messages.size();
     messagesAsJson["metadata"]["total_count"] = totalCount;
@@ -82,12 +82,12 @@ long MessagesHandler::getToUserFromQueryParams(string queryParams) {
 }
 
 int MessagesHandler::getFromParameterFromQueryParamsIfExists(string queryParams) {
-    size_t found = queryParams.find(FROM);
+    size_t found = queryParams.find(FIRST);
     if (found == string::npos) {
         return 0;
     }
     try {
-        string value = this->getParameterFromQueryParams(queryParams, FROM);
+        string value = this->getParameterFromQueryParams(queryParams, FIRST);
         return stoi(value);
     } catch (invalid_argument e) {
         throw InvalidRequestException("Not a numeric parameter");
@@ -95,12 +95,12 @@ int MessagesHandler::getFromParameterFromQueryParamsIfExists(string queryParams)
 }
 
 int MessagesHandler::getToParameterFromQueryParamsIfExists(string queryParams) {
-    size_t found = queryParams.find(TO);
+    size_t found = queryParams.find(LAST);
     if (found == string::npos) {
         return 0;
     }
     try {
-        string value = this->getParameterFromQueryParams(queryParams, TO);
+        string value = this->getParameterFromQueryParams(queryParams, LAST);
         return stoi(value);
     } catch (invalid_argument e) {
         throw InvalidRequestException("Not a numeric parameter");
@@ -118,17 +118,32 @@ vector<Message*> MessagesHandler::truncateMessages(vector<Message*> messages, st
     ) {
         return this->doTruncate(messages, fromParameter, toParameter);
     } else if (messages.size() >= 10) {
-        int fromParameter = 1;
-        int toParameter = 10;
+        fromParameter = 1;
+        toParameter = 10;
         return this->doTruncate(messages, fromParameter, toParameter);
     } else {
         return messages;
     }
 }
 
+bool sortByTimestamp(Message* message1, Message* message2) {
+    time_t timestamp1 = message1->getTimestampAsTimeT();
+    time_t timestamp2 = message2->getTimestampAsTimeT();
+    double seconds = difftime(timestamp1, timestamp2);
+    return (seconds < 0.0);
+}
+
+vector<Message*> MessagesHandler::getAllMessages(long userId1, long userId2, PersonManager* personManager) {
+    vector<Message*> messages1 = personManager->getMessages(userId1, userId2);
+    vector<Message*> messages2 = personManager->getMessages(userId2, userId1);
+    messages1.insert(messages1.end(), messages2.begin(), messages2.end());
+    //sort(messages1.begin(), messages1.end(), sortByTimestamp);
+    return messages1;
+}
+
 vector<Message*> MessagesHandler::doTruncate(vector<Message*> messages, int from, int to) {
-    int toParameter = messages.size() - from + 1;
-    int fromParameter = messages.size() - to + 1;
+    unsigned long toParameter = messages.size() - from + 1;
+    unsigned long fromParameter = messages.size() - to + 1;
     vector<Message*> messagesToReturn;
     for (vector<long>::size_type i = 1; i <= fromParameter - 1; i++) {
         Message* message = messages[i - 1];
