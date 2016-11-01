@@ -52,7 +52,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.Contact;
@@ -104,6 +103,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
         FloatingActionButton fabAmigar = (FloatingActionButton) findViewById(R.id.fab_amigar);
         if (fabAmigar != null) {
+            fabAmigar.setBackgroundTintList(Utils.getColorStateList(this, R.color.amigar_btn_none));
             fabAmigar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -115,6 +115,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
         FloatingActionButton fabRecomendar = (FloatingActionButton) findViewById(R.id.fab_recomendar);
         if (fabRecomendar != null) {
+            fabRecomendar.setBackgroundTintList(Utils.getColorStateList(this, R.color.recomendar_btn_false));
             fabRecomendar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -124,14 +125,8 @@ public class PerfilActivity extends NavDrawerActivity {
         }
 
         FloatingActionButton fabChatear = (FloatingActionButton) findViewById(R.id.fab_chatear);
-        if (fabChatear != null) {
-            fabChatear.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // TODO: Chatear
-                }
-            });
-        }
+        if (fabChatear != null)
+            fabChatear.setBackgroundTintList(Utils.getColorStateList(this, R.color.chatear_btn));
 
         FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
         if (fabEditar != null) {
@@ -176,7 +171,7 @@ public class PerfilActivity extends NavDrawerActivity {
         if (intent != null && intent.hasExtra(PERFIL_MODE_MESSAGE)) {
 
             boolean empezarEnModoEdicion = intent.getBooleanExtra(PERFIL_MODE_MESSAGE, false);
-            if (empezarEnModoEdicion) {
+            if (empezarEnModoEdicion && fetchedUserID == connectedUserID) {
 
                 Utils.showView(this, R.id.perfil_information_layout);
 
@@ -427,7 +422,7 @@ public class PerfilActivity extends NavDrawerActivity {
                         .show();
                 return false;
             }
-            et_skill.setText("");
+            et_skill.setText(null);
             mSkillAdapter.notifyDataSetChanged();
 
         } catch (IllegalArgumentException ex) {
@@ -575,17 +570,19 @@ public class PerfilActivity extends NavDrawerActivity {
             case ACTIVE:
                 csl = Utils.getColorStateList(this, R.color.amigar_btn_active);
                 break;
-            default:  // TODO: Revisar contra NONE
-                fab_amigar.setEnabled(false);
             case NONE:
                 csl = Utils.getColorStateList(this, R.color.amigar_btn_none);
+                break;
+            default:
+                csl = Utils.getColorStateList(this, R.color.amigar_btn_none);
+                fab_amigar.setEnabled(false);
         }
         fab_amigar.setBackgroundTintList(csl);
     }
 
     public void refreshProfileInformation(final long idFetched) {
 
-        Utils.getJsonFromAppServer(getContext(), getString(R.string.perfil_get_user_path), idFetched,
+        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_user_path), idFetched,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -622,7 +619,7 @@ public class PerfilActivity extends NavDrawerActivity {
         }
 
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
-                .appendPath(getString(R.string.perfil_get_photo_path))
+                .appendPath(getString(R.string.get_photo_path))
                 .appendPath(Long.toString(idFetched))
                 .build();
         final String url = builtUri.toString();
@@ -639,6 +636,8 @@ public class PerfilActivity extends NavDrawerActivity {
 
         Utils.setTextViewText(this, R.id.text_perfil_mail, mUser.getEmail());
         Utils.setTextViewText(this, R.id.text_perfil_ciudad, mUser.getCity());
+        Utils.setTextViewText(this, R.id.text_perfil_cant_recomendaciones,
+                Long.toString(mUser.getCantRecomendaciones()) + " recomendaciones");//semi hardcode
         Utils.setTextViewText(this, R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
         Utils.setTextViewText(this, R.id.text_perfil_resumen, mUser.getSummary(), true);
         Utils.setTextViewText(this, R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales(), true);
@@ -791,7 +790,7 @@ public class PerfilActivity extends NavDrawerActivity {
             }
 
             final String url = Utils.getAppServerUrl(this, fetchedUserID,
-                                getString(R.string.perfil_post_photo_path));
+                                getString(R.string.post_photo_path));
 
             if (imageFile != null && imageFile.exists()) {
                 try {
@@ -981,7 +980,7 @@ public class PerfilActivity extends NavDrawerActivity {
             if (contact != null) {
 
                 Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
-                        .appendPath(getString(R.string.perfil_get_thumbnail_path))
+                        .appendPath(getString(R.string.get_thumbnail_path))
                         .appendPath(Long.toString(contact.getId()))
                         .build();
                 Utils.cargarImagenDeURLenImageView(getApplicationContext(),
@@ -1101,4 +1100,7 @@ public class PerfilActivity extends NavDrawerActivity {
         fab_recomendar.setBackgroundTintList(csl);
     }
 
+    public void irAConversacion(View v) {
+        Utils.iniciarConversacionActivity(this, fetchedUserID);
+    }
 }

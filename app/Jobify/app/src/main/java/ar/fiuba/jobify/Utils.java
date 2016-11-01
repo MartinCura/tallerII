@@ -3,6 +3,7 @@ package ar.fiuba.jobify;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -57,6 +58,22 @@ public class Utils {
 
     private final static String LOG_TAG = Utils.class.getSimpleName();
 
+    public static void iniciarPerfilActivity(Activity callingActivity, long fetchedUserId,
+                                             boolean comenzarEnModoEdicion) {
+        callingActivity.startActivity(
+                new Intent(callingActivity, PerfilActivity.class)
+                        .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, fetchedUserId)
+                        .putExtra(PerfilActivity.PERFIL_MODE_MESSAGE, comenzarEnModoEdicion)
+        );
+    }
+
+    public static void iniciarConversacionActivity(Activity callingActivity, long remitenteUserId) {
+        callingActivity.startActivity(
+                new Intent(callingActivity, ConversacionActivity.class)
+                        .putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, remitenteUserId)
+        );
+    }
+
     /////////////////////////////////////////// FETCHER ////////////////////////////////////////////
 
     public static String getAppServerBaseURL(Context ctx) {
@@ -81,6 +98,20 @@ public class Utils {
     /**
      * Devuelve un String con la URL para utilizar en un fetch, en la forma:
      * {@code http://<AppServer>/<path>/<idFetched>?<queries_y_valores>}
+     */
+    public static String getAppServerUrl(Context ctx, String path, long idFetched,
+                                         HashMap<String, String> map) {
+        Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon()
+                .appendPath(path)
+                .appendPath(Long.toString(idFetched));
+        for (Map.Entry<String, String> entry : map.entrySet())
+            builder.appendQueryParameter(entry.getKey(), entry.getValue());
+        return builder.build().toString();
+    }
+
+    /**
+     * Devuelve un String con la URL para utilizar en un fetch, en la forma:
+     * {@code http://<AppServer>/<path>?<queries_y_valores>}
      */
     public static String getAppServerUrl(Context ctx, String path, HashMap<String, String> map) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon()
@@ -247,8 +278,15 @@ public class Utils {
         RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
     }
 
-    public static void cargarImagenDeURLenImageView(final Context context, final ImageView imageView,
-                                                    final String url, final String logTag) {
+
+    public static void cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
+                                                    final String  url, final String logTag) {
+        cargarImagenDeURLenImageView(ctx, imageView, url, logTag, false);
+    }
+
+    public static void cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
+                                  final String url, final String logTag, final boolean squareCrop) {
+
         if (imageView == null) {
             //Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
             return;
@@ -257,7 +295,11 @@ public class Utils {
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {
-                        imageView.setImageBitmap(bitmap);
+                        if (squareCrop)
+                            imageView.setImageBitmap(cropToSquare(bitmap));
+                        else
+                            imageView.setImageBitmap(bitmap);
+
                     }
 
                 }, imageView.getWidth(), imageView.getHeight(),
@@ -272,14 +314,14 @@ public class Utils {
                         //error.printStackTrace();//
                         if (error.networkResponse.statusCode == 200) {
                             Log.e(logTag, "Problema con la imagen. Re-request");//
-                            cargarImagenDeURLenImageView(context, imageView, url, logTag);
+                            cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
                         } else {
                             Log.e(logTag, "Error cargando imagen, response code: "
                                     +error.networkResponse.statusCode);
                         }
                     }
                 });
-        RequestQueueSingleton.getInstance(context)
+        RequestQueueSingleton.getInstance(ctx)
                 .addToRequestQueue(request);
     }
 
@@ -506,6 +548,19 @@ public class Utils {
         }
 
         return json;
+    }
+
+    public static Bitmap cropToSquare(Bitmap bitmap){
+        int width  = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int newWidth = (height > width) ? width : height;
+        int newHeight = (height > width) ? (height - (height - width)) : height;
+        int cropW = (width - height) / 2;
+        cropW = (cropW < 0) ? 0 : cropW;
+        int cropH = (height - width) / 2;
+        cropH = (cropH < 0) ? 0 : cropH;
+
+        return Bitmap.createBitmap(bitmap, cropW, cropH, newWidth, newHeight);
     }
 
     @SuppressWarnings("deprecation")

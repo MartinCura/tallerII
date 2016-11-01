@@ -29,12 +29,11 @@
     <string name="perfil_skills_title">Skills</string>
 
     <string name="BASE_HTTP_URL">http://192.168.43.236:8000/</string>
-    <string name="perfil_get_user_path">users</string>
-    <string name="perfil_get_photo_path">profilepicture</string>
-    <string name="perfil_post_photo_path">profilepicture</string>
-    <string name="perfil_get_thumbnail_path">profilepicture</string>
+    <string name="get_user_path">users</string>
+    <string name="get_photo_path">profilepicture</string>
+    <string name="post_photo_path">profilepicture</string>
+    <string name="get_thumbnail_path">profilepicture</string>
     <!-- TODO get thumbnail y post photo paths -->
-
 
 
     <!-- Strings related to Settings -->
@@ -156,4 +155,12 @@
     <string name="pick_date_description">Elegir fecha</string>
     <string name="confirmacion_recomendar">¿Quiere recomendar a este simplón?</string>
     <string name="confirmacion_desrecomendar">¿Está seguro que quiere eliminar su recomendación?</string>
+    <string name="enviar_mensaje_description">Enviar mensaje</string>
+    <string name="conversacion_entrada_hint">Escriba su mensaje</string>
+    <string name="conversacion_hora_default">22:09</string>
+    <string name="message_tick_description">Estado de recepción de mensaje</string>
+    <string name="get_messages_path">messages</string>
+    <string name="put_messages_path">messages</string>
+    <string name="title_activity_conversacion">Conversación</string>
+    <string name="action_enviar_mensaje">Enviar mensaje</string>
 </resources>

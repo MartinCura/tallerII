@@ -19,6 +19,7 @@
         android:layout_height="72dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:contentDescription="@string/nav_drawer_thumbnail_description"
+        android:onClick="irAPerfilPropio"
         android:visibility="gone"
         android:src="@drawable/ic_refreshing" />
 
@@ -35,12 +36,14 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="@string/perfil_nombre_y_apellido_default"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:onClick="irAPerfilPropio" />
 
     <TextView
         android:id="@+id/nav_drawer_user_mail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/perfil_mail_default" />
+        android:text="@string/perfil_mail_default"
+        android:onClick="irAPerfilPropio" />
 
 </LinearLayout>

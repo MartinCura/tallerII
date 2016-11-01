@@ -3,8 +3,8 @@ package ar.fiuba.jobify;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -215,6 +215,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
 
+            final Activity activity = this;
             final Context ctx = getApplicationContext();
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
 
@@ -234,7 +235,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                             long connectedUserId = loginResponse.getId();
                             guardarConnectedId(connectedUserId);
-                            iniciarPerfilActivity(connectedUserId, false);
+                            Utils.iniciarPerfilActivity(activity, connectedUserId, false);
                         }
                     }, new Response.ErrorListener() {
                         @Override
@@ -270,6 +271,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
 
             final Context ctx = getApplicationContext();
+            final Activity activity = this;
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
             Log.d(LOG_TAG, "POST de registro:\n"+jsonRequest.toString());//
 
@@ -290,7 +292,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             long connectedUserId = loginResponse.getId();
                             Log.d(LOG_TAG, "connectedUserId: "+connectedUserId);//
                             guardarConnectedId(connectedUserId);
-                            iniciarPerfilActivity(connectedUserId, true);
+                            Utils.iniciarPerfilActivity(activity, connectedUserId, true);
                         }
 
                     }, new Response.ErrorListener() {
@@ -418,16 +420,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //        int IS_PRIMARY = 1;
     }
 
-
-    public void iniciarPerfilActivity(long fetchedUserId, boolean comenzarEnModoEdicion) {
-
-        startActivity(
-                new Intent(LoginActivity.this, PerfilActivity.class)
-                        .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, fetchedUserId)
-                        .putExtra(PerfilActivity.PERFIL_MODE_MESSAGE, comenzarEnModoEdicion)
-        );
-    }
-
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
         long connectedUserId = 1L;
@@ -437,7 +429,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 "user id: "+connectedUserId, Toast.LENGTH_LONG)
                 .show();
 
-        iniciarPerfilActivity(connectedUserId, false);
+        Utils.iniciarPerfilActivity(this, connectedUserId, false);
     }//;//
 }
 

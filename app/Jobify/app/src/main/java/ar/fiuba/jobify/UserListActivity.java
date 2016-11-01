@@ -109,6 +109,23 @@ public class UserListActivity extends NavDrawerActivity {
         }
     }
 
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
+    }
+
+    public void onStop() {
+        super.onStop();
+        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
+            RequestQueue mRequestQueue = RequestQueueSingleton
+                    .getInstance(this.getApplicationContext())
+                    .getRequestQueue();
+            mRequestQueue.cancelAll(LOG_TAG);
+        }
+    }
+
+
     private void listarSolicitudesReceived() {
         Toast.makeText(this, "Listo las solicitudes pendientes", Toast.LENGTH_LONG)
                 .show();
@@ -131,7 +148,7 @@ public class UserListActivity extends NavDrawerActivity {
         }, LOG_TAG);
     }
 
-    // de prueba TODO
+    // de prueba //;//
     private void listarTodosLosUsuarios() {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
@@ -158,18 +175,11 @@ public class UserListActivity extends NavDrawerActivity {
                         }
                     }
         }, LOG_TAG);
-
-//        //TODO: BORRAR cuando funcione la API correspondiente
-//        Toast.makeText(this, "Listo todos los usuarios del 1 al 10", Toast.LENGTH_LONG)
-//                .show();
-//        for (long id = 1; id <= 5; id++) {
-//            fetchAndAddUser(id);
-//        }
     }
 
     private void fetchAndAddUser(long id) { // TODO: De prueba, CAMBIAR POR GET REDUCIDO
 
-        Utils.getJsonFromAppServer(this, getString(R.string.perfil_get_user_path), id,
+        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -180,25 +190,6 @@ public class UserListActivity extends NavDrawerActivity {
                     }
                 }, LOG_TAG);
     }
-
-    @Override
-    public void setContentView(@LayoutRes int layoutResID) {
-        super.setContentView(layoutResID);
-        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
-    }
-
-    public void onStop() {
-        super.onStop();
-
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
-
-            RequestQueue mRequestQueue = RequestQueueSingleton
-                    .getInstance(this.getApplicationContext())
-                    .getRequestQueue();
-            mRequestQueue.cancelAll(LOG_TAG);
-        }
-    }
-
 
     private class UserArrayAdapter extends ArrayAdapter<User> {
 
@@ -224,7 +215,7 @@ public class UserListActivity extends NavDrawerActivity {
 
                 if (iv_thumbnail != null) {
                     Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
-                            .appendPath(getString(R.string.perfil_get_thumbnail_path))
+                            .appendPath(getString(R.string.get_thumbnail_path))
                             .appendPath(Long.toString(user.getId()))
                             .build();
                     final String url = builtUri.toString();
@@ -243,5 +234,4 @@ public class UserListActivity extends NavDrawerActivity {
             return itemView;
         }
     }
-
 }
