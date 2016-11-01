@@ -20,6 +20,7 @@ public:
 private:
     DBWrapper* db;
     string getTimestamp();
+    string getKey(long fromUserId, long toUserId);
 };
 
 #endif //PROJECT_MESSAGESMANAGER_H

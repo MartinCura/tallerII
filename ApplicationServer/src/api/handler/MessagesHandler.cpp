@@ -15,7 +15,7 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
     try {
         long fromUserId = this->getUserIdFromUrl(url);
         long toUserId = this->getToUserFromQueryParams(queryParams);
-        vector<Message*> messages = this->getAllMessages(fromUserId, toUserId, personManager);
+        vector<Message*> messages = personManager->getMessages(fromUserId, toUserId);
         long totalCount = messages.size();
         messages = this->truncateMessages(messages, queryParams);
         Json::Value messagesAsJson = this->buildJsonResponse(messages, totalCount);
@@ -124,21 +124,6 @@ vector<Message*> MessagesHandler::truncateMessages(vector<Message*> messages, st
     } else {
         return messages;
     }
-}
-
-bool sortByTimestamp(Message* message1, Message* message2) {
-    time_t timestamp1 = message1->getTimestampAsTimeT();
-    time_t timestamp2 = message2->getTimestampAsTimeT();
-    double seconds = difftime(timestamp1, timestamp2);
-    return (seconds < 0.0);
-}
-
-vector<Message*> MessagesHandler::getAllMessages(long userId1, long userId2, PersonManager* personManager) {
-    vector<Message*> messages1 = personManager->getMessages(userId1, userId2);
-    vector<Message*> messages2 = personManager->getMessages(userId2, userId1);
-    messages1.insert(messages1.end(), messages2.begin(), messages2.end());
-    //sort(messages1.begin(), messages1.end(), sortByTimestamp);
-    return messages1;
 }
 
 vector<Message*> MessagesHandler::doTruncate(vector<Message*> messages, int from, int to) {

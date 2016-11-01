@@ -26,14 +26,14 @@ void MessagesManager::saveMessage(long fromUserId, long toUserId, string message
     }
     Json::FastWriter fastWriter;
     string valueToSave = fastWriter.write(allMessagesAsJson);
-    string key = to_string(fromUserId) + DELIMITER + to_string(toUserId);
+    string key = this->getKey(fromUserId, toUserId);
     this->db->puTKey(key, &valueToSave);
 }
 
 vector<Message*> MessagesManager::getMessages(long fromUserId, long toUserId) {
     vector<Message*> messages;
     string result;
-    string key = to_string(fromUserId) + DELIMITER + to_string(toUserId);
+    string key = this->getKey(fromUserId, toUserId);
     if (this->db->existsKey(key, &result)) {
         Json::Reader reader;
         Json::Value messagesAsJson;
@@ -44,6 +44,14 @@ vector<Message*> MessagesManager::getMessages(long fromUserId, long toUserId) {
         }
     }
     return messages;
+}
+
+string MessagesManager::getKey(long fromUserId, long toUserId) {
+    if (fromUserId < toUserId) {
+        return to_string(fromUserId) + DELIMITER + to_string(toUserId);
+    } else {
+        return to_string(toUserId) + DELIMITER + to_string(fromUserId);
+    }
 }
 
 string MessagesManager::getTimestamp() {

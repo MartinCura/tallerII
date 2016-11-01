@@ -23,7 +23,6 @@ private:
     int getToParameterFromQueryParamsIfExists(string queryParams);
     vector<Message*> truncateMessages(vector<Message*> messages, string queryParams);
     vector<Message*> doTruncate(vector<Message*> messages, int from, int to);
-    vector<Message*> getAllMessages(long userId1, long userId2, PersonManager* personManager);
     Json::Value buildJsonResponse(vector<Message*> messages, long totalCount);
 };
 
