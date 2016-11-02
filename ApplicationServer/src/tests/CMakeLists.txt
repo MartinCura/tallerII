@@ -18,7 +18,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveld
 # files (.cpp) in the project
 file(GLOB_RECURSE SOURCES *.cpp ../person/*.cpp)
 
-add_executable (${TARGET} ${SOURCES} ../DB/DBWrapper.h ../DB/DBWrapper.cpp testing_uniqueDB.cpp ../Exceptions/UserAlreadyExistsException.h ../Exceptions/UserNotFoundException.h ../Exceptions/InvalidTokenException.h initdb.cpp ../session/SessionManager.cpp ../session/SessionManager.h ../Exceptions/TokenExpiredException.h)
+add_executable (${TARGET} ${SOURCES} ../DB/DBWrapper.h ../DB/DBWrapper.cpp testing_uniqueDB.cpp ../Exceptions/UserAlreadyExistsException.h ../Exceptions/UserNotFoundException.h ../Exceptions/InvalidTokenException.h initdb.cpp ../session/SessionManager.cpp ../session/SessionManager.h  ../person/relation/RelationsManager.cpp ../person/relation/RelationsManager.h ../Exceptions/TokenExpiredException.h)
 
 target_link_libraries (${TARGET} gtest)
 target_link_libraries (${TARGET} leveldb)
