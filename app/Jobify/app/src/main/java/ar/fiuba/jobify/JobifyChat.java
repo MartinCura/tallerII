@@ -23,10 +23,19 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.FieldNamingPolicy;
+
+import java.util.Random;
 
 public class JobifyChat extends FirebaseMessagingService {
 
@@ -56,7 +65,35 @@ public class JobifyChat extends FirebaseMessagingService {
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            String body =  remoteMessage.getData() + "";
+            Log.d(TAG, "Message data payload: " + body);
+            JsonParser parser = new JsonParser();
+            JsonObject message = parser.parse(body).getAsJsonObject();
+            // here we call the callback to the activity
+
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setContentTitle("My notification")
+                            .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                            .setAutoCancel(true)
+                            .setContentText(body);
+
+            Intent resultIntent = new Intent(this, LoginActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            stackBuilder.addParentStack(LoginActivity.class);
+
+// Adds the Intent that starts the Activity to the top of the stack
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.setContentIntent(resultPendingIntent);
+
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+            Random r = new Random();
+            mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
+
         }
 
         // Check if message contains a notification payload.
