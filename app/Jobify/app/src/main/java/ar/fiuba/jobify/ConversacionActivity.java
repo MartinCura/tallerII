@@ -28,6 +28,7 @@ import com.android.volley.VolleyError;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -187,16 +188,13 @@ public class ConversacionActivity extends NavDrawerActivity {
     }
 
     private void cargarUltimosMensajes() {
-        if (mMessageArrayAdapter != null)
-            mMessageArrayAdapter.vaciar();
 
         final Context ctx = this;
         HashMap<String, String> map = new HashMap<>();
-        map.put("user", Long.toString(corresponsalID));
+        map.put(getString(R.string.get_messages_user_query), Long.toString(corresponsalID));
         map.put(getString(R.string.get_messages_first_query), "1");   // Carga desde el último mensaje
         map.put(getString(R.string.get_messages_last_query), Integer.toString(CANT_MENSAJES_POR_PAGE));
-        String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path),
-                connectedUserID, map);
+        String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path), connectedUserID, map);
 
         Utils.fetchJsonFromUrl(this, Request.Method.GET, urlMensajes, null,
                 new Response.Listener<JSONObject>() {
@@ -207,6 +205,9 @@ public class ConversacionActivity extends NavDrawerActivity {
 
                         if (messagesResponse != null) {
                             maxMensaje = messagesResponse.getMetadata().getTotalCount();
+
+                            if (mMessageArrayAdapter != null)
+                                mMessageArrayAdapter.vaciar();
                             mMessageArrayAdapter =
                                     new MessageArrayAdapter(ctx, messagesResponse.getMessages());
                             mListView.setAdapter(mMessageArrayAdapter);
@@ -219,21 +220,22 @@ public class ConversacionActivity extends NavDrawerActivity {
                 }, LOG_TAG);
     }
 
-    private boolean cargarMasMensajes(long page) {
-        return cargarMasMensajes(page, false);
-    }
-
     /**
+     * Busca en el AppServer los últimos CANT_MENSAJES_POR_PAGE mensajes no listados todavía.
      * @param page es el número de páginas de resultados, comenzando en 0 para el cargado inicial
      * @param forzarCarga ignora si el límite guardado localmente ya fue alcanzado, cargando más
      */
-    public boolean cargarMasMensajes(long page, boolean forzarCarga) {
+    private boolean cargarMasMensajes(long page, boolean forzarCarga) {
         if (!forzarCarga && (page * CANT_MENSAJES_POR_PAGE >= maxMensaje)) {
             mEndlessScrollListener.desactivar();
             return false;
         }
         long numFirst = (page * CANT_MENSAJES_POR_PAGE + 1) + mOffset;
         long numLast  = (page + 1) * CANT_MENSAJES_POR_PAGE + mOffset;
+
+        // Arregla por cómo funciona AppServer ahora, pero no me parece lo más seguro
+        // TODO: Sacar si se cambia el funcionamiento en la API.
+        numLast = (maxMensaje < numLast) ? maxMensaje : numLast;
 
         HashMap<String, String> map = new HashMap<>();
         map.put(getString(R.string.get_messages_user_query), Long.toString(corresponsalID));
@@ -304,9 +306,6 @@ public class ConversacionActivity extends NavDrawerActivity {
 //                                    .show();//
                             Log.i(LOG_TAG, "Mensaje enviado: " + mensajeAEnviar);//
 
-                            // Vacío el input.
-                            et_entrada.setText(null);
-
                             // Agrego el mensaje enviado a los mostrados en la conversación
                             // TODO: HACERLO CON EL DEVUELTO POR EL APPSERVER si quiero que tenga la hora bien
                             recibirMensajesNuevos(jsObjMessage);
@@ -325,6 +324,8 @@ public class ConversacionActivity extends NavDrawerActivity {
                         }
                     }, LOG_TAG);
         }
+        // Vacío el input.
+        et_entrada.setText(null);
     }
 
 
@@ -337,40 +338,30 @@ public class ConversacionActivity extends NavDrawerActivity {
         public MessageArrayAdapter(Context context, List<Message> messageList) {
             this.ctx = context;
             this.chatMessages = new ArrayList<>(messageList);
-
-            ///TEST, TODO: BORRAR
-//            chatMessages.add(new Message(1, 2, "hola"));
-//            chatMessages.add(new Message(1, 2, "hola"));
-//            chatMessages.add(new Message(1, 2, "hola"));
-//            chatMessages.add(new Message(1, 2, "hola"));
-//            chatMessages.add(new Message(1, 2, "hola"));
-//            chatMessages.add(new Message(1, 2, "hola"));
-//            chatMessages.add(new Message(1, 2, "hooooolaaaaa"));
-//            chatMessages.add(new Message(1, 2, "heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"));
-//            chatMessages.add(new Message(2, 1, "holissssssssssssssssssssssssssssssssssssssss"));
-//            chatMessages.add(new Message(1, 2, "holis! :D"));
-//            chatMessages.add(new Message(2, 1, "holis!"));
-//            chatMessages.add(new Message(2, 1, "chau :)"));
-//            chatMessages.add(new Message(1, 2, "noo :("));
-//            chatMessages.add(new Message(2, 1, "has disconnected"));
-            ///
         }
 
         /** Precondición: son anteriores a los ya listados
          * y se encuentran listados de MAYOR a MENOR */
         public void appendearMensajes(List<Message> messageList) {
-            this.chatMessages.addAll(messageList);
+            ArrayList<Message> auxList = new ArrayList<>(messageList);
+            Collections.reverse(auxList);
+            for (Message mensajeMasViejo : auxList) {
+                this.chatMessages.add(0, mensajeMasViejo);
+            }
             notifyDataSetChanged();
         }
 
         // Chequea que el mensaje sea más nuevo que el último ya listado
         public void agregarNuevoMensaje(Message nuevoMensaje) {
             // No agrega si el último mensaje listado no tiene un timestamp menor
-            if (nuevoMensaje.getTimestamp().compareTo(this.chatMessages.get(0).getTimestamp()) <= 0) {
+            if (getCount() != 0 &&
+                    nuevoMensaje.getTimestamp().compareTo(this.chatMessages.get(0).getTimestamp()) <= 0) {
                 Log.i(LOG_TAG, "Se recibió nuevoMensaje con timestamp menor o igual al último." +
                         "msj: " + nuevoMensaje.getMessage());
+                return;
             }
             this.chatMessages.add(nuevoMensaje);
+            maxMensaje++;
             mOffset++;
             notifyDataSetChanged();
         }
@@ -519,10 +510,10 @@ public class ConversacionActivity extends NavDrawerActivity {
                     currentPage++;
                 }
             }
-            if (!loading && (totalItemCount - visibleItemCount)
-                                <= (firstVisibleItem + visibleThreshold)) {
-                Log.d(LOG_TAG, "duuuude");//
-                if (cargarMasMensajes(currentPage))
+            if (!loading && firstVisibleItem != 0
+                    && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                Log.d(LOG_TAG, "duuuude, currentPage: "+currentPage);//
+                if (cargarMasMensajes(currentPage, false))
                     loading = true;
             }
         }

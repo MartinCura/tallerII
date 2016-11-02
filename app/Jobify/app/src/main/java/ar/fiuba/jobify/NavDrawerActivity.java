@@ -59,6 +59,14 @@ public class NavDrawerActivity extends AppCompatActivity
         setUpDrawerHeader();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
+        if (drawer != null)
+            drawer.closeDrawer(GravityCompat.START);
+    }
+
     private void setUpDrawerHeader() {
 
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.nav_drawer_header_layout);
@@ -138,7 +146,9 @@ public class NavDrawerActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_manage) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            startActivity(
+                    new Intent(this, SettingsActivity.class)
+            );
             return false;
         } else if (id == R.id.nav_solicitudes) {
             startActivity(
@@ -158,14 +168,6 @@ public class NavDrawerActivity extends AppCompatActivity
         if (drawer != null)
             drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
-        if (drawer != null)
-            drawer.closeDrawer(GravityCompat.START);
     }
 
     public void setUpDrawerHeaderUser() {

@@ -64,8 +64,8 @@
 
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"
-            android:noHistory="true" />
+            android:label="@string/title_activity_login" />
+            <!--android:noHistory="true"-->
         <activity
             android:name=".UserListActivity"
             android:label="@string/title_activity_user_list"
