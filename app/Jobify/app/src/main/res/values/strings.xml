@@ -7,6 +7,9 @@
     <!-- Menúes -->
     <string name="action_settings">Settings</string>
 
+
+    <string name="facebook_app_id">1220675784659960</string>
+
     <!-- Perfil -->
     <string name="title_activity_perfil">Cargando perfil…</string>
 
