@@ -12,23 +12,25 @@ Handler::Handler() {}
 Handler::~Handler() {}
 
 Response* Handler::handleRequest(http_message* httpMessage, string url) {
-    if (isPublic == false ) {
+    if (isPublic == false) {
         //Se necesita verificar primero que la sesión esté abierta
 
         Json::Value b = httpMessage->header_values->p;
-        std::string token;
-        /*Json::Value body = this->parseBody(string(httpMessage->body.p));
-        if (!body.isMember("token")) {
+        if (!b.isMember("Authorization")) {
             throw InvalidRequestException("Token missing");
         }
 
-        token = body["token"].asString();
+        std::string token = b["Authorization"].asString();
         SessionManager* sessionManager = new SessionManager("/tmp/appDB");
 
-        //si no falla es porque la sesión esta abierta.
-        //TODO: VERIFICAR COMO AGREGAR LA INFORMACIÓN AL BODY
-        body["user_mail_id"] = sessionManager->checkSession(token);
-        httpMessage->body.p = body.toStyledString().c_str();*/
+        try {
+            sessionManager->checkSession(token);
+        }catch (exception& e) {
+            //Si la sesión está en condiciones (abierta y sin expirar), sigue de largo
+            //Sino se levanta una excepción
+
+        }
+
     }
 
     if (this->isEqual(&httpMessage->method, &s_get_method)) {
