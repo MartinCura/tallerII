@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONObject;
 
@@ -66,6 +67,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
