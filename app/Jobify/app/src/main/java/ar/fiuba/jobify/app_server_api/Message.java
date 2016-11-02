@@ -5,9 +5,14 @@ import android.util.Log;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by martín on 31/10/16.
@@ -15,15 +20,22 @@ import org.json.JSONObject;
  */
 public class Message {
 
+    public static String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
     long  from = 0,
             to = 0;
     String message = "",
-         timestamp = "AAAA-MM-DD HH:mm:SS";
+         timestamp = TIMESTAMP_FORMAT;
 
     public Message(long from, long to, String mensaje) {
         this.from = from;
         this.to   = to;
         this.message = mensaje;
+
+        @SuppressWarnings("SimpleDateFormat") //kb
+        DateFormat df = new SimpleDateFormat(TIMESTAMP_FORMAT);
+        Date dateobj = new Date();
+        this.timestamp = df.format(dateobj);
     }
 
     public long getFrom() {
@@ -87,6 +99,21 @@ public class Message {
         } catch (JSONException ex) {
             ex.printStackTrace();
             Log.e("Message", "No se convirtió correctamente, bizarro, ¿culpa de gson?");
+            return null;
+        }
+    }
+
+    public static Message parseJSON(String response) {
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
+
+        try {
+            return gson.fromJson(response, Message.class);
+
+        } catch (JsonSyntaxException e) {
+            Log.e("API", "Json Syntax exception!");
+            e.printStackTrace();
             return null;
         }
     }

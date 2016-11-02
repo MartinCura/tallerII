@@ -115,7 +115,8 @@
                             android:layout_gravity="bottom"
                             android:layout_alignParentRight="true"
                             android:visibility="gone"
-                            android:src="@drawable/ic_location" />
+                            android:src="@drawable/ic_location"
+                            android:background="#0000" />
                         <android.support.design.widget.TextInputLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
@@ -252,7 +253,8 @@
                             android:layout_alignParentRight="true"
                             android:onClick="showDatePickerDialog"
                             android:contentDescription="@string/pick_date_description"
-                            android:src="@drawable/ic_calendar" />
+                            android:src="@drawable/ic_calendar"
+                            android:background="#0000" />
                     </RelativeLayout>
 
                 </LinearLayout>
@@ -377,7 +379,8 @@
                             android:layout_alignParentRight="true"
                             android:contentDescription="@string/add_item_description"
                             android:layout_gravity="end"
-                            android:src="@drawable/ic_add" />
+                            android:src="@drawable/ic_add"
+                            android:background="#0000" />
                         <EditText
                             android:id="@+id/text_perfil_employment_new_company"
                             android:layout_width="match_parent"
@@ -525,7 +528,8 @@
                             android:contentDescription="@string/add_item_description"
                             android:layout_alignParentRight="true"
                             android:layout_gravity="end"
-                            android:src="@drawable/ic_add" />
+                            android:src="@drawable/ic_add"
+                            android:background="#0000" />
                         <AutoCompleteTextView
                             android:id="@+id/text_perfil_skill_new"
                             android:layout_width="match_parent"

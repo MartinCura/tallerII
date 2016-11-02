@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingBottom="9dp"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical">
     <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
@@ -25,6 +24,7 @@
         android:src="@drawable/placeholder_image"
         android:scaleType="centerCrop"
         android:cropToPadding="true"
+        android:background="#0000"
         android:contentDescription="@string/perfil_foto_description" />
 
     <!--TODO: Poner una especie de barra divisora acá-->
@@ -49,12 +49,14 @@
     <ImageButton
         android:id="@+id/conversacion_btn_mandar"
         android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_height="40dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
+        android:paddingBottom="12dp"
         android:layout_marginRight="8dp"
         android:onClick="enviarMensaje"
         android:src="@drawable/ic_mandar_mensaje"
+        android:background="#0000"
         android:contentDescription="@string/enviar_mensaje_description" />
 
     <!--&lt;!&ndash; Dummy item para prevenir foco automático en el input &ndash;&gt;-->
@@ -74,9 +76,11 @@
         android:layout_toLeftOf="@id/conversacion_btn_mandar"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="5dp"
+        android:maxLines="7"
         android:inputType="textMultiLine"
         android:imeActionId="@+id/conversacion_enviar"
         android:imeActionLabel="@string/action_enviar_mensaje"
@@ -93,7 +97,7 @@
         android:layout_alignParentRight="true"
         android:layout_above="@id/conversacion_entrada"
         android:layout_below="@id/conversacion_thumbnail"
-        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingBottom="6dp"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:stackFromBottom="true"
         android:transcriptMode="normal">

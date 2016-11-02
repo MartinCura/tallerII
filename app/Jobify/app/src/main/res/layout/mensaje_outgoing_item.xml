@@ -32,7 +32,6 @@
             android:contentDescription="@string/message_tick_description"
             android:visibility="visible" />
 
-
         <TextView
             android:id="@+id/mensaje_outgoing_time_text"
             android:layout_height="wrap_content"

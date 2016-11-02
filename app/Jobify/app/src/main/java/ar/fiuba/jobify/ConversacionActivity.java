@@ -49,6 +49,9 @@ public class ConversacionActivity extends NavDrawerActivity {
     // Variable setteada con el totalCount del Metadata para saber cuándo se acabaron los mensajes;
     // si envío o recibo nuevos mensajes sin salir de la actividad, debería incrementársela.
     private long maxMensaje = 0;
+    // Esta variable crece junto con mensajes recibidos o enviados mientras se está en la
+    // conversación, para compensar y calcular correctamente mensajes más viejos para fetchear.
+    private long mOffset = 0;
 
     private ListView mListView;
     private MessageArrayAdapter mMessageArrayAdapter;
@@ -73,9 +76,7 @@ public class ConversacionActivity extends NavDrawerActivity {
         }
 
         EditText et_input = (EditText) findViewById(R.id.conversacion_entrada);
-
         if (et_input != null) {
-           // TODO: Revisar que no arruine el Enter en el teclado del celular
            et_input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                @Override
                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -134,11 +135,23 @@ public class ConversacionActivity extends NavDrawerActivity {
 
     /**
      * Punto de entrada para notificar por nuevos mensajes
-     * Por ahora la forma no es la mejor, (TODO) se podría emprolijar, leer commit message ~ mc
      */
-    public void recibirMensajesNuevos() {
-        // Chequear que los nuevos mensajes sean para esta conversación
-        recargarMensajes();
+    public void recibirMensajesNuevos(JSONObject jsonMensaje) {
+        Message nuevoMensaje = Message.parseJSON(jsonMensaje.toString());
+        if (nuevoMensaje == null) {
+            Log.e(LOG_TAG, "Json error con nuevoMensaje");
+            return;
+        }
+
+        long from = nuevoMensaje.getFrom();
+        long to   = nuevoMensaje.getTo();
+        if  (!((from == connectedUserID && to == corresponsalID)
+           || (from == corresponsalID || to == connectedUserID))) {
+            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación");
+            return;
+        }
+
+        mMessageArrayAdapter.agregarNuevoMensaje(nuevoMensaje);
     }
 
 
@@ -174,11 +187,14 @@ public class ConversacionActivity extends NavDrawerActivity {
     }
 
     private void cargarUltimosMensajes() {
+        if (mMessageArrayAdapter != null)
+            mMessageArrayAdapter.vaciar();
+
         final Context ctx = this;
         HashMap<String, String> map = new HashMap<>();
         map.put("user", Long.toString(corresponsalID));
-        map.put("from", "1");   // Carga desde el último mensaje
-        map.put("to", Integer.toString(CANT_MENSAJES_POR_PAGE));
+        map.put(getString(R.string.get_messages_first_query), "1");   // Carga desde el último mensaje
+        map.put(getString(R.string.get_messages_last_query), Integer.toString(CANT_MENSAJES_POR_PAGE));
         String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path),
                 connectedUserID, map);
 
@@ -191,44 +207,10 @@ public class ConversacionActivity extends NavDrawerActivity {
 
                         if (messagesResponse != null) {
                             maxMensaje = messagesResponse.getMetadata().getTotalCount();
-
-                            /////////////// TODO DE PRUEBA, AGARRANDO DE AMBAS FORMAS DE URL ///////
-//                            final ArrayList<Message> msjs = new ArrayList<>(messagesResponse.getMessages());
-//                            HashMap<String, String> map = new HashMap<>();
-//                            map.put("user", Long.toString(connectedUserID));
-//                            map.put("from", "1");   // Carga desde el último mensaje
-//                            map.put("to", Integer.toString(CANT_MENSAJES_POR_PAGE));
-//                            String urlMensajes = Utils.getAppServerUrl(ctx, "messages",
-//                                    corresponsalID, map);
-//                            Utils.fetchJsonFromUrl(ctx, Request.Method.GET, urlMensajes, null,
-//                                    new Response.Listener<JSONObject>() {
-//                                        @Override
-//                                        public void onResponse(JSONObject response) {
-//                                            MessagesResponse messagesResponse2 =
-//                                                    MessagesResponse.parseJSON(response.toString());
-//
-//                                            if (messagesResponse2 != null) {
-//                                                msjs.addAll(messagesResponse2.getMessages());
-//                                                Collections.sort(msjs, new Comparator<Message>() {
-//                                                    @Override
-//                                                    public int compare(Message m1, Message m2) {
-//                                                        return m1.getTimestamp().compareTo(m2.getTimestamp());
-//                                                    }
-//                                                });
-//
-//                                                mMessageArrayAdapter = new MessageArrayAdapter(ctx, msjs);
-//                                                mListView.setAdapter(mMessageArrayAdapter);
-//
-//                                            } else {
-//                                                Log.e(LOG_TAG, "Error de parseo de MessagesResponse");
-//                                            }
-//                                        }
-//                                    }, LOG_TAG);
-                            /////////////// TODO ///////////////////////////////////////////////////
-
-                            // Original //
-                            mMessageArrayAdapter = new MessageArrayAdapter(ctx, messagesResponse.getMessages());
+                            mMessageArrayAdapter =
+                                    new MessageArrayAdapter(ctx, messagesResponse.getMessages());
                             mListView.setAdapter(mMessageArrayAdapter);
+                            mOffset = 0;
 
                         } else {
                             Log.e(LOG_TAG, "Error de parseo de MessagesResponse");
@@ -250,11 +232,14 @@ public class ConversacionActivity extends NavDrawerActivity {
             mEndlessScrollListener.desactivar();
             return false;
         }
+        long numFirst = (page * CANT_MENSAJES_POR_PAGE + 1) + mOffset;
+        long numLast  = (page + 1) * CANT_MENSAJES_POR_PAGE + mOffset;
 
         HashMap<String, String> map = new HashMap<>();
-        map.put("user", Long.toString(corresponsalID));
-        map.put("from", Long.toString(page * CANT_MENSAJES_POR_PAGE + 1));
-        map.put("to",   Long.toString((page + 1) * CANT_MENSAJES_POR_PAGE));
+        map.put(getString(R.string.get_messages_user_query), Long.toString(corresponsalID));
+        map.put(getString(R.string.get_messages_first_query), Long.toString(numFirst));
+        map.put(getString(R.string.get_messages_last_query),  Long.toString(numLast));
+
         String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path),
                 connectedUserID, map);
 
@@ -278,18 +263,18 @@ public class ConversacionActivity extends NavDrawerActivity {
         return true;
     }
 
-    /**
-     * Limpia los mensajes y recarga
-     */
-    private void recargarMensajes() {
-        mMessageArrayAdapter.vaciar();
-        mListView.setAdapter(null);
-
-        mListView.setAdapter(mMessageArrayAdapter = new MessageArrayAdapter(this, new ArrayList<Message>()));
-        mListView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
-
-        cargarUltimosMensajes();
-    }
+//    /**
+//     * Limpia los mensajes y recarga
+//     */
+//    private void recargarMensajes() {
+//        mMessageArrayAdapter.vaciar();
+//        mListView.setAdapter(null);
+//
+//        mListView.setAdapter(mMessageArrayAdapter = new MessageArrayAdapter(this, new ArrayList<Message>()));
+//        mListView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
+//
+//        cargarUltimosMensajes();
+//    }
 
     public void enviarMensaje(View v) {
         enviarMensaje();
@@ -309,7 +294,9 @@ public class ConversacionActivity extends NavDrawerActivity {
             Message message = new Message(connectedUserID, corresponsalID, mensajeAEnviar);
             String urlEnvioMensaje = Utils.getAppServerUrl(this, getString(R.string.put_messages_path));
 
-            Utils.fetchJsonFromUrl(this, Request.Method.PUT, urlEnvioMensaje, message.toJsonObject(),
+            final JSONObject jsObjMessage = message.toJsonObject();
+
+            Utils.fetchJsonFromUrl(this, Request.Method.PUT, urlEnvioMensaje, jsObjMessage,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -320,9 +307,10 @@ public class ConversacionActivity extends NavDrawerActivity {
                             // Vacío el input.
                             et_entrada.setText(null);
 
-                            // Recargo los mensajes para que se muestren correctamente
-                            // TODO: Otra manera más prolija? Usando recibirNuevosMensajes() ?
-                            recargarMensajes();
+                            // Agrego el mensaje enviado a los mostrados en la conversación
+                            // TODO: HACERLO CON EL DEVUELTO POR EL APPSERVER si quiero que tenga la hora bien
+                            recibirMensajesNuevos(jsObjMessage);
+
                         }
                     }, new Response.ErrorListener() {
                         @Override
@@ -372,6 +360,18 @@ public class ConversacionActivity extends NavDrawerActivity {
          * y se encuentran listados de MAYOR a MENOR */
         public void appendearMensajes(List<Message> messageList) {
             this.chatMessages.addAll(messageList);
+            notifyDataSetChanged();
+        }
+
+        // Chequea que el mensaje sea más nuevo que el último ya listado
+        public void agregarNuevoMensaje(Message nuevoMensaje) {
+            // No agrega si el último mensaje listado no tiene un timestamp menor
+            if (nuevoMensaje.getTimestamp().compareTo(this.chatMessages.get(0).getTimestamp()) <= 0) {
+                Log.i(LOG_TAG, "Se recibió nuevoMensaje con timestamp menor o igual al último." +
+                        "msj: " + nuevoMensaje.getMessage());
+            }
+            this.chatMessages.add(nuevoMensaje);
+            mOffset++;
             notifyDataSetChanged();
         }
 

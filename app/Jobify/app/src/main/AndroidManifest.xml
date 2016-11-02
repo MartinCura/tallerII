@@ -24,6 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="adjustPan">
+
         <activity
             android:name=".MainActivity"
             android:noHistory="true">
@@ -33,6 +34,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".PerfilActivity"
             android:label="@string/title_activity_perfil"
@@ -42,6 +44,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ar.fiuba.jobify.MainActivity" />
         </activity>
+
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings">
@@ -49,6 +52,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ar.fiuba.jobify.MainActivity" />
         </activity>
+
         <activity
             android:name=".NavDrawerActivity"
             android:label="@string/title_activity_nav_drawer"
@@ -57,6 +61,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ar.fiuba.jobify.MainActivity" />
         </activity>
+
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
@@ -69,12 +74,24 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ar.fiuba.jobify.MainActivity" />
         </activity>
+
         <activity
             android:name=".ConversacionActivity"
             android:label="@string/title_activity_conversacion"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize">
-            <!--TODO: Chequear efecto-->
+
+            <!-- TODO: Chequear efecto -->
+        </activity>
+
+        <activity
+            android:name=".BusquedaActivity"
+            android:label="@string/title_activity_busqueda"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ar.fiuba.jobify.MainActivity" />
         </activity>
 
         <provider
@@ -87,7 +104,6 @@
                 android:resource="@xml/file_paths">
             </meta-data>
         </provider>
-
     </application>
 
 </manifest>

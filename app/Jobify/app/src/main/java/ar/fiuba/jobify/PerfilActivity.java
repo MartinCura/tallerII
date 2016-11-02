@@ -255,8 +255,6 @@ public class PerfilActivity extends NavDrawerActivity {
                 fabEditar.setBackgroundTintList(Utils.getColorStateList(this, R.color.editar_btn_active));
             }
 
-            // Cambia funcionamiento del "volver" TODO
-
             // Permitir cambiar la foto
             if (iv_foto != null)
                 iv_foto.setOnClickListener(new View.OnClickListener() {
@@ -920,8 +918,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 et_employment.setAdapter(employmentsAdapter);
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(getContext(), "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
-                    .show();
+            Log.e(LOG_TAG, "Problemas con SS.JobPositions");
         }
 
         try {
