@@ -69,11 +69,18 @@ public class JobifyChat extends FirebaseMessagingService {
             Log.d(TAG, "Message data payload: " + body);
             JsonParser parser = new JsonParser();
             JsonObject message = parser.parse(body).getAsJsonObject();
+
+
+            // if this is a notification:
+                // TODO
             // here we call the callback to the activity
+
+
+            // if this is a message:
 
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
-                            .setContentTitle("My notification")
+                            .setContentTitle("Notificación")
                             .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                             .setAutoCancel(true)
                             .setContentText(body);
@@ -82,7 +89,7 @@ public class JobifyChat extends FirebaseMessagingService {
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
             stackBuilder.addParentStack(LoginActivity.class);
 
-// Adds the Intent that starts the Activity to the top of the stack
+            // Adds the Intent that starts the Activity to the top of the stack
             stackBuilder.addNextIntent(resultIntent);
             PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
             mBuilder.setContentIntent(resultPendingIntent);
