@@ -1,6 +1,5 @@
 #include "PersonManager.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
-#include "../Exceptions/InvalidPasswordException.h"
 
 #include <chrono>
 #include <memory>
@@ -33,14 +32,12 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
     Json::FastWriter fastWriter;
     long uniqueId;
 
-    //if (!person_json.isMember("email")) throw InvalidRequestException("Missing email");
-
     user_mail=  person_json["email"].asString();
     user_id = person_json["id"].asLargestInt();
     user_password = person_json["password"].asString();
 
     if (user_id == 0) {
-
+        //Usuario nuevo
         if (db->existsKey(USER_MAIL_ID + user_mail, &user_information )) {
             //Ya existe un usuario con dicho mail
             throw  UserAlreadyExistsException();
@@ -64,6 +61,7 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
         }
     } else {
         //The person already exists in the system and it wants to refresh his information
+        uniqueId = person_json["id"].asLargestInt();
         person_string = fastWriter.write(person_json);
         db->puTKey(USER_MAIL_ID + user_mail, &person_string);
         return uniqueId;
@@ -109,21 +107,10 @@ void PersonManager::deletePerson(long id) {
 
 Person* PersonManager::getPersonById(long id) {
 
-    std::string  user_mail, user;
-    Json::Reader reader;
-    Json::Value json_user;
+    std::string  user_mail;
 
     if (db->existsKey(USER_UUID_ID + std::to_string(id), &user_mail)) {
-        try {
-            return getPersonByMail(&user_mail);
-        } catch (UserNotFoundException& exception1) {
-            std::exception();
-        }
-        //TODO Y ESTO PARA QUE ESTÁ?
-        reader.parse( user.c_str(), json_user );
-        json_user["password"] = ""; //Todo: a lo wacho
-        return new Person(json_user);
-
+        return getPersonByMail(&user_mail);
     } else {
         //No se encontro el usuario
         throw UserNotFoundException(id);
@@ -237,7 +224,7 @@ void PersonManager::destroyDB() {
 
 long PersonManager::generateID() {
     std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::system_clock::now().time_since_epoch() );
-    srand (time(NULL));
+    srand ((unsigned int)time(NULL));
     int rand = std::rand();
     return  labs(ms.count() << 3 + rand % 100);
 }
