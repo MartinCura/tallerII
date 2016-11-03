@@ -1,6 +1,10 @@
 #include "PictureHandler.h"
+#include "../../Security/Security.h"
+#include "../../Exceptions/NotAuthorizedException.h"
 
-PictureHandler::PictureHandler() {}
+PictureHandler::PictureHandler() {
+    getPublic = true;
+}
 
 PictureHandler::~PictureHandler() {}
 
@@ -22,6 +26,10 @@ Response* PictureHandler::handlePostRequest(http_message* httpMessage) {
 
 Response* PictureHandler::handleDeleteRequest(http_message* httpMessage, string url) {
     long userId = this->getUserIdFromUrl(url);
+
+    //Security
+        //Solo puede borrar la imagen el usuario "dueño" de la misma.
+    if (!Security::hasPermissionToDeleteProfilePicture(this->session->getUserId(), userId)) throw NotAuthorizedException();
     Response* response = new Response();
     if(!this->existsPictureForId(userId)) {
         response->setNotFoundHeader();
@@ -40,6 +48,9 @@ Response* PictureHandler::handleDeleteRequest(http_message* httpMessage, string 
 
 Response* PictureHandler::handlePutRequest(http_message* httpMessage, string url) {
     long userId = this->getUserIdFromUrl(url);
+    //Security
+    //Solo puede editar la imagen el usuario "dueño" de la misma.
+    if (!Security::hasPermissionToEditProfilePicture(this->session->getUserId(), userId)) throw NotAuthorizedException();
     Response* response = new Response;
     if (this->existsPictureForId(userId)) {
         try {

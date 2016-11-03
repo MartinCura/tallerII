@@ -21,5 +21,13 @@ bool Security::hasPermissionToSendMessage(long userIdSession, long userIdAuthor)
 }
 
 bool Security::hasPermissionToReadMessage(long userIdSession, long userIdFrom) {
-    return userIdFrom == userIdFrom;
+    return userIdFrom == userIdSession;
+}
+
+bool Security::hasPermissionToDeleteProfilePicture(long id, long userId) {
+    return id == userId;
+}
+
+bool Security::hasPermissionToEditProfilePicture(long id, long userId) {
+    return id == userId;
 }

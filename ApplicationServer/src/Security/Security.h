@@ -16,6 +16,10 @@ public:
 
     static bool hasPermissionToReadMessage(long userIdSession, long userIdFrom);
 
+    static bool hasPermissionToDeleteProfilePicture(long id, long userId);
+
+    static bool hasPermissionToEditProfilePicture(long id, long userId);
+
 private:
     Security(){};
 
