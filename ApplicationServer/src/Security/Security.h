@@ -20,6 +20,10 @@ public:
 
     static bool hasPermissionToEditProfilePicture(long id, long userId);
 
+    static bool hasPermissionToSendRecommendations(long id, long userId);
+
+    static bool hasPermissionToDeleteRecommendations(long id, long userId);
+
 private:
     Security(){};
 

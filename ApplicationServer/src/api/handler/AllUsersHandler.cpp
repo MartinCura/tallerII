@@ -1,7 +1,9 @@
 #include "AllUsersHandler.h"
 #include "../../person/PersonManager.h"
 
-AllUsersHandler::AllUsersHandler() {}
+AllUsersHandler::AllUsersHandler() {
+    getPublic = true;
+}
 
 AllUsersHandler::~AllUsersHandler() {}
 

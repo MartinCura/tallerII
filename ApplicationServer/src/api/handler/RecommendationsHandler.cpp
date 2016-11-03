@@ -1,4 +1,6 @@
 #include "RecommendationsHandler.h"
+#include "../../Security/Security.h"
+#include "../../Exceptions/NotAuthorizedException.h"
 
 const string TO = "to";
 const string FROM = "from";
@@ -17,11 +19,18 @@ Response* RecommendationsHandler::handlePostRequest(http_message* httpMessage) {
 
 Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage, string url) {
     string queryParams = this->getStringFromMgStr(httpMessage->query_string);
+    long fromUserId = this->getFromUserFromQueryParams(queryParams);
+    long toUserId = this->getToUserFromQueryParams(queryParams);
+
+    //Seguridad:
+    // El usuario solo puede enviar recomendaciones  si es el autor.
+    if (!Security::hasPermissionToDeleteRecommendations(this->session->getUserId(), fromUserId))throw NotAuthorizedException();
+
+
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
     try {
-        long fromUserId = this->getFromUserFromQueryParams(queryParams);
-        long toUserId = this->getToUserFromQueryParams(queryParams);
+
         personManager->removeRecommendation(fromUserId, toUserId);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {
@@ -37,10 +46,15 @@ Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage,
 
 Response* RecommendationsHandler::handlePutRequest(http_message* httpMessage, string url) {
     string requestBody = string(httpMessage->body.p);
+    Json::Value parsedBody = this->parseBody(requestBody);
+    long userId = parsedBody["author_id"].asLargestInt();
+    //Seguridad:
+        // El usuario solo puede enviar recomendaciones  si es el autor.
+    if (!Security::hasPermissionToSendRecommendations(this->session->getUserId(), userId))throw NotAuthorizedException();
+
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
     try {
-        Json::Value parsedBody = this->parseBody(requestBody);
         personManager->saveRecommendation(parsedBody);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {

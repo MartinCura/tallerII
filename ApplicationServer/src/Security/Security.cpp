@@ -31,3 +31,11 @@ bool Security::hasPermissionToDeleteProfilePicture(long id, long userId) {
 bool Security::hasPermissionToEditProfilePicture(long id, long userId) {
     return id == userId;
 }
+
+bool Security::hasPermissionToSendRecommendations(long id, long userId) {
+    return id == userId;
+}
+
+bool Security::hasPermissionToDeleteRecommendations(long id, long userId) {
+    return id == userId;
+}
