@@ -1,4 +1,6 @@
 #include "ContactsHandler.h"
+#include "../../Exceptions/NotAuthorizedException.h"
+#include "../../Security/Security.h"
 
 ContactsHandler::ContactsHandler() {}
 
@@ -53,8 +55,13 @@ Response* ContactsHandler::handlePutRequest(http_message* httpMessage, string ur
     string requestBody = string(httpMessage->body.p);
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
+    Json::Value parsedBody = this->parseBody(requestBody);
+    long author_id = parsedBody["author_id"].asLargestInt();
+
+    //Security
+        //Solo puede enviar una solicitud a otro usuario, el dueño de la cuenta.
+    if(!Security::hasPermissionToContactUser(this->session->getUserId(), author_id)) throw NotAuthorizedException();
     try {
-        Json::Value parsedBody = this->parseBody(requestBody);
         personManager->saveOrUpdateRelation(parsedBody);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {

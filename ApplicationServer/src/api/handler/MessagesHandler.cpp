@@ -1,4 +1,6 @@
 #include "MessagesHandler.h"
+#include "../../Security/Security.h"
+#include "../../Exceptions/NotAuthorizedException.h"
 
 const string USER = "user";
 const string FIRST = "first";
@@ -12,8 +14,13 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
     string queryParams = this->getStringFromMgStr(httpMessage->query_string);
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
+    long fromUserId = this->getUserIdFromUrl(url);
+        //Security
+            //Solo el auto tiene permiso para leer los mensajes
+    if (!Security::hasPermissionToReadMessage(this->session->getUserId(), fromUserId))throw NotAuthorizedException();
+
+
     try {
-        long fromUserId = this->getUserIdFromUrl(url);
         long toUserId = this->getToUserFromQueryParams(queryParams);
         vector<Message*> messages = personManager->getMessages(fromUserId, toUserId);
         long totalCount = messages.size();
@@ -44,8 +51,14 @@ Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string ur
     string requestBody = string(httpMessage->body.p);
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
+    Json::Value parsedBody = this->parseBody(requestBody);
+    long userId = parsedBody["author_id"].asLargestInt();
+    //Seguridad:
+        // El usuario solo puede enviar mensaje si es el autor.
+    if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId))throw NotAuthorizedException();
+
     try {
-        Json::Value parsedBody = this->parseBody(requestBody);
+
         personManager->saveMessage(parsedBody);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {
