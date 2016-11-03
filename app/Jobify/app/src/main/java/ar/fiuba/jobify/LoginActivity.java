@@ -36,11 +36,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -245,7 +249,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             final Context ctx = getApplicationContext();
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
 
-            Utils.getJsonFromAppServer(this, getString(R.string.get_login_path), jsonRequest,
+            Utils.postJsonToAppServer(this, getString(R.string.get_login_path), jsonRequest,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -259,9 +263,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
                                     .show();//
 
-                            long connectedUserId = loginResponse.getId();
-                            guardarConnectedId(connectedUserId);
-                            Utils.iniciarPerfilActivity(activity, connectedUserId, false);
+                            guardarConnectedUserData(loginResponse);
+                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), false);
+                            finish();
+
                         }
                     }, new Response.ErrorListener() {
                         @Override
@@ -272,12 +277,36 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Toast.makeText(ctx, "Login error status code: "+ statusCode, Toast.LENGTH_LONG)
                                             .show();//
                                 Log.d(LOG_TAG, "Login error status code: " + statusCode);
-                                if (statusCode == 404) {// hardcodeo
-                                    Toast.makeText(ctx, "Email no registrado", Toast.LENGTH_LONG)
-                                            .show();
-                                } else if (statusCode == 407) {// hardcodeo, adivinado
-                                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                                    mPasswordView.requestFocus();
+
+                                switch (statusCode) { // hardcodeado?
+                                    ///
+                                    case 400:
+                                        try {
+                                            NetworkResponse response = error.networkResponse;
+                                            String res = new String(response.data,
+                                                    HttpHeaderParser.parseCharset(response.headers, "utf-8"));
+                                            // Now you can use any deserializer to make sense of data
+                                            Log.d(LOG_TAG, "json string: "+res);
+                                            new JSONObject(res);                    //;//
+                                        } catch (UnsupportedEncodingException e1) {
+                                            Log.d(LOG_TAG, "..couldn't decode data?");
+                                            e1.printStackTrace();
+                                        } catch (JSONException e2) {
+                                            Log.d(LOG_TAG, "..not a json object?");
+                                            e2.printStackTrace();
+                                        }
+                                        break;
+                                    ///
+                                    case 404:
+                                        Toast.makeText(ctx, "Email no registrado", Toast.LENGTH_LONG)
+                                                .show();
+                                        break;
+                                    case 407:
+                                        mPasswordView.setError(getString(R.string.error_incorrect_password));
+                                        mPasswordView.requestFocus();
+                                        break;
+                                    default:
+                                        error.printStackTrace();//
                                 } // TODO: Otros status codes?
                             }
                         }
@@ -297,7 +326,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
 
             final Context ctx = getApplicationContext();
-            final Activity activity = this;
+
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
             Log.d(LOG_TAG, "POST de registro:\n"+jsonRequest.toString());//
 
@@ -312,15 +341,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Log.e(LOG_TAG, "Error de parseo de LoginResponse");
                                 return;
                             }
-                            Toast.makeText(LoginActivity.this, "Registro correcto", Toast.LENGTH_LONG)
+                            Toast.makeText(LoginActivity.this, "Registro correcto\n" +
+                                    "Id: " + loginResponse.getId(), Toast.LENGTH_LONG)
                                     .show();//
 
-                            long connectedUserId = loginResponse.getId();
-                            Log.d(LOG_TAG, "connectedUserId: "+connectedUserId);//
-                            guardarConnectedId(connectedUserId);
-
-                            Utils.iniciarPerfilActivity(activity, connectedUserId, true);
-                            finish();
+                            attemptLogin();
+//                            guardarConnectedUserData(loginResponse);
+//                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), true);
+//                            finish();
 
                         }
 
@@ -341,11 +369,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    private void guardarConnectedId(long id) {
+    /**
+     * Guarda datos de login del LoginResponse, id y token.
+     */
+    private void guardarConnectedUserData(LoginResponse loginResponse) {
         SharedPreferences.Editor editor =
                 getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
                         .edit();
-        editor.putLong(getString(R.string.stored_connected_user_id), id);
+        editor.putLong(getString(R.string.stored_connected_user_id), loginResponse.getId());
+        editor.putString(getString(R.string.stored_connected_user_token), loginResponse.getToken());
         editor.apply();
     }
 
@@ -451,15 +483,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
-        long connectedUserId = 1L;
-        guardarConnectedId(connectedUserId);
+        long connectedUserId = 2L;
+        String mail = "jane@doe.com", pass = "123abc";//"123"; // Depende del branch...
+        mEmailView.setText(mail);
+        mPasswordView.setText(pass);
 
-        Toast.makeText(LoginActivity.this, "Fake login\n" +
+        Toast.makeText(LoginActivity.this, "Automatic fake login\n" +
                 "user id: "+connectedUserId, Toast.LENGTH_LONG)
                 .show();
 
-        Utils.iniciarPerfilActivity(this, connectedUserId, false);
-        finish();
+        attemptLogin();
+
+//        LoginResponse loginResponse =
+//                LoginResponse.parseJSON("{\"id\": "+connectedUserId+", \"token\": ");
+//        guardarConnectedUserData(loginResponse);
+//        Utils.iniciarPerfilActivity(this, connectedUserId, false);
+//        finish();
     }//;//
 }
-

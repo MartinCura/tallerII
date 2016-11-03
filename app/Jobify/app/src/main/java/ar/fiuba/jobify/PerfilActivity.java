@@ -648,7 +648,8 @@ public class PerfilActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         ContactsResponse cs = ContactsResponse.parseJSON(response.toString());
-                        if (cs != null) populateContacts(cs);
+                        if (cs != null)
+                            populateContacts(cs);
                     }
                 }, LOG_TAG);
 
@@ -793,20 +794,21 @@ public class PerfilActivity extends NavDrawerActivity {
             if (imageFile != null && imageFile.exists()) {
                 try {
                     Utils.PhotoMultipartRequest<String> imageUploadReq =
-                            new Utils.PhotoMultipartRequest<>(url, imageFile, new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    Log.d(LOG_TAG, "Response correcta i guess. " + response);
-                                }
-                            }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.e(LOG_TAG, "Volley image post error");
-                                    if (error.networkResponse != null)
-                                        Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
-                                    error.printStackTrace();
-                                }
-                            });
+                            new Utils.PhotoMultipartRequest<>(getContext(), url, imageFile,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            Log.d(LOG_TAG, "Response correcta i guess. " + response);
+                                        }
+                                    }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.e(LOG_TAG, "Volley image post error");
+                                            if (error.networkResponse != null)
+                                                Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
+                                            error.printStackTrace();
+                                        }
+                                });
                     try {
                         Log.d(LOG_TAG, "Headers: " + imageUploadReq.getHeaders().toString());//
                         Log.d(LOG_TAG, "BodyContentType: " + imageUploadReq.getBodyContentType());//

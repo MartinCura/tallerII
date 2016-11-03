@@ -251,8 +251,10 @@ public class Utils {
                 }, logTag);
     }
 
-
-    public static void fetchJsonFromUrl(Context context, int method, final String url,
+    /**
+     * Fetchea un json. Los demás métodos overloadean este.
+     */
+    public static void fetchJsonFromUrl(final Context context, int method, final String url,
                                         JSONObject jsonRequest,
                                         Response.Listener<JSONObject> responseListener,
                                         Response.ErrorListener errorListener, final String logTag) {
@@ -263,9 +265,15 @@ public class Utils {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        //headers.put("Content-Type", "application/json; charset=utf-8");
+//                        headers.put("Accept", "application/json");
+//                        headers.put("Content-Type", "application/json");//; charset=utf-8");
+//                        headers.put("accept-encoding", "gzip, deflate");
+//                        headers.put("accept-language", "en-US,en;q=0.8");
+//                        headers.put("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/" +
+//                                "537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36");
                         headers.put("Connection", "close");//Te amo, header que soluciona cosas ~ mc
-                        // TODO: Agregar token al Header ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                        headers.put("Authorization", getToken(context));
+                        Log.d(LOG_TAG, "Getting token: "+getToken(context));//
                         return headers;
                     }
 
@@ -320,7 +328,15 @@ public class Utils {
                                     +error.networkResponse.statusCode);
                         }
                     }
-                });
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", getToken(ctx));
+                        Log.d(LOG_TAG, "Getting token: "+getToken(ctx));//
+                        return headers;
+                    }
+        };
         RequestQueueSingleton.getInstance(ctx)
                 .addToRequestQueue(request);
     }
@@ -442,13 +458,16 @@ public class Utils {
         private MultipartEntityBuilder mBuilder = MultipartEntityBuilder.create();
         private final Response.Listener<T> mListener;
         private final File mImageFile;
+        private final Context ctx;
 //        protected Map<String, String> headers;
 
-        public PhotoMultipartRequest(String url, File imageFile, Response.Listener<T> listener,
+        public PhotoMultipartRequest(Context context, String url, File imageFile,
+                                     Response.Listener<T> listener,
                                      Response.ErrorListener errorListener) throws IOException {
 //            super(Method.POST, url, errorListener);
             super(Method.PUT, url, errorListener);
 
+            this.ctx = context;
             mListener = listener;
             mImageFile = imageFile;
 
@@ -458,11 +477,12 @@ public class Utils {
         @Override
         public Map<String, String> getHeaders() throws AuthFailureError {
             Map<String, String> headers = super.getHeaders();
-            if (headers == null
-                    || headers.equals(Collections.emptyMap())) {
+            if (headers == null || headers.equals(Collections.emptyMap())) {
                 headers = new HashMap<>();
             }
             headers.put("Accept", "application/json");
+            headers.put("Authorization", getToken(ctx));
+            Log.d(LOG_TAG, "Getting token: "+getToken(ctx));//
             return headers;
         }
 
@@ -548,6 +568,12 @@ public class Utils {
         }
 
         return json;
+    }
+
+    private static String getToken(Context ctx) {
+        SharedPreferences sharedPref =
+                ctx.getSharedPreferences(ctx.getString(R.string.shared_pref_connected_user), 0);
+        return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), "null");
     }
 
     public static Bitmap cropToSquare(Bitmap bitmap){
