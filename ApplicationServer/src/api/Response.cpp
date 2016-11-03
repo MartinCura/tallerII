@@ -67,6 +67,12 @@ void Response::setSuccessfulHeader() {
 void Response::setBadRequestHeader() {
     this->header = "400 Bad Request";
 }
+/*
+ * either not authenticated at all or authenticated incorrectly
+ */
+void Response::setUnauthorizedHeader() {
+    this->header = "401 Unauthorized";
+}
 
 void Response::setNotFoundHeader() {
     this->header = "404 Not Found";

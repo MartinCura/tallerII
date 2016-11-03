@@ -24,6 +24,7 @@ public:
     void setNotFoundHeader();
     void setConflictHeader();
     void setBadRequestHeader();
+    void setUnauthorizedHeader();
     void setInternalServerErrorHeader();
     void setNotImplementedHeader();
 
@@ -34,6 +35,8 @@ private:
     string contentType;
     const char* binaryBody;
     unsigned long bodyLength;
+
+
 };
 
 #endif //APPLICATIONSERVER_RESPONSE_H
