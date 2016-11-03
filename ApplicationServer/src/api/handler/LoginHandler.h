@@ -12,7 +12,7 @@ class LoginHandler : public Handler{
 public:
 
     LoginHandler() {
-        isPublic = true;
+        postPublic = true;
     }
 
     Response* handlePostRequest(http_message* httpMessage);

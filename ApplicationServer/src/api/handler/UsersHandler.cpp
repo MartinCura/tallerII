@@ -2,7 +2,6 @@
 
 #define NAME_DB "/tmp/appDB/"
 
-UsersHandler::UsersHandler() {}
 
 UsersHandler::~UsersHandler() {}
 

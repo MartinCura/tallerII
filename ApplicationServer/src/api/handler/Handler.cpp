@@ -14,41 +14,48 @@ Handler::Handler() {}
 Handler::~Handler() {}
 
 Response* Handler::handleRequest(http_message* httpMessage, string url) {
-    if (!isPublic) {
-        //Se necesita verificar primero que la sesión esté abierta
-
-        std::string token = this->getHttpHeader(httpMessage, "Authorization");
-        if (token == "") {
-                    //TODO: fix error campo faltante
-            throw InvalidRequestException("Token missing");
+    try {
+        if (this->isEqual(&httpMessage->method, &s_get_method)) {
+            if (!getPublic) controlAccess(httpMessage);
+            return this->handleGetRequest(httpMessage, url);
+        } else if (this->isEqual(&httpMessage->method, &s_put_method)) {
+            if (!putPublic) controlAccess(httpMessage);
+            return this->handlePutRequest(httpMessage, url);
+        } else if (this->isEqual(&httpMessage->method, &s_delete_method)) {
+            if (!deletePublic) controlAccess(httpMessage);
+            return this->handleDeleteRequest(httpMessage, url);
+        } else if (this->isEqual(&httpMessage->method, &s_post_method)) {
+            if (!postPublic) controlAccess(httpMessage);
+            return this->handlePostRequest(httpMessage);
         }
-
-        SessionManager* sessionManager = new SessionManager("/tmp/appDB");
-
-        try {
-            sessionManager->checkSession(token);
-        }catch (exception& e) {
-            Response* response = new Response();
-            response->setUnauthorizedHeader();
-            response->setBody(e.what());
-            delete sessionManager;
-            return response;
-        }
-
-    }
-
-    if (this->isEqual(&httpMessage->method, &s_get_method)) {
-        return this->handleGetRequest(httpMessage, url);
-    } else if (this->isEqual(&httpMessage->method, &s_put_method)) {
-        return this->handlePutRequest(httpMessage, url);
-    } else if (this->isEqual(&httpMessage->method, &s_delete_method)) {
-        return this->handleDeleteRequest(httpMessage, url);
-    } else if (this->isEqual(&httpMessage->method, &s_post_method)) {
-        return this->handlePostRequest(httpMessage);
+    }catch (exception& e) {
+        Response* response = new Response();
+        response->setUnauthorizedHeader();
+        response->setBody(e.what());
+        return response;
     }
     Response* response = new Response();
     response->setNotImplementedHeader();
     return response;
+}
+
+void Handler::controlAccess(http_message* httpMessage) {
+    std::string token = this->getHttpHeader(httpMessage, "Authorization");
+    if (token == "") {
+        //TODO: fix error campo faltante
+        throw InvalidRequestException("Token missing");
+    }
+
+    SessionManager* sessionManager = new SessionManager("/tmp/appDB");
+    try {
+        sessionManager->checkSession(token);
+    } catch (exception& e){
+        delete sessionManager;
+        throw;
+    }
+
+    delete sessionManager;
+
 }
 
 Response* Handler::getNotImplementedResponse() {
@@ -56,6 +63,8 @@ Response* Handler::getNotImplementedResponse() {
     response->setNotImplementedHeader();
     return response;
 }
+
+
 
 int Handler::isEqual(const struct mg_str *s1, const struct mg_str *s2) {
     return s1->len == s2->len && memcmp(s1->p, s2->p, s2->len) == 0;

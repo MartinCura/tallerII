@@ -26,7 +26,12 @@ protected:
     Json::Value parseBody(string body);
     vector<string> parseUrl(string url);
     long getUserIdFromUrl(string url);
-    bool isPublic = false;
+
+    bool putPublic = false;
+    bool getPublic = false;
+    bool postPublic = false;
+    bool deletePublic = false;
+
     string getStringFromMgStr(const struct mg_str uri);
     string getParameterFromQueryParams(string queryParams, string parameter);
 
@@ -39,6 +44,8 @@ private:
      * If not found returns ""
      */
     string getHttpHeader(http_message *message, string name);
+
+    void controlAccess(http_message *httpMessage);
 };
 
 #endif //APPLICATIONSERVER_HANDLER_H

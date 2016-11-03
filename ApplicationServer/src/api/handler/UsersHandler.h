@@ -12,9 +12,10 @@
 
 class UsersHandler : public Handler {
 public:
-    bool isPublic = false;
-
-    UsersHandler();
+    UsersHandler(){
+        postPublic = true; //La creación de usuarios es publica.
+        getPublic = true; //La vista de usuarios es publica.
+    };
     ~UsersHandler();
 
     Response* handlePostRequest(http_message* httpMessage);
