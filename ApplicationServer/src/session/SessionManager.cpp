@@ -5,16 +5,13 @@
 //#include <ctime>
 
 #include <json/json.h>
-#include "time.h"
 #include "SessionManager.h"
 #include "../Exceptions/InvalidTokenException.h"
 #include "../Exceptions/TokenExpiredException.h"
 #include "../Exceptions/UserNotFoundException.h"
 #include "../Exceptions/InvalidPasswordException.h"
 
-#define USER_TOKEN "user:token_"
-#define USER_MAIL_ID "user:mail_"
-#define USER_PASSWORD "user:password_"
+
 
 
 std::string SessionManager::createSessionToken() {
@@ -28,7 +25,7 @@ std::string SessionManager::createSessionToken() {
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz";
 
-    srand (time(NULL));
+    srand ((unsigned int)time(NULL));
 
     for (int i = 0; i < token_length; ++i) {
         token[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
@@ -81,26 +78,26 @@ SessionManager::~SessionManager() {
 
 ///Pre: Se pre-supone que el user_mail pasado por parámetro corresponde al de un usuario valido.
 std::string SessionManager::getNewToken(std::string user_mail) {
-    std::string token_db;
     std::string new_token, token_string, token2_string;
     time_t creation_time;
     Json::Value token, token2;
     Json::FastWriter fastWriter;
     char buff[20];
 
+    //Se obtiene el tiempo actual.
     creation_time = time(NULL);
     strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&creation_time));
-
     std::string now  = std::string(buff);
 
     new_token = createSessionToken();
-    token["login"] = new_token;
-    token["last_use"] = now;
+
+    token["user_token"] = new_token;
+    token["last_used"] = now;
 
     token_string = fastWriter.write(token);
 
     token2["user_mail"] = user_mail;
-    token2["last_use"] = now;
+    token2["last_used"] = now;
 
     token2_string = fastWriter.write(token2);
 
@@ -143,7 +140,7 @@ std::string SessionManager::checkSession(std::string token) {
 
 
     reader.parse( token_information.c_str(), json_token_information );
-    last_use = json_token_information["last_use"].asString();
+    last_use = json_token_information["last_used"].asString();
 
     //Chequear que el login no haya vencido.
 
