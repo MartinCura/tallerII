@@ -7,28 +7,32 @@ static const struct mg_str s_put_method = MG_MK_STR("PUT");
 static const struct mg_str s_delete_method = MG_MK_STR("DELETE");
 static const struct mg_str s_post_method = MG_MK_STR("POST");
 
+#define TOKEN_SIZE 20
+
 Handler::Handler() {}
 
 Handler::~Handler() {}
 
 Response* Handler::handleRequest(http_message* httpMessage, string url) {
-    if (isPublic == false) {
+    if (!isPublic) {
         //Se necesita verificar primero que la sesión esté abierta
 
-        Json::Value b = httpMessage->header_values->p;
-        if (!b.isMember("Authorization")) {
+        std::string token = this->getHttpHeader(httpMessage, "Authorization");
+        if (token == "") {
+                    //TODO: fix error campo faltante
             throw InvalidRequestException("Token missing");
         }
 
-        std::string token = b["Authorization"].asString();
         SessionManager* sessionManager = new SessionManager("/tmp/appDB");
 
         try {
             sessionManager->checkSession(token);
         }catch (exception& e) {
-            //Si la sesión está en condiciones (abierta y sin expirar), sigue de largo
-            //Sino se levanta una excepción
-
+            Response* response = new Response();
+            response->setUnauthorizedHeader();
+            response->setBody(e.what());
+            delete sessionManager;
+            return response;
         }
 
     }
@@ -117,4 +121,22 @@ string Handler::getParameterFromQueryParams(string queryParams, string parameter
         throw InvalidRequestException("Invalid query params");
     }
     return queryParams.substr(found + parameter.length() + 1, found + parameter.length() + 2);
+}
+
+string Handler::getHttpHeader(http_message *message, string name) {
+    const struct mg_str *header_information = mg_get_http_header(message, name.c_str());
+
+    if (header_information == NULL) {
+        return "";
+    }
+
+    const char *header_message = header_information->p;
+
+    size_t i, len = header_information->len;
+    char header_value[len + 1];
+
+    memcpy(header_value, &header_message[0], len);
+    header_value[len] = '\0';
+    return string(header_value);
+
 }

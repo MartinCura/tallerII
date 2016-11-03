@@ -66,7 +66,7 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     user_token = sessionManager->getNewToken(user_mail);
     user_id = sessionManager->getUserId(user_token);
     Json::Value responseBody; //TODO: METERLO EN COOKIE
-    responseBody["user_token"] = user_token; //TODO: ASK FOR DTO.
+    responseBody["token"] = user_token; //TODO: ASK FOR DTO.
     responseBody["user_id"] = user_id;
     Response* response = new Response();
     response->setSuccessfulHeader();

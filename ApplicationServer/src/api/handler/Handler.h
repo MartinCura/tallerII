@@ -33,6 +33,12 @@ protected:
 private:
     int isEqual(const struct mg_str *s1, const struct mg_str *s2);
     string getSubUrl(string url);
+
+    /*
+     * Returns as a String the value of the Header sent as a parameter <name>
+     * If not found returns ""
+     */
+    string getHttpHeader(http_message *message, string name);
 };
 
 #endif //APPLICATIONSERVER_HANDLER_H

@@ -12,6 +12,8 @@
 
 class UsersHandler : public Handler {
 public:
+    bool isPublic = false;
+
     UsersHandler();
     ~UsersHandler();
 
@@ -19,6 +21,7 @@ public:
     Response* handleGetRequest(http_message* httpMessage, string url);
     Response* handleDeleteRequest(http_message* httpMessage, string url);
     Response* handlePutRequest(http_message* httpMessage, string url);
+
 };
 
 #endif //APPLICATIONSERVER_USERSHANDLER_H
