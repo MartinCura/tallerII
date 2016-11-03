@@ -3,6 +3,7 @@
 #include "json/json.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
 #include "../Exceptions/InvalidPasswordException.h"
+#include "../session/SessionManager.h"
 #include <PersonManager.h>
 
 #define NAME_DB "/tmp/testDB/"
@@ -228,10 +229,12 @@ TEST(PersonManagerTest, GetAllUsers) {
 }
 
 TEST(PersonManagerTest, loginOK){
+    SessionManager* sessionManager;
     PersonManager* personManager;
     std::string user_mail;
     Json::Value user;
     long id;
+
 
     personManager = new PersonManager(NAME_DB);
 
@@ -246,29 +249,34 @@ TEST(PersonManagerTest, loginOK){
     user["summary"] = "Me gusta el arrte";
 
     id = personManager->savePerson(user);
-
-    personManager->login("crodriguez@gmail.com", "123");
-
-    personManager->destroyDB();
     delete personManager;
+
+    sessionManager = new SessionManager(NAME_DB);
+
+    sessionManager->login("crodriguez@gmail.com", "123");
+
+    sessionManager->destroyDB();
+
+    delete sessionManager;
 
 }
 
 
 TEST(PersonManagerTest, loginUserNotExists){
-    PersonManager* personManager;
+    SessionManager* sessionManager;
 
-    personManager = new PersonManager(NAME_DB);
+    sessionManager = new SessionManager(NAME_DB);
 
-    EXPECT_THROW(personManager->login("crodriguez@gmail.com", "123"), UserNotFoundException);
+    EXPECT_THROW(sessionManager->login("crodriguez@gmail.com", "123"), UserNotFoundException);
 
-    personManager->destroyDB();
-    delete personManager;
+    sessionManager->destroyDB();
+    delete sessionManager;
 
 }
 
 TEST(PersonManagerTest, loginWrongPassword){
     PersonManager* personManager;
+    SessionManager* sessionManager;
     std::string user_mail;
     Json::Value user;
     long id;
@@ -287,9 +295,13 @@ TEST(PersonManagerTest, loginWrongPassword){
 
     id = personManager->savePerson(user);
 
-    EXPECT_THROW(personManager->login("crodriguez@gmail.com", "dios"), InvalidPasswordException);
-
-    personManager->destroyDB();
     delete personManager;
+
+
+    sessionManager = new SessionManager(NAME_DB);
+    EXPECT_THROW(sessionManager->login("crodriguez@gmail.com", "dios"), InvalidPasswordException);
+
+    sessionManager->destroyDB();
+    delete sessionManager;
 
 }

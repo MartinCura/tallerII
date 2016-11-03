@@ -22,10 +22,10 @@ public:
     string getMessage(Message option) const {
         switch (option) {
             case id:
-                return (string("User id " + to_string(this->userId) + " doesn't exist"));
+                return (string("Usuario con el id " + to_string(this->userId) + " no existe en el sistema"));
             case mail:
             default:
-                return (string("User mail " + this->userMail + " doesn't exist"));
+                return (string("Usuario con el mail " + this->userMail + " no existe en el sistema"));
         }
 
     }

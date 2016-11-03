@@ -366,7 +366,7 @@ bool Reader::parse(const char* beginDoc,
     root.setComment(commentsBefore_, commentAfter);
   if (features_.strictRoot_) {
     if (!root.isArray() && !root.isObject()) {
-      // Set error location to start of doc, ideally should be first token found
+      // Set error location to start of doc, ideally should be first login found
       // in doc
       token.type_ = tokenError;
       token.start_ = beginDoc;
@@ -440,8 +440,8 @@ bool Reader::readValue() {
   case tokenObjectEnd:
   case tokenArrayEnd:
     if (features_.allowDroppedNullPlaceholders_) {
-      // "Un-read" the current token and mark the current value as a null
-      // token.
+      // "Un-read" the current login and mark the current value as a null
+      // login.
       current_--;
       Value v;
       currentValue().swapPayload(v);
@@ -932,7 +932,7 @@ bool Reader::decodeUnicodeCodePoint(Token& token,
       } else
         return false;
     } else
-      return addError("expecting another \\u token to begin the second half of "
+      return addError("expecting another \\u login to begin the second half of "
                       "a unicode surrogate pair",
                       token,
                       current);
@@ -1297,7 +1297,7 @@ bool OurReader::parse(const char* beginDoc,
     root.setComment(commentsBefore_, commentAfter);
   if (features_.strictRoot_) {
     if (!root.isArray() && !root.isObject()) {
-      // Set error location to start of doc, ideally should be first token found
+      // Set error location to start of doc, ideally should be first login found
       // in doc
       token.type_ = tokenError;
       token.start_ = beginDoc;
@@ -1390,8 +1390,8 @@ bool OurReader::readValue() {
   case tokenObjectEnd:
   case tokenArrayEnd:
     if (features_.allowDroppedNullPlaceholders_) {
-      // "Un-read" the current token and mark the current value as a null
-      // token.
+      // "Un-read" the current login and mark the current value as a null
+      // login.
       current_--;
       Value v;
       currentValue().swapPayload(v);
@@ -1824,7 +1824,7 @@ bool OurReader::decodeDouble(Token& token, Value& decoded) {
 
   // Sanity check to avoid buffer overflow exploits.
   if (length < 0) {
-    return addError("Unable to parse token length", token);
+    return addError("Unable to parse login length", token);
   }
   size_t const ulength = static_cast<size_t>(length);
 
@@ -1939,7 +1939,7 @@ bool OurReader::decodeUnicodeCodePoint(Token& token,
       } else
         return false;
     } else
-      return addError("expecting another \\u token to begin the second half of "
+      return addError("expecting another \\u login to begin the second half of "
                       "a unicode surrogate pair",
                       token,
                       current);

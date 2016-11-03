@@ -9,9 +9,12 @@
 #include "SessionManager.h"
 #include "../Exceptions/InvalidTokenException.h"
 #include "../Exceptions/TokenExpiredException.h"
+#include "../Exceptions/UserNotFoundException.h"
+#include "../Exceptions/InvalidPasswordException.h"
 
 #define USER_TOKEN "user:token_"
 #define USER_MAIL_ID "user:mail_"
+#define USER_PASSWORD "user:password_"
 
 
 std::string SessionManager::createSessionToken() {
@@ -46,6 +49,30 @@ SessionManager::SessionManager(std::string nameDB) {
     }
 }
 
+
+string SessionManager::login(std::string user_mail, std::string user_password) {
+
+    std::string user_bdd_pasword;
+
+    if (!db->existsKey(USER_PASSWORD + user_mail, &user_bdd_pasword )) {
+        //No existe un usuario con dicho mail en la base
+        throw  UserNotFoundException(user_mail);
+    }
+
+    if (user_bdd_pasword.compare(user_password) != 0) {
+        //La contraseña almacenada y la de inicio de sesión no coinciden
+        throw InvalidPasswordException();
+    }
+
+    //La sesión fue aceptada.
+    //Se genera el login y se lo guarda en la base.
+
+    return this->getNewToken(user_mail);
+    //TODO: GUARDAR CONEXIÓN ABIERTA
+
+}
+
+
 SessionManager::~SessionManager() {
     if (db != nullptr) {
         db->deleteDB();
@@ -67,7 +94,7 @@ std::string SessionManager::getNewToken(std::string user_mail) {
     std::string now  = std::string(buff);
 
     new_token = createSessionToken();
-    token["token"] = new_token;
+    token["login"] = new_token;
     token["last_use"] = now;
 
     token_string = fastWriter.write(token);
@@ -110,7 +137,7 @@ std::string SessionManager::checkSession(std::string token) {
 
 
     if (!db->existsKey(USER_TOKEN + token, &token_information)) {
-        //El token pasado por parámetro no existe
+        //El login pasado por parámetro no existe
         throw  InvalidTokenException();
     }
 
@@ -118,7 +145,7 @@ std::string SessionManager::checkSession(std::string token) {
     reader.parse( token_information.c_str(), json_token_information );
     last_use = json_token_information["last_use"].asString();
 
-    //Chequear que el token no haya vencido.
+    //Chequear que el login no haya vencido.
 
     const char *time_details = last_use.c_str();
     struct tm tm;

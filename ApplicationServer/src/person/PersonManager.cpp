@@ -229,25 +229,6 @@ void PersonManager::validateUsersOfRequest(long fromUserId, long toUserId) {
     if (fromUserId == toUserId) throw InvalidRequestException("From user and to user cannot be equals");
 }
 
-void PersonManager::login(std::string user_mail, std::string user_password) {
-
-    std::string user_bdd_pasword;
-
-    if (!db->existsKey(USER_PASSWORD + user_mail, &user_bdd_pasword )) {
-        //No existe un usuario con dicho mail en la base
-        throw  UserNotFoundException(user_mail);
-    }
-
-    if (user_bdd_pasword.compare(user_password) != 0) {
-        //La contraseña almacenada y la de inicio de sesión no coinciden
-        throw InvalidPasswordException();
-    }
-
-    //TODO: GUARDAR CONEXIÓN ABIERTA
-    //TODO: DEVOLVER TOKEN DE SESIÓN
-
-}
-
 void PersonManager::destroyDB() {
     db->deleteDB();
     db->destroyDB(this->nameDB);

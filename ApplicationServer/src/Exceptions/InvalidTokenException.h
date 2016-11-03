@@ -10,7 +10,7 @@
 class InvalidTokenException : public std::exception {
 public:
     virtual const char* what() const throw() {
-        return "El token no existe en el sistema";
+        return "El login no existe en el sistema";
     }
 
 };

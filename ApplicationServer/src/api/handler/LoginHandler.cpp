@@ -13,7 +13,6 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     string user_password, user_mail;
     long user_id;
     Json::Value body;
-    PersonManager* personManager;
     SessionManager* sessionManager = nullptr;
     std::string user_token;
 
@@ -40,34 +39,28 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     user_password = body["password"].asString();
 
     try {
-        personManager = new PersonManager(NAME_DB);
-        personManager->login(user_mail, user_password);
+        sessionManager = new SessionManager(NAME_DB);
+        user_token = sessionManager->login(user_mail, user_password);
 
     } catch (InvalidPasswordException& e) {
 
         Response *response = new Response();
-        response->setConflictHeader();
+        response->setUnauthorizedHeader();
         response->setErrorBody(e.what());
-        delete personManager;
+        delete sessionManager;
         return response;
     } catch (UserNotFoundException& e) {
         Response *response = new Response();
         response->setConflictHeader();
         response->setErrorBody(e.getMessage(UserNotFoundException::Message::mail));
         //TODO no tiene sentido que repita logica porque los mensajes se manejan distintos para este tipo de excepción, MEjorar.
-        delete personManager;
+        delete sessionManager;
         return response;
     }
 
-    //Loggin aceptado
-    delete personManager;
-
-    sessionManager = new SessionManager(NAME_DB); //TODO: VERIFICAR MULTIPLES CONEXIONES DE BD
-    user_token = sessionManager->getNewToken(user_mail);
-    user_id = sessionManager->getUserId(user_token);
-    Json::Value responseBody; //TODO: METERLO EN COOKIE
-    responseBody["token"] = user_token; //TODO: ASK FOR DTO.
-    responseBody["user_id"] = user_id;
+    Json::Value responseBody;
+    responseBody["login"] = user_token; //TODO: ASK FOR DTO.
+    responseBody["user_id"] = sessionManager->getUserId(user_token); //TODO: NO SIENTO QUE SEA NECESARIO ESTO
     Response* response = new Response();
     response->setSuccessfulHeader();
     response->setBody(responseBody.toStyledString());

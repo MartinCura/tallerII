@@ -32,7 +32,6 @@ public:
     Json::Value getRecommendationsByUserId(long userId);
     void saveMessage(Json::Value request);
     vector<Message*> getMessages(long fromUserId, long toUserId);
-    void login(string user_mail, string user_password);
     bool userExists(long userId);
 private:
     DBWrapper* db;
