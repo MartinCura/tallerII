@@ -7,8 +7,6 @@ static const struct mg_str s_put_method = MG_MK_STR("PUT");
 static const struct mg_str s_delete_method = MG_MK_STR("DELETE");
 static const struct mg_str s_post_method = MG_MK_STR("POST");
 
-#define TOKEN_SIZE 20
-
 Handler::Handler() {}
 
 Handler::~Handler() {}
@@ -16,16 +14,16 @@ Handler::~Handler() {}
 Response* Handler::handleRequest(http_message* httpMessage, string url) {
     try {
         if (this->isEqual(&httpMessage->method, &s_get_method)) {
-            if (!getPublic) controlAccess(httpMessage);
+            if (!getPublic) session = controlAccess(httpMessage);
             return this->handleGetRequest(httpMessage, url);
         } else if (this->isEqual(&httpMessage->method, &s_put_method)) {
-            if (!putPublic) controlAccess(httpMessage);
+            if (!putPublic) session = controlAccess(httpMessage);
             return this->handlePutRequest(httpMessage, url);
         } else if (this->isEqual(&httpMessage->method, &s_delete_method)) {
-            if (!deletePublic) controlAccess(httpMessage);
+            if (!deletePublic) session = controlAccess(httpMessage);
             return this->handleDeleteRequest(httpMessage, url);
         } else if (this->isEqual(&httpMessage->method, &s_post_method)) {
-            if (!postPublic) controlAccess(httpMessage);
+            if (!postPublic) session = controlAccess(httpMessage);
             return this->handlePostRequest(httpMessage);
         }
     }catch (InvalidRequestException& e) {
@@ -44,17 +42,19 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
     return response;
 }
 
-void Handler::controlAccess(http_message* httpMessage) {
+Session * Handler::controlAccess(http_message *httpMessage) {
     std::string token = this->getHttpHeader(httpMessage, "Authorization");
     if (token == "") throw InvalidRequestException("Falta el token de autenticación en el header");
     SessionManager* sessionManager = new SessionManager("/tmp/appDB");
+    Session* session = nullptr;
     try {
-        sessionManager->checkSession(token);
+        session = sessionManager->checkSession(token);
     } catch (exception& e){
         delete sessionManager;
         throw;
     }
     delete sessionManager;
+    return session;
 
 }
 

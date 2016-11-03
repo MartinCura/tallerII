@@ -21,7 +21,7 @@ TEST(NewUser, SaveUser) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    personManager->savePerson(user);
+    personManager->savePerson(0, user, 0);
 
     personManager->destroyDB();
     delete personManager;
@@ -41,8 +41,8 @@ TEST(UserExists, SaveUserERROR) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    personManager_->savePerson(user);
-    EXPECT_THROW(personManager_->savePerson(user), UserAlreadyExistsException);
+    personManager_->savePerson(0, user, 0);
+    EXPECT_THROW(personManager_->savePerson(0, user, 0), UserAlreadyExistsException);
 
 
     personManager_->destroyDB();
@@ -64,7 +64,7 @@ TEST(UserExists, GetUserById) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    long id = personManager_->savePerson(user);
+    long id = personManager_->savePerson(0, user, 4);
 
     Person* person = personManager_->getPersonById(id);
     EXPECT_EQ(person->getLastName(), "Rodriguez");
@@ -127,7 +127,7 @@ TEST(UserExists, GetUserByMail) {
 
     user_mail = user["email"].asString();
 
-    personManager->savePerson(user);
+    personManager->savePerson(0, user, 3);
     Person* person = personManager->getPersonByMail(&user_mail);
 
     EXPECT_EQ(person->getCity(), "CABA");
@@ -171,7 +171,7 @@ TEST(UserExists, DeleteUser) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    id = personManager->savePerson(user);
+    id = personManager->savePerson(0, user, 1);
     personManager->deletePerson(id);
 
     user_mail = "crodriguez@gmail.com";
@@ -207,7 +207,7 @@ TEST(PersonManagerTest, GetAllUsers) {
         user["profile_picture"] = "";
         user["summary"] = "Me gusta el arrte";
 
-        userId = personManager->savePerson(user);
+        userId = personManager->savePerson(0, user, i);
 
         sleep(1);
 
@@ -231,9 +231,7 @@ TEST(PersonManagerTest, GetAllUsers) {
 TEST(PersonManagerTest, loginOK){
     SessionManager* sessionManager;
     PersonManager* personManager;
-    std::string user_mail;
     Json::Value user;
-    long id;
 
 
     personManager = new PersonManager(NAME_DB);
@@ -248,7 +246,7 @@ TEST(PersonManagerTest, loginOK){
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    id = personManager->savePerson(user);
+    personManager->savePerson(0, user, 1);
     delete personManager;
 
     sessionManager = new SessionManager(NAME_DB);
@@ -277,9 +275,7 @@ TEST(PersonManagerTest, loginUserNotExists){
 TEST(PersonManagerTest, loginWrongPassword){
     PersonManager* personManager;
     SessionManager* sessionManager;
-    std::string user_mail;
     Json::Value user;
-    long id;
 
     personManager = new PersonManager(NAME_DB);
 
@@ -293,7 +289,7 @@ TEST(PersonManagerTest, loginWrongPassword){
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    id = personManager->savePerson(user);
+    personManager->savePerson(0, user, 0);
 
     delete personManager;
 

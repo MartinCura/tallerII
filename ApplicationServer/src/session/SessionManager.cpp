@@ -12,8 +12,6 @@
 #include "../Exceptions/InvalidPasswordException.h"
 
 
-
-
 std::string SessionManager::createSessionToken() {
     int token_length;
 
@@ -126,25 +124,32 @@ long SessionManager::getUserId(std::string token) {
 
 }
 
-std::string SessionManager::checkSession(std::string token) {
+Session * SessionManager::checkSession(std::string token) {
 
-    std::string token_information, last_use;
+    std::string token_information, last_time_used;
     Json::Reader reader;
     Json::Value json_token_information;
 
 
-    if (!db->existsKey(USER_TOKEN + token, &token_information)) {
-        //El login pasado por parámetro no existe
-        throw  InvalidTokenException();
-    }
-
+    if (!db->existsKey(USER_TOKEN + token, &token_information))throw  InvalidTokenException();
 
     reader.parse( token_information.c_str(), json_token_information );
-    last_use = json_token_information["last_used"].asString();
+    last_time_used = json_token_information["last_used"].asString();
 
-    //Chequear que el login no haya vencido.
+    if (tokenExpired(last_time_used)) throw TokenExpiredException();
 
-    const char *time_details = last_use.c_str();
+    Session* session = new Session();
+    session->setLastTime(last_time_used);
+    session->setUserMail(json_token_information["user_mail"].asString());
+    session->setToken(token);
+    session->setUserID(this->getUserId(token)); //todo: cambiar la forma de obtener el id desde session.
+
+    return session;
+
+}
+
+bool SessionManager::tokenExpired(std::string last_time_used) {
+    const char *time_details = last_time_used.c_str();
     struct tm tm;
     strptime(time_details, "%Y-%m-%d %H:%M:%S", &tm);
     time_t t = mktime(&tm);
@@ -154,14 +159,8 @@ std::string SessionManager::checkSession(std::string token) {
     double max_time_diff = 14400;
     double diff = difftime(now, t);
 
-    if (diff > max_time_diff) {
-        throw TokenExpiredException();
-    }
-
-    return json_token_information["user_mail"].asString();
-
+    return (diff > max_time_diff);
 }
-
 
 void SessionManager::destroyDB() {
     db->deleteDB();

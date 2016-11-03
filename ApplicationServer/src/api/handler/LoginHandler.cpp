@@ -11,7 +11,6 @@
 
 Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     string user_password, user_mail;
-    long user_id;
     Json::Value body;
     SessionManager* sessionManager = nullptr;
     std::string user_token;

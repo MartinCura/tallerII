@@ -7,6 +7,7 @@
 #include "../../jsoncpp/json/json-forwards.h"
 #include "../Response.h"
 #include "../../Exceptions/InvalidRequestException.h"
+#include "../../session/Session.h"
 
 using namespace std;
 
@@ -32,6 +33,8 @@ protected:
     bool postPublic = false;
     bool deletePublic = false;
 
+    Session* session = nullptr;
+
     string getStringFromMgStr(const struct mg_str uri);
     string getParameterFromQueryParams(string queryParams, string parameter);
 
@@ -45,7 +48,7 @@ private:
      */
     string getHttpHeader(http_message *message, string name);
 
-    void controlAccess(http_message *httpMessage);
+    Session * controlAccess(http_message *httpMessage);
 };
 
 #endif //APPLICATIONSERVER_HANDLER_H

@@ -22,7 +22,18 @@ public:
     Person* getPersonByMail(string* user_mail);
     void destroyDB();
 
-    long savePerson(Json::Value person_json, long forceID = -1);
+    /*
+     * Guarda un usuario nuevo.
+     * El usuario para ser considerado "nuevo" no debe poseer id.
+     * Se puede forzar el ingreso de un contacto dandole valor a <forceID>
+     * Tambien guarda las ediciones de un contacto a su perfil.
+     * Devuelve en ambos casos el id que identifica al usuario.
+     * En la base de datos, guarda la informacion con la siguiente estructura.
+     * USER_MAIL_ID + <user_mail> = <json_usuario>
+     * USER_UUID_ID + <user_id> = <user_mail>
+     * USER_PASSWORD + <user_mail> = <password>
+     */
+    long savePerson(long user_id, Json::Value person_json, long forceID = -1);
     vector<long> * getAllUsersIds();
     void deletePerson(long id);
     vector<Contact*> getContactsByUserId(long id);

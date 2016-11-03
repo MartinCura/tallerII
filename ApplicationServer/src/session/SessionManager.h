@@ -8,6 +8,7 @@
 
 #include <string>
 #include "../DB/DBWrapper.h"
+#include "Session.h"
 
 #define USER_TOKEN "user:token_"
 #define USER_MAIL_ID "user:mail_"
@@ -26,7 +27,7 @@ public:
      * La "información necesaria" corresponde con el siguiente formato:
      * USER_TOKEN + user_mail = { "user_token": <token> , "last_used":<cuando fue usado por ultima vez>}
      * USER_TOKEN + user_token = { "user_mail": <user_mail>, "last_used":<cuando fue usado por ultima vez>}
-     * El primer formato tiene como objectivo encontrar el token a partir del mail.
+     * El primer formato tiene como objetivo encontrar el token a partir del mail.
      * El segundo formato tiene como objetivo encontrar la informacion a partir del token.
      */
     std::string getNewToken(std::string user_mail);
@@ -36,7 +37,7 @@ public:
      * Válida implica que el token existe y el tiempo de inactividad
      * del usuario no es mayor a 4 m.
      */
-    std::string checkSession(std::string token);
+    Session * checkSession(std::string token);
     /*
      * Comprueba a partir de <user_mail> y <user_password>
      * corresponden a un usuario en el sistema, y si la combinación es correcta.
@@ -50,6 +51,7 @@ public:
     /*
      * Cierra la conexión de la base de datos.
      */
+
     void destroyDB();
 
 private:
@@ -57,7 +59,7 @@ private:
     std::string nameDB;
 
 
-
+    bool tokenExpired(std::string last_time_used);
 };
 
 

@@ -10,7 +10,7 @@ TEST(SessionToken, openNewSession) {
     SessionManager* sessionManager = new SessionManager("/tmp/testDB");
     std::string session_token = sessionManager->getNewToken("milenafarotto@gmail.com");
 
-    EXPECT_EQ(sessionManager->checkSession(session_token), "milenafarotto@gmail.com");
+    EXPECT_EQ(sessionManager->checkSession(session_token)->getUserMail(), "milenafarotto@gmail.com");
     sessionManager->destroyDB();
     delete sessionManager;
 }

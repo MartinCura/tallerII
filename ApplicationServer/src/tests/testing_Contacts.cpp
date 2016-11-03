@@ -1,12 +1,7 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "../jsoncpp/json/json.h"
-#include "../jsoncpp/json/json-forwards.h"
 #include "../person/PersonManager.h"
-#include "../person/Person.h"
-#include "../person/relation/RelationsManager.h"
-#include "../person/relation/Contact.h"
-#include "../Exceptions/UserNotFoundException.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
 
 void savePersonOne() {
@@ -22,7 +17,7 @@ void savePersonOne() {
         person->setCity("Buenos Aires");
         person->setSummary("Hi, this is John Doe");
         person->setLocation(-58.368368, -34.617589);
-        personManager->savePerson(person->serializeMe(), (long) 1);
+        personManager->savePerson(0, person->serializeMe(), (long) 1);
         delete person;
     } catch (UserAlreadyExistsException &exception) {}
     delete personManager;
@@ -41,7 +36,7 @@ void savePersonTwo() {
         person->setCity("Madrid");
         person->setSummary("Hi, this is Jane Doe");
         person->setLocation(-58.368368, -34.617589);
-        personManager->savePerson(person->serializeMe(), (long) 2);
+        personManager->savePerson(0, person->serializeMe(), (long) 2);
         delete person;
     } catch (UserAlreadyExistsException &exception) {}
     delete personManager;

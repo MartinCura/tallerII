@@ -40,7 +40,7 @@ TEST(InitDB, init) {
     user["skills"].append(skill);
 
     try {
-        long usr_id = personManager->savePerson(user, (long)1);
+        personManager->savePerson(0, user, (long) 1);
     } catch (UserAlreadyExistsException& exception){}
 
     delete personManager;

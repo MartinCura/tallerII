@@ -26,9 +26,8 @@ PersonManager::~PersonManager() {
 
 }
 
-long PersonManager::savePerson(Json::Value person_json, long forceID) {
+long PersonManager::savePerson(long user_id, Json::Value person_json, long forceID) {
     std::string user_mail, user_password, user_information, person_string;
-    long user_id;
     Json::FastWriter fastWriter;
     long uniqueId;
 
@@ -61,7 +60,7 @@ long PersonManager::savePerson(Json::Value person_json, long forceID) {
         }
     } else {
         //The person already exists in the system and it wants to refresh his information
-        uniqueId = person_json["id"].asLargestInt();
+        uniqueId = user_id;
         person_string = fastWriter.write(person_json);
         db->puTKey(USER_MAIL_ID + user_mail, &person_string);
         return uniqueId;
