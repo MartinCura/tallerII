@@ -53,8 +53,14 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
 Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string url) {
     PersonManager *personManager = new PersonManager(NAME_DB);
     Response* response = new Response();
+    long userId = this->getUserIdFromUrl(url);
+    //Seguridad:
+    // El usuario solo puede eliminar su perfil.
+    if (!Security::hasPermissionToDeleteUser(this->session->getUserId(), userId)) {
+        throw NotAuthorizedException();
+    }
+
     try {
-        long userId = this->getUserIdFromUrl(url);
         personManager->deletePerson(userId);
         response->setSuccessfulHeader();
     } catch (InvalidRequestException& e) {
@@ -81,8 +87,6 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) 
     if (!Security::hasPermissionToEdit(this->session->getUserId(), userId)) {
         throw NotAuthorizedException();
     }
-
-
     try {
 
         Person* person = personManager->getPersonById(userId);

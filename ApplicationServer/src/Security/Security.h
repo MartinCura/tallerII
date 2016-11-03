@@ -10,6 +10,8 @@ class Security {
 public:
     bool static hasPermissionToEdit(long userIdSession, long userIdToEdit);
 
+    static bool hasPermissionToDeleteUser(long userIdSession, long userIdToDelete);
+
 private:
     Security(){};
 

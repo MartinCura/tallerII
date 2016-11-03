@@ -7,3 +7,7 @@
 bool Security::hasPermissionToEdit(long userIdSession, long userIdToEdit) {
     return userIdSession == userIdToEdit;
 }
+
+bool Security::hasPermissionToDeleteUser(long userIdSession, long userIdToDelete) {
+    return userIdSession == userIdToDelete;
+}
