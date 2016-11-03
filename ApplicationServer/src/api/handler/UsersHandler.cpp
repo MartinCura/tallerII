@@ -76,17 +76,17 @@ Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string ur
 
 Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) {
 
-    PersonManager *personManager = new PersonManager(NAME_DB);
-    Response* response = new Response();
     string requestBody = string(httpMessage->body.p);
     Json::Value parsedBody = this->parseBody(requestBody);
     long userId = this->getUserIdFromUrl(url);
-
     //Seguridad:
-        // El usuario solo puede editar su perfil.
+    // El usuario solo puede editar su perfil.
     if (!Security::hasPermissionToEdit(this->session->getUserId(), userId)) {
         throw NotAuthorizedException();
     }
+    PersonManager *personManager = new PersonManager(NAME_DB);
+    Response* response = new Response();
+
     try {
 
         Person* person = personManager->getPersonById(userId);
