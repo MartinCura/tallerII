@@ -28,7 +28,12 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
             if (!postPublic) controlAccess(httpMessage);
             return this->handlePostRequest(httpMessage);
         }
-    }catch (exception& e) {
+    }catch (InvalidRequestException& e) {
+        Response* response = new Response();
+        response->setBadRequestHeader();
+        response->setErrorBody(e.getMessage());
+        return response;
+    } catch (exception& e) {
         Response* response = new Response();
         response->setUnauthorizedHeader();
         response->setBody(e.what());
@@ -41,11 +46,7 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
 
 void Handler::controlAccess(http_message* httpMessage) {
     std::string token = this->getHttpHeader(httpMessage, "Authorization");
-    if (token == "") {
-        //TODO: fix error campo faltante
-        throw InvalidRequestException("Token missing");
-    }
-
+    if (token == "") throw InvalidRequestException("Falta el token de autenticación en el header");
     SessionManager* sessionManager = new SessionManager("/tmp/appDB");
     try {
         sessionManager->checkSession(token);
@@ -53,7 +54,6 @@ void Handler::controlAccess(http_message* httpMessage) {
         delete sessionManager;
         throw;
     }
-
     delete sessionManager;
 
 }
