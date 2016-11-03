@@ -17,8 +17,8 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
     long fromUserId = this->getUserIdFromUrl(url);
         //Security
             //Solo el auto tiene permiso para leer los mensajes
-    if (!Security::hasPermissionToReadMessage(this->session->getUserId(), fromUserId))throw NotAuthorizedException();
-
+    if (!Security::hasPermissionToReadMessage(this->session->getUserId(), fromUserId))
+      throw NotAuthorizedException();
 
     try {
         long toUserId = this->getToUserFromQueryParams(queryParams);
@@ -50,10 +50,11 @@ Response* MessagesHandler::handleDeleteRequest(http_message* httpMessage, string
 Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string url) {
     string requestBody = string(httpMessage->body.p);
     Json::Value parsedBody = this->parseBody(requestBody);
-    long userId = parsedBody["author_id"].asLargestInt();
-    //Seguridad:
+    long userId = parsedBody["from"].asLargestInt();
+      //Seguridad:
     // El usuario solo puede enviar mensaje si es el autor.
-    if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId))throw NotAuthorizedException();
+    if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId))
+      throw NotAuthorizedException();
     PersonManager* personManager = new PersonManager("/tmp/appDB/");
     Response* response = new Response();
 

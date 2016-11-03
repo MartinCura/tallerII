@@ -47,7 +47,7 @@ Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage,
 Response* RecommendationsHandler::handlePutRequest(http_message* httpMessage, string url) {
     string requestBody = string(httpMessage->body.p);
     Json::Value parsedBody = this->parseBody(requestBody);
-    long userId = parsedBody["author_id"].asLargestInt();
+    long userId = parsedBody["from"].asLargestInt();
     //Seguridad:
         // El usuario solo puede enviar recomendaciones  si es el autor.
     if (!Security::hasPermissionToSendRecommendations(this->session->getUserId(), userId))throw NotAuthorizedException();
@@ -88,4 +88,3 @@ long RecommendationsHandler::getFromUserFromQueryParams(string queryParams) {
         throw InvalidRequestException("Not a numeric id");
     }
 }
-

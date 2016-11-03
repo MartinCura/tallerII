@@ -32,7 +32,7 @@ Person* DbBuilder::getFakePerson1() {
     person->setFirstName("John");
     person->setLastName("Doe");
     person->setEmail("john@doe.com");
-    person->setPassword("123");
+    person->setPassword("123abc");
     person->setDateOfBirth("01/01/1990");
     person->setCity("Buenos Aires");
     person->setSummary("Hi, this is John Doe");
@@ -54,7 +54,7 @@ Person* DbBuilder::getFakePerson1() {
 
     Skill* skill1 = new Skill();
     skill1->setName("JavaScript");
-    skill1->setDescription("JavaScrip programming language");
+    skill1->setDescription("JavaScript programming language");
     skill1->setCategory("software");
     person->addSkill(skill1);
 
@@ -88,14 +88,14 @@ Person* DbBuilder::getFakePerson2() {
 
     WorkHistory* workHistory2 = new WorkHistory();
     workHistory2->setCompany("E-bay");
-    workHistory2->setPositionTitle("Php Developer");
+    workHistory2->setPositionTitle("PHP Developer");
     workHistory2->setFromDate("12/2015");
     workHistory2->setToDate("");
     person->addWorkHistory(workHistory2);
 
     Skill* skill1 = new Skill();
     skill1->setName("Php");
-    skill1->setDescription("Php programming language");
+    skill1->setDescription("PHP programming language");
     skill1->setCategory("software");
     person->addSkill(skill1);
 
@@ -129,7 +129,7 @@ Person* DbBuilder::getFakePerson3() {
 
     Skill* skill1 = new Skill();
     skill1->setName("JavaScript");
-    skill1->setDescription("JavaScrip programming language");
+    skill1->setDescription("JavaScript programming language");
     skill1->setCategory("software");
     person->addSkill(skill1);
 
