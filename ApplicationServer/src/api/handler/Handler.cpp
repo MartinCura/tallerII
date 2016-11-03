@@ -36,6 +36,7 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
         Response* response = new Response();
         response->setForbiddenRequestHeader();
         response->setErrorBody(e.what());
+        return response;
     } catch (exception& e) {
         Response* response = new Response();
         response->setUnauthorizedHeader();
