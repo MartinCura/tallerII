@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:orientation="horizontal">
+
+    <!--Dummy para correr el mensaje a la derecha-->
+    <LinearLayout
+        android:id="@+id/dummy"
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:orientation="vertical" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:background="@drawable/balloon_incoming_normal">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp">
+
+            <LinearLayout
+                android:id="@+id/mensaje_incoming_texts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/mensaje_incoming_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="8dp"
+                    android:paddingBottom="3dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorAccent"
+                    android:text="@string/perfil_nombre_y_apellido_default"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/mensaje_incoming_message_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="14dp"
+                    android:paddingRight="15dp"
+                    android:paddingBottom="4dp"
+                    android:textSize="16sp"
+                    android:textColor="@color/almostblack"
+                    android:autoLink="web"
+                    android:maxWidth="200dp"
+                    android:text="@string/lorem_ipsum" />
+                <!--style="@style/TextAppearance.AppCompat.Medium"-->
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/mensaje_incoming_time_text"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_alignBottom="@id/mensaje_incoming_texts"
+                android:paddingTop="3dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="6dp"
+                android:layout_toRightOf="@id/mensaje_incoming_texts"
+                android:layout_toEndOf="@id/mensaje_incoming_texts"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:textColor="@color/gray"
+                android:text="@string/conversacion_hora_default" />
+
+        </RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>

@@ -69,6 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
         android:src="@android:drawable/sym_action_chat"
+        android:onClick="irAConversacion"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end" />
 

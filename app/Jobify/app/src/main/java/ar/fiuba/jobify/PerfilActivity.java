@@ -1,5 +1,7 @@
 package ar.fiuba.jobify;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,8 +14,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -27,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -46,11 +51,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
+import ar.fiuba.jobify.app_server_api.Recommendation;
 import ar.fiuba.jobify.app_server_api.Solicitud;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.shared_server_api.JobPosition;
@@ -62,7 +69,7 @@ public class PerfilActivity extends NavDrawerActivity {
     private final String LOG_TAG = PerfilActivity.class.getSimpleName();
 
     public final static String FETCHED_USER_ID_MESSAGE = "ar.fiuba.jobify.FETCHED_USER_ID_MESSAGE";
-    public final static String MODO_PERFIL_MESSAGE = "ar.fiuba.jobify.MODO_PERFIL_MESSAGE";
+    public final static String PERFIL_MODE_MESSAGE = "ar.fiuba.jobify.PERFIL_MODE_MESSAGE";
     private long fetchedUserID = 2;
     private User fetchedUser;
 
@@ -96,6 +103,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
         FloatingActionButton fabAmigar = (FloatingActionButton) findViewById(R.id.fab_amigar);
         if (fabAmigar != null) {
+            fabAmigar.setBackgroundTintList(Utils.getColorStateList(this, R.color.amigar_btn_none));
             fabAmigar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -107,23 +115,18 @@ public class PerfilActivity extends NavDrawerActivity {
 
         FloatingActionButton fabRecomendar = (FloatingActionButton) findViewById(R.id.fab_recomendar);
         if (fabRecomendar != null) {
+            fabRecomendar.setBackgroundTintList(Utils.getColorStateList(this, R.color.recomendar_btn_false));
             fabRecomendar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO: Recomendar
+                    toggleRecomendar(fetchedUserID);
                 }
             });
         }
 
         FloatingActionButton fabChatear = (FloatingActionButton) findViewById(R.id.fab_chatear);
-        if (fabChatear != null) {
-            fabChatear.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // TODO: Chatear
-                }
-            });
-        }
+        if (fabChatear != null)
+            fabChatear.setBackgroundTintList(Utils.getColorStateList(this, R.color.chatear_btn));
 
         FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
         if (fabEditar != null) {
@@ -165,10 +168,10 @@ public class PerfilActivity extends NavDrawerActivity {
         // TODO: REVISAR, YA QUE ESTÁ EN EL onResume
         // Obtengo el modo en el que debe comenzar
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(MODO_PERFIL_MESSAGE)) {
+        if (intent != null && intent.hasExtra(PERFIL_MODE_MESSAGE)) {
 
-            boolean empezarEnModoEdicion = intent.getBooleanExtra(MODO_PERFIL_MESSAGE, false);
-            if (empezarEnModoEdicion) {
+            boolean empezarEnModoEdicion = intent.getBooleanExtra(PERFIL_MODE_MESSAGE, false);
+            if (empezarEnModoEdicion && fetchedUserID == connectedUserID) {
 
                 Utils.showView(this, R.id.perfil_information_layout);
 
@@ -252,8 +255,6 @@ public class PerfilActivity extends NavDrawerActivity {
                 fabEditar.setBackgroundTintList(Utils.getColorStateList(this, R.color.editar_btn_active));
             }
 
-            // Cambia funcionamiento del "volver" TODO
-
             // Permitir cambiar la foto
             if (iv_foto != null)
                 iv_foto.setOnClickListener(new View.OnClickListener() {
@@ -292,6 +293,9 @@ public class PerfilActivity extends NavDrawerActivity {
                 Utils.setTextViewText(this, R.id.text_perfil_apellido_editable, fetchedUser.getLastName());
                 Utils.setTextViewText(this, R.id.text_perfil_ciudad_editable, fetchedUser.getCity());
                 Utils.setTextViewText(this, R.id.text_perfil_resumen_editable, fetchedUser.getSummary());
+                Utils.setTextViewText(this, R.id.perfil_nacimiento_dia, String.valueOf(fetchedUser.getDiaNacimiento()));
+                Utils.setTextViewText(this, R.id.perfil_nacimiento_mes, String.valueOf(fetchedUser.getMesNacimiento()));
+                Utils.setTextViewText(this, R.id.perfil_nacimiento_anio, String.valueOf(fetchedUser.getAnioNacimiento()));
             }
 
             // Cargo autocompletado de JobPositions y Skills según SharedData
@@ -352,6 +356,7 @@ public class PerfilActivity extends NavDrawerActivity {
         EditText et_desde_anio = (EditText) findViewById(R.id.perfil_employment_desde_anio);
         EditText et_hasta_mes =  (EditText) findViewById(R.id.perfil_employment_hasta_mes);
         EditText et_hasta_anio = (EditText) findViewById(R.id.perfil_employment_hasta_anio);
+        // TODO: Cuidado si cambio por DatePickerDialog
 
         if (et_company == null || et_company.length() == 0
                 || et_position == null || et_position.length() == 0
@@ -415,7 +420,7 @@ public class PerfilActivity extends NavDrawerActivity {
                         .show();
                 return false;
             }
-            et_skill.setText("");
+            et_skill.setText(null);
             mSkillAdapter.notifyDataSetChanged();
 
         } catch (IllegalArgumentException ex) {
@@ -448,6 +453,12 @@ public class PerfilActivity extends NavDrawerActivity {
         if (!editedUser.setSummary(Utils.getTextViewText(this, R.id.text_perfil_resumen_editable))) {
             Utils.editTextSetErrorAndFocus(this, R.id.text_perfil_resumen_editable,
                     "Máximo "+User.MAX_CHAR_SUMMARY+" caracteres");
+            return false;
+        }
+        if (!editedUser.setDateOfBirth( Utils.getTextViewInt(this, R.id.perfil_nacimiento_dia),
+                                        Utils.getTextViewInt(this, R.id.perfil_nacimiento_mes),
+                                        Utils.getTextViewInt(this, R.id.perfil_nacimiento_anio) )) {
+            Utils.editTextSetErrorAndFocus(this, R.id.perfil_nacimiento_anio, "Fecha inválida");
             return false;
         }
         editedUser.setWorkHistory(mJobsAdapter.getList()); // TODO
@@ -531,7 +542,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 jsonRequest, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // TODO Ignorando response, algo que hacer con ello?
+                        // TODO: Ignorando response, algo que hacer con ello?
                         Toast.makeText(PerfilActivity.this, responseStr, Toast.LENGTH_LONG)
                                 .show();
                     }
@@ -557,17 +568,19 @@ public class PerfilActivity extends NavDrawerActivity {
             case ACTIVE:
                 csl = Utils.getColorStateList(this, R.color.amigar_btn_active);
                 break;
-            default:  // TODO: Revisar contra NONE
-                fab_amigar.setEnabled(false);
             case NONE:
                 csl = Utils.getColorStateList(this, R.color.amigar_btn_none);
+                break;
+            default:
+                csl = Utils.getColorStateList(this, R.color.amigar_btn_none);
+                fab_amigar.setEnabled(false);
         }
         fab_amigar.setBackgroundTintList(csl);
     }
 
     public void refreshProfileInformation(final long idFetched) {
 
-        Utils.getJsonFromAppServer(getContext(), getString(R.string.perfil_get_user_path), idFetched,
+        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_user_path), idFetched,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -604,7 +617,7 @@ public class PerfilActivity extends NavDrawerActivity {
         }
 
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
-                .appendPath(getString(R.string.perfil_get_photo_path))
+                .appendPath(getString(R.string.get_photo_path))
                 .appendPath(Long.toString(idFetched))
                 .build();
         final String url = builtUri.toString();
@@ -621,6 +634,8 @@ public class PerfilActivity extends NavDrawerActivity {
 
         Utils.setTextViewText(this, R.id.text_perfil_mail, mUser.getEmail());
         Utils.setTextViewText(this, R.id.text_perfil_ciudad, mUser.getCity());
+        Utils.setTextViewText(this, R.id.text_perfil_cant_recomendaciones,
+                Long.toString(mUser.getCantRecomendaciones()) + " recomendaciones");//semi hardcode
         Utils.setTextViewText(this, R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
         Utils.setTextViewText(this, R.id.text_perfil_resumen, mUser.getSummary(), true);
         Utils.setTextViewText(this, R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales(), true);
@@ -636,6 +651,8 @@ public class PerfilActivity extends NavDrawerActivity {
                         if (cs != null) populateContacts(cs);
                     }
                 }, LOG_TAG);
+
+        colorearBotonRecomendar(mUser.fueRecomendadoPor(connectedUserID));
     }
 
 
@@ -657,32 +674,10 @@ public class PerfilActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response != null) {
-                            Log.d(LOG_TAG, "User PUT Response: "+response.toString());
+                            Log.d(LOG_TAG, "User PUT Response: " + response.toString());
                         }
                     }
                 }, LOG_TAG);
-
-//            @Override
-//            public byte[] getBody() throws AuthFailureError {
-//                try {
-//                    return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
-//                } catch (UnsupportedEncodingException uee) {
-//                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
-//                            mRequestBody, "utf-8");
-//                    return null;
-//                }
-//            }
-
-//            @Override
-//            protected Response<String> parseNetworkResponse(NetworkResponse response) {
-//                String responseString = "";
-//                if (response != null) {
-//                    responseString = String.valueOf(response.statusCode);
-//                    // can get more details such as response.headers
-//                }
-//                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
-//            }
-
     }
 
     private void dispatchChoosePictureIntent() {
@@ -793,7 +788,7 @@ public class PerfilActivity extends NavDrawerActivity {
             }
 
             final String url = Utils.getAppServerUrl(this, fetchedUserID,
-                                getString(R.string.perfil_post_photo_path));
+                                getString(R.string.post_photo_path));
 
             if (imageFile != null && imageFile.exists()) {
                 try {
@@ -871,22 +866,6 @@ public class PerfilActivity extends NavDrawerActivity {
 
         ArrayList<Contact> contacts = response.getContactsWithStatus(Contact.Status.ACTIVE);
 
-        /// TODO: hardcodeado, de prueba
-//        ArrayList<Contact> contacts = new ArrayList<>();
-//        contacts.add(new Contact(1, "John", "Roberts", new Employment("CEO", "FBI"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(2, "Joan", "Roberts", new Employment("ZEO", "NSA"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(3, "Sean", "Roberts", new Employment("CTO", "FBI"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(4, "Jon", "Roberts", new Employment("CFO", "GitHub"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(5, "Jone", "Roberts", new Employment("Toilet cleaner", "Zoo"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(6, "Mark", "Zuckerberg", new Employment("CEO", "Facebook"), Contact.Status.REQUESTED));
-//        // Solo mostrar contactos activos TODO: BORRAR
-//        ArrayList<Contact> activeContacts = new ArrayList<>();
-//        for (Contact c : contacts) {
-//            if (c.getStatus().equals(Contact.Status.ACTIVE))
-//                activeContacts.add(c);
-//        }
-        ///
-
         if (contacts.size() == 0) {
             Utils.hideView(this, R.id.perfil_contactos_frame);
             return;
@@ -937,11 +916,9 @@ public class PerfilActivity extends NavDrawerActivity {
                 ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(this,
                         android.R.layout.simple_dropdown_item_1line, jpArray);
                 et_employment.setAdapter(employmentsAdapter);
-                Log.d(LOG_TAG, "Setteado el autocomplete adapter de Employments");
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(getContext(), "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
-                    .show();
+            Log.e(LOG_TAG, "Problemas con SS.JobPositions");
         }
 
         try {
@@ -957,11 +934,9 @@ public class PerfilActivity extends NavDrawerActivity {
                 ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(this,
                         android.R.layout.simple_dropdown_item_1line, skArray);
                 et_skill.setAdapter(skillsAdapter);
-                Log.d(LOG_TAG, "Setteado el autocomplete adapter de Skills");
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(getContext(), "Problemas con SS.Skills", Toast.LENGTH_LONG)
-                    .show();
+            Log.e(LOG_TAG, "Problemas con SS.Skills");
         }
     }
 
@@ -1002,7 +977,7 @@ public class PerfilActivity extends NavDrawerActivity {
             if (contact != null) {
 
                 Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
-                        .appendPath(getString(R.string.perfil_get_thumbnail_path))
+                        .appendPath(getString(R.string.get_thumbnail_path))
                         .appendPath(Long.toString(contact.getId()))
                         .build();
                 Utils.cargarImagenDeURLenImageView(getApplicationContext(),
@@ -1020,5 +995,109 @@ public class PerfilActivity extends NavDrawerActivity {
 
             return itemView;
         }
+    }
+
+
+    public void showDatePickerDialog(View v) {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datePicker");
+    }
+
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        PerfilActivity activity;
+
+        @Override @NonNull
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // No es lo más lindo del mundo...
+            // Refactor: crear interfaz que implementan, mover esto a Utils, etc.
+            activity = (PerfilActivity) getActivity();
+
+            // Use the current date pero en 1990 as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = 1990;
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            int mesBien = month + 1;
+            Utils.setTextViewText(activity, R.id.perfil_nacimiento_dia, Integer.toString(day));
+            Utils.setTextViewText(activity, R.id.perfil_nacimiento_mes, Integer.toString(mesBien));
+            Utils.setTextViewText(activity, R.id.perfil_nacimiento_anio, Integer.toString(year));
+        }
+    }
+
+    private void toggleRecomendar(final long recomendadoID) {
+
+        final boolean yaRecomendado = fetchedUser.fueRecomendadoPor(connectedUserID);
+        final int method;
+        final String url, mensajeDialogo;
+        final Recommendation recom = new Recommendation(connectedUserID, recomendadoID);
+
+        if (!yaRecomendado) {
+            method = Request.Method.PUT;
+            String path = getString(R.string.as_make_recommendation_path);
+            url = Utils.getAppServerUrl(getContext(), path);
+            mensajeDialogo = getString(R.string.confirmacion_recomendar);
+        } else {
+            method = Request.Method.DELETE;
+            String path = getString(R.string.as_cancel_recommendation_path);
+            // En el caso de DELETE, lo que realmente importa son los queries en la url
+            url = Utils.getAppServerUrl(getContext(), path, recom.toQueries());
+            mensajeDialogo = getString(R.string.confirmacion_desrecomendar);
+        }
+
+        Utils.confirmarAccion(getContext(), "Recomendación", mensajeDialogo,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Utils.fetchJsonFromUrl(getContext(), method, url, recom.toJsonObject(),
+                                new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        // TODO: No chequea que el status sea 200, será inmediato?
+
+                                        boolean ahoraRecomendado = !yaRecomendado;
+                                        colorearBotonRecomendar(ahoraRecomendado);
+
+                                        // TODO: Mover a R.string
+                                        if (ahoraRecomendado) {
+                                            Toast.makeText(getContext(), "¡Usuario recomendado!",
+                                                    Toast.LENGTH_LONG).show();
+                                        } else {
+                                            Toast.makeText(getContext(), "Se ha quitado la recomendación :(",
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                        refreshProfileInformation(fetchedUserID);
+                                    }
+                                }, LOG_TAG);
+                    }
+                });
+    }
+
+    private void colorearBotonRecomendar(boolean recomendado) {
+
+        FloatingActionButton fab_recomendar = (FloatingActionButton) findViewById(R.id.fab_recomendar);
+        if (fab_recomendar == null) {
+            Log.e(LOG_TAG, "No pude encontrar fab_recomendar");
+            return;
+        }
+
+        ColorStateList csl;
+        if (recomendado) {
+            csl = Utils.getColorStateList(this, R.color.recomendar_btn_true);
+        } else {
+            csl = Utils.getColorStateList(this, R.color.recomendar_btn_false);
+        }
+        fab_recomendar.setBackgroundTintList(csl);
+    }
+
+    public void irAConversacion(View v) {
+        Utils.iniciarConversacionActivity(this, fetchedUserID);
     }
 }

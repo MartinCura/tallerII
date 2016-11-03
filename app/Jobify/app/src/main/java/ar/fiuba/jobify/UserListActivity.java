@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +20,7 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import org.json.JSONObject;
 
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.AllUsersResponse;
+import ar.fiuba.jobify.app_server_api.BusquedaRequest;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.User;
@@ -46,6 +47,8 @@ public class UserListActivity extends NavDrawerActivity {
     public final static int MODE_BUSQUEDA = 3;
 //    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_ALL_USERS, MODE_BUSQUEDA };
 
+    public final static String BUSQUEDA_REQUEST_MESSAGE = package_name+"_BUSQUEDA_REQUEST_MESSAGE";
+
     private UserArrayAdapter mUserArrayAdapter;
     int mode = MODE_NONE;
 
@@ -54,25 +57,11 @@ public class UserListActivity extends NavDrawerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list_drawer);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if (fab != null)
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // Volver a la búsqueda? Ocultar si se trata de los contactos propios.
-                    Snackbar.make(view, "Empezar nueva búsqueda", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show(); // TODO
-                }
-            });
+        /** Mostrar loading */
+
         ActionBar sab = getSupportActionBar();
         if (sab != null) sab.setDisplayHomeAsUpEnabled(true);
 
-
-        // Obtengo el modo
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(LIST_MODE)) {
-            mode = intent.getIntExtra(LIST_MODE, mode);
-        }
 
         ListView listView = (ListView) findViewById(R.id.user_list);
         if (listView == null) {
@@ -94,6 +83,12 @@ public class UserListActivity extends NavDrawerActivity {
             }
         });
 
+        // Obtengo el modo
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(LIST_MODE)) {
+            mode = intent.getIntExtra(LIST_MODE, mode);
+        }
+
         switch (mode) {
             case MODE_SOLICITUDES:
                 listarSolicitudesReceived();
@@ -102,12 +97,29 @@ public class UserListActivity extends NavDrawerActivity {
                 listarTodosLosUsuarios();
                 break;
             case MODE_BUSQUEDA:
-                // TODO
+                generarBusqueda();
                 break;
             case MODE_NONE:
             default:
         }
     }
+
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
+    }
+
+    public void onStop() {
+        super.onStop();
+        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
+            RequestQueue mRequestQueue = RequestQueueSingleton
+                    .getInstance(this.getApplicationContext())
+                    .getRequestQueue();
+            mRequestQueue.cancelAll(LOG_TAG);
+        }
+    }
+
 
     private void listarSolicitudesReceived() {
         Toast.makeText(this, "Listo las solicitudes pendientes", Toast.LENGTH_LONG)
@@ -118,7 +130,8 @@ public class UserListActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
 
-                        ContactsResponse contactsResponse = ContactsResponse.parseJSON(response.toString());
+                        ContactsResponse contactsResponse =
+                                ContactsResponse.parseJSON(response.toString());
                         if (contactsResponse == null)
                             return;
                         ArrayList<Contact> contacts =
@@ -131,7 +144,7 @@ public class UserListActivity extends NavDrawerActivity {
         }, LOG_TAG);
     }
 
-    // de prueba TODO
+    // de prueba //;//
     private void listarTodosLosUsuarios() {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
@@ -158,18 +171,11 @@ public class UserListActivity extends NavDrawerActivity {
                         }
                     }
         }, LOG_TAG);
-
-//        //TODO: BORRAR cuando funcione la API correspondiente
-//        Toast.makeText(this, "Listo todos los usuarios del 1 al 10", Toast.LENGTH_LONG)
-//                .show();
-//        for (long id = 1; id <= 5; id++) {
-//            fetchAndAddUser(id);
-//        }
     }
 
     private void fetchAndAddUser(long id) { // TODO: De prueba, CAMBIAR POR GET REDUCIDO
 
-        Utils.getJsonFromAppServer(this, getString(R.string.perfil_get_user_path), id,
+        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -181,22 +187,46 @@ public class UserListActivity extends NavDrawerActivity {
                 }, LOG_TAG);
     }
 
-    @Override
-    public void setContentView(@LayoutRes int layoutResID) {
-        super.setContentView(layoutResID);
-        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
+
+    public void irABusquedaActivity(View v) {
+        // Volver a la búsqueda si vengo de una? Ocultar botón si se trata de los contactos propios.
+        Snackbar.make(v, "Empezar nueva búsqueda", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();//
+
+        startActivity(new Intent(this, BusquedaActivity.class));
     }
 
-    public void onStop() {
-        super.onStop();
+    public void generarBusqueda() {
+        String busquedaMensaje;
 
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
-
-            RequestQueue mRequestQueue = RequestQueueSingleton
-                    .getInstance(this.getApplicationContext())
-                    .getRequestQueue();
-            mRequestQueue.cancelAll(LOG_TAG);
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(BUSQUEDA_REQUEST_MESSAGE)) {
+            busquedaMensaje = intent.getStringExtra(BUSQUEDA_REQUEST_MESSAGE);
+            if (busquedaMensaje == null) busquedaMensaje = "";
+        } else {
+            Log.e(LOG_TAG, "No encontré intent o mensaje para hacer búsqueda");
+            return;
         }
+
+        BusquedaRequest busquedaReq = BusquedaRequest.parseJSON(busquedaMensaje);
+        if (busquedaReq == null) {
+            Log.e(LOG_TAG, "Error de Json BusquedaRequest");
+            return;
+        }
+
+        // TODO: Revisar
+        Utils.getJsonFromAppServer(this, getString(R.string.get_busqueda_path),
+                busquedaReq.toJsonObject(), new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // TODO
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO
+                    }
+                }, LOG_TAG);
     }
 
 
@@ -212,7 +242,7 @@ public class UserListActivity extends NavDrawerActivity {
             View itemView = convertView;
             if (itemView == null) {
                 itemView = LayoutInflater.from(getContext())
-                                .inflate(R.layout.user_list_item, parent, false);
+                        .inflate(R.layout.user_list_item, parent, false);
             }
 
             User user = getItem(position);
@@ -224,7 +254,7 @@ public class UserListActivity extends NavDrawerActivity {
 
                 if (iv_thumbnail != null) {
                     Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
-                            .appendPath(getString(R.string.perfil_get_thumbnail_path))
+                            .appendPath(getString(R.string.get_thumbnail_path))
                             .appendPath(Long.toString(user.getId()))
                             .build();
                     final String url = builtUri.toString();
@@ -243,5 +273,4 @@ public class UserListActivity extends NavDrawerActivity {
             return itemView;
         }
     }
-
 }

@@ -2,7 +2,6 @@ package ar.fiuba.jobify;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.annotation.IdRes;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -57,8 +56,15 @@ public class NavDrawerActivity extends AppCompatActivity
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-
         setUpDrawerHeader();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
+        if (drawer != null)
+            drawer.closeDrawer(GravityCompat.START);
     }
 
     private void setUpDrawerHeader() {
@@ -140,7 +146,9 @@ public class NavDrawerActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_manage) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            startActivity(
+                    new Intent(this, SettingsActivity.class)
+            );
             return false;
         } else if (id == R.id.nav_solicitudes) {
             startActivity(
@@ -162,21 +170,12 @@ public class NavDrawerActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
-        if (drawer != null)
-            drawer.closeDrawer(GravityCompat.START);
-    }
-
     public void setUpDrawerHeaderUser() {
 
-        Utils.getJsonFromAppServer(this, getString(R.string.perfil_get_user_path), connectedUserID,
+        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), connectedUserID,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
                         User mUser = User.parseJSON(response.toString());
                         if (mUser != null) {
                             fillDrawerHeaderText(mUser);
@@ -187,13 +186,14 @@ public class NavDrawerActivity extends AppCompatActivity
                     }
                 }, LOG_TAG);
 
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
-                .appendPath(getString(R.string.perfil_get_thumbnail_path))
-                .appendPath(Long.toString(connectedUserID))
-                .build();
-        String urlGetThumbnail = builtUri.toString();
+        String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID,
+                getString(R.string.get_thumbnail_path));
         ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
 
         Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG);
+    }
+
+    public void irAPerfilPropio(View v) {
+        Utils.iniciarPerfilActivity(this, connectedUserID, false);
     }
 }

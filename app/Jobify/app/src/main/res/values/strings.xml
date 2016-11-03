@@ -29,12 +29,11 @@
     <string name="perfil_skills_title">Skills</string>
 
     <string name="BASE_HTTP_URL">http://192.168.43.236:8000/</string>
-    <string name="perfil_get_user_path">users</string>
-    <string name="perfil_get_photo_path">profilepicture</string>
-    <string name="perfil_post_photo_path">profilepicture</string>
-    <string name="perfil_get_thumbnail_path">profilepicture</string>
+    <string name="get_user_path">users</string>
+    <string name="get_photo_path">profilepicture</string>
+    <string name="post_photo_path">profilepicture</string>
+    <string name="get_thumbnail_path">profilepicture</string>
     <!-- TODO get thumbnail y post photo paths -->
-
 
 
     <!-- Strings related to Settings -->
@@ -133,6 +132,8 @@
     <string name="post_user_path">users</string>
     <string name="put_user_path">users</string>
     <string name="get_login_path">login</string>
+    <string name="as_make_recommendation_path">recommendations</string>
+    <string name="as_cancel_recommendation_path">recommendations</string>
     <string name="shared_server_base_url">https://intense-plains-63100.herokuapp.com/</string>
     <string name="login_invalid_empty_password">Contraseña vacía</string>
     <string name="perfil_nombre_editable_hint">Nombre</string>
@@ -144,9 +145,44 @@
     <string name="perfil_employment_new_company_hint">Compañía</string>
     <string name="perfil_agregar_item_titulo">Agregar</string>
     <string name="desde">Desde</string>
+    <string name="dia">día</string>
     <string name="mes">mes</string>
     <string name="barra">/</string>
     <string name="anio">año</string>
     <string name="hasta">Hasta</string>
     <string name="dialog_no">No</string>
+    <string name="perfil_nacimiento_title">Fecha de nacimiento:</string>
+    <string name="pick_date_description">Elegir fecha</string>
+    <string name="confirmacion_recomendar">¿Quiere recomendar a este simplón?</string>
+    <string name="confirmacion_desrecomendar">¿Está seguro que quiere eliminar su recomendación?</string>
+    <string name="enviar_mensaje_description">Enviar mensaje</string>
+    <string name="conversacion_entrada_hint">Escriba su mensaje</string>
+    <string name="conversacion_hora_default">22:09</string>
+    <string name="message_tick_description">Estado de recepción de mensaje</string>
+    <string name="get_messages_path">messages</string>
+    <string name="put_messages_path">messages</string>
+    <string name="title_activity_conversacion">Conversación</string>
+    <string name="action_enviar_mensaje">Enviar mensaje</string>
+    <string name="title_activity_busqueda">BusquedaActivity</string>
+    <string name="get_messages_first_query">first</string>
+    <string name="get_messages_last_query">last</string>
+    <string name="busqueda_logo_description">logo</string>
+    <string name="busqueda_job_positions_title">Experiencia</string>
+    <string name="busqueda_distancia_hint">Distancia</string>
+    <string name="busqueda_distancia_unidad">km</string>
+    <string name="busqueda_btn_busqueda">Jobisearch!</string>
+    <string name="get_messages_user_query">user</string>
+    <string name="get_busqueda_path">search</string>
+
+    <!--Testeo, TODO: borrar-->
+    <string-array name="planets_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
 </resources>

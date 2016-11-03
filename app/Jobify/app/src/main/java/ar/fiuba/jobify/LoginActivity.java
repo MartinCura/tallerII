@@ -3,6 +3,7 @@ package ar.fiuba.jobify;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,6 +24,8 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -109,6 +112,29 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.nav_drawer, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void populateAutoComplete() {
@@ -217,6 +243,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
 
+            final Activity activity = this;
             final Context ctx = getApplicationContext();
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
 
@@ -236,7 +263,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                             long connectedUserId = loginResponse.getId();
                             guardarConnectedId(connectedUserId);
-                            iniciarPerfilActivity(connectedUserId, false);
+                            Utils.iniciarPerfilActivity(activity, connectedUserId, false);
                         }
                     }, new Response.ErrorListener() {
                         @Override
@@ -272,6 +299,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
 
             final Context ctx = getApplicationContext();
+            final Activity activity = this;
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
             Log.d(LOG_TAG, "POST de registro:\n"+jsonRequest.toString());//
 
@@ -292,7 +320,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             long connectedUserId = loginResponse.getId();
                             Log.d(LOG_TAG, "connectedUserId: "+connectedUserId);//
                             guardarConnectedId(connectedUserId);
-                            iniciarPerfilActivity(connectedUserId, true);
+
+                            Utils.iniciarPerfilActivity(activity, connectedUserId, true);
+                            finish();
+
                         }
 
                     }, new Response.ErrorListener() {
@@ -420,16 +451,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //        int IS_PRIMARY = 1;
     }
 
-
-    public void iniciarPerfilActivity(long fetchedUserId, boolean comenzarEnModoEdicion) {
-
-        startActivity(
-                new Intent(LoginActivity.this, PerfilActivity.class)
-                        .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, fetchedUserId)
-                        .putExtra(PerfilActivity.MODO_PERFIL_MESSAGE, comenzarEnModoEdicion)
-        );
-    }
-
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
         long connectedUserId = 1L;
@@ -439,7 +460,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 "user id: "+connectedUserId, Toast.LENGTH_LONG)
                 .show();
 
-        iniciarPerfilActivity(connectedUserId, false);
+        Utils.iniciarPerfilActivity(this, connectedUserId, false);
+        finish();
     }//;//
 }
 

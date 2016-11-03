@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:paddingLeft="40dp"
+    android:paddingRight="5dp">
+
+    <ar.fiuba.jobify.widgets.OutgoingMessageLayout
+        android:id="@+id/mensaje_outgoing_bubble"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginLeft="20dp"
+        android:paddingBottom="4dp"
+        android:background="@drawable/balloon_outgoing_normal">
+
+        <ImageView
+            android:id="@+id/mensaje_outgoing_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/mensaje_outgoing_message_text"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:paddingLeft="3dp"
+            android:paddingRight="5dp"
+            android:src="@drawable/ic_single_tick"
+            android:contentDescription="@string/message_tick_description"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/mensaje_outgoing_time_text"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignBottom="@id/mensaje_outgoing_message_text"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:textColor="@color/gray"
+            android:paddingBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_toLeftOf="@id/mensaje_outgoing_status"
+            android:layout_toStartOf="@id/mensaje_outgoing_status"
+            android:text="@string/conversacion_hora_default" />
+
+        <TextView
+            android:id="@id/mensaje_outgoing_message_text"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:maxWidth="230dp"
+            android:layout_toLeftOf="@id/mensaje_outgoing_time_text"
+            android:autoLink="web"
+            android:paddingTop="6dp"
+            android:paddingLeft="14dp"
+            android:paddingRight="9dp"
+            android:paddingBottom="9dp"
+            android:textSize="16sp"
+            android:textColor="@color/almostblack"
+            android:text="@string/lorem_ipsum" />
+
+    </ar.fiuba.jobify.widgets.OutgoingMessageLayout>
+
+</RelativeLayout>

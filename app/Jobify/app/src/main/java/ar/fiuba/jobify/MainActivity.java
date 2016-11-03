@@ -6,20 +6,14 @@ import android.os.Bundle;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         startActivity(new Intent(this, LoginActivity.class));
+//        startActivity(new Intent(this, BusquedaActivity.class));
         //return;
 
 //        setContentView(R.layout.activity_main);
     }
 }
-
-
-/** Código útil */
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();

@@ -47,11 +47,19 @@ public class JobPositionsResponse {
         return metadata;
     }
 
-    public String findPosition(String jobPos) {
+    public String findPositionTitle(String jobPos) {
         for (JobPosition jp : jobPositions) {
             String title = jp.getName();
             if (title.equalsIgnoreCase(jobPos))
                 return title;
+        }
+        return null;
+    }
+
+    public JobPosition findPosition(String jobPos) {
+        for (JobPosition jp : jobPositions) {
+            if (jp.getName().equalsIgnoreCase(jobPos))
+                return jp;
         }
         return null;
     }

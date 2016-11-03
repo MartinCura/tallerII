@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Created by martín on 06/09/16.
+ * Estructura API para los skills.
  */
 public class SkillsResponse {
 

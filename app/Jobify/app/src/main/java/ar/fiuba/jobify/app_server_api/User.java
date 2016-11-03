@@ -11,8 +11,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import ar.fiuba.jobify.Utils;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
 /**
@@ -32,8 +34,9 @@ public class User {
             lastName = "",
             email = "",
             city = "",
-            dateOfBirth = "",
+            dateOfBirth = "1/1/1990",
             summary = "";
+    long[] recommendations;
     List<Skill> skills;
     List<Employment> workHistory;
 
@@ -92,10 +95,29 @@ public class User {
     public List<Employment> getWorkHistory() {
         return workHistory;
     }
+    public long[] getRecomendaciones() {
+        return recommendations;
+    }
 
-    public long getCantRecomendaciones() {   // TODO
-        return 123;
-        //return cantRecomendaciones;
+    public int getDiaNacimiento() {
+        return Integer.parseInt(dateOfBirth.split("/")[0]);
+    }
+    public int getMesNacimiento() {
+        return Integer.parseInt(dateOfBirth.split("/")[1]);
+    }
+    public int getAnioNacimiento() {
+        return Integer.parseInt(dateOfBirth.split("/")[2]);
+    }
+
+    public long getCantRecomendaciones() {
+        return recommendations.length;
+    }
+
+    public boolean fueRecomendadoPor(long pepito) {
+        for (long i : recommendations)
+            if (i == pepito)
+                return true;
+        return false;
     }
 
     public boolean setFirstName(String firstName) {
@@ -118,9 +140,13 @@ public class User {
         return true;
     }
 
-    public boolean setDateOfBirth(String dateOfBirth) {
-        // TODO if
-        this.dateOfBirth = dateOfBirth;
+    // No normaliza la cantidad de dígitos
+    public boolean setDateOfBirth(int dia, int mes, int anio) {
+        final Calendar c = Calendar.getInstance();
+        // Mínima edad: 10 años, INADI quién
+        if (!Utils.validarFecha(dia, mes, anio) || anio < 1900 || anio >= c.get(Calendar.YEAR) - 10)
+            return false;
+        this.dateOfBirth = dia + "/" + mes + "/" + anio;
         return true;
     }
 
