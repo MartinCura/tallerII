@@ -50,7 +50,7 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
         return response;
     } catch (UserNotFoundException& e) {
         Response *response = new Response();
-        response->setConflictHeader();
+        response->setNotFoundHeader();
         response->setErrorBody(e.getMessage(UserNotFoundException::Message::mail));
         //TODO no tiene sentido que repita logica porque los mensajes se manejan distintos para este tipo de excepción, MEjorar.
         delete sessionManager;
