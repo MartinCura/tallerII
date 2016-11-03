@@ -89,3 +89,11 @@ void Response::setInternalServerErrorHeader() {
 void Response::setNotImplementedHeader() {
     this->header = "501 Not Implemented";
 }
+
+/*
+ * El usuario está identificado pero no tiene permisos para realizar
+ * la accion que intenta ejecutar.
+ */
+void Response::setForbiddenRequestHeader() {
+    this->header = "403 Forbidden";
+}

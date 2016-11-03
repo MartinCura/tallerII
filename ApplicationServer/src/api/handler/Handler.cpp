@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Handler.h"
 #include "../../session/SessionManager.h"
+#include "../../Exceptions/NotAuthorizedException.h"
 
 static const struct mg_str s_get_method = MG_MK_STR("GET");
 static const struct mg_str s_put_method = MG_MK_STR("PUT");
@@ -31,6 +32,10 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
         response->setBadRequestHeader();
         response->setErrorBody(e.getMessage());
         return response;
+    } catch (NotAuthorizedException e) {
+        Response* response = new Response();
+        response->setForbiddenRequestHeader();
+        response->setErrorBody(e.what());
     } catch (exception& e) {
         Response* response = new Response();
         response->setUnauthorizedHeader();

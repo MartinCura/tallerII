@@ -29,6 +29,9 @@ public:
     void setNotImplementedHeader();
 
     bool hasBinaryContent;
+
+    void setForbiddenRequestHeader();
+
 private:
     string header;
     string body;
