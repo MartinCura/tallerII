@@ -49,13 +49,13 @@ Response* MessagesHandler::handleDeleteRequest(http_message* httpMessage, string
 
 Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string url) {
     string requestBody = string(httpMessage->body.p);
-    PersonManager* personManager = new PersonManager("/tmp/appDB/");
-    Response* response = new Response();
     Json::Value parsedBody = this->parseBody(requestBody);
     long userId = parsedBody["author_id"].asLargestInt();
     //Seguridad:
-        // El usuario solo puede enviar mensaje si es el autor.
+    // El usuario solo puede enviar mensaje si es el autor.
     if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId))throw NotAuthorizedException();
+    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    Response* response = new Response();
 
     try {
 
