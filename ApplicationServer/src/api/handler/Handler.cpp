@@ -10,7 +10,9 @@ static const struct mg_str s_post_method = MG_MK_STR("POST");
 
 Handler::Handler() {}
 
-Handler::~Handler() {}
+Handler::~Handler() {
+    delete session;
+}
 
 Response* Handler::handleRequest(http_message* httpMessage, string url) {
     try {
