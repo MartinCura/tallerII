@@ -1,7 +1,11 @@
 package ar.fiuba.jobify;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.Snackbar;
@@ -11,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -18,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -25,7 +31,11 @@ import com.android.volley.VolleyError;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import ar.fiuba.jobify.app_server_api.AllUsersResponse;
 import ar.fiuba.jobify.app_server_api.BusquedaRequest;
@@ -49,7 +59,20 @@ public class UserListActivity extends NavDrawerActivity {
 
     public final static String BUSQUEDA_REQUEST_MESSAGE = package_name+"_BUSQUEDA_REQUEST_MESSAGE";
 
+    private final static int DEFAULT_LIST_SIZE = 20;
+    private final static int PAGE_SIZE = 10;
+    // Si busco más, crecer esta variable.
+    private int mExpectedListSize = DEFAULT_LIST_SIZE;
+
+    // Variable setteada con el totalCount del Metadata para saber cuántos resultados hay.
+    public static int MAX_RESULTADOS = 100;
+    private int cantResultados = MAX_RESULTADOS;
+
+    private BusquedaRequest mBusquedaReq;
+
+    private ArrayList<User> mUserArray = new ArrayList<>();
     private UserArrayAdapter mUserArrayAdapter;
+    private EndlessScrollListener mEndlessScrollListener;
     int mode = MODE_NONE;
 
     @Override
@@ -91,12 +114,16 @@ public class UserListActivity extends NavDrawerActivity {
 
         switch (mode) {
             case MODE_SOLICITUDES:
+                showProgress(true);
                 listarSolicitudesReceived();
                 break;
             case MODE_ALL_USERS:
+                showProgress(true);
                 listarTodosLosUsuarios();
                 break;
             case MODE_BUSQUEDA:
+                showProgress(true);
+                listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
                 generarBusqueda();
                 break;
             case MODE_NONE:
@@ -137,6 +164,11 @@ public class UserListActivity extends NavDrawerActivity {
                         ArrayList<Contact> contacts =
                                 contactsResponse.getContactsWithStatus(Contact.Status.RECEIVED);
 
+                        int cant = Long.valueOf(contactsResponse.getMetadata().getCount()).intValue();
+                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
+                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
+
+                        // TODO: Cambiar si se adapta.
                         for ( Contact c : contacts ) {
                             fetchAndAddUser(c.getId());
                         }
@@ -166,34 +198,16 @@ public class UserListActivity extends NavDrawerActivity {
                             return;
                         }
 
+                        int cant = Long.valueOf(allUsersResponse.getMetadata().getCount()).intValue();
+                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
+                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
+
+                        // TODO: Cambiar si se adapta.
                         for (long id : allUsersResponse.getAllUsers()) {
                             fetchAndAddUser(id);
                         }
                     }
         }, LOG_TAG);
-    }
-
-    private void fetchAndAddUser(long id) { // TODO: De prueba, CAMBIAR POR GET REDUCIDO
-
-        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        User mUser = User.parseJSON(response.toString());
-                        if (mUser != null) {
-                            mUserArrayAdapter.add(mUser);
-                        }
-                    }
-                }, LOG_TAG);
-    }
-
-
-    public void irABusquedaActivity(View v) {
-        // Volver a la búsqueda si vengo de una? Ocultar botón si se trata de los contactos propios.
-        Snackbar.make(v, "Empezar nueva búsqueda", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();//
-
-        startActivity(new Intent(this, BusquedaActivity.class));
     }
 
     public void generarBusqueda() {
@@ -207,26 +221,142 @@ public class UserListActivity extends NavDrawerActivity {
             Log.e(LOG_TAG, "No encontré intent o mensaje para hacer búsqueda");
             return;
         }
-
-        BusquedaRequest busquedaReq = BusquedaRequest.parseJSON(busquedaMensaje);
-        if (busquedaReq == null) {
+        mBusquedaReq = BusquedaRequest.parseJSON(busquedaMensaje);
+        if (mBusquedaReq == null) {
             Log.e(LOG_TAG, "Error de Json BusquedaRequest");
             return;
         }
+        cargarPageDeUsuarios(0, false);
+    }
 
-        // TODO: Revisar
-        Utils.getJsonFromAppServer(this, getString(R.string.get_busqueda_path),
-                busquedaReq.toJsonObject(), new Response.Listener<JSONObject>() {
+    private List<User> ordenarPorPopularidad(List<User> lista) {
+        Collections.sort(lista, new Comparator<User>() {
+            @Override
+            public int compare(User u1, User u2) {
+                return Long.valueOf(u1.getCantRecomendaciones())
+                        .compareTo(u2.getCantRecomendaciones());
+            }
+        });
+        return lista;
+    }
+
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        final ListView listView = (ListView) findViewById(R.id.user_list);
+        final View progressView = findViewById(R.id.search_progress);
+        if (listView == null || progressView == null) {
+            Log.e(LOG_TAG, "No pude encontrar la lista de usuarios o el progress loader.");
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            listView.setVisibility(show ? View.GONE : View.VISIBLE);
+            listView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    listView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            listView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    // TODO: De prueba, CAMBIAR POR GET REDUCIDO
+    private void fetchAndAddUser(long id) {
+        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
+                new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // TODO
+                        agregarResultado(User.parseJSON(response.toString()));
+                    }
+                }, LOG_TAG);
+    }
+
+    /**
+     * Carga los siguientes PAGE_SIZE resultados de una búsqueda con mBusquedaReq.
+     */
+    private boolean cargarPageDeUsuarios(int pageNumber, boolean forzarCarga) {
+        if (!forzarCarga && (pageNumber * PAGE_SIZE >= cantResultados)) {
+            mEndlessScrollListener.desactivar();
+            return false;
+        }
+        int numFirst = (pageNumber * PAGE_SIZE + 1);
+        int numLast  = (pageNumber + 1) * PAGE_SIZE;
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put(getString(R.string.get_messages_first_query), Long.toString(numFirst));
+        map.put(getString(R.string.get_messages_last_query),  Long.toString(numLast));
+        String url = Utils.getAppServerUrl(this, getString(R.string.get_search_path), map);
+
+        // TODO: Revisar
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, url, mBusquedaReq.toJsonObject(),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //TODO
+//                        BusquedaResponse busqResponse = BusquedaResponse.parseJSON(response.toString());
+
+//                        int cant = Long.valueOf(busquedaResponse.getMetadata().getCount()).intValue();
+//                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
+//                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
+
+                        // TODO: Cambiar si se adapta.
+//                        for (long id : busquedaResponse.getUsers()) {
+//                            fetchAndAddUser(id);
+//                        }
+                        mEndlessScrollListener.activar();
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO
+                        //TODO
                     }
                 }, LOG_TAG);
+
+        return true;
+    }
+
+    // Agrega un user fetcheado a los resultados
+    // Si llega a la cantidad esperada, los muestra.
+    private void agregarResultado(User user) {
+        if (user == null)
+            mExpectedListSize--;
+        else
+            mUserArray.add(user);
+
+        if (mUserArray.size() >= mExpectedListSize) {
+            mUserArrayAdapter.addAll(ordenarPorPopularidad(mUserArray));
+            showProgress(false); // Escondo progress loader
+            mUserArray.clear();
+        }
+    }
+
+    public void irABusquedaActivity(View v) {
+        // Volver a la búsqueda si vengo de una? Ocultar botón si se trata de los contactos propios.
+        Snackbar.make(v, "Empezar nueva búsqueda", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();//
+
+        startActivity(new Intent(this, BusquedaActivity.class));
     }
 
 
@@ -266,11 +396,64 @@ public class UserListActivity extends NavDrawerActivity {
                 if (tv_nombre != null)
                     tv_nombre.setText(user.getFullName());
                 if (tv_trabajo != null)
-                    tv_trabajo.setText(user.getTrabajosActuales());    // TODO: Revisar si cortar a una línea
-                if (tv_recom != null)
-                    tv_recom.setText(String.valueOf(user.getCantRecomendaciones()));
+                    tv_trabajo.setText(user.getTrabajosActuales()); // TODO: Revisar si cortar a una línea
+                if (tv_recom != null) {
+                    long cantRecom = user.getCantRecomendaciones();
+//                    if (cantRecom == 0)
+//                        tv_recom.setText(null); // TODO: descomentar
+//                    else
+                    tv_recom.setText(String.format(Locale.US, " %d recomendaciones", cantRecom));
+                }
             }
             return itemView;
+        }
+    }
+
+    public class EndlessScrollListener implements AbsListView.OnScrollListener {
+
+        private int visibleThreshold = 3;
+        private int currentPage = 0;
+        private int previousTotal = 0;
+        private boolean loading = true;
+        private boolean activado = true;
+
+        public EndlessScrollListener() {}
+
+//        public EndlessScrollListener(int visibleThreshold) {
+//            this.visibleThreshold = visibleThreshold;
+//        }
+
+        public void activar() {
+            this.activado = true;
+            this.loading = true;
+        }
+        public void desactivar() {
+            this.activado = false;
+            this.loading = false;
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem,
+                             int visibleItemCount, int totalItemCount) {
+            if (!activado) return;
+
+            if (loading) {
+                if (totalItemCount > previousTotal) {
+                    loading = false;
+                    previousTotal = totalItemCount;
+                    currentPage++;
+                }
+            }
+            if (!loading && firstVisibleItem != 0
+                    && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                Log.d(LOG_TAG, "duuuude, currentPage: "+currentPage);//
+                if (cargarPageDeUsuarios(currentPage, false))
+                    loading = true;
+            }
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
         }
     }
 }

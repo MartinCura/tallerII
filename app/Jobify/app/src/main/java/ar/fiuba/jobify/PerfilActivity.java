@@ -805,7 +805,12 @@ public class PerfilActivity extends NavDrawerActivity {
                                         public void onErrorResponse(VolleyError error) {
                                             Log.e(LOG_TAG, "Volley image post error");
                                             if (error.networkResponse != null)
-                                                Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
+                                                if (error.networkResponse.statusCode == 403)
+                                                    Log.d(LOG_TAG, error.networkResponse.statusCode
+                                                            + " FORBIDDEN");
+                                                else
+                                                    Log.e(LOG_TAG, "Status code: "
+                                                            + error.networkResponse.statusCode);
                                             error.printStackTrace();
                                         }
                                 });

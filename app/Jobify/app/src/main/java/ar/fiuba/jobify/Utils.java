@@ -177,15 +177,15 @@ public class Utils {
                 logTag);
     }
 
-    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
-                                            JSONObject jsonRequest,
-                                            Response.Listener<JSONObject> responseListener,
-                                            Response.ErrorListener errorListener,
-                                            final String logTag) {
-
-        fetchJsonFromUrl(ctx, Request.Method.GET, getAppServerUrl(ctx, getPathSegment), jsonRequest,
-                responseListener, errorListener, logTag);
-    }
+//    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
+//                                            JSONObject jsonRequest,
+//                                            Response.Listener<JSONObject> responseListener,
+//                                            Response.ErrorListener errorListener,
+//                                            final String logTag) {
+//
+//        fetchJsonFromUrl(ctx, Request.Method.GET, getAppServerUrl(ctx, getPathSegment), jsonRequest,
+//                responseListener, errorListener, logTag);
+//    }
 
     // TEMPORAL, si es cambiado por un acceso al AppServer
     public static void getJsonFromSharedServer(Context context, String getPathSegment,
@@ -243,8 +243,12 @@ public class Utils {
                             }
                         } else {
                             Log.d(logTag, "Error Listener. URL: " + url);
-                            if (error.networkResponse != null)
-                                Log.d(logTag, "Status code: " + error.networkResponse.statusCode);
+                            if (error.networkResponse != null) {
+                                if (error.networkResponse.statusCode == 403)
+                                    Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
+                                else
+                                    Log.d(logTag, "Status code: " + error.networkResponse.statusCode);
+                            }
                             error.printStackTrace();
                         }
                     }
@@ -323,6 +327,8 @@ public class Utils {
                         if (error.networkResponse.statusCode == 200) {
                             Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
+                        } else if (error.networkResponse.statusCode == 403) {
+                            Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
                         } else {
                             Log.e(logTag, "Error cargando imagen, response code: "
                                     +error.networkResponse.statusCode);
@@ -576,7 +582,7 @@ public class Utils {
         return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), "null");
     }
 
-    public static Bitmap cropToSquare(Bitmap bitmap){
+    public static Bitmap cropToSquare(Bitmap bitmap) {
         int width  = bitmap.getWidth();
         int height = bitmap.getHeight();
         int newWidth = (height > width) ? width : height;

@@ -301,7 +301,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                         Toast.makeText(ctx, "Email no registrado", Toast.LENGTH_LONG)
                                                 .show();
                                         break;
-                                    case 407:
+                                    case 401:
                                         mPasswordView.setError(getString(R.string.error_incorrect_password));
                                         mPasswordView.requestFocus();
                                         break;

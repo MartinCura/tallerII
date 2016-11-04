@@ -221,7 +221,7 @@ public class ConversacionActivity extends NavDrawerActivity {
     }
 
     /**
-     * Busca en el AppServer los últimos CANT_MENSAJES_POR_PAGE mensajes no listados todavía.
+     * Fetchea al AppServer los últimos CANT_MENSAJES_POR_PAGE mensajes anteriores no listados todavía.
      * @param page es el número de páginas de resultados, comenzando en 0 para el cargado inicial
      * @param forzarCarga ignora si el límite guardado localmente ya fue alcanzado, cargando más
      */

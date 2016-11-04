@@ -13,6 +13,17 @@
     tools:context="ar.fiuba.jobify.UserListActivity"
     tools:showIn="@layout/activity_user_list">
 
+    <!-- Login progress -->
+    <ProgressBar
+        android:id="@+id/search_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone" />
+
     <ListView
         android:id="@+id/user_list"
         android:layout_width="match_parent"
