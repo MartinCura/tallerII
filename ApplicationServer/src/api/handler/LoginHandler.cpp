@@ -7,7 +7,6 @@
 #include "../../session/SessionManager.h"
 #include "../../Exceptions/InvalidPasswordException.h"
 
-#define NAME_DB "/tmp/appDB/"
 
 Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     string user_password, user_mail;
@@ -38,7 +37,7 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     user_password = body["password"].asString();
 
     try {
-        sessionManager = new SessionManager(NAME_DB);
+        sessionManager = new SessionManager(this->db);
         user_token = sessionManager->login(user_mail, user_password);
 
     } catch (InvalidPasswordException& e) {

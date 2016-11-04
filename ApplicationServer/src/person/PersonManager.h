@@ -15,12 +15,12 @@
 class PersonManager {
 
 public:
-    PersonManager(std::string nameDB);
+    PersonManager(DBWrapper *db);
     virtual ~PersonManager();
 
     Person* getPersonById(long id);
     Person* getPersonByMail(string* user_mail);
-    void destroyDB();
+
 
     /*
      * Guarda un usuario nuevo.

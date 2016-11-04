@@ -2,16 +2,24 @@
 #include "Handler.h"
 #include "../../session/SessionManager.h"
 #include "../../Exceptions/NotAuthorizedException.h"
+#include "../../Exceptions/ErrorOpeningDatabaseException.h"
 
 static const struct mg_str s_get_method = MG_MK_STR("GET");
 static const struct mg_str s_put_method = MG_MK_STR("PUT");
 static const struct mg_str s_delete_method = MG_MK_STR("DELETE");
 static const struct mg_str s_post_method = MG_MK_STR("POST");
 
-Handler::Handler() {}
+Handler::Handler() {
+    db = new DBWrapper();
+    DBWrapper::ResponseCode status = db->openDb("/tmp/appDB");
+    if (status == DBWrapper::ResponseCode::ERROR) {
+        throw ErrorOpeningDatabaseException();
+    }
+}
 
 Handler::~Handler() {
     delete session;
+    delete db;
 }
 
 Response* Handler::handleRequest(http_message* httpMessage, string url) {
@@ -53,7 +61,7 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
 Session * Handler::controlAccess(http_message *httpMessage) {
     std::string token = this->getHttpHeader(httpMessage, "Authorization");
     if (token == "") throw InvalidRequestException("Falta el token de autenticación en el header");
-    SessionManager* sessionManager = new SessionManager("/tmp/appDB");
+    SessionManager* sessionManager = new SessionManager(this->db);
     Session* session = nullptr;
     try {
         session = sessionManager->getSession(token);

@@ -7,7 +7,7 @@ ContactsHandler::ContactsHandler() {}
 ContactsHandler::~ContactsHandler() {}
 
 Response* ContactsHandler::handleGetRequest(http_message* httpMessage, string url) {
-    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
         long userId = this->getUserIdFromUrl(url);
@@ -59,7 +59,7 @@ Response* ContactsHandler::handlePutRequest(http_message* httpMessage, string ur
     //Solo puede enviar una solicitud a otro usuario, el dueño de la cuenta.
     if(!Security::hasPermissionToContactUser(this->session->getUserId(), author_id)) throw NotAuthorizedException();
 
-    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
 
    try {

@@ -12,7 +12,7 @@ MessagesHandler::~MessagesHandler() {}
 
 Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string url) {
     string queryParams = this->getStringFromMgStr(httpMessage->query_string);
-    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     long fromUserId = this->getUserIdFromUrl(url);
         //Security
@@ -55,7 +55,7 @@ Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string ur
     // El usuario solo puede enviar mensaje si es el autor.
     if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId))
       throw NotAuthorizedException();
-    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
 
     try {

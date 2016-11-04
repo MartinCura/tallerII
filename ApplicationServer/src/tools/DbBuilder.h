@@ -18,6 +18,9 @@ public:
     Person* getFakePerson1();
     Person* getFakePerson2();
     Person* getFakePerson3();
+
+private:
+    DBWrapper* db;
 };
 
 #endif //PROJECT_DBBUILDER_H

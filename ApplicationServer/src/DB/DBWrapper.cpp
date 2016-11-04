@@ -7,7 +7,7 @@
 
 DBWrapper::ResponseCode DBWrapper::openDb(std::string nameDB) {
     if (db != nullptr) {
-        throw std::exception(); //No se debería abrir una base que ya está abierta.
+        return ERROR; //No se debería abrir una base que ya está abierta.
     }
 
     leveldb::Options options;
@@ -16,9 +16,7 @@ DBWrapper::ResponseCode DBWrapper::openDb(std::string nameDB) {
     options.create_if_missing = true;
     s = leveldb::DB::Open(options, nameDB, &db);
     if (!s.ok()) {
-        std::string ss = s.ToString();
         return ERROR;
-
     }
     return OK;
 }

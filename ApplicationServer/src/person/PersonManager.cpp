@@ -8,23 +8,11 @@
 #define USER_UUID_ID "user:uuid_"
 #define USER_PASSWORD "user:password_"
 
-PersonManager::PersonManager(std::string nameDB) {
-    db = new DBWrapper();
-    this->nameDB = nameDB;
-
-    DBWrapper::ResponseCode status = db->openDb(nameDB);
-    if (status == DBWrapper::ResponseCode::ERROR) {
-        throw ErrorOpeningDatabaseException();
-    }
-
+PersonManager::PersonManager(DBWrapper *db) {
+    this->db = db;
 }
 
-PersonManager::~PersonManager() {
-    if (db != nullptr) {
-        db->deleteDB();
-    }
-
-}
+PersonManager::~PersonManager() {}
 
 long PersonManager::savePerson(long user_id, Json::Value person_json, long forceID) {
     std::string user_mail, user_password, user_information, person_string;
@@ -213,12 +201,6 @@ void PersonManager::validateUsersOfRequest(long fromUserId, long toUserId) {
     if (!this->userExists(fromUserId)) throw UserNotFoundException(fromUserId);
     if (!this->userExists(toUserId)) throw UserNotFoundException(toUserId);
     if (fromUserId == toUserId) throw InvalidRequestException("From user and to user cannot be equals");
-}
-
-void PersonManager::destroyDB() {
-    db->deleteDB();
-    db->destroyDB(this->nameDB);
-
 }
 
 long PersonManager::generateID() {

@@ -8,7 +8,7 @@ AllUsersHandler::AllUsersHandler() {
 AllUsersHandler::~AllUsersHandler() {}
 
 Response* AllUsersHandler::handleGetRequest(http_message* httpMessage, string url) {
-    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     response->setSuccessfulHeader();
     Json::Value responseBody;

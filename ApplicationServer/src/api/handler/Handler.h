@@ -8,6 +8,7 @@
 #include "../Response.h"
 #include "../../Exceptions/InvalidRequestException.h"
 #include "../../session/Session.h"
+#include "../../DB/DBWrapper.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ protected:
     bool deletePublic = false;
 
     Session* session = nullptr;
+    DBWrapper* db = nullptr;
 
     string getStringFromMgStr(const struct mg_str uri);
     string getParameterFromQueryParams(string queryParams, string parameter);

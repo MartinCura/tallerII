@@ -2,14 +2,13 @@
 #include "../../Security/Security.h"
 #include "../../Exceptions/NotAuthorizedException.h"
 
-#define NAME_DB "/tmp/appDB/"
 
 
 UsersHandler::~UsersHandler() {}
 
 Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
     string requestBody = string(httpMessage->body.p);
-    PersonManager *personManager = new PersonManager(NAME_DB);
+    PersonManager *personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
         Json::Value responseBody;
@@ -29,7 +28,7 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
 }
 
 Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) {
-    PersonManager *personManager = new PersonManager(NAME_DB);
+    PersonManager *personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
         long userId = this->getUserIdFromUrl(url);
@@ -51,7 +50,7 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
 }
 
 Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string url) {
-    PersonManager *personManager = new PersonManager(NAME_DB);
+    PersonManager *personManager = new PersonManager(this->db);
     Response* response = new Response();
     long userId = this->getUserIdFromUrl(url);
     //Seguridad:
@@ -84,7 +83,7 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) 
     if (!Security::hasPermissionToEdit(this->session->getUserId(), userId)) {
         throw NotAuthorizedException();
     }
-    PersonManager *personManager = new PersonManager(NAME_DB);
+    PersonManager *personManager = new PersonManager(this->db);
     Response* response = new Response();
 
     try {

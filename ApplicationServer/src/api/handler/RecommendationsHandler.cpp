@@ -27,7 +27,7 @@ Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage,
     if (!Security::hasPermissionToDeleteRecommendations(this->session->getUserId(), fromUserId))throw NotAuthorizedException();
 
 
-    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
 
@@ -52,7 +52,7 @@ Response* RecommendationsHandler::handlePutRequest(http_message* httpMessage, st
         // El usuario solo puede enviar recomendaciones  si es el autor.
     if (!Security::hasPermissionToSendRecommendations(this->session->getUserId(), userId))throw NotAuthorizedException();
 
-    PersonManager* personManager = new PersonManager("/tmp/appDB/");
+    PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
         personManager->saveRecommendation(parsedBody);

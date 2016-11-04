@@ -1,13 +1,20 @@
 #include "DbBuilder.h"
 
-#define NAME_DB "/tmp/appDB/"
 
-DbBuilder::DbBuilder() {}
+DbBuilder::DbBuilder() {
+    this->db = new DBWrapper();
+    DBWrapper::ResponseCode status = db->openDb("/tmp/appDB");
+    if (status == DBWrapper::ResponseCode::ERROR) {
+        throw ErrorOpeningDatabaseException();
+    }
+}
 
-DbBuilder::~DbBuilder() {}
+DbBuilder::~DbBuilder() {
+    delete db;
+}
 
 void DbBuilder::loadUsers() {
-    PersonManager *personManager = new PersonManager(NAME_DB);
+    PersonManager *personManager = new PersonManager(this->db);
     try {
         Person* person1 = this->getFakePerson1();
         personManager->savePerson(0, person1->serializeMe(), (long) 1);

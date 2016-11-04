@@ -12,14 +12,8 @@
 #include "../Exceptions/InvalidPasswordException.h"
 
 
-SessionManager::SessionManager(std::string nameDB) {
-    db = new DBWrapper();
-    this->nameDB = nameDB;
-
-    DBWrapper::ResponseCode status = db->openDb(nameDB);
-    if (status == DBWrapper::ResponseCode::ERROR) {
-        throw std::exception();
-    }
+SessionManager::SessionManager(DBWrapper *db) {
+    this->db = db;
 }
 
 
@@ -46,11 +40,7 @@ string SessionManager::login(std::string user_mail, std::string user_password) {
 
 }
 
-SessionManager::~SessionManager() {
-    if (db != nullptr) {
-        db->deleteDB();
-    }
-}
+SessionManager::~SessionManager() {}
 
 ///Pre: Se pre-supone que el user_mail pasado por parámetro corresponde al de un usuario valido.
 std::string SessionManager::getNewToken() {
@@ -169,10 +159,5 @@ bool SessionManager::tokenExpired(std::string last_time_used) {
     return (diff > max_time_diff);
 }
 
-void SessionManager::destroyDB() {
-    db->deleteDB();
-    db->destroyDB(this->nameDB);
-
-}
 
 
