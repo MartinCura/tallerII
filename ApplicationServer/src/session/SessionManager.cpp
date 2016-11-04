@@ -12,28 +12,6 @@
 #include "../Exceptions/InvalidPasswordException.h"
 
 
-std::string SessionManager::createSessionToken() {
-    int token_length;
-
-    token_length = 8;
-    char token[8];
-
-    static const char alphanum[] =
-            "0123456789"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz";
-
-    srand ((unsigned int)time(NULL));
-
-    for (int i = 0; i < token_length; ++i) {
-        token[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
-    }
-
-    token[token_length] = '\0';
-    return  std::string(token);
-}
-
-
 SessionManager::SessionManager(std::string nameDB) {
     db = new DBWrapper();
     this->nameDB = nameDB;
@@ -62,11 +40,11 @@ string SessionManager::login(std::string user_mail, std::string user_password) {
     //La sesión fue aceptada.
     //Se genera el login y se lo guarda en la base.
 
-    return this->getNewToken(user_mail);
-    //TODO: GUARDAR CONEXIÓN ABIERTA
+    std::string new_token = this->getNewToken();
+    this->saveToken(new_token, user_mail);
+    return new_token;
 
 }
-
 
 SessionManager::~SessionManager() {
     if (db != nullptr) {
@@ -75,10 +53,33 @@ SessionManager::~SessionManager() {
 }
 
 ///Pre: Se pre-supone que el user_mail pasado por parámetro corresponde al de un usuario valido.
-std::string SessionManager::getNewToken(std::string user_mail) {
-    std::string new_token, token_string, token2_string;
+std::string SessionManager::getNewToken() {
+
+    int token_length;
+
+    token_length = 8;
+    char token[8];
+
+    static const char alphanum[] =
+            "0123456789"
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    "abcdefghijklmnopqrstuvwxyz";
+
+    srand ((unsigned int)time(NULL));
+
+    for (int i = 0; i < token_length; ++i) {
+        token[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+
+    token[token_length] = '\0';
+    return  std::string(token);
+
+}
+
+void SessionManager::saveToken(std::string token, std::string user_mail) {
+    std::string token_string, token2_string;
     time_t creation_time;
-    Json::Value token, token2;
+    Json::Value jtoken, jtoken2;
     Json::FastWriter fastWriter;
     char buff[20];
 
@@ -87,24 +88,21 @@ std::string SessionManager::getNewToken(std::string user_mail) {
     strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&creation_time));
     std::string now  = std::string(buff);
 
-    new_token = createSessionToken();
+    jtoken["user_token"] = token;
+    jtoken["last_used"] = now;
 
-    token["user_token"] = new_token;
-    token["last_used"] = now;
+    token_string = fastWriter.write(jtoken);
 
-    token_string = fastWriter.write(token);
+    jtoken2["user_mail"] = user_mail;
+    jtoken2["last_used"] = now;
 
-    token2["user_mail"] = user_mail;
-    token2["last_used"] = now;
-
-    token2_string = fastWriter.write(token2);
+    token2_string = fastWriter.write(jtoken2);
 
     db->puTKey(USER_TOKEN + user_mail, &token_string);
-    db->puTKey(USER_TOKEN + new_token, &token2_string);
+    db->puTKey(USER_TOKEN + token, &token2_string);
 
-    return new_token;
+
 }
-
 long SessionManager::getUserId(std::string token) {
     std::string token_information, user_information;
     Json::Reader reader;
@@ -124,7 +122,7 @@ long SessionManager::getUserId(std::string token) {
 
 }
 
-Session * SessionManager::checkSession(std::string token) {
+Session * SessionManager::getSession(std::string token) {
 
     std::string token_information, last_time_used;
     Json::Reader reader;
@@ -138,8 +136,12 @@ Session * SessionManager::checkSession(std::string token) {
 
     if (tokenExpired(last_time_used)) throw TokenExpiredException();
 
+    //Actualizar ultima vez que fue usado.
+    //Se guarda nuevamente el token, reemplazando información previa
+    this->saveToken(token, json_token_information["user_mail"].asString());
+
     Session* session = new Session();
-    session->setLastTime(last_time_used);
+    session->setLastTime(time(NULL));
     session->setUserMail(json_token_information["user_mail"].asString());
     session->setToken(token);
     session->setUserID(this->getUserId(token)); //todo: cambiar la forma de obtener el id desde session.
@@ -147,6 +149,11 @@ Session * SessionManager::checkSession(std::string token) {
     return session;
 
 }
+/*
+void SessionManager::updateLastTimeUsed(std::string token) {
+
+
+}*/
 
 bool SessionManager::tokenExpired(std::string last_time_used) {
     const char *time_details = last_time_used.c_str();

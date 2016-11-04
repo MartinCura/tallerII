@@ -56,7 +56,7 @@ Session * Handler::controlAccess(http_message *httpMessage) {
     SessionManager* sessionManager = new SessionManager("/tmp/appDB");
     Session* session = nullptr;
     try {
-        session = sessionManager->checkSession(token);
+        session = sessionManager->getSession(token);
     } catch (exception& e){
         delete sessionManager;
         throw;
@@ -149,7 +149,7 @@ string Handler::getHttpHeader(http_message *message, string name) {
 
     const char *header_message = header_information->p;
 
-    size_t i, len = header_information->len;
+    size_t len = header_information->len;
     char header_value[len + 1];
 
     memcpy(header_value, &header_message[0], len);

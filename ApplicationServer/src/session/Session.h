@@ -15,17 +15,17 @@ public:
 
     void setToken(std::string token);
     void setUserMail(std::string user_mail);
-    void setLastTime(std::string last_time);
+    void setLastTime(time_t last_time);
     void setUserID(long i);
 
     long getUserId();
     std::string getUserMail();
-    std::string getLastTime();
+    time_t getLastTime();
 
 private:
     std::string token;
     std::string user_mail;
-    std::string last_time;
+    time_t last_time;
     long user_id;
 
 

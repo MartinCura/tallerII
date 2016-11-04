@@ -5,20 +5,12 @@
 
 #include <gtest/gtest.h>
 #include "../session/SessionManager.h"
-
-TEST(SessionToken, openNewSession) {
-    SessionManager* sessionManager = new SessionManager("/tmp/testDB");
-    std::string session_token = sessionManager->getNewToken("milenafarotto@gmail.com");
-
-    EXPECT_EQ(sessionManager->checkSession(session_token)->getUserMail(), "milenafarotto@gmail.com");
-    sessionManager->destroyDB();
-    delete sessionManager;
-}
+#include "../Exceptions/InvalidTokenException.h"
 
 TEST(SessionToken, trySession) {
     SessionManager* sessionManager = new SessionManager("/tmp/testDB");
 
-    EXPECT_THROW(sessionManager->checkSession("alkjdf"), std::exception);
+    EXPECT_THROW(sessionManager->getSession("alkjdf"), InvalidTokenException);
     sessionManager->destroyDB();
     delete sessionManager;
 }

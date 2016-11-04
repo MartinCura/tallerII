@@ -12,7 +12,7 @@ void Session::setUserMail(std::string user_mail) {
     this->user_mail = user_mail;
 }
 
-void Session::setLastTime(std::string last_time) {
+void Session::setLastTime(time_t last_time) {
     this->last_time = last_time;
 }
 
@@ -28,6 +28,6 @@ std::string Session::getUserMail() {
     return this->user_mail;
 }
 
-std::string Session::getLastTime() {
+time_t Session::getLastTime() {
     return this->last_time;
 }
