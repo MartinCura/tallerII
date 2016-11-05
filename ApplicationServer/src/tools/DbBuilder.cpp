@@ -2,15 +2,13 @@
 
 
 DbBuilder::DbBuilder() {
-    this->db = new DBWrapper();
-    DBWrapper::ResponseCode status = db->openDb("/tmp/appDB");
-    if (status == DBWrapper::ResponseCode::ERROR) {
-        throw ErrorOpeningDatabaseException();
-    }
+    this->namedb = new string("/tmp/appDB");
+    db = DBWrapper::openDb(namedb);
 }
 
 DbBuilder::~DbBuilder() {
-    delete db;
+    DBWrapper::ResetInstance();
+    delete namedb;
 }
 
 void DbBuilder::loadUsers() {

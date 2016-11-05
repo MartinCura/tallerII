@@ -51,6 +51,8 @@ private:
     string getHttpHeader(http_message *message, string name);
 
     Session * controlAccess(http_message *httpMessage);
+
+    string *namedb;
 };
 
 #endif //APPLICATIONSERVER_HANDLER_H

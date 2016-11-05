@@ -2,7 +2,6 @@
 #include "Handler.h"
 #include "../../session/SessionManager.h"
 #include "../../Exceptions/NotAuthorizedException.h"
-#include "../../Exceptions/ErrorOpeningDatabaseException.h"
 
 static const struct mg_str s_get_method = MG_MK_STR("GET");
 static const struct mg_str s_put_method = MG_MK_STR("PUT");
@@ -10,16 +9,15 @@ static const struct mg_str s_delete_method = MG_MK_STR("DELETE");
 static const struct mg_str s_post_method = MG_MK_STR("POST");
 
 Handler::Handler() {
-    db = new DBWrapper();
-    DBWrapper::ResponseCode status = db->openDb("/tmp/appDB");
-    if (status == DBWrapper::ResponseCode::ERROR) {
-        throw ErrorOpeningDatabaseException();
-    }
+    this->namedb = new string("/tmp/appDB");
+    db = DBWrapper::openDb(namedb);
+
 }
 
 Handler::~Handler() {
     delete session;
-    delete db;
+    delete namedb;
+    DBWrapper::ResetInstance();
 }
 
 Response* Handler::handleRequest(http_message* httpMessage, string url) {

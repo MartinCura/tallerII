@@ -14,20 +14,28 @@ public:
 
     enum ResponseCode {OK, ERROR};
 
-    DBWrapper() { db = nullptr;};
-    ~DBWrapper();
 
-    DBWrapper::ResponseCode openDb(std::string nameDB);
+    static void ResetInstance();
+
+    static DBWrapper * openDb(std::string *nameDB);
+
     DBWrapper::ResponseCode getKey(std::string key, std::string *output);
     DBWrapper::ResponseCode puTKey(std::string key, std::string *output);
     DBWrapper::ResponseCode deleteKey(std::string key);
-    DBWrapper::ResponseCode deleteDB();
     DBWrapper::ResponseCode existsKey(std::string key, std::string *output);
-    DBWrapper::ResponseCode destroyDB(std::string nameDB);
+    DBWrapper::ResponseCode destroyDB(std::string *nameDB);
     leveldb::Iterator * newIterator();
+    static DBWrapper* db1;
+    leveldb::DB* db = nullptr;
 
 private:
-    leveldb::DB* db;
+    DBWrapper(std::string* nameDB);
+    ~DBWrapper() {
+        delete db;
+        db = nullptr;
+    };
+
+
 
 
 };

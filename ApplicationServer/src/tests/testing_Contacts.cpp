@@ -4,8 +4,11 @@
 #include "../person/PersonManager.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
 
-void savePersonOne() {
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+#define NAME_DB "/tmp/testDB"
+
+void savePersonOne(DBWrapper* db) {
+
+    PersonManager*  personManager = new PersonManager(db);
     try {
         Person* person = new Person();
         person->setId(0);
@@ -23,8 +26,10 @@ void savePersonOne() {
     delete personManager;
 }
 
-void savePersonTwo() {
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+void savePersonTwo(DBWrapper* db) {
+
+
+    PersonManager*  personManager = new PersonManager(db);
     try {
         Person* person = new Person();
         person->setId(0);
@@ -42,36 +47,38 @@ void savePersonTwo() {
     delete personManager;
 }
 
-void requestContact() {
+void requestContact(DBWrapper* db) {
     Json::Value relation;
     relation["action"] = "add_contact";
     relation["author_id"] = 1;
     relation["contact_id"] = 2;
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+
+    PersonManager*  personManager = new PersonManager(db);
     try {
         personManager->saveOrUpdateRelation(relation);
     } catch (exception &exception) {}
     delete personManager;
 }
 
-void acceptContact() {
+void acceptContact(DBWrapper* db) {
     Json::Value relation;
     relation["action"] = "accept_contact";
     relation["author_id"] = 1;
     relation["contact_id"] = 2;
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+
+    PersonManager*  personManager = new PersonManager(db);
     try {
         personManager->saveOrUpdateRelation(relation);
     } catch (exception &exception) {}
     delete personManager;
 }
 
-void rejectContact() {
+void rejectContact(DBWrapper* db) {
     Json::Value relation;
     relation["action"] = "remove_contact";
     relation["author_id"] = 1;
     relation["contact_id"] = 2;
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+    PersonManager *personManager = new PersonManager(db);
     try {
         personManager->saveOrUpdateRelation(relation);
     } catch (exception &exception) {}
@@ -79,36 +86,51 @@ void rejectContact() {
 }
 
 TEST(Contacts, Empty) {
-    savePersonOne();
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+    string* namedb = new string();
+    *namedb = NAME_DB;
+    DBWrapper* db = DBWrapper::openDb(namedb);
+    savePersonOne(db);
+    PersonManager*  personManager = new PersonManager(db);
     try {
         vector<Contact*> contacts = personManager->getContactsByUserId(1);
         ASSERT_EQ(contacts.size(), 0);
     } catch (UserNotFoundException &exception) {
         ASSERT_TRUE(false) << "User 1 not found";
     }
-    personManager->destroyDB();
+
+
+
+    db->destroyDB(namedb);
+    DBWrapper::ResetInstance();
     delete personManager;
 }
 
 TEST(Contacts, NotFound) {
-    savePersonOne();
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+    string* namedb = new string();
+    *namedb = NAME_DB;
+    DBWrapper* db = DBWrapper::openDb(namedb);savePersonOne(db);
+    PersonManager*  personManager = new PersonManager(db);
     try {
         vector<Contact*> contacts = personManager->getContactsByUserId(100);
         ASSERT_EQ(contacts.size(), 0);
     } catch (UserNotFoundException &exception) {
         ASSERT_TRUE(true);
     }
-    personManager->destroyDB();
+
+    db->destroyDB(namedb);
+    DBWrapper::ResetInstance();
     delete personManager;
+    delete namedb;
 }
 
 TEST(Contacts, RequestContact) {
-    savePersonOne();
-    savePersonTwo();
-    requestContact();
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+    string* namedb = new string();
+    *namedb = NAME_DB;
+    DBWrapper* db = DBWrapper::openDb(namedb);
+    savePersonOne(db);
+    savePersonTwo(db);
+    requestContact(db);
+    PersonManager*  personManager = new PersonManager(db);
     try {
         vector<Contact*> contacts = personManager->getContactsByUserId(1);
         ASSERT_EQ(contacts.size(), 1);
@@ -121,15 +143,21 @@ TEST(Contacts, RequestContact) {
     } catch (UserNotFoundException &exception) {
         ASSERT_TRUE(false) << "User not found";
     }
-    personManager->destroyDB();
+
+    db->destroyDB(namedb);
+    DBWrapper::ResetInstance();
     delete personManager;
+    delete namedb;
 }
 
 TEST(Contacts, AcceptContact) {
-    savePersonOne();
-    savePersonTwo();
-    acceptContact();
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+    string* namedb = new string();
+    *namedb = NAME_DB;
+    DBWrapper* db = DBWrapper::openDb(namedb);
+    savePersonOne(db);
+    savePersonTwo(db);
+    acceptContact(db);
+    PersonManager*  personManager = new PersonManager(db);
     try {
         vector<Contact*> contacts = personManager->getContactsByUserId(1);
         ASSERT_EQ(contacts.size(), 1);
@@ -142,21 +170,30 @@ TEST(Contacts, AcceptContact) {
     } catch (UserNotFoundException &exception) {
         ASSERT_TRUE(false) << "User not found";
     }
-    personManager->destroyDB();
+
+    db->destroyDB(namedb);
+    DBWrapper::ResetInstance();
     delete personManager;
+    delete namedb;
 }
 
 TEST(Contacts, RejectContact) {
-    savePersonOne();
-    savePersonTwo();
-    rejectContact();
-    PersonManager *personManager = new PersonManager("/tmp/testDB");
+    string* namedb = new string();
+    *namedb = NAME_DB;
+    DBWrapper* db = DBWrapper::openDb(namedb);
+    savePersonOne(db);
+    savePersonTwo(db);
+    rejectContact(db);
+    PersonManager*  personManager = new PersonManager(db);
     try {
         vector<Contact*> contacts = personManager->getContactsByUserId(1);
         ASSERT_EQ(contacts.size(), 0);
     } catch (UserNotFoundException &exception) {
         ASSERT_TRUE(false) << "User not found";
     }
-    personManager->destroyDB();
+
+    db->destroyDB(namedb);
+    DBWrapper::ResetInstance();
     delete personManager;
+    delete namedb;
 }

@@ -5,20 +5,13 @@
 #include <iostream>
 #include "DBWrapper.h"
 
-DBWrapper::ResponseCode DBWrapper::openDb(std::string nameDB) {
-    if (db != nullptr) {
-        return ERROR; //No se debería abrir una base que ya está abierta.
-    }
+DBWrapper* DBWrapper::db1 = NULL;
 
-    leveldb::Options options;
-    leveldb::Status s;
-
-    options.create_if_missing = true;
-    s = leveldb::DB::Open(options, nameDB, &db);
-    if (!s.ok()) {
-        return ERROR;
+DBWrapper * DBWrapper::openDb(std::string* nameDB) {
+    if (DBWrapper::db1 == nullptr) {
+        db1 = new DBWrapper(nameDB); //No se debería abrir una base que ya está abierta.
     }
-    return OK;
+    return db1;
 }
 
 
@@ -69,22 +62,6 @@ DBWrapper::ResponseCode DBWrapper::deleteKey(std::string key) {
     return OK;
 }
 
-DBWrapper::ResponseCode DBWrapper::deleteDB() {
-    if (db == nullptr) {
-        return OK;
-    }
-
-    delete db;
-    db = nullptr;
-    return OK;
-}
-
-DBWrapper::~DBWrapper() {
-    if (db != nullptr) {
-        deleteDB();
-    }
-}
-
 DBWrapper::ResponseCode DBWrapper::existsKey(std::string key, std::string *output) {
     bool s;
     s = db->Get(leveldb::ReadOptions(), key, output).IsNotFound();
@@ -95,15 +72,30 @@ DBWrapper::ResponseCode DBWrapper::existsKey(std::string key, std::string *outpu
     return OK;
 }
 
-DBWrapper::ResponseCode DBWrapper::destroyDB(std::string nameDB) {
-    leveldb::DestroyDB(nameDB, leveldb::Options());
-    return OK;
-}
 
 leveldb::Iterator* DBWrapper::newIterator() {
     return db->NewIterator(leveldb::ReadOptions());
 
 }
 
+void DBWrapper::ResetInstance() {
+    delete db1;
+    db1 = nullptr;
+
+}
+
+DBWrapper::DBWrapper(std::string* nameDB) {
+    leveldb::Options options;
+    options.create_if_missing = true;
+    //options.error_if_exists = true;
+    leveldb::Status s = leveldb::DB::Open(options, *nameDB, &db);
+    //std::cout << s.ToString();
+    std::string mensaje = s.ToString();
+    //std::cout << mensaje;
+}
+
+DBWrapper::ResponseCode DBWrapper::destroyDB(std::string *nameDB) {
+    leveldb::DestroyDB(*nameDB +"/", leveldb::Options());
+}
 
 

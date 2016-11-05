@@ -21,6 +21,7 @@ public:
 
 private:
     DBWrapper* db;
+    string *namedb;
 };
 
 #endif //PROJECT_DBBUILDER_H

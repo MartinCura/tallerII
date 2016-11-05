@@ -8,9 +8,16 @@
 #include "../Exceptions/InvalidTokenException.h"
 
 TEST(SessionToken, trySession) {
-    SessionManager* sessionManager = new SessionManager("/tmp/testDB");
+    std::string* namedb = new std::string();
+    *namedb = "/tmp/testDB";
+
+    DBWrapper* db = DBWrapper::openDb(namedb);
+    SessionManager* sessionManager = new SessionManager(db);
 
     EXPECT_THROW(sessionManager->getSession("alkjdf"), InvalidTokenException);
-    sessionManager->destroyDB();
+
+    db->destroyDB(namedb);
+    DBWrapper::ResetInstance();
     delete sessionManager;
+    delete namedb;
 }
