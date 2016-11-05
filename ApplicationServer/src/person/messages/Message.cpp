@@ -37,12 +37,6 @@ string Message::getTimestamp(){
     return this->timestamp;
 }
 
-time_t Message::getTimestampAsTimeT(){
-    struct tm tm2;
-    strptime(this->timestamp.c_str(), Message::TIMESTAMP_FORMAT, &tm2);
-    return mktime(&tm2);
-}
-
 long Message::getFromUserId() {
     return this->fromUserId;
 }

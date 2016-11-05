@@ -21,7 +21,6 @@ public:
 
     string getMessage();
     string getTimestamp();
-    time_t getTimestampAsTimeT();
     long getFromUserId();
     long getToUserId();
 
