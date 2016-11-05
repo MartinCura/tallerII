@@ -95,7 +95,7 @@ long MessagesHandler::getToUserFromQueryParams(string queryParams) {
     }
 }
 
-int MessagesHandler::getFromParameterFromQueryParamsIfExists(string queryParams) {
+int MessagesHandler::getFirstFromQueryParamsIfExists(string queryParams) {
     size_t found = queryParams.find(FIRST);
     if (found == string::npos) {
         return 0;
@@ -108,7 +108,7 @@ int MessagesHandler::getFromParameterFromQueryParamsIfExists(string queryParams)
     }
 }
 
-int MessagesHandler::getToParameterFromQueryParamsIfExists(string queryParams) {
+int MessagesHandler::getLastFromQueryParamsIfExists(string queryParams) {
     size_t found = queryParams.find(LAST);
     if (found == string::npos) {
         return 0;
@@ -122,37 +122,37 @@ int MessagesHandler::getToParameterFromQueryParamsIfExists(string queryParams) {
 }
 
 vector<Message*> MessagesHandler::truncateMessages(vector<Message*> messages, string queryParams) {
-    int fromParameter = this->getFromParameterFromQueryParamsIfExists(queryParams);
-    int toParameter = this->getToParameterFromQueryParamsIfExists(queryParams);
+    int first = this->getFirstFromQueryParamsIfExists(queryParams);
+    int last = this->getLastFromQueryParamsIfExists(queryParams);
     if (
-        (fromParameter != 0) &&
-        (toParameter != 0) &&
-        (toParameter > fromParameter) &&
-        (toParameter <= messages.size())
+        (first != 0) &&
+        (last != 0) &&
+        (last > first) &&
+        (last <= messages.size())
     ) {
-        return this->doTruncate(messages, fromParameter, toParameter);
+        return this->doTruncate(messages, first, last);
     } else if (messages.size() >= 10) {
-        fromParameter = 1;
-        toParameter = 10;
-        return this->doTruncate(messages, fromParameter, toParameter);
+        first = 1;
+        last = 10;
+        return this->doTruncate(messages, first, last);
     } else {
         return messages;
     }
 }
 
-vector<Message*> MessagesHandler::doTruncate(vector<Message*> messages, int from, int to) {
-    unsigned long toParameter = messages.size() - from + 1;
-    unsigned long fromParameter = messages.size() - to + 1;
+vector<Message*> MessagesHandler::doTruncate(vector<Message*> messages, int first, int last) {
+    unsigned long lastParameter = messages.size() - first + 1;
+    unsigned long firstParameter = messages.size() - last + 1;
     vector<Message*> messagesToReturn;
-    for (vector<long>::size_type i = 1; i <= fromParameter - 1; i++) {
+    for (vector<long>::size_type i = 1; i <= firstParameter - 1; i++) {
         Message* message = messages[i - 1];
         delete message;
     }
-    for (vector<long>::size_type i = fromParameter; i <= toParameter; i++) {
+    for (vector<long>::size_type i = firstParameter; i <= lastParameter; i++) {
         Message* message = messages[i - 1];
         messagesToReturn.push_back(message);
     }
-    for (vector<long>::size_type i = toParameter + 1; i <= messages.size(); i++) {
+    for (vector<long>::size_type i = lastParameter + 1; i <= messages.size(); i++) {
         Message* message = messages[i - 1];
         delete message;
     }

@@ -19,10 +19,10 @@ public:
 
 private:
     long getToUserFromQueryParams(string queryParams);
-    int getFromParameterFromQueryParamsIfExists(string queryParams);
-    int getToParameterFromQueryParamsIfExists(string queryParams);
+    int getFirstFromQueryParamsIfExists(string queryParams);
+    int getLastFromQueryParamsIfExists(string queryParams);
     vector<Message*> truncateMessages(vector<Message*> messages, string queryParams);
-    vector<Message*> doTruncate(vector<Message*> messages, int from, int to);
+    vector<Message*> doTruncate(vector<Message*> messages, int first, int last);
     Json::Value buildJsonResponse(vector<Message*> messages, long totalCount);
 };
 
