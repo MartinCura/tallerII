@@ -602,19 +602,19 @@ public class PerfilActivity extends NavDrawerActivity {
     public void cargarFotoDePerfil(final long idFetched) {
 
         // TODO / DE PRUEBA
-        if (mCurrentPhotoPath != null) {
-            ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
-            if (imageView != null) {
-                try {
-                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mPhotoURI);
-                    imageView.setImageBitmap(imageBitmap);
-                    return;
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    Log.e(LOG_TAG, "Error en cargado de imagen de perfil");
-                }
-            }
-        }
+//        if (mCurrentPhotoPath != null) {
+//            ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
+//            if (imageView != null) {
+//                try {
+//                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mPhotoURI);
+//                    imageView.setImageBitmap(imageBitmap);
+//                    return;
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                    Log.e(LOG_TAG, "Error en cargado de imagen de perfil");
+//                }
+//            }
+//        }
 
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                 .appendPath(getString(R.string.get_photo_path))

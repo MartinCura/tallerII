@@ -16,7 +16,7 @@
 
     <string name="perfil_trabajo_actual_default">CEO en Jobify</string>
     <string name="perfil_ciudad_y_pais_default">Brasilia, Brasil</string>
-    <string name="perfil_cant_recomendaciones_default"># recomendaciones</string>
+    <string name="perfil_cant_recomendaciones_default">#</string>
     <string name="perfil_nacimiento_default">Fecha de nacimiento</string>
 
     <string name="perfil_resumen_default">Me need job.</string>
@@ -124,7 +124,7 @@
     <string name="dialog_cancelar_contacto">¿Quiere cancelar su solicitud de contacto?</string>
     <string name="dialog_eliminar_contacto">¿Quiere eliminar a este contacto?</string>
     <string name="nav_solicitudes_option">Solicitudes</string>
-    <string name="nav_all_users_option">Ver todos los usuarios</string>
+    <string name="nav_most_popular_option">Profesionales más populares</string>
     <string name="get_all_users_path">allusers</string>
     <string name="ss_get_categories_path">categories</string>
     <string name="ss_get_job_positions_path">job_positions</string>
@@ -175,6 +175,9 @@
     <string name="get_busqueda_path">search</string>
     <string name="stored_connected_user_token">connected_user_token</string>
     <string name="get_search_path">search</string>
+    <string name="info_description">Info</string>
+    <string name="userlist_no_results">No hay resultados que mostrar</string>
+    <string name="nav_busqueda_option">Buscar</string>
 
     <!--Testeo, TODO: borrar-->
     <string-array name="planets_array">

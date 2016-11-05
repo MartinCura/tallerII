@@ -277,7 +277,6 @@ public class Utils {
 //                                "537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36");
                         headers.put("Connection", "close");//Te amo, header que soluciona cosas ~ mc
                         headers.put("Authorization", getToken(context));
-                        Log.d(LOG_TAG, "Getting token: "+getToken(context));//
                         return headers;
                     }
 
@@ -314,7 +313,8 @@ public class Utils {
 
                     }
 
-                }, imageView.getWidth(), imageView.getHeight(),
+//                }, imageView.getWidth(), imageView.getHeight(),
+                }, 1080, 960,//hardcodeo;//
                 ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
@@ -339,7 +339,6 @@ public class Utils {
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
                         headers.put("Authorization", getToken(ctx));
-                        Log.d(LOG_TAG, "Getting token: "+getToken(ctx));//
                         return headers;
                     }
         };
@@ -488,7 +487,6 @@ public class Utils {
             }
             headers.put("Accept", "application/json");
             headers.put("Authorization", getToken(ctx));
-            Log.d(LOG_TAG, "Getting token: "+getToken(ctx));//
             return headers;
         }
 

@@ -53,9 +53,9 @@ public class UserListActivity extends NavDrawerActivity {
 
     public final static int MODE_NONE = 0;
     public final static int MODE_SOLICITUDES = 1;
-    public final static int MODE_ALL_USERS = 2;
+    public final static int MODE_MOST_POPULAR = 2;
     public final static int MODE_BUSQUEDA = 3;
-//    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_ALL_USERS, MODE_BUSQUEDA };
+//    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_MOST_POPULAR, MODE_BUSQUEDA };
 
     public final static String BUSQUEDA_REQUEST_MESSAGE = package_name+"_BUSQUEDA_REQUEST_MESSAGE";
 
@@ -117,9 +117,10 @@ public class UserListActivity extends NavDrawerActivity {
                 showProgress(true);
                 listarSolicitudesReceived();
                 break;
-            case MODE_ALL_USERS:
+            case MODE_MOST_POPULAR:
                 showProgress(true);
-                listarTodosLosUsuarios();
+                //listarMasPopulares(); TODO
+                listarTodosLosUsuarios();//
                 break;
             case MODE_BUSQUEDA:
                 showProgress(true);
@@ -168,9 +169,13 @@ public class UserListActivity extends NavDrawerActivity {
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
-                        // TODO: Cambiar si se adapta.
-                        for ( Contact c : contacts ) {
-                            fetchAndAddUser(c.getId());
+                        if (mExpectedListSize == 0) {
+                            mostrarNoHayResultados();
+                        } else {
+                            // TODO: Cambiar si se adapta.
+                            for (Contact c : contacts) {
+                                fetchAndAddUser(c.getId());
+                            }
                         }
                     }
         }, LOG_TAG);
@@ -194,7 +199,7 @@ public class UserListActivity extends NavDrawerActivity {
                                 AllUsersResponse.parseJSON(response.toString());
 
                         if (allUsersResponse == null) {
-                            Log.d(LOG_TAG, "Null parsed JSON from all_users");
+                            Log.e(LOG_TAG, "Null parsed JSON from all_users");
                             return;
                         }
 
@@ -202,9 +207,13 @@ public class UserListActivity extends NavDrawerActivity {
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
-                        // TODO: Cambiar si se adapta.
-                        for (long id : allUsersResponse.getAllUsers()) {
-                            fetchAndAddUser(id);
+                        if (mExpectedListSize == 0) {
+                            mostrarNoHayResultados();
+                        } else {
+                            // TODO: Cambiar si se adapta.
+                            for (long id : allUsersResponse.getAllUsers()) {
+                                fetchAndAddUser(id);
+                            }
                         }
                     }
         }, LOG_TAG);
@@ -228,6 +237,7 @@ public class UserListActivity extends NavDrawerActivity {
         }
         cargarPageDeUsuarios(0, false);
     }
+
 
     private List<User> ordenarPorPopularidad(List<User> lista) {
         Collections.sort(lista, new Comparator<User>() {
@@ -292,6 +302,11 @@ public class UserListActivity extends NavDrawerActivity {
                 }, LOG_TAG);
     }
 
+    private void mostrarNoHayResultados() {
+        Utils.showView(this, R.id.userlist_sin_resultados_layout);
+        showProgress(false);
+    }
+
     /**
      * Carga los siguientes PAGE_SIZE resultados de una búsqueda con mBusquedaReq.
      */
@@ -300,9 +315,10 @@ public class UserListActivity extends NavDrawerActivity {
             mEndlessScrollListener.desactivar();
             return false;
         }
+        //showProgress(true);//TODO?
+
         int numFirst = (pageNumber * PAGE_SIZE + 1);
         int numLast  = (pageNumber + 1) * PAGE_SIZE;
-
         HashMap<String, String> map = new HashMap<>();
         map.put(getString(R.string.get_messages_first_query), Long.toString(numFirst));
         map.put(getString(R.string.get_messages_last_query),  Long.toString(numLast));
@@ -320,7 +336,10 @@ public class UserListActivity extends NavDrawerActivity {
 //                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
 //                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
-                        // TODO: Cambiar si se adapta.
+//                        if (mExpectedListSize == 0) {
+                            mostrarNoHayResultados();
+//                        } else {
+                            // TODO: Cambiar si se adapta.
 //                        for (long id : busquedaResponse.getUsers()) {
 //                            fetchAndAddUser(id);
 //                        }
@@ -399,10 +418,10 @@ public class UserListActivity extends NavDrawerActivity {
                     tv_trabajo.setText(user.getTrabajosActuales()); // TODO: Revisar si cortar a una línea
                 if (tv_recom != null) {
                     long cantRecom = user.getCantRecomendaciones();
-//                    if (cantRecom == 0)
-//                        tv_recom.setText(null); // TODO: descomentar
-//                    else
-                    tv_recom.setText(String.format(Locale.US, " %d recomendaciones", cantRecom));
+                    if (cantRecom == 0)
+                        tv_recom.setVisibility(View.GONE);
+                    else
+                    tv_recom.setText(String.format(Locale.US, "%d", cantRecom));
                 }
             }
             return itemView;
@@ -446,7 +465,6 @@ public class UserListActivity extends NavDrawerActivity {
             }
             if (!loading && firstVisibleItem != 0
                     && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                Log.d(LOG_TAG, "duuuude, currentPage: "+currentPage);//
                 if (cargarPageDeUsuarios(currentPage, false))
                     loading = true;
             }

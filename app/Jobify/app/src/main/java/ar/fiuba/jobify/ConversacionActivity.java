@@ -304,11 +304,16 @@ public class ConversacionActivity extends NavDrawerActivity {
                         public void onResponse(JSONObject response) {
 //                            Toast.makeText(context, "Mensaje enviado", Toast.LENGTH_LONG)
 //                                    .show();//
-                            Log.i(LOG_TAG, "Mensaje enviado: " + mensajeAEnviar);//
+                            Message mensajeEnviado = Message.parseJSON(response.toString());
+                            if (mensajeEnviado == null) {
+                                Log.w(LOG_TAG, "Mensaje enviado null response, muestro el original igual");
+                                recibirMensajesNuevos(jsObjMessage);
+                                return;
+                            }
+                            Log.i(LOG_TAG, "Mensaje enviado: " + mensajeEnviado.getMessage());//
 
                             // Agrego el mensaje enviado a los mostrados en la conversación
-                            // TODO: HACERLO CON EL DEVUELTO POR EL APPSERVER si quiero que tenga la hora bien
-                            recibirMensajesNuevos(jsObjMessage);
+                            recibirMensajesNuevos(response);
 
                         }
                     }, new Response.ErrorListener() {
@@ -512,7 +517,6 @@ public class ConversacionActivity extends NavDrawerActivity {
             }
             if (!loading && firstVisibleItem != 0
                     && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                Log.d(LOG_TAG, "duuuude, currentPage: "+currentPage);//
                 if (cargarMasMensajes(currentPage, false))
                     loading = true;
             }

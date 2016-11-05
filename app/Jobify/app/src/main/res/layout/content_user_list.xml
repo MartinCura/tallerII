@@ -24,6 +24,32 @@
         android:layout_gravity="center_horizontal"
         android:visibility="gone" />
 
+    <LinearLayout
+        android:id="@+id/userlist_sin_resultados_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="100dp"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_info"
+            android:contentDescription="@string/info_description" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:lines="2"
+            android:text="@string/userlist_no_results" />
+
+    </LinearLayout>
+
     <ListView
         android:id="@+id/user_list"
         android:layout_width="match_parent"
