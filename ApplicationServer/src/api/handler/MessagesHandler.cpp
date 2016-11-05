@@ -5,6 +5,8 @@
 const string USER = "user";
 const string FIRST = "first";
 const string LAST = "last";
+const int FIRST_INDEX = 1;
+const int MAX_CANT = 10;
 
 MessagesHandler::MessagesHandler() {}
 
@@ -122,22 +124,17 @@ int MessagesHandler::getLastFromQueryParamsIfExists(string queryParams) {
 }
 
 vector<Message*> MessagesHandler::truncateMessages(vector<Message*> messages, string queryParams) {
-    int first = this->getFirstFromQueryParamsIfExists(queryParams);
-    int last = this->getLastFromQueryParamsIfExists(queryParams);
-    if (
-        (first != 0) &&
-        (last != 0) &&
-        (last > first) &&
-        (last <= messages.size())
-    ) {
-        return this->doTruncate(messages, first, last);
-    } else if (messages.size() >= 10) {
-        first = 1;
-        last = 10;
-        return this->doTruncate(messages, first, last);
-    } else {
-        return messages;
+    int firstParam = this->getFirstFromQueryParamsIfExists(queryParams);
+    int lastParam = this->getLastFromQueryParamsIfExists(queryParams);
+    int first = (firstParam != 0) ? firstParam : FIRST_INDEX;
+    int last = (lastParam != 0) ? lastParam : (firstParam + MAX_CANT);
+    if (last < first) {
+        throw InvalidRequestException("first can not be greater than last");
     }
+    if (last > messages.size()) {
+        last = (int) messages.size();
+    }
+    return this->doTruncate(messages, first, last);
 }
 
 vector<Message*> MessagesHandler::doTruncate(vector<Message*> messages, int first, int last) {
