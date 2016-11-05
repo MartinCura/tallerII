@@ -62,8 +62,9 @@ Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string ur
 
     try {
 
-        personManager->saveMessage(parsedBody);
+        string savedMessage = personManager->saveMessage(parsedBody);
         response->setSuccessfulHeader();
+        response->setBody(savedMessage);
     } catch (UserNotFoundException &e) {
         response->setNotFoundHeader();
         response->setErrorBody(e.getMessage(UserNotFoundException::Message::id));

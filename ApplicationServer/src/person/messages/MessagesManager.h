@@ -14,7 +14,7 @@ public:
     MessagesManager(DBWrapper* db);
     ~MessagesManager();
 
-    void saveMessage(long fromUserId, long toUserId, string message);
+    string saveMessage(long fromUserId, long toUserId, string message);
     vector<Message*> getMessages(long fromUserId, long toUserId);
 
 private:

@@ -10,12 +10,13 @@ MessagesManager::MessagesManager(DBWrapper* db) {
 
 MessagesManager::~MessagesManager() {}
 
-void MessagesManager::saveMessage(long fromUserId, long toUserId, string message) {
+string MessagesManager::saveMessage(long fromUserId, long toUserId, string message) {
     Message* messageToSave = new Message();
     messageToSave->setFromUserId(fromUserId);
     messageToSave->setToUserId(toUserId);
     messageToSave->setMessage(message);
     messageToSave->setTimestamp(this->getTimestamp());
+    string messageToSaveAsString = messageToSave->serializeMe().toStyledString();
     vector<Message*> currentMessages = this->getMessages(fromUserId, toUserId);
     currentMessages.push_back(messageToSave);
     Json::Value allMessagesAsJson;
@@ -28,6 +29,7 @@ void MessagesManager::saveMessage(long fromUserId, long toUserId, string message
     string valueToSave = fastWriter.write(allMessagesAsJson);
     string key = this->getKey(fromUserId, toUserId);
     this->db->puTKey(key, &valueToSave);
+    return messageToSaveAsString;
 }
 
 vector<Message*> MessagesManager::getMessages(long fromUserId, long toUserId) {

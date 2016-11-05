@@ -172,7 +172,7 @@ void PersonManager::removeRecommendation(long fromUserId, long toUserId) {
     delete recommendationsManager;
 }
 
-void PersonManager::saveMessage(Json::Value request) {
+string PersonManager::saveMessage(Json::Value request) {
     this->validateParametersOfRequest(request);
     if (!request.isMember("message")) throw InvalidRequestException("Missing message");
     long fromUserId = request["from"].asLargestInt();
@@ -180,8 +180,9 @@ void PersonManager::saveMessage(Json::Value request) {
     string messageToSave = request["message"].asString();
     this->validateUsersOfRequest(fromUserId, toUserId);
     MessagesManager* messagesManager = new MessagesManager(this->db);
-    messagesManager->saveMessage(fromUserId, toUserId, messageToSave);
+    string savedMessage = messagesManager->saveMessage(fromUserId, toUserId, messageToSave);
     delete messagesManager;
+    return savedMessage;
 }
 
 vector<Message*> PersonManager::getMessages(long fromUserId, long toUserId) {

@@ -41,7 +41,7 @@ public:
     void saveRecommendation(Json::Value recommendation);
     void removeRecommendation(long fromUserId, long toUserId);
     Json::Value getRecommendationsByUserId(long userId);
-    void saveMessage(Json::Value request);
+    string saveMessage(Json::Value request);
     vector<Message*> getMessages(long fromUserId, long toUserId);
     bool userExists(long userId);
 private:
