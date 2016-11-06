@@ -35,7 +35,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 handler = new RecommendationsHandler();
                 response = handler->handleRequest(httpMessage, url);
             }
-            else if (regex_match(url, regex("/messages/.*")) || regex_match(url, regex("/messages"))) {
+            else if (regex_match(url, regex("/messages/.*"))) {
                 handler = new MessagesHandler();
                 response = handler->handleRequest(httpMessage, url);
 

@@ -11,6 +11,7 @@
 #include "relation/Contact.h"
 #include "recommendation/RecommendationsManager.h"
 #include "messages/MessagesManager.h"
+#include "messages/NotificationTokenManager.h"
 
 class PersonManager {
 
@@ -44,6 +45,8 @@ public:
     string saveMessage(Json::Value request);
     vector<Message*> getMessages(long fromUserId, long toUserId);
     bool userExists(long userId);
+    string getNotificationTokenByUserId(long userId);
+    void setOrUpdateNotificationToken(Json::Value request, long userId);
 private:
     DBWrapper* db;
     std::string nameDB;

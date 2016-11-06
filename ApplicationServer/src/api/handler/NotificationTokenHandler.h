@@ -1,7 +1,6 @@
 #ifndef PROJECT_NOTIFICATIONTOKENHANDLER_H
 #define PROJECT_NOTIFICATIONTOKENHANDLER_H
 
-
 #include "../../person/PersonManager.h"
 #include "../../api/handler/Handler.h"
 

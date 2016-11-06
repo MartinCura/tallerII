@@ -215,3 +215,20 @@ bool PersonManager::userExists(long userId) {
     std::string result;
     return (db->existsKey(USER_UUID_ID + to_string(userId), &result));
 }
+
+string PersonManager::getNotificationTokenByUserId(long userId) {
+    if (!this->userExists(userId)) throw UserNotFoundException(userId);
+    NotificationTokenManager* notificationTokenManager = new NotificationTokenManager(this->db);
+    string token = notificationTokenManager->getTokenByUserId(userId);
+    delete notificationTokenManager;
+    return token;
+}
+
+void PersonManager::setOrUpdateNotificationToken(Json::Value request, long userId) {
+    if (!request.isMember(NotificationTokenManager::TOKEN_KEY)) throw InvalidRequestException("Missing token");
+    if (!this->userExists(userId)) throw UserNotFoundException(userId);
+    string token = request[NotificationTokenManager::TOKEN_KEY].asString();
+    NotificationTokenManager* notificationTokenManager = new NotificationTokenManager(this->db);
+    notificationTokenManager->setOrUpdateToken(userId, token);
+    delete notificationTokenManager;
+}

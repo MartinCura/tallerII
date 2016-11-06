@@ -1,0 +1,24 @@
+---
+- config:
+    - testset: "Testing notification token url"
+
+- test:
+    - name: "Set token - Missing key"
+    - url: "/notificationtokens/1"
+    - method: "PUT"
+    - body: '{"invalidToken": 1}'
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Set token - Invalid user"
+    - url: "/notificationtokens/1234"
+    - method: "PUT"
+    - body: '{"token": "abc123"}'
+    - expected_status: [404] # not found
+
+- test:
+    - name: "Set token - Ok"
+    - url: "/notificationtokens/1"
+    - method: "PUT"
+    - body: '{"token": "abc123"}'
+    - expected_status: [200] # ok
