@@ -10,50 +10,84 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
     try {
         if (&httpMessage->uri) {
             string url = this->getUrl(httpMessage->uri);
-            this->logRequest(httpMessage);
             if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users"))) {
+                this->logRequest(httpMessage);
                 handler = new UsersHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
             }
             else if (regex_match(url, regex("/profilepicture/.*"))) {
+                this->logRequest(httpMessage, false);
                 handler = new PictureHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response, false);
+                delete handler;
+                return response;
             }
             else if (regex_match(url, regex("/allusers"))) {
+                this->logRequest(httpMessage);
                 handler = new AllUsersHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
             }
             else if (regex_match(url, regex("/contacts/.*")) || regex_match(url, regex("/contacts"))) {
+                this->logRequest(httpMessage);
                 handler = new ContactsHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
             }
             else if (regex_match(url, regex("/login"))) {
+                this->logRequest(httpMessage);
                 handler = new LoginHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
             }
             else if (regex_match(url, regex("/recommendations.*"))) {
+                this->logRequest(httpMessage);
                 handler = new RecommendationsHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
             }
             else if (regex_match(url, regex("/messages/.*"))) {
+                this->logRequest(httpMessage);
                 handler = new MessagesHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
 
             }
             else if (regex_match(url, regex("/notificationtokens/.*"))) {
+                this->logRequest(httpMessage);
                 handler = new NotificationTokenHandler();
                 response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
             } else {
+                this->logRequest(httpMessage);
                 response->setNotFoundHeader();
+                this->logResponse(response);
+                return response;
             }
         }
     } catch (exception &e) {
+        this->logRequest(httpMessage);
         response->setInternalServerErrorHeader();
         response->setErrorBody(e.what());
+        this->logResponse(response);
+        return response;
     }
-    delete handler;
-    this->logResponse(response);
-    return response;
 }
 
 string WebHandler::getUrl(const struct mg_str uri) {
