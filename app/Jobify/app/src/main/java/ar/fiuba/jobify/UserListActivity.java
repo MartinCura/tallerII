@@ -3,6 +3,7 @@ package ar.fiuba.jobify;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -257,7 +258,7 @@ public class UserListActivity extends NavDrawerActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         final ListView listView = (ListView) findViewById(R.id.user_list);
-        final View progressView = findViewById(R.id.search_progress);
+        final View progressView = findViewById(R.id.busqueda_progress);
         if (listView == null || progressView == null) {
             Log.e(LOG_TAG, "No pude encontrar la lista de usuarios o el progress loader.");
             return;
@@ -324,6 +325,8 @@ public class UserListActivity extends NavDrawerActivity {
         map.put(getString(R.string.get_messages_last_query),  Long.toString(numLast));
         String url = Utils.getAppServerUrl(this, getString(R.string.get_search_path), map);
 
+        final Context ctx = this;//
+
         // TODO: Revisar
         Utils.fetchJsonFromUrl(this, Request.Method.GET, url, mBusquedaReq.toJsonObject(),
                 new Response.Listener<JSONObject>() {
@@ -336,6 +339,8 @@ public class UserListActivity extends NavDrawerActivity {
 //                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
 //                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
+                        Toast.makeText(ctx, "Todavía no implementado del todo", Toast.LENGTH_LONG)
+                                .show();//
 //                        if (mExpectedListSize == 0) {
                             mostrarNoHayResultados();
 //                        } else {

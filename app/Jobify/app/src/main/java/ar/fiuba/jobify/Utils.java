@@ -456,6 +456,11 @@ public class Utils {
     }
 
 
+    public static Bitmap normalizarBitmap(Bitmap bitmap) {
+        int newWidth = bitmap.getWidth() > 1000 ? 1000 : bitmap.getWidth(); // HARDCODEO
+        int newHeight = (int) Math.round((1.0 * bitmap.getHeight() / bitmap.getWidth()) * newWidth);
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+    }
 
     public static class PhotoMultipartRequest<T> extends Request<T> {
 

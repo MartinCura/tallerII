@@ -38,9 +38,15 @@ public class User {
             summary = "";
     Locacion location;
     long[] recommendations;
-    List<Skill> skills = new ArrayList<>();
-    List<Employment> workHistory = new ArrayList<>();
+    List<Skill> skills;
+    List<Employment> workHistory;
 
+
+    @SuppressWarnings("unused")
+    public User() {
+        this.skills = new ArrayList<>();
+        this.workHistory = new ArrayList<>();
+    }
 
     // copy constructor
     public User(User o) {
@@ -209,8 +215,10 @@ public class User {
     // Temporal TODO
     public List<String> getListaJobs() {
         List<String> lista = new ArrayList<>();
-        for (Employment job : getWorkHistory()) {
-            lista.add(job.getCompleto());
+        if (getWorkHistory() != null) {
+            for (Employment job : getWorkHistory()) {
+                lista.add(job.getCompleto());
+            }
         }
         return lista;
     }
@@ -218,8 +226,10 @@ public class User {
     // Temporal TODO
     public List<String> getListaSkills() {
         List<String> lista = new ArrayList<>();
-        for (Skill skill : getSkills()) {
-            lista.add(skill.getName());
+        if (getSkills() != null) {
+            for (Skill skill : getSkills()) {
+                lista.add(skill.getName());
+            }
         }
         return lista;
     }

@@ -20,7 +20,7 @@ import ar.fiuba.jobify.shared_server_api.Nombrable;
  * Extensión de ArrayAdapter para crear listas donde se puede eliminar elementos,
  * utilizando el layout {@code list_item_borrable}.
  */
-class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
+public class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
 
     private final String LOG_TAG = EditableListAdapter.class.getSimpleName();
 
