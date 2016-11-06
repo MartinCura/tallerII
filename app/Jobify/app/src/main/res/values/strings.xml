@@ -92,9 +92,7 @@
     <string name="error_invalid_password">Contraseña muy corta</string>
     <string name="error_incorrect_password">Contraseña incorrecta</string>
     <string name="error_field_required">Este campo es obligatorio >:^[</string>
-    <string name="permission_rationale">"No tocamos tus datos. Prometemos no robarte los"
-        "48,435.27 $ que tenés en el ICBC, CBU # 213123013012310132. Confiá en nosotros :)"
-    </string>
+    <string name="permission_rationale">"No tocamos tus datos! Confiá en nosotros :) (Do No Evil)"</string>
     <string name="permission_rationale_acceptance">"Permiso de acceso para poder autocompletar"
         "tu correo"
     </string>

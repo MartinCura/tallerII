@@ -325,7 +325,7 @@ public class Utils {
                         }
                         //error.printStackTrace();//
                         if (error.networkResponse.statusCode == 200) {
-                            Log.e(logTag, "Problema con la imagen. Re-request");//
+//                            Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
                         } else if (error.networkResponse.statusCode == 403) {
                             Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
@@ -350,7 +350,8 @@ public class Utils {
 
     public static @IdRes int[] perfilVisibilityViews = {
             R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,
-            R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
+            R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable_wrapper,
+            R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
             R.id.text_perfil_cant_recomendaciones, R.id.text_perfil_resumen,
             R.id.text_perfil_nacimiento, R.id.perfil_nacimiento_editable,
             R.id.text_perfil_resumen_editable_wrapper, R.id.perfil_experiencia_laboral_list,

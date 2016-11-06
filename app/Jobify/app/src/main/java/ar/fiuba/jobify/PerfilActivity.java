@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -63,6 +64,7 @@ import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.shared_server_api.JobPosition;
 import ar.fiuba.jobify.shared_server_api.SharedDataSingleton;
 import ar.fiuba.jobify.shared_server_api.Skill;
+import ar.fiuba.jobify.utils.PerfilUtils;
 
 public class PerfilActivity extends NavDrawerActivity {
 
@@ -73,8 +75,9 @@ public class PerfilActivity extends NavDrawerActivity {
     private long fetchedUserID = 2;
     private User fetchedUser;
 
-    static final int REQUEST_TAKE_PHOTO = 1;
-    static final int REQUEST_PICK_IMAGE = 2;
+    public static final int REQUEST_TAKE_PHOTO = 1;
+    public static final int REQUEST_PICK_IMAGE = 2;
+    public static final int REQUEST_GET_LOCATION = 3;
     String mCurrentPhotoPath = null;
     Uri mPhotoURI;
 
@@ -84,6 +87,8 @@ public class PerfilActivity extends NavDrawerActivity {
     private boolean inEditingMode = false;  // TODO: revisar qué ocurre si giro la pantalla
     private EditableListAdapter<Skill> mSkillAdapter;
     private EditableListAdapter<Employment> mJobsAdapter;
+
+    private PerfilUtils.MyLocationService mLocationListener = null;
 
 
     @Override
@@ -171,12 +176,13 @@ public class PerfilActivity extends NavDrawerActivity {
         if (intent != null && intent.hasExtra(PERFIL_MODE_MESSAGE)) {
 
             boolean empezarEnModoEdicion = intent.getBooleanExtra(PERFIL_MODE_MESSAGE, false);
-            if (empezarEnModoEdicion && fetchedUserID == connectedUserID) {
+            if (empezarEnModoEdicion) {
 
                 Utils.showView(this, R.id.perfil_information_layout);
 
                 inEditingMode = false;
                 toggleEditMode();
+                startLocationService(null);
             }
         }
     }
@@ -220,12 +226,16 @@ public class PerfilActivity extends NavDrawerActivity {
         ImageView iv_foto = (ImageView) findViewById(R.id.perfil_image);
 
         if (inEditingMode) {    /** Cambiar a modo normal */
+
             // Modificar usuario con contenido de los campos; si hay errores de input cancelar
             if (!capturarInputPerfilUsuario()) {
                 Toast.makeText(this, "Usuario no fue modificado", Toast.LENGTH_LONG)
                         .show();
                 return;
             }
+
+            // Frena MyLocationService si estaba corriendo, actualizando coordenadas en dicho caso
+            finishLocationService();
 
             // No permitir cambiar la foto
             if (iv_foto != null)
@@ -238,7 +248,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
 
-            Log.d(LOG_TAG, fetchedUser.toJSON());//
+            Log.d(LOG_TAG, "User PUT Request: " + fetchedUser.toJson());//
             // PUT-tear usuario posiblemente editado
             updateProfileInformation();
 
@@ -589,6 +599,7 @@ public class PerfilActivity extends NavDrawerActivity {
                         if (mUser != null) {
 
                             fetchedUser = mUser;
+                            Log.d(LOG_TAG, "Fetched user: "+response.toString());//
                             fillProfile(mUser);
 
                         } else {
@@ -830,6 +841,9 @@ public class PerfilActivity extends NavDrawerActivity {
             } else {
                 Log.w(LOG_TAG, "Archivo en " + mPhotoURI.getPath() + " no existe.");
             }
+
+        } else if (requestCode == REQUEST_GET_LOCATION && resultCode == RESULT_OK) {
+            startLocationService(null);
         }
     }
 
@@ -862,6 +876,29 @@ public class PerfilActivity extends NavDrawerActivity {
         if (!success)
             return null;
         return imageFile;
+    }
+
+    public void startLocationService(View v) {
+        Toast.makeText(this, "Actualizando ubicación", Toast.LENGTH_SHORT)
+                .show();
+        // TODO: Check GPS is on?
+        try {
+            mLocationListener =
+                    new PerfilUtils.MyLocationService(this, R.id.text_perfil_ciudad_editable);
+        } catch (SecurityException ex) {
+            mLocationListener = null;
+        }
+    }
+
+    public void finishLocationService() {
+        if (mLocationListener == null)
+            return;
+
+        Location location = mLocationListener.getLocation();
+        if (location != null)
+            fetchedUser.setLocacion(location.getLatitude(), location.getLongitude());
+
+        mLocationListener.finish();
     }
 
 

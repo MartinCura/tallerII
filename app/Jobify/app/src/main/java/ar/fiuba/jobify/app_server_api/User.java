@@ -36,21 +36,11 @@ public class User {
             city = "",
             dateOfBirth = "1/1/1990",
             summary = "";
+    Locacion location;
     long[] recommendations;
-    List<Skill> skills;
-    List<Employment> workHistory;
+    List<Skill> skills = new ArrayList<>();
+    List<Employment> workHistory = new ArrayList<>();
 
-
-    public User() {
-        skills = new ArrayList<>();
-        workHistory = new ArrayList<>();
-    }
-
-    // Borrar?
-    public User(String email) {
-        this();
-        this.email = email;
-    }
 
     // copy constructor
     public User(User o) {
@@ -83,6 +73,9 @@ public class User {
     public String getCity() {
         return city;
     }
+//    public Locacion getLocation() {
+//        return location;
+//    }
     public String getDateOfBirth() {
         return dateOfBirth;
     }
@@ -100,7 +93,12 @@ public class User {
     }
 
     public int getDiaNacimiento() {
-        return Integer.parseInt(dateOfBirth.split("/")[0]);
+        try {
+            return Integer.parseInt(dateOfBirth.split("/")[0]);
+        } catch (NumberFormatException ex) {
+            dateOfBirth = "01/01/1990";
+            return getDiaNacimiento();
+        }
     }
     public int getMesNacimiento() {
         return Integer.parseInt(dateOfBirth.split("/")[1]);
@@ -138,6 +136,12 @@ public class User {
         // if?? TODO
         this.city = city;
         return true;
+    }
+
+    public boolean setLocacion(double latitud, double longitud) {
+        if (location == null)
+            location = new Locacion();
+        return location.setLocation(latitud, longitud);
     }
 
     // No normaliza la cantidad de dígitos
@@ -183,17 +187,17 @@ public class User {
         return actual;
     }
 
-    /**
-     * @return String de una línea con el último trabajo actual listado,
-     * determinado por {@code Employment.esActual}.
-     */
-    public String getUltimoTrabajoActual() {
-        String trabajos = getTrabajosActuales();
-        int index = trabajos.lastIndexOf("\n");
-        if (index < 0)
-            return trabajos;
-        return trabajos.substring(index);
-    }
+//    /**
+//     * @return String de una línea con el último trabajo actual listado,
+//     * determinado por {@code Employment.esActual}.
+//     */
+//    public String getUltimoTrabajoActual() {
+//        String trabajos = getTrabajosActuales();
+//        int index = trabajos.lastIndexOf("\n");
+//        if (index < 0)
+//            return trabajos;
+//        return trabajos.substring(index);
+//    }
 
     /**
      * @return String del formato {@code Fecha de nacimiento: 01/01/1990}.
@@ -220,13 +224,6 @@ public class User {
         return lista;
     }
 
-    public String toJSON() {
-        Gson gson = new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .create();
-
-        return gson.toJson(this);
-    }
 
     public static User parseJSON(String response) {
         Gson gson = new GsonBuilder()

@@ -71,6 +71,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
 
+    private boolean isNewUser = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -264,7 +266,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     .show();//
 
                             guardarConnectedUserData(loginResponse);
-                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), false);
+                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
                             finish();
 
                         }
@@ -274,8 +276,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             showProgress(false);
                             if (error.networkResponse != null) {
                                 int statusCode = error.networkResponse.statusCode;
-                                Toast.makeText(ctx, "Login error status code: "+ statusCode, Toast.LENGTH_LONG)
-                                            .show();//
                                 Log.d(LOG_TAG, "Login error status code: " + statusCode);
 
                                 switch (statusCode) { // hardcodeado?
@@ -306,6 +306,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                         mPasswordView.requestFocus();
                                         break;
                                     default:
+                                        Toast.makeText(ctx, "Login error status code: "+ statusCode,
+                                                Toast.LENGTH_LONG)
+                                                .show();//
                                         error.printStackTrace();//
                                 } // TODO: Otros status codes?
                             }
@@ -345,9 +348,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     "Id: " + loginResponse.getId(), Toast.LENGTH_LONG)
                                     .show();//
 
+                            isNewUser = true;
                             attemptLogin();
 //                            guardarConnectedUserData(loginResponse);
-//                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), true);
+//                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
 //                            finish();
 
                         }
@@ -497,7 +501,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //        LoginResponse loginResponse =
 //                LoginResponse.parseJSON("{\"id\": "+connectedUserId+", \"token\": ");
 //        guardarConnectedUserData(loginResponse);
-//        Utils.iniciarPerfilActivity(this, connectedUserId, false);
+//        Utils.iniciarPerfilActivity(this, connectedUserId, isNewUser);
 //        finish();
     }//;//
 }

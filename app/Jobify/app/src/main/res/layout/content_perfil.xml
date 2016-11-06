@@ -85,7 +85,6 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -110,16 +109,23 @@
                             android:id="@+id/boton_perfil_location"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:contentDescription="@string/location_icon_description"
-                            android:layout_margin="@dimen/small_margin"
-                            android:layout_gravity="bottom"
                             android:layout_alignParentRight="true"
+                            android:layout_marginTop="15dp"
+                            android:paddingLeft="15dp"
+                            android:paddingRight="15dp"
                             android:visibility="gone"
-                            android:src="@drawable/ic_location"
+                            android:onClick="startLocationService"
+                            android:src="@drawable/ic_locate_dark"
+                            android:contentDescription="@string/location_icon_description"
                             android:background="#0000" />
                         <android.support.design.widget.TextInputLayout
+                            android:id="@+id/text_perfil_ciudad_editable_wrapper"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/small_margin"
+                            android:layout_marginBottom="5dp"
+                            android:layout_alignParentLeft="true"
+                            android:visibility="gone">
                             <EditText
                                 android:id="@+id/text_perfil_ciudad_editable"
                                 android:layout_width="match_parent"
@@ -127,7 +133,6 @@
                                 android:minWidth="200dp"
                                 android:layout_marginLeft="@dimen/small_margin"
                                 android:layout_marginTop="@dimen/text_margin"
-                                android:layout_toLeftOf="@id/boton_perfil_location"
                                 android:hint="@string/perfil_ciudad_editable_hint"
                                 android:visibility="gone"
                                 android:inputType="textAutoComplete" />
@@ -246,15 +251,16 @@
                                 android:textSize="15sp"
                                 android:maxLength="4"
                                 android:hint="@string/anio" />
+                            <ImageButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:paddingTop="3dp"
+                                android:onClick="showDatePickerDialog"
+                                android:contentDescription="@string/pick_date_description"
+                                android:src="@drawable/ic_calendar"
+                                android:background="#0000" />
                         </LinearLayout>
-                        <ImageButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:onClick="showDatePickerDialog"
-                            android:contentDescription="@string/pick_date_description"
-                            android:src="@drawable/ic_calendar"
-                            android:background="#0000" />
                     </RelativeLayout>
 
                 </LinearLayout>
