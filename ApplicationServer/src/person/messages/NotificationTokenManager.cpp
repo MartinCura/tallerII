@@ -13,12 +13,9 @@ string NotificationTokenManager::getTokenByUserId(long userId) {
     string key = TOKEN_KEY_FOR_DATABASE + to_string(userId);
     string result;
     if (this->db->existsKey(key, &result)) {
-        Json::Reader reader;
-        Json::Value token;
-        reader.parse(result.c_str(), token);
-        return token.asString();
+        return result;
     }
-    throw new NonexistentNotificationToken();
+    throw NonexistentNotificationToken(userId);
 }
 
 void NotificationTokenManager::setOrUpdateToken(long userId, string token) {

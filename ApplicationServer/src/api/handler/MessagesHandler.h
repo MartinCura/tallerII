@@ -4,8 +4,15 @@
 #include "../../person/PersonManager.h"
 #include "Handler.h"
 #include "../../person/messages/Message.h"
+#include "../../logger/Logger.h"
+#include "../../Exceptions/NonexistentNotificationToken.h"
 #include <algorithm>
 #include <vector>
+#include <cstdio>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
 
 class MessagesHandler : public Handler {
 public:
@@ -24,6 +31,10 @@ private:
     vector<Message*> truncateMessages(vector<Message*> messages, string queryParams);
     vector<Message*> doTruncate(vector<Message*> messages, int first, int last);
     Json::Value buildJsonResponse(vector<Message*> messages, long totalCount);
+    void sendNotification(string savedMessage, PersonManager* personManager);
+    string buildRequest(string savedMessage, PersonManager* personManager);
+    string buildStringRequest(string fromUserName, string message, string token);
+    string performRequest(string request);
 };
 
 #endif //PROJECT_MESSAGESHANDLER_H

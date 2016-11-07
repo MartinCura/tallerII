@@ -2,13 +2,23 @@
 #define PROJECT_NONEXISTENTNOTIFICATIONTOKEN_H
 
 #include <exception>
+#include <string>
 
-class NonexistentNotificationToken : public std::exception {
+using namespace std;
+
+class NonexistentNotificationToken : public exception {
 public:
-    virtual const char* what() const throw() {
-        return "Nonexistent Token";
+    NonexistentNotificationToken(long userId) {
+        this->message = "No token for message notifications for user " + to_string(userId);
+    }
+    ~NonexistentNotificationToken() {}
+
+    string getMessage() const {
+        return this->message;
     }
 
+private:
+    string message;
 };
 
 #endif //PROJECT_NONEXISTENTNOTIFICATIONTOKEN_H
