@@ -1,6 +1,5 @@
 package ar.fiuba.jobify.app_server_api;
 
-import android.app.Activity;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -11,10 +10,8 @@ import com.google.gson.JsonSyntaxException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import ar.fiuba.jobify.shared_server_api.JobPosition;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
 /**
@@ -23,27 +20,34 @@ import ar.fiuba.jobify.shared_server_api.Skill;
  */
 public class BusquedaRequest {
 
-    JobPosition jobPosition;
-    List<Skill> skills;
+    String jobPosition = null;
+    String skills[];
+//    JobPosition jobPosition;   // TODO: TENDRÍA QUE ENVIAR ESTO? Mirar todo lo comentado si cambia
+//    List<Skill> skills;
     int distancia = 0;
 
-    BusquedaRequest() {
-        skills = new ArrayList<>();
-    }
 
-    public static BusquedaRequest crear(String nombreJobPosition, List<Skill> nombresSkills,
-                                        int distancia, Activity activity) {
+//    BusquedaRequest() {
+//        skills = new ArrayList<>();
+//    }
+
+    public static BusquedaRequest crear(String nombreJobPosition, List<Skill> skills,
+                                        int distancia/*, Activity activity*/) {
         BusquedaRequest br = new BusquedaRequest();
 
-        br.jobPosition = JobPosition.create(activity, nombreJobPosition);
-//        for (String str : nombresSkills) {
-//            br.skills.add(Skill.create(activity, str));
-//        }
-        br.skills.addAll(nombresSkills);
+        br.jobPosition = nombreJobPosition;
+//        br.jobPosition = JobPosition.create(activity, nombreJobPosition);
+        int i = 0;
+        for (Skill sk : skills) {
+            br.skills[i] = sk.getName();
+            i++;
+        }
+//        br.skills.addAll(skills);
         br.distancia = distancia;
 
         return br;
     }
+
 
     public String toJson() {
         Gson gson = new GsonBuilder()

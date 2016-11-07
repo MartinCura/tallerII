@@ -36,8 +36,12 @@ public class User {
             city = "",
             dateOfBirth = "1/1/1990",
             summary = "";
+
     Locacion location;
+
     long[] recommendations;
+    long cantidadRecomendaciones = -1;
+
     List<Skill> skills;
     List<Employment> workHistory;
 
@@ -114,7 +118,9 @@ public class User {
     }
 
     public long getCantRecomendaciones() {
-        return recommendations.length;
+        if (cantidadRecomendaciones < 0)
+            cantidadRecomendaciones = recommendations.length;
+        return cantidadRecomendaciones;
     }
 
     public boolean fueRecomendadoPor(long pepito) {
@@ -234,6 +240,10 @@ public class User {
         return lista;
     }
 
+    private void addEmployment(Employment emp) {
+        this.workHistory.add(emp);
+    }
+
 
     public static User parseJSON(String response) {
         Gson gson = new GsonBuilder()
@@ -241,11 +251,20 @@ public class User {
                 .create();
 
         try {
-            return gson.fromJson(response, User.class);
+            User user = gson.fromJson(response, User.class);
+            try {
+                // Para user reducido, que tiene un campo "last_job"
+                user.addEmployment(gson.fromJson(
+                        (new JSONObject(response)).getJSONObject("last_job").toString(), //;//hardcodeo
+                        Employment.class)
+                );
+            } catch (JSONException ex) {/**/}
 
-        } catch (JsonSyntaxException e) {
+            return user;
+
+        } catch (JsonSyntaxException ex) {
             Log.e("API", "Json Syntax exception!");
-            e.printStackTrace();
+            ex.printStackTrace();
             return null;
         }
     }

@@ -40,6 +40,7 @@ import java.util.Locale;
 
 import ar.fiuba.jobify.app_server_api.AllUsersResponse;
 import ar.fiuba.jobify.app_server_api.BusquedaRequest;
+import ar.fiuba.jobify.app_server_api.BusquedaResponse;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.User;
@@ -69,7 +70,7 @@ public class UserListActivity extends NavDrawerActivity {
     public static int MAX_RESULTADOS = 100;
     private int cantResultados = MAX_RESULTADOS;
 
-    private BusquedaRequest mBusquedaReq;
+    private BusquedaRequest mBusquedaReq = null;
 
     private ArrayList<User> mUserArray = new ArrayList<>();
     private UserArrayAdapter mUserArrayAdapter;
@@ -120,8 +121,8 @@ public class UserListActivity extends NavDrawerActivity {
                 break;
             case MODE_MOST_POPULAR:
                 showProgress(true);
-                //listarMasPopulares(); TODO
-                listarTodosLosUsuarios();//
+//                listarMasPopulares();
+                listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
                 break;
             case MODE_BUSQUEDA:
                 showProgress(true);
@@ -182,7 +183,7 @@ public class UserListActivity extends NavDrawerActivity {
         }, LOG_TAG);
     }
 
-    // de prueba //;//
+    /// de prueba //;//
     private void listarTodosLosUsuarios() {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
@@ -219,6 +220,12 @@ public class UserListActivity extends NavDrawerActivity {
                     }
         }, LOG_TAG);
     }
+    ///
+
+    private void listarMasPopulares() {
+        mBusquedaReq = new BusquedaRequest();
+        cargarPageDeUsuarios(0, false);
+    }
 
     public void generarBusqueda() {
         String busquedaMensaje;
@@ -231,11 +238,13 @@ public class UserListActivity extends NavDrawerActivity {
             Log.e(LOG_TAG, "No encontré intent o mensaje para hacer búsqueda");
             return;
         }
+
         mBusquedaReq = BusquedaRequest.parseJSON(busquedaMensaje);
         if (mBusquedaReq == null) {
             Log.e(LOG_TAG, "Error de Json BusquedaRequest");
             return;
         }
+
         cargarPageDeUsuarios(0, false);
     }
 
@@ -312,48 +321,63 @@ public class UserListActivity extends NavDrawerActivity {
      * Carga los siguientes PAGE_SIZE resultados de una búsqueda con mBusquedaReq.
      */
     private boolean cargarPageDeUsuarios(int pageNumber, boolean forzarCarga) {
+        if (mBusquedaReq == null) {
+            Log.e(LOG_TAG, "BusquedaRequest null, abort");
+            return false;
+        }
         if (!forzarCarga && (pageNumber * PAGE_SIZE >= cantResultados)) {
-            mEndlessScrollListener.desactivar();
+            if (mEndlessScrollListener != null)
+                mEndlessScrollListener.desactivar();
             return false;
         }
         //showProgress(true);//TODO?
 
+        final Context ctx = this;
+
         int numFirst = (pageNumber * PAGE_SIZE + 1);
         int numLast  = (pageNumber + 1) * PAGE_SIZE;
         HashMap<String, String> map = new HashMap<>();
-        map.put(getString(R.string.get_messages_first_query), Long.toString(numFirst));
-        map.put(getString(R.string.get_messages_last_query),  Long.toString(numLast));
-        String url = Utils.getAppServerUrl(this, getString(R.string.get_search_path), map);
-
-        final Context ctx = this;//
+        map.put(getString(R.string.get_busqueda_users_first_query), Long.toString(numFirst));
+        map.put(getString(R.string.get_busqueda_users_last_query),  Long.toString(numLast));
+        String urlBusqueda = Utils.getAppServerUrl(this, getString(R.string.get_search_path), map);
 
         // TODO: Revisar
-        Utils.fetchJsonFromUrl(this, Request.Method.GET, url, mBusquedaReq.toJsonObject(),
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlBusqueda, mBusquedaReq.toJsonObject(),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        //TODO
-//                        BusquedaResponse busqResponse = BusquedaResponse.parseJSON(response.toString());
+                        BusquedaResponse busqResponse = BusquedaResponse.parseJSON(response.toString());
 
-//                        int cant = Long.valueOf(busquedaResponse.getMetadata().getCount()).intValue();
-//                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
-//                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
-
-                        Toast.makeText(ctx, "Todavía no implementado del todo", Toast.LENGTH_LONG)
-                                .show();//
-//                        if (mExpectedListSize == 0) {
+                        if (busqResponse == null) {
+                            Toast.makeText(ctx, "Ha ocurrido un error", Toast.LENGTH_LONG)
+                                    .show();
+                            Log.e(LOG_TAG, "BusquedaResponse null");
                             mostrarNoHayResultados();
-//                        } else {
-                            // TODO: Cambiar si se adapta.
-//                        for (long id : busquedaResponse.getUsers()) {
-//                            fetchAndAddUser(id);
-//                        }
-                        mEndlessScrollListener.activar();
+                            return;
+                        }
+                        int cant = Long.valueOf(busqResponse.getMetadata().getCount()).intValue();
+                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
+                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
+
+                        if (mExpectedListSize == 0) {
+                            mostrarNoHayResultados();
+
+                        } else {
+                            for (User user : busqResponse.getUsers()) {
+                                agregarResultado(user);
+                            }
+                            mEndlessScrollListener.activar();
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        //TODO
+                        Toast.makeText(ctx, "Todavía no implementado / error", Toast.LENGTH_LONG)
+                                .show();//
+                        if (error.networkResponse != null)
+                            Log.e(LOG_TAG, "Busqueda error status code: "
+                                    + error.networkResponse.statusCode);
+                        error.printStackTrace();
                     }
                 }, LOG_TAG);
 
