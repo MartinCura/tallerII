@@ -131,7 +131,7 @@ int MessagesHandler::getLastFromQueryParamsIfExists(string queryParams) {
 vector<Message*> MessagesHandler::truncateMessages(vector<Message*> messages, string queryParams) {
     int firstParam = this->getFirstFromQueryParamsIfExists(queryParams);
     int lastParam = this->getLastFromQueryParamsIfExists(queryParams);
-    if ((firstParam <= 0) || (lastParam <= 0)) {
+    if ((firstParam < 0) || (lastParam < 0)) {
         throw InvalidRequestException("index must be greater than 0");
     }
     int first = (firstParam != 0) ? firstParam : FIRST_INDEX;
