@@ -6,15 +6,20 @@ package ar.fiuba.jobify.shared_server_api;
  */
 public class ResponseMetadata {
 
-    String version;
-    int count;
+    String  version;
+    long     count = 0,
+        totalCount = 0;
 
 
     public String getVersion() {
         return version;
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
+    }
+
+    public long getTotalCount() {
+        return totalCount;
     }
 }

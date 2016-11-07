@@ -3,6 +3,7 @@ package ar.fiuba.jobify;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,6 +24,8 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -33,11 +36,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +70,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+
+    private boolean isNewUser = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +116,29 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.nav_drawer, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void populateAutoComplete() {
@@ -215,10 +247,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
 
+            final Activity activity = this;
             final Context ctx = getApplicationContext();
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
 
-            Utils.getJsonFromAppServer(this, getString(R.string.get_login_path), jsonRequest,
+            Utils.postJsonToAppServer(this, getString(R.string.get_login_path), jsonRequest,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -232,9 +265,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
                                     .show();//
 
-                            long connectedUserId = loginResponse.getId();
-                            guardarConnectedId(connectedUserId);
-                            iniciarPerfilActivity(connectedUserId, false);
+                            guardarConnectedUserData(loginResponse);
+                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
+                            finish();
+
                         }
                     }, new Response.ErrorListener() {
                         @Override
@@ -242,15 +276,40 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             showProgress(false);
                             if (error.networkResponse != null) {
                                 int statusCode = error.networkResponse.statusCode;
-                                Toast.makeText(ctx, "Login error status code: "+ statusCode, Toast.LENGTH_LONG)
-                                            .show();//
                                 Log.d(LOG_TAG, "Login error status code: " + statusCode);
-                                if (statusCode == 404) {// hardcodeo
-                                    Toast.makeText(ctx, "Email no registrado", Toast.LENGTH_LONG)
-                                            .show();
-                                } else if (statusCode == 407) {// hardcodeo, adivinado
-                                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                                    mPasswordView.requestFocus();
+
+                                switch (statusCode) { // hardcodeado?
+                                    ///
+                                    case 400:
+                                        try {
+                                            NetworkResponse response = error.networkResponse;
+                                            String res = new String(response.data,
+                                                    HttpHeaderParser.parseCharset(response.headers, "utf-8"));
+                                            // Now you can use any deserializer to make sense of data
+                                            Log.d(LOG_TAG, "json string: "+res);
+                                            new JSONObject(res);                    //;//
+                                        } catch (UnsupportedEncodingException e1) {
+                                            Log.d(LOG_TAG, "..couldn't decode data?");
+                                            e1.printStackTrace();
+                                        } catch (JSONException e2) {
+                                            Log.d(LOG_TAG, "..not a json object?");
+                                            e2.printStackTrace();
+                                        }
+                                        break;
+                                    ///
+                                    case 404:
+                                        Toast.makeText(ctx, "Email no registrado", Toast.LENGTH_LONG)
+                                                .show();
+                                        break;
+                                    case 401:
+                                        mPasswordView.setError(getString(R.string.error_incorrect_password));
+                                        mPasswordView.requestFocus();
+                                        break;
+                                    default:
+                                        Toast.makeText(ctx, "Login error status code: "+ statusCode,
+                                                Toast.LENGTH_LONG)
+                                                .show();//
+                                        error.printStackTrace();//
                                 } // TODO: Otros status codes?
                             }
                         }
@@ -270,6 +329,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
 
             final Context ctx = getApplicationContext();
+
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
             Log.d(LOG_TAG, "POST de registro:\n"+jsonRequest.toString());//
 
@@ -284,13 +344,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Log.e(LOG_TAG, "Error de parseo de LoginResponse");
                                 return;
                             }
-                            Toast.makeText(LoginActivity.this, "Registro correcto", Toast.LENGTH_LONG)
+                            Toast.makeText(LoginActivity.this, "Registro correcto\n" +
+                                    "Id: " + loginResponse.getId(), Toast.LENGTH_LONG)
                                     .show();//
 
-                            long connectedUserId = loginResponse.getId();
-                            Log.d(LOG_TAG, "connectedUserId: "+connectedUserId);//
-                            guardarConnectedId(connectedUserId);
-                            iniciarPerfilActivity(connectedUserId, true);
+                            isNewUser = true;
+                            attemptLogin();
+//                            guardarConnectedUserData(loginResponse);
+//                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
+//                            finish();
+
                         }
 
                     }, new Response.ErrorListener() {
@@ -310,11 +373,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    private void guardarConnectedId(long id) {
+    /**
+     * Guarda datos de login del LoginResponse, id y token.
+     */
+    private void guardarConnectedUserData(LoginResponse loginResponse) {
         SharedPreferences.Editor editor =
                 getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
                         .edit();
-        editor.putLong(getString(R.string.stored_connected_user_id), id);
+        editor.putLong(getString(R.string.stored_connected_user_id), loginResponse.getId());
+        editor.putString(getString(R.string.stored_connected_user_token), loginResponse.getToken());
         editor.apply();
     }
 
@@ -418,26 +485,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //        int IS_PRIMARY = 1;
     }
 
-
-    public void iniciarPerfilActivity(long fetchedUserId, boolean comenzarEnModoEdicion) {
-
-        startActivity(
-                new Intent(LoginActivity.this, PerfilActivity.class)
-                        .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, fetchedUserId)
-                        .putExtra(PerfilActivity.MODO_PERFIL_MESSAGE, comenzarEnModoEdicion)
-        );
-    }
-
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
-        long connectedUserId = 1L;
-        guardarConnectedId(connectedUserId);
+        long connectedUserId = 2L;
+        String mail = "jane@doe.com", pass = "123abc";//"123"; // Depende del branch...
+        mEmailView.setText(mail);
+        mPasswordView.setText(pass);
 
-        Toast.makeText(LoginActivity.this, "Fake login\n" +
+        Toast.makeText(LoginActivity.this, "Automatic fake login\n" +
                 "user id: "+connectedUserId, Toast.LENGTH_LONG)
                 .show();
 
-        iniciarPerfilActivity(connectedUserId, false);
+        attemptLogin();
+
+//        LoginResponse loginResponse =
+//                LoginResponse.parseJson("{\"id\": "+connectedUserId+", \"token\": ");
+//        guardarConnectedUserData(loginResponse);
+//        Utils.iniciarPerfilActivity(this, connectedUserId, isNewUser);
+//        finish();
     }//;//
 }
-

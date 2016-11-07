@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,24 +14,17 @@ import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -51,23 +44,21 @@ import java.util.List;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
+import ar.fiuba.jobify.app_server_api.Recommendation;
 import ar.fiuba.jobify.app_server_api.Solicitud;
 import ar.fiuba.jobify.app_server_api.User;
-import ar.fiuba.jobify.shared_server_api.JobPosition;
-import ar.fiuba.jobify.shared_server_api.SharedDataSingleton;
 import ar.fiuba.jobify.shared_server_api.Skill;
+import ar.fiuba.jobify.utils.PerfilUtils;
 
 public class PerfilActivity extends NavDrawerActivity {
 
     private final String LOG_TAG = PerfilActivity.class.getSimpleName();
 
     public final static String FETCHED_USER_ID_MESSAGE = "ar.fiuba.jobify.FETCHED_USER_ID_MESSAGE";
-    public final static String MODO_PERFIL_MESSAGE = "ar.fiuba.jobify.MODO_PERFIL_MESSAGE";
+    public final static String PERFIL_MODE_MESSAGE = "ar.fiuba.jobify.PERFIL_MODE_MESSAGE";
     private long fetchedUserID = 2;
     private User fetchedUser;
 
-    static final int REQUEST_TAKE_PHOTO = 1;
-    static final int REQUEST_PICK_IMAGE = 2;
     String mCurrentPhotoPath = null;
     Uri mPhotoURI;
 
@@ -77,6 +68,8 @@ public class PerfilActivity extends NavDrawerActivity {
     private boolean inEditingMode = false;  // TODO: revisar qué ocurre si giro la pantalla
     private EditableListAdapter<Skill> mSkillAdapter;
     private EditableListAdapter<Employment> mJobsAdapter;
+
+    private PerfilUtils.MyLocationService mLocationListener = null;
 
 
     @Override
@@ -96,6 +89,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
         FloatingActionButton fabAmigar = (FloatingActionButton) findViewById(R.id.fab_amigar);
         if (fabAmigar != null) {
+            fabAmigar.setBackgroundTintList(Utils.getColorStateList(this, R.color.amigar_btn_none));
             fabAmigar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -107,23 +101,18 @@ public class PerfilActivity extends NavDrawerActivity {
 
         FloatingActionButton fabRecomendar = (FloatingActionButton) findViewById(R.id.fab_recomendar);
         if (fabRecomendar != null) {
+            fabRecomendar.setBackgroundTintList(Utils.getColorStateList(this, R.color.recomendar_btn_false));
             fabRecomendar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO: Recomendar
+                    toggleRecomendar(fetchedUserID);
                 }
             });
         }
 
         FloatingActionButton fabChatear = (FloatingActionButton) findViewById(R.id.fab_chatear);
-        if (fabChatear != null) {
-            fabChatear.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // TODO: Chatear
-                }
-            });
-        }
+        if (fabChatear != null)
+            fabChatear.setBackgroundTintList(Utils.getColorStateList(this, R.color.chatear_btn));
 
         FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
         if (fabEditar != null) {
@@ -137,7 +126,7 @@ public class PerfilActivity extends NavDrawerActivity {
             });
         }
 
-        populateAutoCompleteLists();
+        PerfilUtils.populateAutoCompleteLists(this);
 
         if (fetchedUserID == connectedUserID) {
             if (fabAmigar != null) fabAmigar.setVisibility(View.GONE);
@@ -146,7 +135,8 @@ public class PerfilActivity extends NavDrawerActivity {
             if (fabEditar != null) fabEditar.setVisibility(View.VISIBLE);
         }
 
-        Utils.toggleViewVisibility(this, R.id.perfil_information_layout);
+        Utils.hideView(this, R.id.perfil_information_layout);
+        PerfilUtils.showProgress(this, true);
     }
 
     @Override
@@ -165,15 +155,17 @@ public class PerfilActivity extends NavDrawerActivity {
         // TODO: REVISAR, YA QUE ESTÁ EN EL onResume
         // Obtengo el modo en el que debe comenzar
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(MODO_PERFIL_MESSAGE)) {
+        if (intent != null && intent.hasExtra(PERFIL_MODE_MESSAGE)) {
 
-            boolean empezarEnModoEdicion = intent.getBooleanExtra(MODO_PERFIL_MESSAGE, false);
+            boolean empezarEnModoEdicion = intent.getBooleanExtra(PERFIL_MODE_MESSAGE, false);
             if (empezarEnModoEdicion) {
 
+                PerfilUtils.showProgress(this, false);
                 Utils.showView(this, R.id.perfil_information_layout);
 
                 inEditingMode = false;
                 toggleEditMode();
+                startLocationService(null);
             }
         }
     }
@@ -203,6 +195,10 @@ public class PerfilActivity extends NavDrawerActivity {
         }
     }
 
+    public PerfilActivity getActivity() {
+        return this;
+    }
+
     public static Context getContext() {
         return mContext;
     }
@@ -217,12 +213,16 @@ public class PerfilActivity extends NavDrawerActivity {
         ImageView iv_foto = (ImageView) findViewById(R.id.perfil_image);
 
         if (inEditingMode) {    /** Cambiar a modo normal */
+
             // Modificar usuario con contenido de los campos; si hay errores de input cancelar
             if (!capturarInputPerfilUsuario()) {
                 Toast.makeText(this, "Usuario no fue modificado", Toast.LENGTH_LONG)
                         .show();
                 return;
             }
+
+            // Frena MyLocationService si estaba corriendo, actualizando coordenadas en dicho caso
+            finishLocationService();
 
             // No permitir cambiar la foto
             if (iv_foto != null)
@@ -235,7 +235,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
 
-            Log.d(LOG_TAG, fetchedUser.toJSON());//
+            Log.d(LOG_TAG, "User PUT Request: " + fetchedUser.toJson());//
             // PUT-tear usuario posiblemente editado
             updateProfileInformation();
 
@@ -251,8 +251,6 @@ public class PerfilActivity extends NavDrawerActivity {
             if (fabEditar != null) {
                 fabEditar.setBackgroundTintList(Utils.getColorStateList(this, R.color.editar_btn_active));
             }
-
-            // Cambia funcionamiento del "volver" TODO
 
             // Permitir cambiar la foto
             if (iv_foto != null)
@@ -274,7 +272,7 @@ public class PerfilActivity extends NavDrawerActivity {
 //                                            dialog.dismiss();// Hace falta?
 
                                         } else if (options[which] == "Galería") {
-                                            dispatchChoosePictureIntent();
+                                            PerfilUtils.dispatchChoosePictureIntent(getActivity());
 //                                            dialog.dismiss();// Hace falta?
 
                                         } else {
@@ -292,10 +290,15 @@ public class PerfilActivity extends NavDrawerActivity {
                 Utils.setTextViewText(this, R.id.text_perfil_apellido_editable, fetchedUser.getLastName());
                 Utils.setTextViewText(this, R.id.text_perfil_ciudad_editable, fetchedUser.getCity());
                 Utils.setTextViewText(this, R.id.text_perfil_resumen_editable, fetchedUser.getSummary());
+                Utils.setTextViewText(this, R.id.perfil_nacimiento_dia, String.valueOf(fetchedUser.getDiaNacimiento()));
+                Utils.setTextViewText(this, R.id.perfil_nacimiento_mes, String.valueOf(fetchedUser.getMesNacimiento()));
+                Utils.setTextViewText(this, R.id.perfil_nacimiento_anio, String.valueOf(fetchedUser.getAnioNacimiento()));
             }
 
             // Cargo autocompletado de JobPositions y Skills según SharedData
-            populateAutoCompleteLists();
+            PerfilUtils.populateAutoCompleteLists(this);
+
+            final PerfilActivity activity = this;
 
             List<Skill> skillsList = new ArrayList<>();
             if (fetchedUser != null)
@@ -310,7 +313,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 ib_skills.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        agregarSkill();
+                        PerfilUtils.agregarSkill(activity, mSkillAdapter);
                     }
                 });
             }
@@ -328,7 +331,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 ib_workHistory.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        agregarEmployment();
+                        PerfilUtils.agregarEmployment(activity, mJobsAdapter);
                     }
                 });
             }
@@ -344,88 +347,6 @@ public class PerfilActivity extends NavDrawerActivity {
         inEditingMode = !inEditingMode;
     }
 
-    private boolean agregarEmployment() {
-        EditText et_company = (EditText) findViewById(R.id.text_perfil_employment_new_company);
-        AutoCompleteTextView et_position =
-                (AutoCompleteTextView) findViewById(R.id.text_perfil_employment_new_position);
-        EditText et_desde_mes =  (EditText) findViewById(R.id.perfil_employment_desde_mes);
-        EditText et_desde_anio = (EditText) findViewById(R.id.perfil_employment_desde_anio);
-        EditText et_hasta_mes =  (EditText) findViewById(R.id.perfil_employment_hasta_mes);
-        EditText et_hasta_anio = (EditText) findViewById(R.id.perfil_employment_hasta_anio);
-
-        if (et_company == null || et_company.length() == 0
-                || et_position == null || et_position.length() == 0
-                || et_desde_mes == null || et_desde_mes.length() == 0
-                || et_desde_anio == null || et_desde_anio.length() == 0
-                || et_hasta_mes == null || et_hasta_anio == null) {
-            if (et_position != null)
-                et_position.setError("Salvo 'hasta', ningún campo puede quedar vacío");
-            return false;
-        }
-        et_position.setError(null);
-
-        if ((et_hasta_mes.length() == 0 && et_hasta_anio.length() != 0)
-            || et_hasta_mes.length() != 0 && et_hasta_anio.length() == 0) {
-            et_position.setError("Para un trabajo actual, deje mes y año de 'hasta' vacíos");
-            return false;
-        }
-
-        // "Hasta" puede estar vacío
-        int hastaMes = (et_hasta_mes.length() == 0) ? 0 : Integer.valueOf(et_hasta_mes.getText().toString());
-        int hastaAnio = (et_hasta_anio.length() == 0) ? 0 : Integer.valueOf(et_hasta_anio.getText().toString());
-
-        try {
-            Employment nuevoEmployment = Employment.create(this,
-                            et_company.getText().toString(),
-                            et_position.getText().toString(),
-                            Integer.valueOf(et_desde_mes.getText().toString()),
-                            Integer.valueOf(et_desde_anio.getText().toString()),
-                            hastaMes, hastaAnio);
-            if (nuevoEmployment == null) return false;
-            if (!mJobsAdapter.add(nuevoEmployment, true)) {
-                Toast.makeText(getContext(), "Empleo ya listado", Toast.LENGTH_LONG)
-                        .show();
-                return false;
-            }
-            et_company.setText(null);
-            et_position.setText(null);
-            et_desde_mes.setText(null);
-            et_desde_anio.setText(null);
-            et_hasta_mes.setText(null);
-            et_hasta_anio.setText(null);
-            mJobsAdapter.notifyDataSetChanged();
-
-        } catch (IllegalArgumentException ex) {
-            et_position.setError("Valor inválido para " + ex.getMessage());
-            et_position.requestFocus();
-            return false;
-        }
-        return true;
-    }
-
-    private boolean agregarSkill() {
-        EditText et_skill = (EditText) findViewById(R.id.text_perfil_skill_new);
-        if (et_skill == null || et_skill.length() == 0) return false;
-
-        try {
-            Skill nuevoSkill = Skill.create(this, et_skill.getText().toString());
-            if (nuevoSkill == null) return false;
-            if (!mSkillAdapter.add(nuevoSkill, true)) {
-                Toast.makeText(getContext(), "Skill ya listado", Toast.LENGTH_LONG)
-                        .show();
-                return false;
-            }
-            et_skill.setText("");
-            mSkillAdapter.notifyDataSetChanged();
-
-        } catch (IllegalArgumentException ex) {
-            et_skill.setError("Skill desconocido");
-            et_skill.requestFocus();
-            return false;
-        }
-
-        return true;
-    }
 
     // Si el input de algún campo es incorrecto, falla sin modificar al usuario.
     private boolean capturarInputPerfilUsuario() {
@@ -448,6 +369,12 @@ public class PerfilActivity extends NavDrawerActivity {
         if (!editedUser.setSummary(Utils.getTextViewText(this, R.id.text_perfil_resumen_editable))) {
             Utils.editTextSetErrorAndFocus(this, R.id.text_perfil_resumen_editable,
                     "Máximo "+User.MAX_CHAR_SUMMARY+" caracteres");
+            return false;
+        }
+        if (!editedUser.setDateOfBirth( Utils.getTextViewInt(this, R.id.perfil_nacimiento_dia),
+                                        Utils.getTextViewInt(this, R.id.perfil_nacimiento_mes),
+                                        Utils.getTextViewInt(this, R.id.perfil_nacimiento_anio) )) {
+            Utils.editTextSetErrorAndFocus(this, R.id.perfil_nacimiento_anio, "Fecha inválida");
             return false;
         }
         editedUser.setWorkHistory(mJobsAdapter.getList()); // TODO
@@ -517,8 +444,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     default:
                         Log.e(LOG_TAG, "This is not possible...");  // TODO: Revisar contra NONE
                 }
-
-                colorearBotonAmistad(estado);
+                PerfilUtils.colorearBotonAmistad(getActivity(), estado);
             }
         }, LOG_TAG);
     }
@@ -531,43 +457,18 @@ public class PerfilActivity extends NavDrawerActivity {
                 jsonRequest, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // TODO Ignorando response, algo que hacer con ello?
+                        // TODO: Ignorando response, algo que hacer con ello?
                         Toast.makeText(PerfilActivity.this, responseStr, Toast.LENGTH_LONG)
                                 .show();
                     }
                 }, LOG_TAG);
     }
 
-    private void colorearBotonAmistad(Contact.Status estado) {
 
-        FloatingActionButton fab_amigar = (FloatingActionButton) findViewById(R.id.fab_amigar);
-        if (fab_amigar == null) {
-            Log.e(LOG_TAG, "No pude encontrar fab_amigar");
-            return;
-        }
-        ColorStateList csl;
-
-        switch (estado) {
-           case REQUESTED:
-                csl = Utils.getColorStateList(this, R.color.amigar_btn_requested);
-                break;
-            case RECEIVED:
-                csl = Utils.getColorStateList(this, R.color.amigar_btn_received);
-                break;
-            case ACTIVE:
-                csl = Utils.getColorStateList(this, R.color.amigar_btn_active);
-                break;
-            default:  // TODO: Revisar contra NONE
-                fab_amigar.setEnabled(false);
-            case NONE:
-                csl = Utils.getColorStateList(this, R.color.amigar_btn_none);
-        }
-        fab_amigar.setBackgroundTintList(csl);
-    }
 
     public void refreshProfileInformation(final long idFetched) {
 
-        Utils.getJsonFromAppServer(getContext(), getString(R.string.perfil_get_user_path), idFetched,
+        Utils.getJsonFromAppServer(getContext(), getString(R.string.get_user_path), idFetched,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -576,6 +477,7 @@ public class PerfilActivity extends NavDrawerActivity {
                         if (mUser != null) {
 
                             fetchedUser = mUser;
+                            Log.d(LOG_TAG, "Fetched user: "+response.toString());//
                             fillProfile(mUser);
 
                         } else {
@@ -588,23 +490,23 @@ public class PerfilActivity extends NavDrawerActivity {
 
     public void cargarFotoDePerfil(final long idFetched) {
 
-        // TODO / DE PRUEBA
-        if (mCurrentPhotoPath != null) {
-            ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
-            if (imageView != null) {
-                try {
-                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mPhotoURI);
-                    imageView.setImageBitmap(imageBitmap);
-                    return;
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    Log.e(LOG_TAG, "Error en cargado de imagen de perfil");
-                }
-            }
-        }
+        // De muy poco uso
+//        if (mCurrentPhotoPath != null) {
+//            ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
+//            if (imageView != null) {
+//                try {
+//                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mPhotoURI);
+//                    imageView.setImageBitmap(imageBitmap);
+//                    return;
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                    Log.e(LOG_TAG, "Error en cargado de imagen de perfil");
+//                }
+//            }
+//        }
 
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
-                .appendPath(getString(R.string.perfil_get_photo_path))
+                .appendPath(getString(R.string.get_photo_path))
                 .appendPath(Long.toString(idFetched))
                 .build();
         final String url = builtUri.toString();
@@ -615,12 +517,15 @@ public class PerfilActivity extends NavDrawerActivity {
     }
 
     private void fillProfile(User mUser) {
+        PerfilUtils.showProgress(this, false);
         Utils.showView(this, R.id.perfil_information_layout);
 
         collapsingToolbarLayout.setTitle(mUser.getFullName());
 
         Utils.setTextViewText(this, R.id.text_perfil_mail, mUser.getEmail());
         Utils.setTextViewText(this, R.id.text_perfil_ciudad, mUser.getCity());
+        Utils.setTextViewText(this, R.id.text_perfil_cant_recomendaciones,
+                Long.toString(mUser.getCantRecomendaciones()) + " recomendaciones");//semi hardcode
         Utils.setTextViewText(this, R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
         Utils.setTextViewText(this, R.id.text_perfil_resumen, mUser.getSummary(), true);
         Utils.setTextViewText(this, R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales(), true);
@@ -633,9 +538,12 @@ public class PerfilActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         ContactsResponse cs = ContactsResponse.parseJSON(response.toString());
-                        if (cs != null) populateContacts(cs);
+                        if (cs != null)
+                            PerfilUtils.populateContacts(getActivity(), cs, connectedUserID);
                     }
                 }, LOG_TAG);
+
+        PerfilUtils.colorearBotonRecomendar(this, mUser.fueRecomendadoPor(connectedUserID));
     }
 
 
@@ -657,51 +565,13 @@ public class PerfilActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response != null) {
-                            Log.d(LOG_TAG, "User PUT Response: "+response.toString());
+                            Log.d(LOG_TAG, "User PUT Response: " + response.toString());
                         }
                     }
                 }, LOG_TAG);
-
-//            @Override
-//            public byte[] getBody() throws AuthFailureError {
-//                try {
-//                    return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
-//                } catch (UnsupportedEncodingException uee) {
-//                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
-//                            mRequestBody, "utf-8");
-//                    return null;
-//                }
-//            }
-
-//            @Override
-//            protected Response<String> parseNetworkResponse(NetworkResponse response) {
-//                String responseString = "";
-//                if (response != null) {
-//                    responseString = String.valueOf(response.statusCode);
-//                    // can get more details such as response.headers
-//                }
-//                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
-//            }
-
     }
 
-    private void dispatchChoosePictureIntent() {
-        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        getIntent.setType("image/*");
-
-        Intent pickIntent = new Intent(Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        pickIntent.setType("image/*");
-
-        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
-
-        if (chooserIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(chooserIntent, REQUEST_PICK_IMAGE);
-        }
-    }
-
-    private void dispatchTakePictureIntent() {
+    public void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile;
@@ -715,11 +585,11 @@ public class PerfilActivity extends NavDrawerActivity {
             }
             if (photoFile != null) {
                 mPhotoURI = FileProvider.getUriForFile(this,
-                                                    "ar.fiuba.jobify.fileprovider",
-                                                    photoFile);
+                        "ar.fiuba.jobify.fileprovider",
+                        photoFile);
 
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                startActivityForResult(takePictureIntent, PerfilUtils.REQUEST_TAKE_PHOTO);
             }
         }
     }
@@ -744,19 +614,20 @@ public class PerfilActivity extends NavDrawerActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if ((requestCode == REQUEST_TAKE_PHOTO || requestCode == REQUEST_PICK_IMAGE)
+        if ( (requestCode == PerfilUtils.REQUEST_TAKE_PHOTO
+           || requestCode == PerfilUtils.REQUEST_PICK_IMAGE)
                 && resultCode == RESULT_OK) {
 
             File imageFile; // TODO: sacar repetición
 
-            if (requestCode == REQUEST_TAKE_PHOTO) {
+            if (requestCode == PerfilUtils.REQUEST_TAKE_PHOTO) {
                 imageFile = new File(mCurrentPhotoPath);
                 Log.d(LOG_TAG, "Absolute path al sacar una foto: "+mCurrentPhotoPath);
 
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mPhotoURI);
 
-                    bitmap = normalizarBitmap(bitmap);
+                    bitmap = Utils.normalizarBitmap(bitmap);
                     imageFile = guardarImagen(bitmap);
 
                 } catch (IOException ex) {
@@ -776,7 +647,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     mPhotoURI = imageUri;
 
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                    bitmap = normalizarBitmap(bitmap);
+                    bitmap = Utils.normalizarBitmap(bitmap);
 
                     imageFile = guardarImagen(bitmap);
 
@@ -793,25 +664,31 @@ public class PerfilActivity extends NavDrawerActivity {
             }
 
             final String url = Utils.getAppServerUrl(this, fetchedUserID,
-                                getString(R.string.perfil_post_photo_path));
+                                getString(R.string.post_photo_path));
 
             if (imageFile != null && imageFile.exists()) {
                 try {
                     Utils.PhotoMultipartRequest<String> imageUploadReq =
-                            new Utils.PhotoMultipartRequest<>(url, imageFile, new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    Log.d(LOG_TAG, "Response correcta i guess. " + response);
-                                }
-                            }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.e(LOG_TAG, "Volley image post error");
-                                    if (error.networkResponse != null)
-                                        Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
-                                    error.printStackTrace();
-                                }
-                            });
+                            new Utils.PhotoMultipartRequest<>(getContext(), url, imageFile,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            Log.d(LOG_TAG, "Response correcta i guess. " + response);
+                                        }
+                                    }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.e(LOG_TAG, "Volley image post error");
+                                            if (error.networkResponse != null)
+                                                if (error.networkResponse.statusCode == 403)
+                                                    Log.d(LOG_TAG, error.networkResponse.statusCode
+                                                            + " FORBIDDEN");
+                                                else
+                                                    Log.e(LOG_TAG, "Status code: "
+                                                            + error.networkResponse.statusCode);
+                                            error.printStackTrace();
+                                        }
+                                });
                     try {
                         Log.d(LOG_TAG, "Headers: " + imageUploadReq.getHeaders().toString());//
                         Log.d(LOG_TAG, "BodyContentType: " + imageUploadReq.getBodyContentType());//
@@ -828,13 +705,10 @@ public class PerfilActivity extends NavDrawerActivity {
             } else {
                 Log.w(LOG_TAG, "Archivo en " + mPhotoURI.getPath() + " no existe.");
             }
-        }
-    }
 
-    private Bitmap normalizarBitmap(Bitmap bitmap) {
-        int newWidth = bitmap.getWidth() > 1000 ? 1000 : bitmap.getWidth(); // HARDCODEO
-        int newHeight = (int) Math.round((1.0 * bitmap.getHeight() / bitmap.getWidth()) * newWidth);
-        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+        } else if (requestCode == PerfilUtils.REQUEST_GET_LOCATION && resultCode == RESULT_OK) {
+            startLocationService(null);
+        }
     }
 
     private File guardarImagen(Bitmap bitmap) {
@@ -863,162 +737,86 @@ public class PerfilActivity extends NavDrawerActivity {
     }
 
 
-    private void populateContacts(ContactsResponse response) {
+    public void startLocationService(View v) {
+        Toast.makeText(this, "Actualizando ubicación", Toast.LENGTH_SHORT)
+                .show();
+        // TODO: Check GPS is on?
+        try {
+            mLocationListener =
+                    new PerfilUtils.MyLocationService(this, R.id.text_perfil_ciudad_editable);
+        } catch (SecurityException ex) {
+            mLocationListener = null;
+        }
+    }
 
-        // Obtengo el estado de amistad del usuario fetched con el connected para colorear el botón
-        Contact.Status estado = response.getStatusForId(connectedUserID);
-        colorearBotonAmistad(estado);
-
-        ArrayList<Contact> contacts = response.getContactsWithStatus(Contact.Status.ACTIVE);
-
-        /// TODO: hardcodeado, de prueba
-//        ArrayList<Contact> contacts = new ArrayList<>();
-//        contacts.add(new Contact(1, "John", "Roberts", new Employment("CEO", "FBI"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(2, "Joan", "Roberts", new Employment("ZEO", "NSA"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(3, "Sean", "Roberts", new Employment("CTO", "FBI"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(4, "Jon", "Roberts", new Employment("CFO", "GitHub"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(5, "Jone", "Roberts", new Employment("Toilet cleaner", "Zoo"), Contact.Status.ACTIVE));
-//        contacts.add(new Contact(6, "Mark", "Zuckerberg", new Employment("CEO", "Facebook"), Contact.Status.REQUESTED));
-//        // Solo mostrar contactos activos TODO: BORRAR
-//        ArrayList<Contact> activeContacts = new ArrayList<>();
-//        for (Contact c : contacts) {
-//            if (c.getStatus().equals(Contact.Status.ACTIVE))
-//                activeContacts.add(c);
-//        }
-        ///
-
-        if (contacts.size() == 0) {
-            Utils.hideView(this, R.id.perfil_contactos_frame);
+    public void finishLocationService() {
+        if (mLocationListener == null)
             return;
-        } else {
-            Utils.showView(this, R.id.perfil_contactos_frame);
-        }
 
-        HorizontalListView mHLView = (HorizontalListView) findViewById(R.id.perfil_contactos_list);
-        if (mHLView != null) {
+        Location location = mLocationListener.getLocation();
+        if (location != null)
+            fetchedUser.setLocacion(location.getLatitude(), location.getLongitude());
 
-            final ContactCardAdapter mAdapter = new ContactCardAdapter(contacts);
-            mHLView.setAdapter(mAdapter);
-            mHLView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    Contact clickedUser = (Contact) mAdapter.getItem(position);
-                    startActivity(
-                            new Intent(PerfilActivity.this, PerfilActivity.class)
-                                    .putExtra(FETCHED_USER_ID_MESSAGE, clickedUser.getId())
-                    );
-                }
-            });
-
-            TextView tv_cantContactos = (TextView) findViewById(R.id.text_perfil_cant_contactos);
-            if (tv_cantContactos != null) {
-                tv_cantContactos.setText(String.valueOf(mAdapter.getCount()));
-            }
-
-        } else {
-            Log.e(LOG_TAG, "No se encontró el gridview de contactos!");
-        }
-    }
-
-    // TODO: refactorizar?
-    private void populateAutoCompleteLists() {
-
-        try {
-            AutoCompleteTextView et_employment =
-                    (AutoCompleteTextView) findViewById(R.id.text_perfil_employment_new_position);
-            List<JobPosition> jobPositions = SharedDataSingleton.getInstance(this).getJobPositions();
-
-            if (jobPositions != null && et_employment != null) {
-                ArrayList<String> jpArray = new ArrayList<>();
-                for (JobPosition jp : jobPositions) {
-                    jpArray.add(jp.getNombre());
-                }
-                ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(this,
-                        android.R.layout.simple_dropdown_item_1line, jpArray);
-                et_employment.setAdapter(employmentsAdapter);
-                Log.d(LOG_TAG, "Setteado el autocomplete adapter de Employments");
-            }
-        } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(getContext(), "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
-                    .show();
-        }
-
-        try {
-            AutoCompleteTextView et_skill =
-                    (AutoCompleteTextView) findViewById(R.id.text_perfil_skill_new);
-            List<Skill> skills = SharedDataSingleton.getInstance(this).getSkills();
-
-            if (skills != null && et_skill != null) {
-                ArrayList<String> skArray = new ArrayList<>();
-                for (Skill sk : skills) {
-                    skArray.add(sk.getNombre());
-                }
-                ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(this,
-                        android.R.layout.simple_dropdown_item_1line, skArray);
-                et_skill.setAdapter(skillsAdapter);
-                Log.d(LOG_TAG, "Setteado el autocomplete adapter de Skills");
-            }
-        } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(getContext(), "Problemas con SS.Skills", Toast.LENGTH_LONG)
-                    .show();
-        }
+        mLocationListener.finish();
     }
 
 
-    private class ContactCardAdapter extends BaseAdapter {
+    public void showDatePickerDialog(View v) {
+        DialogFragment newFragment = new PerfilUtils.DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datePicker");
+    }
 
-        ArrayList<Contact> mContacts;
 
-        public ContactCardAdapter(List<Contact> contactList) {
-            mContacts = new ArrayList<>(contactList);
+    private void toggleRecomendar(final long recomendadoID) {
+
+        final boolean yaRecomendado = fetchedUser.fueRecomendadoPor(connectedUserID);
+        final int method;
+        final String url, mensajeDialogo;
+        final Recommendation recom = new Recommendation(connectedUserID, recomendadoID);
+
+        if (!yaRecomendado) {
+            method = Request.Method.PUT;
+            String path = getString(R.string.as_make_recommendation_path);
+            url = Utils.getAppServerUrl(getContext(), path);
+            mensajeDialogo = getString(R.string.confirmacion_recomendar);
+        } else {
+            method = Request.Method.DELETE;
+            String path = getString(R.string.as_cancel_recommendation_path);
+            // En el caso de DELETE, lo que realmente importa son los queries en la url
+            url = Utils.getAppServerUrl(getContext(), path, recom.toQueries());
+            mensajeDialogo = getString(R.string.confirmacion_desrecomendar);
         }
 
-        @Override
-        public long getItemId(int position) {
-            return mContacts.get(position).getId();
-        }
+        Utils.confirmarAccion(getContext(), "Recomendación", mensajeDialogo,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Utils.fetchJsonFromUrl(getContext(), method, url, recom.toJsonObject(),
+                                new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        // TODO: No chequea que el status sea 200, será inmediato?
 
-        @Override
-        public Object getItem(int position) {
-            return mContacts.get(position);
-        }
+                                        boolean ahoraRecomendado = !yaRecomendado;
+                                        PerfilUtils.colorearBotonRecomendar(getActivity(), ahoraRecomendado);
 
-        @Override
-        public int getCount() {
-            return mContacts.size();
-        }
+                                        // TODO: Mover a R.string
+                                        if (ahoraRecomendado) {
+                                            Toast.makeText(getContext(), "¡Usuario recomendado!",
+                                                    Toast.LENGTH_LONG).show();
+                                        } else {
+                                            Toast.makeText(getContext(), "Se ha quitado la recomendación :(",
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                        refreshProfileInformation(fetchedUserID);
+                                    }
+                                }, LOG_TAG);
+                    }
+                });
+    }
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
 
-            View itemView = convertView;
-            if (itemView == null) {
-                itemView = LayoutInflater.from(getContext())
-                        .inflate(R.layout.contact_card, parent, false);
-            }
-
-            Contact contact = (Contact) getItem(position);
-            if (contact != null) {
-
-                Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
-                        .appendPath(getString(R.string.perfil_get_thumbnail_path))
-                        .appendPath(Long.toString(contact.getId()))
-                        .build();
-                Utils.cargarImagenDeURLenImageView(getApplicationContext(),
-                        (ImageView) findViewById(R.id.contact_card_foto),
-                        builtUri.toString(), LOG_TAG+"CC");
-
-                TextView tv_nombre  = (TextView) itemView.findViewById(R.id.contact_card_nombre);
-                if (tv_nombre != null)
-                    tv_nombre.setText(contact.getFullName());
-
-                TextView tv_trabajo = (TextView) itemView.findViewById(R.id.contact_card_trabajo);
-                if (tv_trabajo != null)
-                    tv_trabajo.setText(contact.getCurrentJob().getOneLiner());
-            }
-
-            return itemView;
-        }
+    public void irAConversacion(View v) {
+        Utils.iniciarConversacionActivity(this, fetchedUserID);
     }
 }
