@@ -53,17 +53,18 @@ Response* ContactsHandler::handleDeleteRequest(http_message* httpMessage, string
 
 Response* ContactsHandler::handlePutRequest(http_message* httpMessage, string url) {
     string requestBody = string(httpMessage->body.p);
-    Json::Value parsedBody = this->parseBody(requestBody);
-    long author_id = parsedBody["author_id"].asLargestInt();
-    //Security
-    //Solo puede enviar una solicitud a otro usuario, el dueño de la cuenta.
-    if(!Security::hasPermissionToContactUser(this->session->getUserId(), author_id)) throw NotAuthorizedException();
-
     PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
-
    try {
-        personManager->saveOrUpdateRelation(parsedBody);
+       Json::Value parsedBody = this->parseBody(requestBody);
+       if (!parsedBody.isMember("action")) throw InvalidRequestException("Missing action");
+       if (!parsedBody.isMember("author_id")) throw InvalidRequestException("Missing author_id");
+       if (!parsedBody.isMember("contact_id")) throw InvalidRequestException("Missing contact_id");
+       long author_id = parsedBody["author_id"].asLargestInt();
+       //Security
+       //Solo puede enviar una solicitud a otro usuario, el dueño de la cuenta.
+       if(!Security::hasPermissionToContactUser(this->session->getUserId(), author_id)) throw NotAuthorizedException();
+       personManager->saveOrUpdateRelation(parsedBody);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {
         response->setNotFoundHeader();

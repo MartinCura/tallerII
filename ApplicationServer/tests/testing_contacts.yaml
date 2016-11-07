@@ -5,6 +5,7 @@
 - test:
     - name: "Get contacts - missing id"
     - url: "/contacts"
+    - headers: {Authorization: tokenUser1}
     - method: "GET"
     - validators:
           - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Cannot get user id from url."}
@@ -14,6 +15,7 @@
     - name: "Send contact request - missing author_id"
     - url: "/contacts"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"contact_id": 2,"action": "add_contact"}'
     - validators:
           - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing author_id"}
@@ -23,6 +25,7 @@
     - name: "Send contact request - missing contact_id"
     - url: "/contacts"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"author_id": 1,"action": "add_contact"}'
     - validators:
           - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing contact_id"}
@@ -32,6 +35,7 @@
     - name: "Send contact request - missing action"
     - url: "/contacts"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"author_id": 1,"contact_id": 2}'
     - validators:
           - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing action"}
@@ -41,5 +45,9 @@
     - name: "Send contact request from contact 1 to contact 2"
     - url: "/contacts"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"author_id": 1,"contact_id": 2,"action": "add_contact"}'
     - expected_status: [200] # ok
+
+
+

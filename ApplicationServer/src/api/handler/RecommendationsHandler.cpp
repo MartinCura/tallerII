@@ -19,18 +19,14 @@ Response* RecommendationsHandler::handlePostRequest(http_message* httpMessage) {
 
 Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage, string url) {
     string queryParams = this->getStringFromMgStr(httpMessage->query_string);
-    long fromUserId = this->getFromUserFromQueryParams(queryParams);
-    long toUserId = this->getToUserFromQueryParams(queryParams);
-
-    //Seguridad:
-    // El usuario solo puede enviar recomendaciones  si es el autor.
-    if (!Security::hasPermissionToDeleteRecommendations(this->session->getUserId(), fromUserId))throw NotAuthorizedException();
-
-
     PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
-
+        long fromUserId = this->getFromUserFromQueryParams(queryParams);
+        long toUserId = this->getToUserFromQueryParams(queryParams);
+        //Seguridad:
+        // El usuario solo puede enviar recomendaciones  si es el autor.
+        if (!Security::hasPermissionToDeleteRecommendations(this->session->getUserId(), fromUserId))throw NotAuthorizedException();
         personManager->removeRecommendation(fromUserId, toUserId);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {
@@ -46,15 +42,16 @@ Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage,
 
 Response* RecommendationsHandler::handlePutRequest(http_message* httpMessage, string url) {
     string requestBody = string(httpMessage->body.p);
-    Json::Value parsedBody = this->parseBody(requestBody);
-    long userId = parsedBody["from"].asLargestInt();
-    //Seguridad:
-        // El usuario solo puede enviar recomendaciones  si es el autor.
-    if (!Security::hasPermissionToSendRecommendations(this->session->getUserId(), userId))throw NotAuthorizedException();
-
     PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
+        Json::Value parsedBody = this->parseBody(requestBody);
+        if (!parsedBody.isMember("from")) throw InvalidRequestException("Missing from user");
+        if (!parsedBody.isMember("to")) throw InvalidRequestException("Missing to user");
+        long userId = parsedBody["from"].asLargestInt();
+        //Seguridad:
+        // El usuario solo puede enviar recomendaciones  si es el autor.
+        if (!Security::hasPermissionToSendRecommendations(this->session->getUserId(), userId))throw NotAuthorizedException();
         personManager->saveRecommendation(parsedBody);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {

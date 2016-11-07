@@ -6,6 +6,7 @@
     - name: "Add recommendation - missing from id"
     - url: "/recommendations"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"to": 1}'
     - validators:
           - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing from user"}
@@ -15,6 +16,7 @@
     - name: "Add recommendation - missing to id"
     - url: "/recommendations"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"from": 1}'
     - validators:
           - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing to user"}
@@ -24,6 +26,7 @@
     - name: "Add recommendation - equals ids"
     - url: "/recommendations"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"to": 1, "from": 1}'
     - validators:
           - compare: {jsonpath_mini: "error", comparator: "eq", expected: "From user and to user cannot be equals"}
@@ -33,24 +36,17 @@
     - name: "Add recommendation - nonexistent to user"
     - url: "/recommendations"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"to": 12, "from": 1}'
     - validators:
-          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "User id 12 doesn't exist"}
-    - expected_status: [404] # not found
-
-- test:
-    - name: "Add recommendation - nonexistent from user"
-    - url: "/recommendations"
-    - method: "PUT"
-    - body: '{"from": 12, "to": 1}'
-    - validators:
-          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "User id 12 doesn't exist"}
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Usuario con el id 12 no existe en el sistema"}
     - expected_status: [404] # not found
 
 - test:
     - name: "Add recommendation"
     - url: "/recommendations"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"from": 1, "to": 2}'
     - expected_status: [200] # ok
 
@@ -58,4 +54,7 @@
     - name: "Delete recommendation"
     - url: "/recommendations?from=1&to=2"
     - method: "DELETE"
+    - headers: {Authorization: tokenUser1}
     - expected_status: [200] # ok
+
+

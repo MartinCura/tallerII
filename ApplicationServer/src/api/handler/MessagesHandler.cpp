@@ -16,13 +16,11 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
     string queryParams = this->getStringFromMgStr(httpMessage->query_string);
     PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
-    long fromUserId = this->getUserIdFromUrl(url);
-        //Security
-            //Solo el auto tiene permiso para leer los mensajes
-    if (!Security::hasPermissionToReadMessage(this->session->getUserId(), fromUserId))
-      throw NotAuthorizedException();
-
     try {
+        long fromUserId = this->getUserIdFromUrl(url);
+        //Security
+        //Solo el auto tiene permiso para leer los mensajes
+        if (!Security::hasPermissionToReadMessage(this->session->getUserId(), fromUserId)) throw NotAuthorizedException();
         long toUserId = this->getToUserFromQueryParams(queryParams);
         vector<Message*> messages = personManager->getMessages(fromUserId, toUserId);
         long totalCount = messages.size();
@@ -51,17 +49,17 @@ Response* MessagesHandler::handleDeleteRequest(http_message* httpMessage, string
 
 Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string url) {
     string requestBody = string(httpMessage->body.p);
-    Json::Value parsedBody = this->parseBody(requestBody);
-    long userId = parsedBody["from"].asLargestInt();
-      //Seguridad:
-    // El usuario solo puede enviar mensaje si es el autor.
-    if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId))
-      throw NotAuthorizedException();
     PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
-
     try {
-
+        Json::Value parsedBody = this->parseBody(requestBody);
+        if (!parsedBody.isMember("from")) throw InvalidRequestException("Missing from user");
+        if (!parsedBody.isMember("to")) throw InvalidRequestException("Missing to user");
+        if (!parsedBody.isMember("message")) throw InvalidRequestException("Missing message");
+        long userId = parsedBody["from"].asLargestInt();
+        //Seguridad:
+        // El usuario solo puede enviar mensaje si es el autor.
+        if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId)) throw NotAuthorizedException();
         string savedMessage = personManager->saveMessage(parsedBody);
         this->sendNotification(savedMessage, personManager);
         response->setSuccessfulHeader();

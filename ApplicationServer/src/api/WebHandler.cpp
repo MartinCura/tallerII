@@ -58,7 +58,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 delete handler;
                 return response;
             }
-            else if (regex_match(url, regex("/messages/.*"))) {
+            else if (regex_match(url, regex("/messages/.*")) || regex_match(url, regex("/messages"))) {
                 this->logRequest(httpMessage);
                 handler = new MessagesHandler();
                 response = handler->handleRequest(httpMessage, url);

@@ -16,16 +16,19 @@ void DbBuilder::loadUsers() {
     try {
         Person* person1 = this->getFakePerson1();
         personManager->savePerson(0, person1->serializeMe(), (long) 1);
+        this->saveToken("tokenUser1", person1->getEmail());
         delete person1;
     } catch (UserAlreadyExistsException &exception) {}
     try {
         Person* person2 = this->getFakePerson2();
         personManager->savePerson(0, person2->serializeMe(), (long) 2);
+        this->saveToken("tokenUser2", person2->getEmail());
         delete person2;
     } catch (UserAlreadyExistsException &exception) {}
     try {
         Person* person3 = this->getFakePerson3();
         personManager->savePerson(0, person3->serializeMe(), (long) 3);
+        this->saveToken("tokenUser3", person3->getEmail());
         delete person3;
     } catch (UserAlreadyExistsException &exception) {}
     delete personManager;
@@ -139,4 +142,29 @@ Person* DbBuilder::getFakePerson3() {
     person->addSkill(skill1);
 
     return person;
+}
+
+void DbBuilder::saveToken(string token, string user_mail) {
+    std::string token_string, token2_string;
+    time_t creation_time;
+    Json::Value jtoken, jtoken2;
+    Json::FastWriter fastWriter;
+    char buff[20];
+
+    creation_time = time(NULL);
+    strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&creation_time));
+    std::string now  = std::string(buff);
+
+    jtoken["user_token"] = token;
+    jtoken["last_used"] = now;
+
+    token_string = fastWriter.write(jtoken);
+
+    jtoken2["user_mail"] = user_mail;
+    jtoken2["last_used"] = now;
+
+    token2_string = fastWriter.write(jtoken2);
+
+    this->db->puTKey("user:token_" + user_mail, &token_string);
+    this->db->puTKey("user:token_" + token, &token2_string);
 }

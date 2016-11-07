@@ -22,6 +22,7 @@ public:
 private:
     DBWrapper* db;
     string *namedb;
+    void saveToken(string token, string user_mail);
 };
 
 #endif //PROJECT_DBBUILDER_H

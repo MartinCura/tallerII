@@ -6,6 +6,7 @@
     - name: "Set token - Missing key"
     - url: "/notificationtokens/1"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"invalidToken": 1}'
     - expected_status: [400] # bad request
 
@@ -13,12 +14,6 @@
     - name: "Set token - Invalid user"
     - url: "/notificationtokens/1234"
     - method: "PUT"
+    - headers: {Authorization: tokenUser1}
     - body: '{"token": "abc123"}'
     - expected_status: [404] # not found
-
-- test:
-    - name: "Set token - Ok"
-    - url: "/notificationtokens/1"
-    - method: "PUT"
-    - body: '{"token": "abc123"}'
-    - expected_status: [200] # ok

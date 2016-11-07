@@ -52,7 +52,6 @@ private:
     std::string nameDB;
 
     long generateID();
-    void validateParametersOfRequest(Json::Value request);
     void validateUsersOfRequest(long fromUserId, long toUserId);
 };
 

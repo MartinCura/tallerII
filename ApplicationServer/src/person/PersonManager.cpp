@@ -131,10 +131,6 @@ vector<Contact*> PersonManager::getContactsByUserId(long id) {
 }
 
 void PersonManager::saveOrUpdateRelation(Json::Value relation) {
-    if (!relation.isMember("action")) throw InvalidRequestException("Missing action");
-    if (!relation.isMember("author_id")) throw InvalidRequestException("Missing author_id");
-    if (!relation.isMember("contact_id")) throw InvalidRequestException("Missing contact_id");
-
     long authorId = relation["author_id"].asLargestInt();
     long contactId = relation["contact_id"].asLargestInt();
     if (!this->userExists(authorId)) throw UserNotFoundException(authorId);
@@ -149,7 +145,6 @@ void PersonManager::saveOrUpdateRelation(Json::Value relation) {
 }
 
 void PersonManager::saveRecommendation(Json::Value recommendation) {
-    this->validateParametersOfRequest(recommendation);
     long fromUserId = recommendation["from"].asLargestInt();
     long toUserId = recommendation["to"].asLargestInt();
     this->validateUsersOfRequest(fromUserId, toUserId);
@@ -173,8 +168,6 @@ void PersonManager::removeRecommendation(long fromUserId, long toUserId) {
 }
 
 string PersonManager::saveMessage(Json::Value request) {
-    this->validateParametersOfRequest(request);
-    if (!request.isMember("message")) throw InvalidRequestException("Missing message");
     long fromUserId = request["from"].asLargestInt();
     long toUserId = request["to"].asLargestInt();
     string messageToSave = request["message"].asString();
@@ -191,11 +184,6 @@ vector<Message*> PersonManager::getMessages(long fromUserId, long toUserId) {
     vector<Message*> messages = messagesManager->getMessages(fromUserId, toUserId);
     delete messagesManager;
     return messages;
-}
-
-void PersonManager::validateParametersOfRequest(Json::Value request) {
-    if (!request.isMember("from")) throw InvalidRequestException("Missing from user");
-    if (!request.isMember("to")) throw InvalidRequestException("Missing to user");
 }
 
 void PersonManager::validateUsersOfRequest(long fromUserId, long toUserId) {
