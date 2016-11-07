@@ -138,7 +138,7 @@ public class ConversacionActivity extends NavDrawerActivity {
      * Punto de entrada para notificar por nuevos mensajes
      */
     public void recibirMensajesNuevos(JSONObject jsonMensaje) {
-        Message nuevoMensaje = Message.parseJSON(jsonMensaje.toString());
+        Message nuevoMensaje = Message.parseJson(jsonMensaje.toString());
         if (nuevoMensaje == null) {
             Log.e(LOG_TAG, "Json error con nuevoMensaje");
             return;
@@ -302,10 +302,8 @@ public class ConversacionActivity extends NavDrawerActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-//                            Toast.makeText(context, "Mensaje enviado", Toast.LENGTH_LONG)
-//                                    .show();//
-                            Message mensajeEnviado = Message.parseJSON(response.toString());
-                            if (mensajeEnviado == null) {
+                            Message mensajeEnviado = Message.parseJson(response.toString());
+                            if (mensajeEnviado == null || mensajeEnviado.getMessage() == null) {
                                 Log.w(LOG_TAG, "Mensaje enviado null response, muestro el original igual");
                                 recibirMensajesNuevos(jsObjMessage);
                                 return;

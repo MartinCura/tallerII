@@ -10,6 +10,7 @@ import com.google.gson.JsonSyntaxException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ar.fiuba.jobify.shared_server_api.Skill;
@@ -21,15 +22,15 @@ import ar.fiuba.jobify.shared_server_api.Skill;
 public class BusquedaRequest {
 
     String jobPosition = null;
-    String skills[];
+    List<String> skills;
 //    JobPosition jobPosition;   // TODO: TENDRÍA QUE ENVIAR ESTO? Mirar todo lo comentado si cambia
 //    List<Skill> skills;
     int distancia = 0;
 
 
-//    BusquedaRequest() {
-//        skills = new ArrayList<>();
-//    }
+    public BusquedaRequest() {
+        skills = new ArrayList<>();
+    }
 
     public static BusquedaRequest crear(String nombreJobPosition, List<Skill> skills,
                                         int distancia/*, Activity activity*/) {
@@ -39,7 +40,7 @@ public class BusquedaRequest {
 //        br.jobPosition = JobPosition.create(activity, nombreJobPosition);
         int i = 0;
         for (Skill sk : skills) {
-            br.skills[i] = sk.getName();
+            br.skills.add(sk.getName());
             i++;
         }
 //        br.skills.addAll(skills);

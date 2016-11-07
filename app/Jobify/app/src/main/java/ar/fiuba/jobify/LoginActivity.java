@@ -499,7 +499,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         attemptLogin();
 
 //        LoginResponse loginResponse =
-//                LoginResponse.parseJSON("{\"id\": "+connectedUserId+", \"token\": ");
+//                LoginResponse.parseJson("{\"id\": "+connectedUserId+", \"token\": ");
 //        guardarConnectedUserData(loginResponse);
 //        Utils.iniciarPerfilActivity(this, connectedUserId, isNewUser);
 //        finish();

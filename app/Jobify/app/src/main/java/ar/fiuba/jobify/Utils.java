@@ -202,6 +202,7 @@ public class Utils {
     public static void getJsonFromUrl(Context context, final String url, JSONObject jsonRequest,
                                       Response.Listener<JSONObject> responseListener,
                                       final String logTag) {
+
         fetchJsonFromUrl(context, Request.Method.GET, url, jsonRequest, responseListener, logTag);
     }
 

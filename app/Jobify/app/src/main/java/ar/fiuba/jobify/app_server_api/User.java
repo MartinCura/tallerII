@@ -65,6 +65,14 @@ public class User {
         this.workHistory = new ArrayList<>(o.workHistory);
     }
 
+    public User(Contact c) {
+        this();
+        this.id = c.getId();
+        this.firstName = c.getFirstName();
+        this.lastName = c.getLastName();
+        this.workHistory.add(c.getCurrentJob());
+    }
+
     public long getId() {
         return id;
     }
@@ -118,8 +126,12 @@ public class User {
     }
 
     public long getCantRecomendaciones() {
-        if (cantidadRecomendaciones < 0)
-            cantidadRecomendaciones = recommendations.length;
+        if (cantidadRecomendaciones < 0) {
+            if (recommendations == null)
+                cantidadRecomendaciones = 0;
+            else
+                cantidadRecomendaciones = recommendations.length;
+        }
         return cantidadRecomendaciones;
     }
 

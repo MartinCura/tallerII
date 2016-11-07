@@ -103,7 +103,7 @@ public class Message {
         }
     }
 
-    public static Message parseJSON(String response) {
+    public static Message parseJson(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();

@@ -155,32 +155,53 @@ public class UserListActivity extends NavDrawerActivity {
         Toast.makeText(this, "Listo las solicitudes pendientes", Toast.LENGTH_LONG)
                 .show();
 
-        Utils.getJsonFromAppServer(this, getString(R.string.get_contacts_path), connectedUserID,
+        final Context ctx = this;
+        String url = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
+
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
                         ContactsResponse contactsResponse =
                                 ContactsResponse.parseJSON(response.toString());
-                        if (contactsResponse == null)
+
+                        if (contactsResponse == null) {
+                            Toast.makeText(ctx, "Ha ocurrido un error", Toast.LENGTH_LONG)
+                                    .show();
+                            Log.e(LOG_TAG, "ContactsResponse null");
+                            mostrarNoHayResultados();
                             return;
-                        ArrayList<Contact> contacts =
+                        }
+
+                        ArrayList<Contact> contactsReceived =
                                 contactsResponse.getContactsWithStatus(Contact.Status.RECEIVED);
 
-                        int cant = Long.valueOf(contactsResponse.getMetadata().getCount()).intValue();
+                        int cant = contactsReceived.size();
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
                         if (mExpectedListSize == 0) {
                             mostrarNoHayResultados();
+
                         } else {
-                            // TODO: Cambiar si se adapta.
-                            for (Contact c : contacts) {
-                                fetchAndAddUser(c.getId());
+                            // TODO: Crear Users reducidos a partir de los Contacts y listarlos directamente
+                            for (Contact c : contactsReceived) {
+                                agregarResultado(new User(c));
+//                                fetchAndAddUser(c.getId());
                             }
                         }
                     }
-        }, LOG_TAG);
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse != null)
+                            Log.e(LOG_TAG, "Contactos error status code: "
+                                    + error.networkResponse.statusCode);
+                        error.printStackTrace();
+
+                        showProgress(false);
+                    }
+                }, LOG_TAG);
     }
 
     /// de prueba //;//
@@ -378,6 +399,8 @@ public class UserListActivity extends NavDrawerActivity {
                             Log.e(LOG_TAG, "Busqueda error status code: "
                                     + error.networkResponse.statusCode);
                         error.printStackTrace();
+
+                        showProgress(false);
                     }
                 }, LOG_TAG);
 
