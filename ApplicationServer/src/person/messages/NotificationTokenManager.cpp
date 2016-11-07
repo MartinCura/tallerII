@@ -1,7 +1,7 @@
 #include "NotificationTokenManager.h"
 
 const string NotificationTokenManager::TOKEN_KEY = "token";
-const string TOKEN_KEY_FOR_DATABASE = "token_";
+const string TOKEN_KEY_FOR_DATABASE = "notifications_token_";
 
 NotificationTokenManager::NotificationTokenManager(DBWrapper* db) {
     this->db = db;
