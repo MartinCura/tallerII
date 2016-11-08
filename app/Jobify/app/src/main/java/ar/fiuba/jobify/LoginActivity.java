@@ -70,7 +70,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
+        //Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 

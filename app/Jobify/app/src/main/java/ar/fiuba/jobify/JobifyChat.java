@@ -35,6 +35,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.FieldNamingPolicy;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.Random;
 
 public class JobifyChat extends FirebaseMessagingService {
@@ -71,6 +73,34 @@ public class JobifyChat extends FirebaseMessagingService {
             JsonObject message = parser.parse(body).getAsJsonObject();
 
 
+            if (message.has("mensaje")){
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(this)
+                                .setContentTitle("Notificación")
+                                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                                .setAutoCancel(true)
+                                .setContentText(body);
+
+                //ConversacionActivity.
+
+                Intent resultIntent = new Intent(this, LoginActivity.class);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                stackBuilder.addParentStack(LoginActivity.class);
+
+                EventBus.getDefault().post(new MessageEvent());
+
+                // Adds the Intent that starts the Activity to the top of the stack
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
+                mBuilder.setContentIntent(resultPendingIntent);
+
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                Random r = new Random();
+                mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
+            }
             // if this is a notification:
                 // TODO
             // here we call the callback to the activity
@@ -78,28 +108,7 @@ public class JobifyChat extends FirebaseMessagingService {
 
             // if this is a message:
 
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(this)
-                            .setContentTitle("Notificación")
-                            .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-                            .setAutoCancel(true)
-                            .setContentText(body);
 
-            Intent resultIntent = new Intent(this, LoginActivity.class);
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            stackBuilder.addParentStack(LoginActivity.class);
-
-            // Adds the Intent that starts the Activity to the top of the stack
-            stackBuilder.addNextIntent(resultIntent);
-            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
-            mBuilder.setContentIntent(resultPendingIntent);
-
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-            Random r = new Random();
-            mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
 
         }
 
