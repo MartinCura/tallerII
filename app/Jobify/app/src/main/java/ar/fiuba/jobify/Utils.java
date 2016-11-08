@@ -3,6 +3,7 @@ package ar.fiuba.jobify;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -35,6 +36,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -56,6 +58,22 @@ public class Utils {
 
     private final static String LOG_TAG = Utils.class.getSimpleName();
 
+    public static void iniciarPerfilActivity(Activity callingActivity, long fetchedUserId,
+                                             boolean comenzarEnModoEdicion) {
+        callingActivity.startActivity(
+                new Intent(callingActivity, PerfilActivity.class)
+                        .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, fetchedUserId)
+                        .putExtra(PerfilActivity.PERFIL_MODE_MESSAGE, comenzarEnModoEdicion)
+        );
+    }
+
+    public static void iniciarConversacionActivity(Activity callingActivity, long remitenteUserId) {
+        callingActivity.startActivity(
+                new Intent(callingActivity, ConversacionActivity.class)
+                        .putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, remitenteUserId)
+        );
+    }
+
     /////////////////////////////////////////// FETCHER ////////////////////////////////////////////
 
     public static String getAppServerBaseURL(Context ctx) {
@@ -63,13 +81,51 @@ public class Utils {
         String ip = sharedPref.getString("pref_appServer_ip", ctx.getString(R.string.pref_default_appServer_ip));
         String puerto = sharedPref.getString("pref_appServer_puerto", ctx.getString(R.string.pref_default_appServer_puerto));
 
+        try {
+            if (Integer.parseInt(puerto) <= 0)
+                return "http://" + ip + "/";
+        } catch (NumberFormatException ex) {
+            Log.e(LOG_TAG, "Puerto no es un número");
+        }
+
         return "http://" + ip + ":" + puerto + "/";
     }
 
     public static String getSharedServerBaseURL(Context ctx) {
-        return ctx.getString(R.string.shared_server_base_url);
+        return ctx.getString(R.string.shared_server_base_url); // hardcodeado
     }
 
+    /**
+     * Devuelve un String con la URL para utilizar en un fetch, en la forma:
+     * {@code http://<AppServer>/<path>/<idFetched>?<queries_y_valores>}
+     */
+    public static String getAppServerUrl(Context ctx, String path, long idFetched,
+                                         HashMap<String, String> map) {
+        Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon()
+                .appendPath(path)
+                .appendPath(Long.toString(idFetched));
+        for (Map.Entry<String, String> entry : map.entrySet())
+            builder.appendQueryParameter(entry.getKey(), entry.getValue());
+        return builder.build().toString();
+    }
+
+    /**
+     * Devuelve un String con la URL para utilizar en un fetch, en la forma:
+     * {@code http://<AppServer>/<path>?<queries_y_valores>}
+     */
+    public static String getAppServerUrl(Context ctx, String path, HashMap<String, String> map) {
+        Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon()
+                .appendPath(path);
+//                .appendPath(Long.toString(idFetched));
+        for (Map.Entry<String, String> entry : map.entrySet())
+            builder.appendQueryParameter(entry.getKey(), entry.getValue());
+        return builder.build().toString();
+    }
+
+    /**
+     * Devuelve un String con la URL para utilizar en un fetch, en la forma:
+     * {@code http://<AppServer>/<paths/separados/por/barras>/<idFetched>}
+     */
     public static String getAppServerUrl(Context ctx, long idFetched, String ... paths) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
         for (String path : paths)
@@ -78,6 +134,10 @@ public class Utils {
         return builtUri.toString();
     }
 
+    /**
+     * Devuelve un String con la URL para utilizar en un fetch, en la forma:
+     * {@code http://<AppServer>/<paths/separados/por/barras>}
+     */
     public static String getAppServerUrl(Context ctx, String ... paths) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
         for (String path : paths)
@@ -117,15 +177,15 @@ public class Utils {
                 logTag);
     }
 
-    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
-                                            JSONObject jsonRequest,
-                                            Response.Listener<JSONObject> responseListener,
-                                            Response.ErrorListener errorListener,
-                                            final String logTag) {
-
-        fetchJsonFromUrl(ctx, Request.Method.GET, getAppServerUrl(ctx, getPathSegment), jsonRequest,
-                responseListener, errorListener, logTag);
-    }
+//    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
+//                                            JSONObject jsonRequest,
+//                                            Response.Listener<JSONObject> responseListener,
+//                                            Response.ErrorListener errorListener,
+//                                            final String logTag) {
+//
+//        fetchJsonFromUrl(ctx, Request.Method.GET, getAppServerUrl(ctx, getPathSegment), jsonRequest,
+//                responseListener, errorListener, logTag);
+//    }
 
     // TEMPORAL, si es cambiado por un acceso al AppServer
     public static void getJsonFromSharedServer(Context context, String getPathSegment,
@@ -136,14 +196,13 @@ public class Utils {
                 .appendPath(getPathSegment) // Podría generalizarlo haciendo un parámetro vectorizado
                 .build();
         final String url = builtUri.toString();
-        Log.d(LOG_TAG, "SS url: "+url);//
-
         getJsonFromUrl(context, url, null, listener, logTag);
     }
 
     public static void getJsonFromUrl(Context context, final String url, JSONObject jsonRequest,
                                       Response.Listener<JSONObject> responseListener,
                                       final String logTag) {
+
         fetchJsonFromUrl(context, Request.Method.GET, url, jsonRequest, responseListener, logTag);
     }
 
@@ -166,62 +225,125 @@ public class Utils {
 
     public static void fetchJsonFromUrl(Context context, int method, final String url,
                                         JSONObject jsonRequest,
-                                        Response.Listener<JSONObject> responseListener,
+                                        final Response.Listener<JSONObject> responseListener,
                                         final String logTag) {
 
         fetchJsonFromUrl(context, method, url, jsonRequest, responseListener,
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d(logTag, "Error Listener. URL: "+url);//
-                        if (error.networkResponse != null)
-                            Log.d(logTag, "Status code: "+error.networkResponse.statusCode);
-                        error.printStackTrace();
+
+                        // En caso de que no debía recibirse nada y el retorno fue correcto,
+                        // correr el método para response correcto.
+                        // // No debería correrse nunca ahora que modifiqué JsonObjectRequest
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 200) {
+                            try {
+                                responseListener.onResponse(new JSONObject("{}"));
+                            } catch (JSONException ex) {
+                                Log.e(LOG_TAG, "JSON vacío no aceptado");
+                            }
+                        } else {
+                            Log.d(logTag, "Error Listener. URL: " + url);
+                            if (error.networkResponse != null) {
+                                if (error.networkResponse.statusCode == 403)
+                                    Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
+                                else
+                                    Log.d(logTag, "Status code: " + error.networkResponse.statusCode);
+                            }
+                            error.printStackTrace();
+                        }
                     }
                 }, logTag);
     }
 
-    public static void fetchJsonFromUrl(Context context, int method, final String url,
+    /**
+     * Fetchea un json. Los demás métodos overloadean este.
+     */
+    public static void fetchJsonFromUrl(final Context context, int method, final String url,
                                         JSONObject jsonRequest,
                                         Response.Listener<JSONObject> responseListener,
                                         Response.ErrorListener errorListener, final String logTag) {
 
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (method, url, jsonRequest, responseListener, errorListener);
-        // TODO: Agregar token al Header
+                (method, url, jsonRequest, responseListener, errorListener) {
+
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+//                        headers.put("Accept", "application/json");
+//                        headers.put("Content-Type", "application/json");//; charset=utf-8");
+//                        headers.put("accept-encoding", "gzip, deflate");
+//                        headers.put("accept-language", "en-US,en;q=0.8");
+//                        headers.put("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/" +
+//                                "537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36");
+                        headers.put("Connection", "close");//Te amo, header que soluciona cosas ~ mc
+                        headers.put("Authorization", getToken(context));
+                        return headers;
+                    }
+
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/json";
+                    }
+        };
         jsObjRequest.setTag(logTag);
         RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
     }
 
-    public static void cargarImagenDeURLenImageView(final Context context, final ImageView imageView,
-                                                    final String url, final String logTag) {
+
+    public static void cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
+                                                    final String  url, final String logTag) {
+        cargarImagenDeURLenImageView(ctx, imageView, url, logTag, false);
+    }
+
+    public static void cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
+                                  final String url, final String logTag, final boolean squareCrop) {
+
         if (imageView == null) {
-            Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
+            //Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
             return;
         }
         ImageRequest request = new ImageRequest(url,
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {
-                        imageView.setImageBitmap(bitmap);
+                        if (squareCrop)
+                            imageView.setImageBitmap(cropToSquare(bitmap));
+                        else
+                            imageView.setImageBitmap(bitmap);
 
                     }
-                }, imageView.getWidth(), imageView.getHeight(),
+
+//                }, imageView.getWidth(), imageView.getHeight(),
+                }, 1080, 960,//hardcodeo;//
                 ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
-//                        Log.e(logTag, "Error de response, no pude cargar la imagen. (url: "+url+")");
-                        if (error.networkResponse == null) return;
+                        if (error.networkResponse == null) {
+                            Log.e(logTag, "Error de response, no pude cargar la imagen." +
+                                    "(url: "+url+")");
+                            return;
+                        }
+                        //error.printStackTrace();//
                         if (error.networkResponse.statusCode == 200) {
-                            Log.e(logTag, "Problema con la imagen. Re-request");//
-                            cargarImagenDeURLenImageView(context, imageView, url, logTag);
+//                            Log.e(logTag, "Problema con la imagen. Re-request");//
+                            cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
+                        } else if (error.networkResponse.statusCode == 403) {
+                            Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
                         } else {
                             Log.e(logTag, "Error cargando imagen, response code: "
                                     +error.networkResponse.statusCode);
                         }
                     }
-                }) ;
-        RequestQueueSingleton.getInstance(context)
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", getToken(ctx));
+                        return headers;
+                    }
+        };
+        RequestQueueSingleton.getInstance(ctx)
                 .addToRequestQueue(request);
     }
 
@@ -229,16 +351,31 @@ public class Utils {
 
     public static @IdRes int[] perfilVisibilityViews = {
             R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,
-            R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
+            R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable_wrapper,
+            R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
             R.id.text_perfil_cant_recomendaciones, R.id.text_perfil_resumen,
+            R.id.text_perfil_nacimiento, R.id.perfil_nacimiento_editable,
             R.id.text_perfil_resumen_editable_wrapper, R.id.perfil_experiencia_laboral_list,
             R.id.perfil_experiencia_laboral_list_editable, R.id.perfil_experiencia_laboral_list_new,
             R.id.perfil_skills_list, R.id.perfil_skills_list_editable, R.id.perfil_skills_list_new
     };
 
+    // Devuelve -1 en caso de error
+    public static int getTextViewInt(AppCompatActivity activity, @IdRes int idRes) {
+        int ret = -1;
+        try {
+            ret = Integer.parseInt(getTextViewText(activity, idRes));
+        } catch (NumberFormatException ex) {
+            Log.i(LOG_TAG, "No se pudo parsear un número");
+        }
+        return ret;
+    }
+
+    // Devuelve string vacío en caso de error
     public static String getTextViewText(AppCompatActivity activity, @IdRes int idRes) {
         String text = "";
         EditText et = (EditText) activity.findViewById(idRes);
+//        TextView et = (TextView) activity.findViewById(idRes);
         if (et != null) {
             text = et.getText().toString();
         }
@@ -320,6 +457,11 @@ public class Utils {
     }
 
 
+    public static Bitmap normalizarBitmap(Bitmap bitmap) {
+        int newWidth = bitmap.getWidth() > 1000 ? 1000 : bitmap.getWidth(); // HARDCODEO
+        int newHeight = (int) Math.round((1.0 * bitmap.getHeight() / bitmap.getWidth()) * newWidth);
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+    }
 
     public static class PhotoMultipartRequest<T> extends Request<T> {
 
@@ -328,13 +470,16 @@ public class Utils {
         private MultipartEntityBuilder mBuilder = MultipartEntityBuilder.create();
         private final Response.Listener<T> mListener;
         private final File mImageFile;
+        private final Context ctx;
 //        protected Map<String, String> headers;
 
-        public PhotoMultipartRequest(String url, File imageFile, Response.Listener<T> listener,
+        public PhotoMultipartRequest(Context context, String url, File imageFile,
+                                     Response.Listener<T> listener,
                                      Response.ErrorListener errorListener) throws IOException {
 //            super(Method.POST, url, errorListener);
             super(Method.PUT, url, errorListener);
 
+            this.ctx = context;
             mListener = listener;
             mImageFile = imageFile;
 
@@ -344,14 +489,11 @@ public class Utils {
         @Override
         public Map<String, String> getHeaders() throws AuthFailureError {
             Map<String, String> headers = super.getHeaders();
-
-            if (headers == null
-                    || headers.equals(Collections.emptyMap())) {
+            if (headers == null || headers.equals(Collections.emptyMap())) {
                 headers = new HashMap<>();
             }
-
             headers.put("Accept", "application/json");
-
+            headers.put("Authorization", getToken(ctx));
             return headers;
         }
 
@@ -439,6 +581,25 @@ public class Utils {
         return json;
     }
 
+    private static String getToken(Context ctx) {
+        SharedPreferences sharedPref =
+                ctx.getSharedPreferences(ctx.getString(R.string.shared_pref_connected_user), 0);
+        return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), "null");
+    }
+
+    public static Bitmap cropToSquare(Bitmap bitmap) {
+        int width  = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int newWidth = (height > width) ? width : height;
+        int newHeight = (height > width) ? (height - (height - width)) : height;
+        int cropW = (width - height) / 2;
+        cropW = (cropW < 0) ? 0 : cropW;
+        int cropH = (height - width) / 2;
+        cropH = (cropH < 0) ? 0 : cropH;
+
+        return Bitmap.createBitmap(bitmap, cropW, cropH, newWidth, newHeight);
+    }
+
     @SuppressWarnings("deprecation")
     public static ColorStateList getColorStateList(Context context, @ColorRes int id) {
 
@@ -465,5 +626,20 @@ public class Utils {
                 .setPositiveButton(android.R.string.yes, yesListener)
                 .setNegativeButton(negativeButtonStringId, noListener)
                 .show();
+    }
+
+
+    public static boolean validarFecha(int dia, int mes, int anio) {
+        int diaLimite = 31;
+        switch (mes) {
+            case 2:
+                if (anio % 4 == 0 && (anio % 100 != 0 || anio % 400 == 0))
+                    diaLimite = 29;
+                else diaLimite = 28;
+                break;
+            case 4:case 6:case 9:case 11:
+                diaLimite = 30;
+        }
+        return !(dia <= 0 || dia > diaLimite || mes <= 0);
     }
 }

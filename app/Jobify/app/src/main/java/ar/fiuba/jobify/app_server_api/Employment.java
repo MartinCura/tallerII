@@ -93,7 +93,7 @@ public class Employment implements Nombrable {
 
         if (company.isEmpty())
             throw new IllegalArgumentException("compañía");
-        if (position.isEmpty() || (sdPosition = jpr.findPosition(position)) == null)
+        if (position.isEmpty() || (sdPosition = jpr.findPositionTitle(position)) == null)
             throw new IllegalArgumentException("posición");
         if (desdeMes <= 0 || desdeMes > 12 || hastaMes < 0 || hastaMes > 12)
             throw new IllegalArgumentException("mes");
