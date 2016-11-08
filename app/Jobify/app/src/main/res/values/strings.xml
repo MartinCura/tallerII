@@ -16,7 +16,7 @@
 
     <string name="perfil_trabajo_actual_default">CEO en Jobify</string>
     <string name="perfil_ciudad_y_pais_default">Brasilia, Brasil</string>
-    <string name="perfil_cant_recomendaciones_default"># recomendaciones</string>
+    <string name="perfil_cant_recomendaciones_default">#</string>
     <string name="perfil_nacimiento_default">Fecha de nacimiento</string>
 
     <string name="perfil_resumen_default">Me need job.</string>
@@ -92,9 +92,7 @@
     <string name="error_invalid_password">Contraseña muy corta</string>
     <string name="error_incorrect_password">Contraseña incorrecta</string>
     <string name="error_field_required">Este campo es obligatorio >:^[</string>
-    <string name="permission_rationale">"No tocamos tus datos. Prometemos no robarte los"
-        "48,435.27 $ que tenés en el ICBC, CBU # 213123013012310132. Confiá en nosotros :)"
-    </string>
+    <string name="permission_rationale">"No tocamos tus datos! Confiá en nosotros :) (Do No Evil)"</string>
     <string name="permission_rationale_acceptance">"Permiso de acceso para poder autocompletar"
         "tu correo"
     </string>
@@ -124,7 +122,7 @@
     <string name="dialog_cancelar_contacto">¿Quiere cancelar su solicitud de contacto?</string>
     <string name="dialog_eliminar_contacto">¿Quiere eliminar a este contacto?</string>
     <string name="nav_solicitudes_option">Solicitudes</string>
-    <string name="nav_all_users_option">Ver todos los usuarios</string>
+    <string name="nav_most_popular_option">Profesionales más populares</string>
     <string name="get_all_users_path">allusers</string>
     <string name="ss_get_categories_path">categories</string>
     <string name="ss_get_job_positions_path">job_positions</string>
@@ -173,6 +171,14 @@
     <string name="busqueda_btn_busqueda">Jobisearch!</string>
     <string name="get_messages_user_query">user</string>
     <string name="get_busqueda_path">search</string>
+    <string name="stored_connected_user_token">connected_user_token</string>
+    <string name="get_search_path">search</string>
+    <string name="info_description">Info</string>
+    <string name="userlist_no_results">No hay resultados que mostrar</string>
+    <string name="nav_busqueda_option">Buscar</string>
+    <string name="get_busqueda_users_first_query">first</string>
+    <string name="get_busqueda_users_last_query">last</string>
+    <string name="ellipsis">…</string>
 
     <!--Testeo, TODO: borrar-->
     <string-array name="planets_array">

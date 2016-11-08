@@ -33,7 +33,7 @@ public class BusquedaActivity extends NavDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_busqueda);
+        setContentView(R.layout.activity_busqueda_drawer);
 
         ActionBar sab = getSupportActionBar();
         if (sab != null) sab.setDisplayHomeAsUpEnabled(true);
@@ -175,7 +175,8 @@ public class BusquedaActivity extends NavDrawerActivity {
         if (distancia < 0) distancia = 0;
 
         BusquedaRequest busquedaReq = BusquedaRequest.crear(mSelectedJobPositionString,
-                                                mSkillAdapter.getList(), distancia, this);
+                                                        mSkillAdapter.getList(), distancia);
+        Log.d(LOG_TAG, "BusqRequest: "+busquedaReq.toJson());//
         startActivity(
                 new Intent(this, UserListActivity.class)
                         .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_BUSQUEDA)

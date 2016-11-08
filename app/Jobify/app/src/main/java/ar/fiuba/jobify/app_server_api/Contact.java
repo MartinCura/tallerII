@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by martín on 30/09/16.
- * Versión reducida de un usuario, para mostrarse como relacionado a otro.
+ * Versión reducida de un usuario con estado de amistad, para mostrarse como relacionado a otro.
  */
 public class Contact {
 
@@ -70,6 +70,7 @@ public class Contact {
             this.value = value;
         }
 
+        @SuppressWarnings("unused")
         public int getValue() {
             return value;
         }

@@ -46,6 +46,8 @@ public class NavDrawerActivity extends AppCompatActivity
 //            public void onDrawerOpened() {}
 //            public void onDrawerClosed() {}
         };
+        if (drawer == null)
+            Log.e(LOG_TAG, "SYSTEM FAILURE SYSTEM FAILURE SYSTEM FAILURE SYSTEM FAILURE ...");
         if (drawer != null) {
             drawer.addDrawerListener(toggle);
             toggle.syncState();
@@ -156,12 +158,16 @@ public class NavDrawerActivity extends AppCompatActivity
                             .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_SOLICITUDES)
             );
             return false;
-        } else if (id == R.id.nav_all_users) {
+        } else if (id == R.id.nav_most_popular) {
             startActivity(
                     new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_ALL_USERS)
+                            .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_MOST_POPULAR)
             );
             return false;
+        } else if (id == R.id.nav_busqueda) {
+            startActivity(
+                    new Intent(this, BusquedaActivity.class)
+            );
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);

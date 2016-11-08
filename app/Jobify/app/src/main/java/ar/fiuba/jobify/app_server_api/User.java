@@ -36,20 +36,20 @@ public class User {
             city = "",
             dateOfBirth = "1/1/1990",
             summary = "";
+
+    Locacion location;
+
     long[] recommendations;
+    long cantidadRecomendaciones = -1;
+
     List<Skill> skills;
     List<Employment> workHistory;
 
 
+    @SuppressWarnings("unused")
     public User() {
-        skills = new ArrayList<>();
-        workHistory = new ArrayList<>();
-    }
-
-    // Borrar?
-    public User(String email) {
-        this();
-        this.email = email;
+        this.skills = new ArrayList<>();
+        this.workHistory = new ArrayList<>();
     }
 
     // copy constructor
@@ -63,6 +63,14 @@ public class User {
         this.summary = o.summary;
         this.skills = new ArrayList<>(o.skills);
         this.workHistory = new ArrayList<>(o.workHistory);
+    }
+
+    public User(Contact c) {
+        this();
+        this.id = c.getId();
+        this.firstName = c.getFirstName();
+        this.lastName = c.getLastName();
+        this.workHistory.add(c.getCurrentJob());
     }
 
     public long getId() {
@@ -83,6 +91,9 @@ public class User {
     public String getCity() {
         return city;
     }
+//    public Locacion getLocation() {
+//        return location;
+//    }
     public String getDateOfBirth() {
         return dateOfBirth;
     }
@@ -100,7 +111,12 @@ public class User {
     }
 
     public int getDiaNacimiento() {
-        return Integer.parseInt(dateOfBirth.split("/")[0]);
+        try {
+            return Integer.parseInt(dateOfBirth.split("/")[0]);
+        } catch (NumberFormatException ex) {
+            dateOfBirth = "01/01/1990";
+            return getDiaNacimiento();
+        }
     }
     public int getMesNacimiento() {
         return Integer.parseInt(dateOfBirth.split("/")[1]);
@@ -110,7 +126,13 @@ public class User {
     }
 
     public long getCantRecomendaciones() {
-        return recommendations.length;
+        if (cantidadRecomendaciones < 0) {
+            if (recommendations == null)
+                cantidadRecomendaciones = 0;
+            else
+                cantidadRecomendaciones = recommendations.length;
+        }
+        return cantidadRecomendaciones;
     }
 
     public boolean fueRecomendadoPor(long pepito) {
@@ -138,6 +160,12 @@ public class User {
         // if?? TODO
         this.city = city;
         return true;
+    }
+
+    public boolean setLocacion(double latitud, double longitud) {
+        if (location == null)
+            location = new Locacion();
+        return location.setLocation(latitud, longitud);
     }
 
     // No normaliza la cantidad de dígitos
@@ -183,17 +211,17 @@ public class User {
         return actual;
     }
 
-    /**
-     * @return String de una línea con el último trabajo actual listado,
-     * determinado por {@code Employment.esActual}.
-     */
-    public String getUltimoTrabajoActual() {
-        String trabajos = getTrabajosActuales();
-        int index = trabajos.lastIndexOf("\n");
-        if (index < 0)
-            return trabajos;
-        return trabajos.substring(index);
-    }
+//    /**
+//     * @return String de una línea con el último trabajo actual listado,
+//     * determinado por {@code Employment.esActual}.
+//     */
+//    public String getUltimoTrabajoActual() {
+//        String trabajos = getTrabajosActuales();
+//        int index = trabajos.lastIndexOf("\n");
+//        if (index < 0)
+//            return trabajos;
+//        return trabajos.substring(index);
+//    }
 
     /**
      * @return String del formato {@code Fecha de nacimiento: 01/01/1990}.
@@ -205,8 +233,10 @@ public class User {
     // Temporal TODO
     public List<String> getListaJobs() {
         List<String> lista = new ArrayList<>();
-        for (Employment job : getWorkHistory()) {
-            lista.add(job.getCompleto());
+        if (getWorkHistory() != null) {
+            for (Employment job : getWorkHistory()) {
+                lista.add(job.getCompleto());
+            }
         }
         return lista;
     }
@@ -214,19 +244,18 @@ public class User {
     // Temporal TODO
     public List<String> getListaSkills() {
         List<String> lista = new ArrayList<>();
-        for (Skill skill : getSkills()) {
-            lista.add(skill.getName());
+        if (getSkills() != null) {
+            for (Skill skill : getSkills()) {
+                lista.add(skill.getName());
+            }
         }
         return lista;
     }
 
-    public String toJSON() {
-        Gson gson = new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .create();
-
-        return gson.toJson(this);
+    private void addEmployment(Employment emp) {
+        this.workHistory.add(emp);
     }
+
 
     public static User parseJSON(String response) {
         Gson gson = new GsonBuilder()
@@ -234,11 +263,20 @@ public class User {
                 .create();
 
         try {
-            return gson.fromJson(response, User.class);
+            User user = gson.fromJson(response, User.class);
+            try {
+                // Para user reducido, que tiene un campo "last_job"
+                user.addEmployment(gson.fromJson(
+                        (new JSONObject(response)).getJSONObject("last_job").toString(), //;//hardcodeo
+                        Employment.class)
+                );
+            } catch (JSONException ex) {/**/}
 
-        } catch (JsonSyntaxException e) {
+            return user;
+
+        } catch (JsonSyntaxException ex) {
             Log.e("API", "Json Syntax exception!");
-            e.printStackTrace();
+            ex.printStackTrace();
             return null;
         }
     }

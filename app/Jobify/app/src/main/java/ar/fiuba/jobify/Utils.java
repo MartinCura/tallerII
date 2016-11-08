@@ -177,15 +177,15 @@ public class Utils {
                 logTag);
     }
 
-    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
-                                            JSONObject jsonRequest,
-                                            Response.Listener<JSONObject> responseListener,
-                                            Response.ErrorListener errorListener,
-                                            final String logTag) {
-
-        fetchJsonFromUrl(ctx, Request.Method.GET, getAppServerUrl(ctx, getPathSegment), jsonRequest,
-                responseListener, errorListener, logTag);
-    }
+//    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
+//                                            JSONObject jsonRequest,
+//                                            Response.Listener<JSONObject> responseListener,
+//                                            Response.ErrorListener errorListener,
+//                                            final String logTag) {
+//
+//        fetchJsonFromUrl(ctx, Request.Method.GET, getAppServerUrl(ctx, getPathSegment), jsonRequest,
+//                responseListener, errorListener, logTag);
+//    }
 
     // TEMPORAL, si es cambiado por un acceso al AppServer
     public static void getJsonFromSharedServer(Context context, String getPathSegment,
@@ -202,6 +202,7 @@ public class Utils {
     public static void getJsonFromUrl(Context context, final String url, JSONObject jsonRequest,
                                       Response.Listener<JSONObject> responseListener,
                                       final String logTag) {
+
         fetchJsonFromUrl(context, Request.Method.GET, url, jsonRequest, responseListener, logTag);
     }
 
@@ -243,16 +244,22 @@ public class Utils {
                             }
                         } else {
                             Log.d(logTag, "Error Listener. URL: " + url);
-                            if (error.networkResponse != null)
-                                Log.d(logTag, "Status code: " + error.networkResponse.statusCode);
+                            if (error.networkResponse != null) {
+                                if (error.networkResponse.statusCode == 403)
+                                    Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
+                                else
+                                    Log.d(logTag, "Status code: " + error.networkResponse.statusCode);
+                            }
                             error.printStackTrace();
                         }
                     }
                 }, logTag);
     }
 
-
-    public static void fetchJsonFromUrl(Context context, int method, final String url,
+    /**
+     * Fetchea un json. Los demás métodos overloadean este.
+     */
+    public static void fetchJsonFromUrl(final Context context, int method, final String url,
                                         JSONObject jsonRequest,
                                         Response.Listener<JSONObject> responseListener,
                                         Response.ErrorListener errorListener, final String logTag) {
@@ -263,9 +270,14 @@ public class Utils {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        //headers.put("Content-Type", "application/json; charset=utf-8");
+//                        headers.put("Accept", "application/json");
+//                        headers.put("Content-Type", "application/json");//; charset=utf-8");
+//                        headers.put("accept-encoding", "gzip, deflate");
+//                        headers.put("accept-language", "en-US,en;q=0.8");
+//                        headers.put("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/" +
+//                                "537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36");
                         headers.put("Connection", "close");//Te amo, header que soluciona cosas ~ mc
-                        // TODO: Agregar token al Header ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                        headers.put("Authorization", getToken(context));
                         return headers;
                     }
 
@@ -302,7 +314,8 @@ public class Utils {
 
                     }
 
-                }, imageView.getWidth(), imageView.getHeight(),
+//                }, imageView.getWidth(), imageView.getHeight(),
+                }, 1080, 960,//hardcodeo;//
                 ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
@@ -313,14 +326,23 @@ public class Utils {
                         }
                         //error.printStackTrace();//
                         if (error.networkResponse.statusCode == 200) {
-                            Log.e(logTag, "Problema con la imagen. Re-request");//
+//                            Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
+                        } else if (error.networkResponse.statusCode == 403) {
+                            Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
                         } else {
                             Log.e(logTag, "Error cargando imagen, response code: "
                                     +error.networkResponse.statusCode);
                         }
                     }
-                });
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", getToken(ctx));
+                        return headers;
+                    }
+        };
         RequestQueueSingleton.getInstance(ctx)
                 .addToRequestQueue(request);
     }
@@ -329,7 +351,8 @@ public class Utils {
 
     public static @IdRes int[] perfilVisibilityViews = {
             R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,
-            R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
+            R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable_wrapper,
+            R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
             R.id.text_perfil_cant_recomendaciones, R.id.text_perfil_resumen,
             R.id.text_perfil_nacimiento, R.id.perfil_nacimiento_editable,
             R.id.text_perfil_resumen_editable_wrapper, R.id.perfil_experiencia_laboral_list,
@@ -434,6 +457,11 @@ public class Utils {
     }
 
 
+    public static Bitmap normalizarBitmap(Bitmap bitmap) {
+        int newWidth = bitmap.getWidth() > 1000 ? 1000 : bitmap.getWidth(); // HARDCODEO
+        int newHeight = (int) Math.round((1.0 * bitmap.getHeight() / bitmap.getWidth()) * newWidth);
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+    }
 
     public static class PhotoMultipartRequest<T> extends Request<T> {
 
@@ -442,13 +470,16 @@ public class Utils {
         private MultipartEntityBuilder mBuilder = MultipartEntityBuilder.create();
         private final Response.Listener<T> mListener;
         private final File mImageFile;
+        private final Context ctx;
 //        protected Map<String, String> headers;
 
-        public PhotoMultipartRequest(String url, File imageFile, Response.Listener<T> listener,
+        public PhotoMultipartRequest(Context context, String url, File imageFile,
+                                     Response.Listener<T> listener,
                                      Response.ErrorListener errorListener) throws IOException {
 //            super(Method.POST, url, errorListener);
             super(Method.PUT, url, errorListener);
 
+            this.ctx = context;
             mListener = listener;
             mImageFile = imageFile;
 
@@ -458,11 +489,11 @@ public class Utils {
         @Override
         public Map<String, String> getHeaders() throws AuthFailureError {
             Map<String, String> headers = super.getHeaders();
-            if (headers == null
-                    || headers.equals(Collections.emptyMap())) {
+            if (headers == null || headers.equals(Collections.emptyMap())) {
                 headers = new HashMap<>();
             }
             headers.put("Accept", "application/json");
+            headers.put("Authorization", getToken(ctx));
             return headers;
         }
 
@@ -550,7 +581,13 @@ public class Utils {
         return json;
     }
 
-    public static Bitmap cropToSquare(Bitmap bitmap){
+    private static String getToken(Context ctx) {
+        SharedPreferences sharedPref =
+                ctx.getSharedPreferences(ctx.getString(R.string.shared_pref_connected_user), 0);
+        return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), "null");
+    }
+
+    public static Bitmap cropToSquare(Bitmap bitmap) {
         int width  = bitmap.getWidth();
         int height = bitmap.getHeight();
         int newWidth = (height > width) ? width : height;

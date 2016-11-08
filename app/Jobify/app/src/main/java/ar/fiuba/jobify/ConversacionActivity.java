@@ -138,7 +138,7 @@ public class ConversacionActivity extends NavDrawerActivity {
      * Punto de entrada para notificar por nuevos mensajes
      */
     public void recibirMensajesNuevos(JSONObject jsonMensaje) {
-        Message nuevoMensaje = Message.parseJSON(jsonMensaje.toString());
+        Message nuevoMensaje = Message.parseJson(jsonMensaje.toString());
         if (nuevoMensaje == null) {
             Log.e(LOG_TAG, "Json error con nuevoMensaje");
             return;
@@ -221,7 +221,7 @@ public class ConversacionActivity extends NavDrawerActivity {
     }
 
     /**
-     * Busca en el AppServer los últimos CANT_MENSAJES_POR_PAGE mensajes no listados todavía.
+     * Fetchea al AppServer los últimos CANT_MENSAJES_POR_PAGE mensajes anteriores no listados todavía.
      * @param page es el número de páginas de resultados, comenzando en 0 para el cargado inicial
      * @param forzarCarga ignora si el límite guardado localmente ya fue alcanzado, cargando más
      */
@@ -302,13 +302,16 @@ public class ConversacionActivity extends NavDrawerActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-//                            Toast.makeText(context, "Mensaje enviado", Toast.LENGTH_LONG)
-//                                    .show();//
-                            Log.i(LOG_TAG, "Mensaje enviado: " + mensajeAEnviar);//
+                            Message mensajeEnviado = Message.parseJson(response.toString());
+                            if (mensajeEnviado == null || mensajeEnviado.getMessage() == null) {
+                                Log.w(LOG_TAG, "Mensaje enviado null response, muestro el original igual");
+                                recibirMensajesNuevos(jsObjMessage);
+                                return;
+                            }
+                            Log.i(LOG_TAG, "Mensaje enviado: " + mensajeEnviado.getMessage());//
 
                             // Agrego el mensaje enviado a los mostrados en la conversación
-                            // TODO: HACERLO CON EL DEVUELTO POR EL APPSERVER si quiero que tenga la hora bien
-                            recibirMensajesNuevos(jsObjMessage);
+                            recibirMensajesNuevos(response);
 
                         }
                     }, new Response.ErrorListener() {
@@ -512,7 +515,6 @@ public class ConversacionActivity extends NavDrawerActivity {
             }
             if (!loading && firstVisibleItem != 0
                     && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                Log.d(LOG_TAG, "duuuude, currentPage: "+currentPage);//
                 if (cargarMasMensajes(currentPage, false))
                     loading = true;
             }

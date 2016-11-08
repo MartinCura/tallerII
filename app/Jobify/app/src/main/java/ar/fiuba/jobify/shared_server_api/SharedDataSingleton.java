@@ -20,6 +20,7 @@ public class SharedDataSingleton {
     SkillsResponse mSkillsResponse;
     static Activity mActivity;
 
+
     private SharedDataSingleton(Activity activity) {
         mActivity = activity;
 
