@@ -100,6 +100,9 @@ public class JobifyChat extends FirebaseMessagingService {
 
                 Random r = new Random();
                 mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
+
+                // notify chat
+                EventBus.getDefault().post(new MessageEvent());
             }
             // if this is a notification:
                 // TODO

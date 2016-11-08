@@ -1,5 +1,7 @@
 package ar.fiuba.jobify;
 
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.LayoutRes;
@@ -25,6 +27,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -59,8 +64,15 @@ public class ConversacionActivity extends NavDrawerActivity {
     private EndlessScrollListener mEndlessScrollListener;
 
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+
+        Toast.makeText(this, "llegó!", Toast.LENGTH_LONG).show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EventBus.getDefault().register(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversacion_drawer);
 
