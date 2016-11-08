@@ -36,6 +36,8 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.FieldNamingPolicy;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Random;
 
@@ -70,39 +72,63 @@ public class JobifyChat extends FirebaseMessagingService {
             String body =  remoteMessage.getData() + "";
             Log.d(TAG, "Message data payload: " + body);
             JsonParser parser = new JsonParser();
-            JsonObject message = parser.parse(body).getAsJsonObject();
+            //JsonObject message = parser.parse(body).getAsJsonObject();
+            JSONObject message = null;
+            try {
+                message = new JSONObject(body);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
 
             if (message.has("mensaje")){
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(this)
+
+                int receiver = 0;
+                try {
+                    receiver = message.getJSONObject("mensaje").getInt("to");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if (!(ConversacionActivity.activityVisible && ConversacionActivity.corresponsalID == receiver)) {
+                    NotificationCompat.Builder mBuilder =
+                            null;
+                    try {
+                        mBuilder = new NotificationCompat.Builder(this)
                                 .setContentTitle("Notificación")
                                 .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                                 .setAutoCancel(true)
-                                .setContentText(body);
+                                .setContentText(message.getJSONObject("mensaje").getString("message"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-                //ConversacionActivity.
+                    //ConversacionActivity.
 
-                Intent resultIntent = new Intent(this, LoginActivity.class);
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-                stackBuilder.addParentStack(LoginActivity.class);
-
-                EventBus.getDefault().post(new MessageEvent());
-
-                // Adds the Intent that starts the Activity to the top of the stack
-                stackBuilder.addNextIntent(resultIntent);
-                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
-                mBuilder.setContentIntent(resultPendingIntent);
-
-                NotificationManager mNotificationManager =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    Intent resultIntent = new Intent(this, ConversacionActivity.class);
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                    stackBuilder.addParentStack(ConversacionActivity.class);
 
 
-                Random r = new Random();
-                mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
+                    // Adds the Intent that starts the Activity to the top of the stack
+                    stackBuilder.addNextIntent(resultIntent);
+                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    mBuilder.setContentIntent(resultPendingIntent);
 
+                    NotificationManager mNotificationManager =
+                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                    Random r = new Random();
+                    mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
+
+                }
                 // notify chat
-                EventBus.getDefault().post(new MessageEvent());
+                try {
+                    EventBus.getDefault().post(new MessageEvent(message.getJSONObject("mensaje")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             // if this is a notification:
                 // TODO
@@ -150,4 +176,6 @@ public class JobifyChat extends FirebaseMessagingService {
 
         notificationManager.notify(0 *//* ID of notification *//*, notificationBuilder.build());*/
     }
+
+
 }
