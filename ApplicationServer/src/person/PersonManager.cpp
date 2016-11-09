@@ -47,7 +47,7 @@ long PersonManager::savePerson(long user_id, Json::Value person_json, long force
             person_json.removeMember(password.c_str());
             person_string = fastWriter.write(person_json);
             db->puTKey(USER_MAIL_ID + user_mail, &person_string);
-            db->puTKey(USER_NAME_ID + user_name, &user_mail);
+            db->puTKey(USER_NAME_ID + user_name + "_" + user_mail, &user_mail);
             db->puTKey(USER_UUID_ID + std::to_string(uniqueId), &user_mail);
             db->puTKey(USER_PASSWORD + user_mail, &user_password);
 
@@ -56,6 +56,15 @@ long PersonManager::savePerson(long user_id, Json::Value person_json, long force
     } else {
         //The person already exists in the system and it wants to refresh his information
         uniqueId = user_id;
+        std::string user_newName = user_name;
+        std::string suser_old_information;
+        db->getKey(USER_MAIL_ID + user_mail, &suser_old_information);
+        Json::Value juser_old_information = getStringAsJson(suser_old_information);
+        std::string user_oldName = juser_old_information["first_name"].asString() + "-" + juser_old_information["last_name"].asString();
+        if (user_oldName.compare(user_newName) != 0) {
+            db->deleteKey(USER_NAME_ID + user_oldName + "_" + user_mail);
+            db->puTKey(USER_NAME_ID + user_newName + "_" + user_mail, &user_mail);
+        }
         person_string = fastWriter.write(person_json);
         db->puTKey(USER_MAIL_ID + user_mail, &person_string);
         return uniqueId;
@@ -134,12 +143,13 @@ void PersonManager::deletePerson(long id) {
 
     Json::Value juser_information = getStringAsJson(user_information);
     std::string user_name = juser_information["first_name"].asString() + "-" + juser_information["last_name"].asString();
+    std::transform(user_name.begin(), user_name.end(), user_name.begin(), ::tolower);
     db->deleteKey(USER_MAIL_ID + user_mail);
-    if (!db->existsKey(USER_NAME_ID + user_name, &user_information)) {
+    if (!db->existsKey(USER_NAME_ID + user_name + "_" + user_mail, &user_information)) {
         throw BadImplementationException();
     }
 
-    db->deleteKey(USER_NAME_ID + user_name);
+    db->deleteKey(USER_NAME_ID + user_name + "_" + user_mail);
     if (!db->existsKey(USER_PASSWORD + user_mail, &user_information)) {
         throw BadImplementationException();
     }
