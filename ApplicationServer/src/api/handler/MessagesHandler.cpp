@@ -19,7 +19,7 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
     try {
         long fromUserId = this->getUserIdFromUrl(url);
         //Security
-        //Solo el auto tiene permiso para leer los mensajes
+        //Solo el autoR tiene permiso para leer los mensajes
         if (!Security::hasPermissionToReadMessage(this->session->getUserId(), fromUserId)) throw NotAuthorizedException();
         long toUserId = this->getToUserFromQueryParams(queryParams);
         vector<Message*> messages = personManager->getMessages(fromUserId, toUserId);

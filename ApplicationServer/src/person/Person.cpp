@@ -9,14 +9,12 @@ Person::Person() {
     this->dateOfBirth = "";
     this->city = "";
     this->summary = "";
-    this->personAsJson = "";
     this->location = new Location();
 }
 
 Person::Person(Json::Value personAsJson) {
     this->location = new Location();
     deserializeMe(personAsJson);
-    this->personAsJson = personAsJson;
 }
 
 Person::~Person() {

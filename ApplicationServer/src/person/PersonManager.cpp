@@ -1,12 +1,16 @@
 #include "PersonManager.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
+#include "../Exceptions/BadImplementationException.h"
 
 #include <chrono>
 #include <memory>
+#include <algorithm>
+#include <regex>
 
 #define USER_MAIL_ID "user:mail_"
 #define USER_UUID_ID "user:uuid_"
 #define USER_PASSWORD "user:password_"
+#define USER_NAME_ID "user:name_"
 
 PersonManager::PersonManager(DBWrapper *db) {
     this->db = db;
@@ -15,12 +19,14 @@ PersonManager::PersonManager(DBWrapper *db) {
 PersonManager::~PersonManager() {}
 
 long PersonManager::savePerson(long user_id, Json::Value person_json, long forceID) {
-    std::string user_mail, user_password, user_information, person_string;
+    std::string user_mail, user_password, user_name, user_information, person_string;
     Json::FastWriter fastWriter;
     long uniqueId;
 
     user_mail=  person_json["email"].asString();
     user_id = person_json["id"].asLargestInt();
+    user_name = person_json["first_name"].asString() + "-" + person_json["last_name"].asString();
+    std::transform(user_name.begin(), user_name.end(), user_name.begin(), ::tolower);
     user_password = person_json["password"].asString();
 
     if (user_id == 0) {
@@ -41,6 +47,7 @@ long PersonManager::savePerson(long user_id, Json::Value person_json, long force
             person_json.removeMember(password.c_str());
             person_string = fastWriter.write(person_json);
             db->puTKey(USER_MAIL_ID + user_mail, &person_string);
+            db->puTKey(USER_NAME_ID + user_name, &user_mail);
             db->puTKey(USER_UUID_ID + std::to_string(uniqueId), &user_mail);
             db->puTKey(USER_PASSWORD + user_mail, &user_password);
 
@@ -74,6 +81,43 @@ vector<long> * PersonManager::getAllUsersIds() {
     }
     return ids;
 }
+
+vector<Person *> * PersonManager::searchByName(std::string user_searchName) {
+    std::vector<Person*>* users_result = new vector<Person*>();
+    leveldb::Slice startSlice = USER_NAME_ID;
+    leveldb::Slice endSlice = USER_UUID_ID;
+    std::string user_search = user_searchName;
+    std::transform(user_search.begin(), user_search.end(), user_search.begin(), ::tolower);
+    std::regex e ("(.*)("+user_search+")(.*)");
+    std::string suser;
+    Json::Value juser;
+    shared_ptr<leveldb::Iterator> iterator(db->newIterator());
+    for(iterator->Seek(startSlice); iterator->Valid() && (iterator->key()).ToString().compare(endSlice.ToString()) ; iterator->Next())
+    {
+        // Read the record
+        if( !iterator->value().empty() )
+        {
+            if(regex_match(iterator->key().ToString(), e)) {
+                //busqueda del usuario
+                std::string user_mail_id = USER_MAIL_ID + iterator->value().ToString();
+                if (!db->existsKey(user_mail_id, &suser)) {
+                    throw BadImplementationException();
+                }
+
+                juser = this->getStringAsJson(suser);
+                Person* user = new Person(juser);
+                users_result->push_back(user);
+            }
+
+        }
+    }
+
+    return users_result;
+
+}
+
+
+
 void PersonManager::deletePerson(long id) {
 
     std::string user_mail, user_information;
@@ -85,10 +129,22 @@ void PersonManager::deletePerson(long id) {
     db->deleteKey(USER_UUID_ID + std::to_string(id));
 
     if (!db->existsKey(USER_MAIL_ID + user_mail, &user_information)) {
-        throw  UserNotFoundException(user_mail);
+        throw  BadImplementationException();
     }
 
+    Json::Value juser_information = getStringAsJson(user_information);
+    std::string user_name = juser_information["first_name"].asString() + "-" + juser_information["last_name"].asString();
     db->deleteKey(USER_MAIL_ID + user_mail);
+    if (!db->existsKey(USER_NAME_ID + user_name, &user_information)) {
+        throw BadImplementationException();
+    }
+
+    db->deleteKey(USER_NAME_ID + user_name);
+    if (!db->existsKey(USER_PASSWORD + user_mail, &user_information)) {
+        throw BadImplementationException();
+    }
+
+    db->deleteKey(USER_PASSWORD + user_mail);
 }
 
 
@@ -108,13 +164,12 @@ Person* PersonManager::getPersonById(long id) {
 Person* PersonManager::getPersonByMail(std::string* user_mail) {
     std::string result;
     Json::Value json_user;
-    Json::Reader reader;
 
     if (!db->existsKey(USER_MAIL_ID + *user_mail, &result)) {
         throw UserNotFoundException(*user_mail);
     }
 
-    reader.parse( result.c_str(), json_user );
+    json_user = this->getStringAsJson(result);
     std::string password = "password";
     json_user.removeMember(password.c_str()); //TODO a lo wacho
     return new Person(json_user);
@@ -219,4 +274,11 @@ void PersonManager::setOrUpdateNotificationToken(Json::Value request, long userI
     NotificationTokenManager* notificationTokenManager = new NotificationTokenManager(this->db);
     notificationTokenManager->setOrUpdateToken(userId, token);
     delete notificationTokenManager;
+}
+
+Json::Value PersonManager::getStringAsJson(std::string svalue) {
+    Json::Reader reader;
+    Json::Value jvalue;
+    reader.parse(svalue.c_str(), jvalue);
+    return  jvalue;
 }

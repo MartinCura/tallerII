@@ -47,12 +47,17 @@ public:
     bool userExists(long userId);
     string getNotificationTokenByUserId(long userId);
     void setOrUpdateNotificationToken(Json::Value request, long userId);
+
+    vector<Person *> *searchByName(std::string user_searchName);
+
 private:
     DBWrapper* db;
     std::string nameDB;
 
     long generateID();
     void validateUsersOfRequest(long fromUserId, long toUserId);
+
+    Json::Value getStringAsJson(string svalue);
 };
 
 #endif //PROJECT_PERSONMANAGER_H

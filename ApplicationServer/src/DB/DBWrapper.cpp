@@ -1,5 +1,5 @@
 //
-// Created by milena on 28/09/16.
+// Clase creada con el objetivo de evitar la dependecia directa con LevelDB.
 //
 
 #include <iostream>
