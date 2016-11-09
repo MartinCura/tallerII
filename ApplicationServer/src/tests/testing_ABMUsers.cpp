@@ -24,7 +24,7 @@ TEST(NewUser, SaveUser) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    personManager->savePerson(0, user, 0);
+    personManager->savePerson(user, 0);
 
     db->destroyDB(namedb);
     DBWrapper::ResetInstance();
@@ -48,8 +48,8 @@ TEST(UserExists, SaveUserERROR) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    personManager_->savePerson(0, user, 0);
-    EXPECT_THROW(personManager_->savePerson(0, user, 0), UserAlreadyExistsException);
+    personManager_->savePerson(user, 0);
+    EXPECT_THROW(personManager_->savePerson(user, 0), UserAlreadyExistsException);
 
 
     db->destroyDB(namedb);
@@ -76,10 +76,10 @@ TEST(UserExists, GetUserById) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    long id = personManager_->savePerson(0, user, 4);
+    long id = personManager_->savePerson(user, 4);
 
     Person* person = personManager_->getPersonById(id);
-    EXPECT_EQ(person->getLastName(), "Rodriguez");
+    EXPECT_EQ(person->getLastName(), "rodriguez");
      db->destroyDB(namedb);
     DBWrapper::ResetInstance();
     delete person;
@@ -148,10 +148,10 @@ TEST(UserExists, GetUserByMail) {
 
     user_mail = user["email"].asString();
 
-    personManager->savePerson(0, user, 3);
+    personManager->savePerson(user, 3);
     Person* person = personManager->getPersonByMail(&user_mail);
 
-    EXPECT_EQ(person->getCity(), "CABA");
+    EXPECT_EQ(person->getCity(), "caba");
 
     db->destroyDB(namedb);
     DBWrapper::ResetInstance();
@@ -198,7 +198,7 @@ TEST(UserExists, DeleteUser) {
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    id = personManager->savePerson(0, user, 1);
+    id = personManager->savePerson(user, 1);
     personManager->deletePerson(id);
 
     user_mail = "crodriguez@gmail.com";
@@ -211,6 +211,109 @@ TEST(UserExists, DeleteUser) {
     delete personManager;
     delete namedb;
 
+}
+
+Person* getFakePerson1() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("John");
+    person->setLastName("Doe");
+    person->setEmail("john@doe.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("01/01/1990");
+    person->setCity("Buenos Aires");
+    person->setSummary("Hi, this is John Doe");
+    person->setLocation(-58.368368, -34.617589);
+
+    WorkHistory* workHistory1 = new WorkHistory();
+    workHistory1->setCompany("IBM");
+    workHistory1->setPositionTitle("JavaScript Developer");
+    workHistory1->setFromDate("10/2012");
+    workHistory1->setToDate("11/2014");
+    person->addWorkHistory(workHistory1);
+
+    WorkHistory* workHistory2 = new WorkHistory();
+    workHistory2->setCompany("Amazon");
+    workHistory2->setPositionTitle("Project Manager");
+    workHistory2->setFromDate("12/2014");
+    workHistory2->setToDate("");
+    person->addWorkHistory(workHistory2);
+
+    Skill* skill1 = new Skill();
+    skill1->setName("JavaScript");
+    skill1->setDescription("JavaScript programming language");
+    skill1->setCategory("software");
+    person->addSkill(skill1);
+
+    Skill* skill2 = new Skill();
+    skill2->setName("PM");
+    skill2->setDescription("Project Management");
+    skill2->setCategory("management");
+    person->addSkill(skill2);
+
+    return person;
+}
+
+Person* updateFakePerson1() {
+    Person* person = new Person();
+    person->setId(1);
+    person->setFirstName("John");
+    person->setLastName("Doe");
+    person->setEmail("john@doe.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("01/01/1990");
+    person->setCity("Buenos Aires");
+    person->setSummary("Hi, this is John Doe");
+    person->setLocation(-58.368368, -34.617589);
+
+    WorkHistory* workHistory1 = new WorkHistory();
+    workHistory1->setCompany("IBM");
+    workHistory1->setPositionTitle("JavaScript Developer");
+    workHistory1->setFromDate("10/2012");
+    workHistory1->setToDate("11/2014");
+    person->addWorkHistory(workHistory1);
+
+    WorkHistory* workHistory2 = new WorkHistory();
+    workHistory2->setCompany("Amazon");
+    workHistory2->setPositionTitle("Project Manager");
+    workHistory2->setFromDate("12/2014");
+    workHistory2->setToDate("");
+    person->addWorkHistory(workHistory2);
+
+    Skill* skill1 = new Skill();
+    skill1->setName("JavaScript");
+    skill1->setDescription("JavaScript programming language");
+    skill1->setCategory("software");
+    person->addSkill(skill1);
+
+
+    Skill* skill3 = new Skill();
+    skill3->setName("Architect");
+    skill3->setDescription("Project Architect");
+    skill3->setCategory("software");
+    person->addSkill(skill3);
+
+    return person;
+}
+
+TEST(PersonManagerTest, updateUser) {
+    Person* person1 = getFakePerson1();
+    string* namedb = new string();
+    *namedb = NAME_DB;
+    DBWrapper* db = DBWrapper::openDb(namedb);
+    PersonManager*  personManager = new PersonManager(db);
+
+    personManager->savePerson(person1->serializeMe(), (long) 1);
+
+    Person* person2 = updateFakePerson1();
+    personManager->updateUser(person2->serializeMe());
+
+    db->destroyDB(namedb);
+    DBWrapper::ResetInstance();
+    delete personManager;
+    delete person1;
+    delete person2;
+    delete namedb;
 }
 
 TEST(PersonManagerTest, GetAllUsers) {
@@ -237,7 +340,7 @@ TEST(PersonManagerTest, GetAllUsers) {
         user["profile_picture"] = "";
         user["summary"] = "Me gusta el arrte";
 
-        userId = personManager->savePerson(0, user, i);
+        userId = personManager->savePerson(user, i);
 
         sleep(1);
 
@@ -277,7 +380,7 @@ TEST(PersonManagerTest, loginOK){
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    personManager->savePerson(0, user, 1);
+    personManager->savePerson(user, 1);
     delete personManager;
 
     sessionManager = new SessionManager(db);
@@ -329,7 +432,7 @@ TEST(PersonManagerTest, loginWrongPassword){
     user["profile_picture"] = "";
     user["summary"] = "Me gusta el arrte";
 
-    personManager->savePerson(0, user, 0);
+    personManager->savePerson(user, 0);
 
     delete personManager;
 

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Person.h"
 
 Person::Person() {
@@ -28,10 +29,14 @@ void Person::setId(long id) {
 }
 
 void Person::setFirstName(string firstName) {
+    std::string aux = firstName;
+    transform(aux.begin(), aux.end(), aux.begin(), ::tolower);
     this->firstName = firstName;
 }
 
 void Person::setLastName(string lastName) {
+    std::string aux = lastName;
+    transform(aux.begin(), aux.end(), aux.begin(), ::tolower);
     this->lastName = lastName;
 }
 
@@ -80,6 +85,10 @@ string Person::getLastName() {
     return this->lastName;
 }
 
+string Person::getFullName() {
+    return this->firstName + "-" + this->lastName;
+
+}
 string Person::getEmail() {
     return this->email;
 }
@@ -121,8 +130,11 @@ WorkHistory* Person::getCurrentJob() {
 void Person::deserializeMe(Json::Value personAsJson) {
     this->id = personAsJson["id"].asLargestInt();
     this->firstName = personAsJson["first_name"].asString();
+    std::transform(this->firstName.begin(), this->firstName.end(), this->firstName.begin(), ::tolower);
     this->lastName = personAsJson["last_name"].asString();
+    std::transform(this->lastName.begin(), this->lastName.end(), this->lastName.begin(), ::tolower);
     this->email = personAsJson["email"].asString();
+    std::transform(this->email.begin(), this->email.end(), this->email.begin(), ::tolower);
     this->password = personAsJson["password"].asString();
     this->dateOfBirth = personAsJson["date_of_birth"].asString();
     this->city = personAsJson["city"].asString();

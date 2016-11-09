@@ -13,7 +13,7 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
     try {
         Json::Value responseBody;
         Json::Value parsedBody = this->parseBody(requestBody);
-        responseBody["id"] = personManager->savePerson(0, parsedBody, 0);
+        responseBody["id"] = personManager->savePerson(parsedBody, 0);
         response->setSuccessfulHeader();
         response->setBody(responseBody.toStyledString());
     } catch (UserAlreadyExistsException& e) {
@@ -91,7 +91,7 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) 
         Person* person = personManager->getPersonById(userId);
         person->updateMe(parsedBody);
         Json::Value jperson = person->serializeMe();
-        personManager->savePerson(userId, jperson);
+        personManager->updateUser(jperson);
         delete person;
         response->setSuccessfulHeader();
     } catch (InvalidRequestException& e) {

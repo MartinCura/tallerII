@@ -34,7 +34,7 @@ public:
      * USER_UUID_ID + <user_id> = <user_mail>
      * USER_PASSWORD + <user_mail> = <password>
      */
-    long savePerson(long user_id, Json::Value person_json, long forceID = -1);
+    long savePerson(Json::Value juser_new_information, long forceID);
     vector<long> * getAllUsersIds();
     void deletePerson(long id);
     vector<Contact*> getContactsByUserId(long id);
@@ -50,14 +50,24 @@ public:
 
     vector<Person *> *searchByName(std::string user_searchName);
 
+    long updateUser(Json::Value juser_new_information);
+
+    vector<Person *> * searchBySkill(string skill);
+
 private:
     DBWrapper* db;
-    std::string nameDB;
 
     long generateID();
     void validateUsersOfRequest(long fromUserId, long toUserId);
 
     Json::Value getStringAsJson(string svalue);
+
+    void saveSkills(std::vector<Skill *> user_newSkills, string user_mail);
+    void updateName(string user_newName, string user_oldName, string user_mail);
+    void saveSkill(string skill_name, string user_mail);
+    void updateSkills(vector<Skill *> new_skills, vector<Skill *> old_skills, string user_mail);
+
+    void deleteUserFromSkill(string skill_name, string user_mail);
 };
 
 #endif //PROJECT_PERSONMANAGER_H

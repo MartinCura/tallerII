@@ -20,7 +20,7 @@ void savePersonOne(DBWrapper* db) {
         person->setCity("Buenos Aires");
         person->setSummary("Hi, this is John Doe");
         person->setLocation(-58.368368, -34.617589);
-        personManager->savePerson(0, person->serializeMe(), (long) 1);
+        personManager->savePerson(person->serializeMe(), (long) 1);
         delete person;
     } catch (UserAlreadyExistsException &exception) {}
     delete personManager;
@@ -41,7 +41,7 @@ void savePersonTwo(DBWrapper* db) {
         person->setCity("Madrid");
         person->setSummary("Hi, this is Jane Doe");
         person->setLocation(-58.368368, -34.617589);
-        personManager->savePerson(0, person->serializeMe(), (long) 2);
+        personManager->savePerson(person->serializeMe(), (long) 2);
         delete person;
     } catch (UserAlreadyExistsException &exception) {}
     delete personManager;

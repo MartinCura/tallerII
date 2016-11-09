@@ -15,19 +15,19 @@ void DbBuilder::loadUsers() {
     PersonManager *personManager = new PersonManager(this->db);
     try {
         Person* person1 = this->getFakePerson1();
-        personManager->savePerson(0, person1->serializeMe(), (long) 1);
+        personManager->savePerson(person1->serializeMe(), (long) 1);
         this->saveToken("tokenUser1", person1->getEmail());
         delete person1;
     } catch (UserAlreadyExistsException &exception) {}
     try {
         Person* person2 = this->getFakePerson2();
-        personManager->savePerson(0, person2->serializeMe(), (long) 2);
+        personManager->savePerson(person2->serializeMe(), (long) 2);
         this->saveToken("tokenUser2", person2->getEmail());
         delete person2;
     } catch (UserAlreadyExistsException &exception) {}
     try {
         Person* person3 = this->getFakePerson3();
-        personManager->savePerson(0, person3->serializeMe(), (long) 3);
+        personManager->savePerson(person3->serializeMe(), (long) 3);
         this->saveToken("tokenUser3", person3->getEmail());
         delete person3;
     } catch (UserAlreadyExistsException &exception) {}

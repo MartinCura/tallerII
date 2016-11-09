@@ -48,6 +48,8 @@ public:
     Json::Value serializeMe();
     void updateMe(Json::Value values);
 
+    string getFullName();
+
 private:
     long id;
     string firstName;
@@ -60,12 +62,12 @@ private:
     Location* location;
     vector<WorkHistory*> workHistory;
     vector<Skill*> skills;
-    Json::Value personAsJson;
 
     /// Creates an object Person from a Json
     void deserializeMe(Json::Value personAsJson);
     void deleteWorkHistory();
     void deleteSkills();
+
 };
 
 #endif //PROJECT_PERSON_H
