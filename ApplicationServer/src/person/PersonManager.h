@@ -20,7 +20,7 @@ public:
     virtual ~PersonManager();
 
     Person* getPersonById(long id);
-    Person* getPersonByMail(string* user_mail);
+    Person* getUserByMail(string *user_mail);
 
 
     /*
@@ -55,6 +55,8 @@ public:
     vector<Person *> * searchBySkill(string skill);
 
     vector<Person *> *searchByJobPosition(string job_position);
+
+    vector<Person *> *searchByMail(string user_mail);
 
 private:
     DBWrapper* db;

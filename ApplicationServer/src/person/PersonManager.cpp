@@ -62,7 +62,7 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
     Person* new_user = new Person(juser_new_information);
     std::string user_mail = new_user->getEmail();
 
-    Person* old_user = getPersonByMail(&user_mail);
+    Person* old_user = getUserByMail(&user_mail);
 
     //Actualizar nombre completo de usuario;
     updateName(new_user->getFullName(), old_user->getFullName(), user_mail);
@@ -265,7 +265,7 @@ Person* PersonManager::getPersonById(long id) {
     std::string  user_mail;
 
     if (db->existsKey(USER_UUID_ID + std::to_string(id), &user_mail)) {
-        return getPersonByMail(&user_mail);
+        return getUserByMail(&user_mail);
     } else {
         //No se encontro el usuario
         throw UserNotFoundException(id);
@@ -273,7 +273,7 @@ Person* PersonManager::getPersonById(long id) {
 
 }
 
-Person* PersonManager::getPersonByMail(std::string* user_mail) {
+Person* PersonManager::getUserByMail(std::string *user_mail) {
     std::string result;
     Json::Value json_user;
 
@@ -421,6 +421,34 @@ void PersonManager::deleteUserFromSkill(string skill_name, string user_mail) {
 
 vector<Person *> *PersonManager::searchByJobPosition(string job_position) {
     return nullptr;
+}
+
+vector<Person *> *PersonManager::searchByMail(string user_mail) {
+    std::vector<Person*>* users_result = new vector<Person*>();
+    leveldb::Slice startSlice = USER_MAIL_ID;
+    leveldb::Slice endSlice = USER_NAME_ID;
+    std::string user_search = user_mail;
+    std::transform(user_search.begin(), user_search.end(), user_search.begin(), ::tolower);
+    std::regex e ("(.*)("+user_search+")(.*)");
+    Json::Value juser;
+    shared_ptr<leveldb::Iterator> iterator(db->newIterator());
+    for(iterator->Seek(startSlice); iterator->Valid() && (iterator->key()).ToString().compare(endSlice.ToString()) ; iterator->Next())
+    {
+        // Read the record
+        if( !iterator->value().empty() )
+        {
+            if(regex_match(iterator->key().ToString(), e)) {
+                //busqueda del usuario
+                std::string user_information = iterator->value().ToString();
+                juser = this->getStringAsJson(user_information);
+                Person* user = new Person(juser);
+                users_result->push_back(user);
+            }
+
+        }
+    }
+
+    return users_result;
 }
 
 

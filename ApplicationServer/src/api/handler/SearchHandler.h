@@ -8,7 +8,7 @@
 
 #include "Handler.h"
 
-class SearchHandler : public Handler{
+class SearchHandler: public Handler {
 public:
     Response* handlePostRequest(http_message* httpMessage);
     Response* handleGetRequest(http_message* httpMessage, string url);
@@ -16,9 +16,11 @@ public:
     Response* handlePutRequest(http_message* httpMessage, string url);
 private:
 
-    string getOrderTypeFromQueryParams(string query_params);
-
+    string getSearchByFromQueryParams(string query_params);
     string getWhichOneFromQueryParams(string query_params);
+    long getPageSizeFromQueryParams(string query_params);
+    long getPageNumberFromQueryParams(string query_params);
+
 };
 
 

@@ -119,7 +119,7 @@ TEST(NewUser, GetUserByMail) {
     PersonManager*  personManager_ = new PersonManager(db);
     user_mail = "cc";
 
-    EXPECT_THROW(personManager_->getPersonByMail(&user_mail), UserNotFoundException);
+    EXPECT_THROW(personManager_->getUserByMail(&user_mail), UserNotFoundException);
 
     db->destroyDB(namedb);
     DBWrapper::ResetInstance();
@@ -149,7 +149,7 @@ TEST(UserExists, GetUserByMail) {
     user_mail = user["email"].asString();
 
     personManager->savePerson(user, 3);
-    Person* person = personManager->getPersonByMail(&user_mail);
+    Person* person = personManager->getUserByMail(&user_mail);
 
     EXPECT_EQ(person->getCity(), "caba");
 
@@ -204,7 +204,7 @@ TEST(UserExists, DeleteUser) {
     user_mail = "crodriguez@gmail.com";
 
     EXPECT_THROW(personManager->getPersonById(id), UserNotFoundException);
-    EXPECT_THROW(personManager->getPersonByMail(&user_mail), UserNotFoundException);
+    EXPECT_THROW(personManager->getUserByMail(&user_mail), UserNotFoundException);
 
     db->destroyDB(namedb);
     DBWrapper::ResetInstance();
