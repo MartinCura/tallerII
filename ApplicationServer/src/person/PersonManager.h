@@ -54,6 +54,8 @@ public:
 
     vector<Person *> * searchBySkill(string skill);
 
+    vector<Person *> *searchByJobPosition(string job_position);
+
 private:
     DBWrapper* db;
 

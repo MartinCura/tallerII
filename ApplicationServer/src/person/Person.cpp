@@ -10,6 +10,7 @@ Person::Person() {
     this->dateOfBirth = "";
     this->city = "";
     this->summary = "";
+    this->totRecommendations = 0;
     this->location = new Location();
 }
 
@@ -139,6 +140,7 @@ void Person::deserializeMe(Json::Value personAsJson) {
     this->dateOfBirth = personAsJson["date_of_birth"].asString();
     this->city = personAsJson["city"].asString();
     this->summary = personAsJson["summary"].asString();
+    this->totRecommendations = personAsJson["tot_recommendations"].asInt();
 
     this->location->setLatitude(personAsJson["location"]["latitude"].asDouble());
     this->location->setLongitude(personAsJson["location"]["longitude"].asDouble());
@@ -197,6 +199,7 @@ Json::Value Person::serializeMe() {
     personAsJson["summary"] = this->summary;
     personAsJson["location"]["latitude"] = this->location->getLatitude();
     personAsJson["location"]["longitude"] = this->location->getLongitude();
+    personAsJson["tot_recommendations"] = this->totRecommendations;
 
     for (vector<WorkHistory*>::size_type i = 0; i != this->workHistory.size(); i++) {
         WorkHistory* workHistory = this->workHistory[i];
@@ -223,4 +226,12 @@ void Person::deleteSkills() {
     for (int i = 0; i != size; i++) {
         this->skills.pop_back();
     }
+}
+
+int Person::getTotalOfRecommendations() {
+    return this->totRecommendations; //FIXME: CAMBIAR LOGICA DE RECOMENDACIONEES
+}
+
+void Person::setTotalRecommendations(int i) {
+    this->totRecommendations = i;
 }

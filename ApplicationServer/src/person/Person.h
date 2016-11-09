@@ -50,6 +50,10 @@ public:
 
     string getFullName();
 
+    int getTotalOfRecommendations();
+
+    void setTotalRecommendations(int i);
+
 private:
     long id;
     string firstName;
@@ -68,6 +72,7 @@ private:
     void deleteWorkHistory();
     void deleteSkills();
 
+    int totRecommendations;
 };
 
 #endif //PROJECT_PERSON_H

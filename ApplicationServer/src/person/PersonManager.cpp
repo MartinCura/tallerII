@@ -71,8 +71,10 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
     //Actualizar skill
     updateSkills(new_user->getSkills(), old_user->getSkills(), user_mail);
 
+    //No olvidar el numero de recomendaciones
+    new_user->setTotalRecommendations(old_user->getTotalOfRecommendations());
     Json::FastWriter fastWriter;
-    std::string person_string = fastWriter.write(juser_new_information);
+    std::string person_string = fastWriter.write(new_user->serializeMe());
     db->puTKey(USER_MAIL_ID + user_mail, &person_string);
     delete new_user;
     return new_user->getId();
@@ -102,6 +104,7 @@ long PersonManager::savePerson(Json::Value juser_new_information, long forceID) 
             uniqueId = generateID();
         }
         juser_new_information["id"] = uniqueId;
+        juser_new_information["tot_recommendations"] = 0;
         std::string password = "password";
         juser_new_information.removeMember(password.c_str());
         person_string = fastWriter.write(juser_new_information);
@@ -414,6 +417,10 @@ void PersonManager::deleteUserFromSkill(string skill_name, string user_mail) {
         output = regex_replace(output, reg, "$1$2");
         db->puTKey(USER_SKILL + skill_name, &output);
     }
+}
+
+vector<Person *> *PersonManager::searchByJobPosition(string job_position) {
+    return nullptr;
 }
 
 

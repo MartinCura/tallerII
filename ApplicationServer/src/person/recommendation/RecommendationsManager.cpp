@@ -1,7 +1,10 @@
 #include "RecommendationsManager.h"
+#include "../Person.h"
 
 const string RECOMMENDATION_KEY = "recommendation_";
 const string ARRAY_KEY = "recommendations";
+#define USER_UUID_ID "user:uuid_"
+#define USER_MAIL_ID "user:mail_"
 
 RecommendationsManager::RecommendationsManager(DBWrapper* db) {
     this->db = db;
@@ -18,6 +21,7 @@ void RecommendationsManager::addRecommendation(long fromId, long toId) {
         Json::FastWriter fastWriter;
         string valueToSave = fastWriter.write(recommendationsAsJson);
         this->db->puTKey(RECOMMENDATION_KEY + to_string(toId), &valueToSave);
+        updateTotalRecommendation(1, toId);
     }
 }
 
@@ -34,6 +38,7 @@ void RecommendationsManager::removeRecommendation(long fromId, long toId) {
         Json::FastWriter fastWriter;
         string valueToSave = fastWriter.write(recommendationsAsJson);
         this->db->puTKey(RECOMMENDATION_KEY + to_string(toId), &valueToSave);
+        updateTotalRecommendation(-1, toId);
     }
 }
 
@@ -89,4 +94,26 @@ vector<long> RecommendationsManager::parseRecommendationsString(string recommend
         recommendations.push_back(recommendationItem);
     }
     return recommendations;
+}
+
+//Fixme: ver si esto va en PersonManager o aca.
+void RecommendationsManager::updateTotalRecommendation(int delta, long id) {
+    string output, user_information;
+    this->db->getKey(USER_UUID_ID + std::to_string(id), &output);
+    this->db->getKey(USER_MAIL_ID + output, &user_information);
+
+    Json::Reader reader;
+    Json::Value juser_info;
+    reader.parse(user_information.c_str(), juser_info);
+
+    Person* person = new Person(juser_info);
+    int tot_recommendations = person->getTotalOfRecommendations();
+    person->setTotalRecommendations(tot_recommendations + delta);
+
+    Json::FastWriter fastWriter;
+    string updated_user = fastWriter.write(person->serializeMe());
+    this->db->puTKey(USER_MAIL_ID + output, &updated_user );
+    delete person;
+
+
 }

@@ -25,6 +25,8 @@ private:
     bool recommendationAlreadyExists(vector<long> currentRecommendations, long fromId);
     Json::Value buildJsonToSave(vector<long> currentRecommendations);
     vector<long> parseRecommendationsString(string recommendationsAsString);
+
+    void updateTotalRecommendation(int delta, long id);
 };
 
 #endif //PROJECT_RECOMMENDATIONSMANAGER_H
