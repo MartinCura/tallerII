@@ -194,7 +194,7 @@ vector<Person *> * PersonManager::searchByName(std::string user_searchName) {
     std::string suser;
     Json::Value juser;
     shared_ptr<leveldb::Iterator> iterator(db->newIterator());
-    for(iterator->Seek(startSlice); iterator->Valid() && (iterator->key()).ToString().compare(endSlice.ToString()) ; iterator->Next())
+    for(iterator->Seek(startSlice); iterator->Valid() && ((iterator->key()).ToString().compare(endSlice.ToString()) < 0) ; iterator->Next())
     {
         // Read the record
         if( !iterator->value().empty() )
@@ -482,7 +482,7 @@ vector<Person *> *PersonManager::searchByMail(string user_mail) {
     std::regex e ("(.*)("+user_search+")(.*)");
     Json::Value juser;
     shared_ptr<leveldb::Iterator> iterator(db->newIterator());
-    for(iterator->Seek(startSlice); iterator->Valid() && (iterator->key()).ToString().compare(endSlice.ToString()) ; iterator->Next())
+    for(iterator->Seek(startSlice); iterator->Valid() && ((iterator->key()).ToString().compare(endSlice.ToString())) < 0 ; iterator->Next())
     {
         // Read the record
         if( !iterator->value().empty() )
