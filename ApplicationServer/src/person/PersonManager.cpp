@@ -169,10 +169,14 @@ vector<Person*> * PersonManager::getAllUsers() {
     leveldb::Slice endSlice = USER_NAME_ID;
 
     shared_ptr<leveldb::Iterator> iterator(db->newIterator());
-    for(iterator->Seek(startSlice); iterator->Valid() && (iterator->key()).ToString().compare(endSlice.ToString()) ; iterator->Next())
+    for(iterator->Seek(startSlice); iterator->Valid() && ((iterator->key()).ToString().compare(endSlice.ToString()) < 0) ; iterator->Next())
     {   // Read the record
-        if( !iterator->value().empty() ) {
-            std::cout << iterator->value().ToString();
+        if( !iterator->value().empty()) {
+            std::cout << iterator->key().ToString()<<endl;
+            std::cout << endSlice.ToString() << endl;
+            cout << (iterator->key()).ToString().compare(endSlice.ToString()) << endl;
+            std::cout << iterator->value().ToString()<<endl;
+
             Json::Value juser = getJsonFromString(iterator->value().ToString());
             Person* user = new Person(juser);
             all_users->push_back(user);

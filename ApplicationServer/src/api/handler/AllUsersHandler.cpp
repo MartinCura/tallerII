@@ -21,14 +21,7 @@ Response* AllUsersHandler::handleGetRequest(http_message* httpMessage, string ur
         user["id"] = (*users)[i]->getId();
         responseBody["all_users"].append(user);
     }
-    /*
-    std::vector<long>* ids = personManager->getAllUsersIds();
-    responseBody["metadata"]["count"] = ids->size();
-    for (vector<long>::iterator iter = ids->begin() ; iter != ids->end() ; iter++) {
-        responseBody["all_users"].append(*iter);
-    }
     response->setBody(responseBody.toStyledString());
-    delete ids;*/
     delete users;
     delete personManager;
     return response;
