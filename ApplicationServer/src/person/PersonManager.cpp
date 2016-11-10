@@ -28,6 +28,34 @@ void PersonManager::updateName(string user_newName, string user_oldName, string 
     }
 }
 
+void PersonManager::updateWorkHistory(vector<WorkHistory*> new_positions, vector<WorkHistory *> old_positions, string user_mail) {
+    for (int i = 0; i < new_positions.size(); i++) {
+        bool position_exists = false;
+        std::string user_newPosition = new_positions[i]->getPositionTitle();
+        std::transform(user_newPosition.begin(), user_newPosition.end(), user_newPosition.begin(), ::tolower);
+        for (int i2 = 0; i2 < old_positions.size(); i2++) {
+            if (old_positions[i2]->getPositionTitle().compare(user_newPosition) == 0) {
+                position_exists = true;
+                break;
+            }
+        }
+        if (!position_exists) savePosition(user_newPosition, user_mail);
+    }
+    for (int j = 0; j < old_positions.size(); j++) {
+
+        bool position_exists = false;
+        for (int j2 = 0; j2 < new_positions.size(); j2 ++) {
+            std::string positionTitle = new_positions[j]->getPositionTitle();
+            if (old_positions[j]->getPositionTitle().compare(positionTitle) == 0) {
+                position_exists = true;
+                break;
+            }
+        }
+        if (!position_exists) deleteUserFromJobPosition(old_positions[j]->getPositionTitle(), user_mail);
+
+    }
+
+}
 void PersonManager::updateSkills(vector<Skill *> new_skills, vector<Skill *> old_skills, string user_mail) {
 
     for (int i = 0; i < new_skills.size(); i++) {
@@ -72,8 +100,23 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
     //Actualizar skill
     updateSkills(new_user->getSkills(), old_user->getSkills(), user_mail);
 
+    //Actualizar WorkHistory
+    vector<WorkHistory*> new_WorkHistory = new_user->getWorkHistory();
+    if (new_user->getCurrentJob() != nullptr) new_WorkHistory.push_back(new_user->getCurrentJob());
+    vector<WorkHistory*> old_WorkHistory = old_user->getWorkHistory();
+    if (old_user->getCurrentJob() != nullptr) old_WorkHistory.push_back(old_user->getCurrentJob());
+    updateWorkHistory(new_WorkHistory, old_WorkHistory, user_mail);
+
+    //Actualizar Posicion Actual
+
     //No olvidar el numero de recomendaciones
     new_user->setTotalRecommendations(old_user->getTotalOfRecommendations());
+
+    //No olvidear la ubicación
+    double latitude = (new_user->getLocation()->isEmpty()) ? old_user->getLocation()->getLatitude() : new_user->getLocation()->getLatitude();
+    double longitude = (new_user->getLocation()->isEmpty()) ? old_user->getLocation()->getLongitude() : new_user->getLocation()->getLongitude();
+    new_user->setLocation(latitude, longitude);
+
     Json::FastWriter fastWriter;
     std::string person_string = fastWriter.write(new_user->serializeMe());
     db->puTKey(USER_MAIL_ID + user_mail, &person_string);
@@ -108,32 +151,35 @@ long PersonManager::savePerson(Json::Value juser_new_information, long forceID) 
 
     vector<Skill*> skills = user->getSkills();
     saveSkills(skills, user_mail);
+    savePositions(user->getWorkHistory(), user_mail);
+
+    if (user->getCurrentJob() != nullptr) {
+        savePosition(user->getCurrentJob()->getPositionTitle(), user_mail);
+    }
 
     delete user;
     return uniqueId;
 
 }
-
-vector<long> * PersonManager::getAllUsersIds() {
+vector<Person*> * PersonManager::getAllUsers() {
     // Get a database iterator
-    std::vector<long>* ids = new vector<long>();
+    std::vector<Person*>* all_users = new vector<Person*>();
 
-    leveldb::Slice startSlice = USER_UUID_ID;
-    leveldb::Slice endSlice = USER_MAIL_ID;
+    leveldb::Slice startSlice = USER_MAIL_ID;
+    leveldb::Slice endSlice = USER_NAME_ID;
 
     shared_ptr<leveldb::Iterator> iterator(db->newIterator());
-
     for(iterator->Seek(startSlice); iterator->Valid() && (iterator->key()).ToString().compare(endSlice.ToString()) ; iterator->Next())
-    {
-        // Read the record
-        if( !iterator->value().empty() )
-        {
-            ids->push_back(std::stol(iterator->key().ToString().replace(0,strlen(USER_UUID_ID),"")));
+    {   // Read the record
+        if( !iterator->value().empty() ) {
+            std::cout << iterator->value().ToString();
+            Json::Value juser = getJsonFromString(iterator->value().ToString());
+            Person* user = new Person(juser);
+            all_users->push_back(user);
         }
     }
-    return ids;
+    return all_users;
 }
-
 vector<Person *> * PersonManager::searchByName(std::string user_searchName) {
     std::vector<Person*>* users_result = new vector<Person*>();
     leveldb::Slice startSlice = USER_NAME_ID;
@@ -156,7 +202,7 @@ vector<Person *> * PersonManager::searchByName(std::string user_searchName) {
                     throw BadImplementationException();
                 }
 
-                juser = this->getStringAsJson(suser);
+                juser = this->getJsonFromString(suser);
                 Person* user = new Person(juser);
                 users_result->push_back(user);
             }
@@ -185,7 +231,6 @@ vector<Person *> * PersonManager::searchBySkill(std::string skill) {
     if (!db->existsKey(USER_SKILL + skill, &users_withSkill)) {
          return users_result;
     }
-
     size_t last = 1; size_t next = 0;
     std::string delimiter = ",";
     while ((next = users_withSkill.find(delimiter, last)) != string::npos) {
@@ -195,20 +240,13 @@ vector<Person *> * PersonManager::searchBySkill(std::string skill) {
             //El usuario se borro
             //Aprovecho y lo elimino de acá también.
             deleteUserFromSkill(skill, user_mail);
-
         } else {
-            Json::Value juser_information = getStringAsJson(user_information);
+            Json::Value juser_information = getJsonFromString(user_information);
             Person* user = new Person(juser_information);
             users_result->push_back(user);
         }
-
-
-
         last = next + 1;
     }
-
-
-
     return users_result;
 
 }
@@ -229,7 +267,7 @@ void PersonManager::deletePerson(long id) {
         throw  BadImplementationException();
     }
 
-    Json::Value juser_information = getStringAsJson(user_information);
+    Json::Value juser_information = getJsonFromString(user_information);
     std::string user_name = juser_information["first_name"].asString() + "-" + juser_information["last_name"].asString();
     std::transform(user_name.begin(), user_name.end(), user_name.begin(), ::tolower);
     db->deleteKey(USER_MAIL_ID + user_mail);
@@ -266,10 +304,7 @@ Person* PersonManager::getUserByMail(std::string *user_mail) {
     if (!db->existsKey(USER_MAIL_ID + *user_mail, &result)) {
         throw UserNotFoundException(*user_mail);
     }
-
-    json_user = this->getStringAsJson(result);
-    std::string password = "password";
-    json_user.removeMember(password.c_str()); //TODO a lo wacho
+    json_user = getJsonFromString(result);
     return new Person(json_user);
 }
 
@@ -374,7 +409,7 @@ void PersonManager::setOrUpdateNotificationToken(Json::Value request, long userI
     delete notificationTokenManager;
 }
 
-Json::Value PersonManager::getStringAsJson(std::string svalue) {
+Json::Value PersonManager::getJsonFromString(std::string svalue) {
     Json::Reader reader;
     Json::Value jvalue;
     reader.parse(svalue.c_str(), jvalue);
@@ -406,7 +441,32 @@ void PersonManager::deleteUserFromSkill(string skill_name, string user_mail) {
 }
 
 vector<Person *> *PersonManager::searchByJobPosition(string job_position) {
-    return nullptr;
+    std::string users_withJobPosition, user_information;
+    std::vector<Person*>* users_result = new vector<Person*>();
+    std::transform(job_position.begin(), job_position.end(), job_position.begin(), ::tolower);
+    if (!db->existsKey(USER_JOBPOSITION + job_position, &users_withJobPosition)) {
+        return users_result;
+    }
+    size_t last = 1; size_t next = 0;
+    std::string delimiter = ",";
+    while ((next = users_withJobPosition.find(delimiter, last)) != string::npos) {
+        std::string user_mail = users_withJobPosition.substr(last, next-last);
+
+        if (!db->existsKey(USER_MAIL_ID + user_mail, &user_information)) {
+            //El usuario se borro
+            //Aprovecho y lo elimino de acá también.
+            deleteUserFromJobPosition(job_position, user_mail);
+        } else {
+            Json::Value juser_information = getJsonFromString(user_information);
+            Person* user = new Person(juser_information);
+            users_result->push_back(user);
+        }
+        last = next + 1;
+    }
+
+
+
+    return users_result;
 }
 
 vector<Person *> *PersonManager::searchByMail(string user_mail) {
@@ -426,7 +486,7 @@ vector<Person *> *PersonManager::searchByMail(string user_mail) {
             if(regex_match(iterator->key().ToString(), e)) {
                 //busqueda del usuario
                 std::string user_information = iterator->value().ToString();
-                juser = this->getStringAsJson(user_information);
+                juser = this->getJsonFromString(user_information);
                 Person* user = new Person(juser);
                 users_result->push_back(user);
             }
@@ -435,6 +495,36 @@ vector<Person *> *PersonManager::searchByMail(string user_mail) {
     }
 
     return users_result;
+}
+
+void PersonManager::savePositions(vector<WorkHistory*> positions, string user_mail) {
+    for (int index2 = 0; index2 < positions.size(); index2++) {
+        std::string jobPosition_title = positions[index2]->getPositionTitle();
+        std::transform(jobPosition_title.begin(), jobPosition_title.end(), jobPosition_title.begin(), ::tolower);
+        savePosition(jobPosition_title, user_mail);
+    }
+}
+
+void PersonManager::savePosition(string position_title, string user_mail) {
+    string users_mail;
+    if (db->existsKey(USER_JOBPOSITION + position_title, &users_mail)) {
+        users_mail += user_mail;
+        users_mail += ",";
+    } else {
+        users_mail = ","+user_mail +",";
+    }
+    db->puTKey(USER_JOBPOSITION + position_title, &users_mail);
+}
+
+void PersonManager::deleteUserFromJobPosition(string job_position, string user_mail) {
+    std::string output;
+    if (!db->existsKey(USER_JOBPOSITION + job_position, &output)) {
+        throw BadImplementationException();
+    } else {
+        regex reg("(.*)," + user_mail +"(.*)");
+        output = regex_replace(output, reg, "$1$2");
+        db->puTKey(USER_JOBPOSITION + job_position, &output);
+    }
 }
 
 

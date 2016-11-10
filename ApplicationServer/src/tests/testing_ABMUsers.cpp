@@ -316,52 +316,6 @@ TEST(PersonManagerTest, updateUser) {
     delete namedb;
 }
 
-TEST(PersonManagerTest, GetAllUsers) {
-    Json::Value user;
-    long userId;
-    vector<long>* getAllUsersResult;
-    unsigned long getAllUsersResultSize;
-    bool existsId;
-
-    string* namedb = new string();
-    *namedb = NAME_DB;
-    DBWrapper* db = DBWrapper::openDb(namedb);
-    PersonManager*  personManager = new PersonManager(db);
-
-    for( int i = 0 ; i < 5 ; i++) {
-
-        user["id"] = 0;
-        user["password"] = "123";
-        user["first_name"] = "Carlos";
-        user["last_name"] = "Rodriguez";
-        user["email"] = std::to_string(i) + "@gmail.com";
-        user["date_of_birth"] = "01/01/1990";
-        user["city"] = "CABA";
-        user["profile_picture"] = "";
-        user["summary"] = "Me gusta el arrte";
-
-        userId = personManager->savePerson(user, i);
-
-        sleep(1);
-
-        getAllUsersResult = personManager->getAllUsersIds();
-
-        getAllUsersResultSize = getAllUsersResult->size();
-
-        EXPECT_EQ(getAllUsersResultSize,i+1);
-
-        existsId = std::find(getAllUsersResult->begin(), getAllUsersResult->end(), userId) != getAllUsersResult->end();
-        EXPECT_TRUE(existsId);
-
-        delete getAllUsersResult;
-
-    }
-
-    db->destroyDB(namedb);
-    DBWrapper::ResetInstance();
-    delete personManager;
-}
-
 TEST(PersonManagerTest, loginOK){
     SessionManager* sessionManager;
     Json::Value user;

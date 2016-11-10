@@ -50,7 +50,7 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
 
 
     Json::Value jresult;
-    jresult["total_results"] = result->size();
+    jresult["metadata"]["total_results"] = result->size();
     for (long i = start; i< end; i++) {
         Json::Value user_minInformation;
         user_minInformation["first_name"] = (*result)[i]->getFirstName();

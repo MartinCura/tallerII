@@ -18,9 +18,12 @@ public:
     double getLatitude();
     double getLongitude();
 
+    bool isEmpty();
+
 private:
     double latitude;
     double longitude;
+
 };
 
 #endif //PROJECT_LOCATION_H

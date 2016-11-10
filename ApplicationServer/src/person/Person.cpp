@@ -235,7 +235,7 @@ void Person::deleteSkills() {
 }
 
 int Person::getTotalOfRecommendations() {
-    return this->totRecommendations; //FIXME: CAMBIAR LOGICA DE RECOMENDACIONEES
+    return this->totRecommendations;
 }
 
 void Person::setTotalRecommendations(int i) {

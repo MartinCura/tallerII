@@ -58,6 +58,7 @@ public:
 
 private:
     long id;
+    int totRecommendations;
     string firstName;
     string lastName;
     string email;
@@ -74,7 +75,7 @@ private:
     void deleteWorkHistory();
     void deleteSkills();
 
-    int totRecommendations;
+
 
 };
 

@@ -7,6 +7,10 @@ Location::Location() {
 
 Location::~Location() {}
 
+bool Location::isEmpty() {
+    return this->latitude == 0.0 && this->longitude == 0.0;
+}
+
 void Location::setLatitude(double latitude) {
     this->latitude = latitude;
 }
