@@ -54,6 +54,8 @@ public:
 
     void setTotalRecommendations(int i);
 
+    string getPassword();
+
 private:
     long id;
     string firstName;
@@ -73,6 +75,7 @@ private:
     void deleteSkills();
 
     int totRecommendations;
+
 };
 
 #endif //PROJECT_PERSON_H

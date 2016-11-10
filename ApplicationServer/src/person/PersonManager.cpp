@@ -13,6 +13,7 @@
 #define USER_PASSWORD "user:password_"
 #define USER_NAME_ID "user:name_"
 #define USER_SKILL "user:skill_"
+#define USER_JOBPOSITION "user:jobPosition_"
 
 PersonManager::PersonManager(DBWrapper *db) {
     this->db = db;
@@ -81,51 +82,36 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
 }
 long PersonManager::savePerson(Json::Value juser_new_information, long forceID) {
     std::string user_mail, user_password, user_name, user_information, person_string;
-
+    Person* user = new Person(juser_new_information);
     Json::FastWriter fastWriter;
     long uniqueId;
 
-    user_mail=  juser_new_information["email"].asString();
-    std::transform(user_mail.begin(), user_mail.end(), user_mail.begin(), ::tolower);
-    user_name = juser_new_information["first_name"].asString() + "-" + juser_new_information["last_name"].asString();
-    std::transform(user_name.begin(), user_name.end(), user_name.begin(), ::tolower);
-    user_password = juser_new_information["password"].asString();
+    user_mail= user->getEmail();
+    user_name = user->getFullName();
+    user_password = user->getPassword();
 
 
     if (db->existsKey(USER_MAIL_ID + user_mail, &user_information )) {
-        //Ya existe un usuario con dicho mail
+        delete user;
         throw  UserAlreadyExistsException();
-    } else {
-
-        if (forceID != -1) {
-            //Quiero forzar a que el usuario se guarde con un id que se pase por parámetro
-            uniqueId = forceID;
-        } else {
-            uniqueId = generateID();
-        }
-        juser_new_information["id"] = uniqueId;
-        juser_new_information["tot_recommendations"] = 0;
-        std::string password = "password";
-        juser_new_information.removeMember(password.c_str());
-        person_string = fastWriter.write(juser_new_information);
-        std::transform(person_string.begin(), person_string.end(), person_string.begin(), ::tolower);
-        db->puTKey(USER_MAIL_ID + user_mail, &person_string);
-        db->puTKey(USER_NAME_ID + user_name + "_" + user_mail, &user_mail);
-        db->puTKey(USER_UUID_ID + std::to_string(uniqueId), &user_mail);
-        db->puTKey(USER_PASSWORD + user_mail, &user_password);
-
-        vector<Skill*>* skills = new vector<Skill*>();
-        const Json::Value jSkillVector = juser_new_information["skills"];
-        for (int index2 = 0; index2 < jSkillVector.size(); index2++) {
-            Skill* skill = new Skill(jSkillVector[index2]);
-            skills->push_back(skill);
-        }
-        saveSkills(*skills, user_mail);
-
-        delete skills;
-        return uniqueId;
-
     }
+
+    uniqueId = (forceID != -1)? forceID:generateID();
+    user->setId(uniqueId);
+    user->setTotalRecommendations(0); //setting recommendation in 0
+    user->setPassword(""); //delete password before saving.
+    person_string = fastWriter.write(user->serializeMe());
+    db->puTKey(USER_MAIL_ID + user_mail, &person_string);
+    db->puTKey(USER_NAME_ID + user_name + "_" + user_mail, &user_mail);
+    db->puTKey(USER_UUID_ID + std::to_string(uniqueId), &user_mail);
+    db->puTKey(USER_PASSWORD + user_mail, &user_password);
+
+    vector<Skill*> skills = user->getSkills();
+    saveSkills(skills, user_mail);
+
+    delete user;
+    return uniqueId;
+
 }
 
 vector<long> * PersonManager::getAllUsersIds() {

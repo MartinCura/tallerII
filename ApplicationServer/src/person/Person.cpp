@@ -54,6 +54,7 @@ void Person::setDateOfBirth(string dateOfBirth) {
 }
 
 void Person::setCity(string city) {
+    transform(city.begin(), city.end(), city.begin(), ::tolower);
     this->city = city;
 }
 
@@ -118,6 +119,10 @@ vector<Skill*> Person::getSkills() {
     return this->skills;
 }
 
+string Person::getPassword() {
+    return this->password;
+}
+
 WorkHistory* Person::getCurrentJob() {
     vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
     for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
@@ -139,6 +144,7 @@ void Person::deserializeMe(Json::Value personAsJson) {
     this->password = personAsJson["password"].asString();
     this->dateOfBirth = personAsJson["date_of_birth"].asString();
     this->city = personAsJson["city"].asString();
+    std::transform(this->city.begin(), this->city.end(), this->city.begin(), ::tolower);
     this->summary = personAsJson["summary"].asString();
     this->totRecommendations = personAsJson["tot_recommendations"].asInt();
 

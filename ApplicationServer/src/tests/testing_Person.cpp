@@ -71,7 +71,7 @@ TEST(NewUser, CompleteUser) {
 	user.setCity("Mar del Plata");
 	user.setSummary("Carrera");
 	
-	EXPECT_EQ(user.getCity(), "Mar del Plata");
+	EXPECT_EQ(user.getCity(), "mar del plata");
 	EXPECT_EQ(user.getSummary(), "Carrera");
 }
 
@@ -85,7 +85,7 @@ TEST(User, GetUserJson) {
 	EXPECT_EQ(jUser["last_name"].asString(), "rodriguez");
 	EXPECT_EQ(jUser["email"].asString(), "crodriguez@gmail.com");
 	EXPECT_EQ(jUser["date_of_birth"].asString(), "01/01/1990");
-	EXPECT_EQ(jUser["city"].asString(), "CABA");
+	EXPECT_EQ(jUser["city"].asString(), "caba");
 	EXPECT_EQ(jUser["profile_picture"].asString(), "");
 	EXPECT_EQ(jUser["summary"].asString(), "Me gusta el arrte");
 	EXPECT_EQ(jUser["location"]["latitude"].asDouble(), -58.368368);
