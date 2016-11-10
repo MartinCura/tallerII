@@ -12,15 +12,13 @@
 #include "recommendation/RecommendationsManager.h"
 #include "messages/MessagesManager.h"
 #include "messages/NotificationTokenManager.h"
+#include "Manager.h"
 
-class PersonManager {
+class PersonManager : public Manager{
 
 public:
     PersonManager(DBWrapper *db);
     virtual ~PersonManager();
-
-    Person* getPersonById(long id);
-    Person* getUserByMail(string *user_mail);
 
 
     /*
@@ -44,7 +42,6 @@ public:
     Json::Value getRecommendationsByUserId(long userId);
     string saveMessage(Json::Value request);
     vector<Message*> getMessages(long fromUserId, long toUserId);
-    bool userExists(long userId);
     string getNotificationTokenByUserId(long userId);
     void setOrUpdateNotificationToken(Json::Value request, long userId);
     vector<Person *> *searchByName(std::string user_searchName);
@@ -55,14 +52,11 @@ public:
     vector<Person *> *searchByMail(string user_mail);
 
 private:
-    DBWrapper* db;
-
     long generateID();
     void validateUsersOfRequest(long fromUserId, long toUserId);
-    Json::Value getJsonFromString(string svalue);
     void saveSkills(std::vector<Skill *> user_newSkills, string user_mail);
-    void updateName(string user_newName, string user_oldName, string user_mail);
-    void saveSkill(string skill_name, string user_mail);
+    void updateName(Person* new_user, Person* old_user);
+    void saveSkill(Skill *skill, string user_mail);
     void updateSkills(vector<Skill *> new_skills, vector<Skill *> old_skills, string user_mail);
     void deleteUserFromSkill(string skill_name, string user_mail);
 

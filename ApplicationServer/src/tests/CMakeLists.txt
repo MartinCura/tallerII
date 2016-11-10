@@ -18,7 +18,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveld
 # files (.cpp) in the project
 file(GLOB_RECURSE SOURCES *.cpp ../person/*.cpp)
 
-add_executable (${TARGET} ${SOURCES} ../DB/DBWrapper.h ../DB/DBWrapper.cpp testing_uniqueDB.cpp ../Exceptions/UserAlreadyExistsException.h ../Exceptions/UserNotFoundException.h ../Exceptions/InvalidTokenException.h ../session/SessionManager.cpp ../session/SessionManager.h  ../person/relation/RelationsManager.cpp ../person/relation/RelationsManager.h ../Exceptions/TokenExpiredException.h ../session/Session.cpp ../session/Session.h ../Security/Security.cpp ../Security/Security.h ../Exceptions/NotAuthorizedException.h SearchUsersTesting.cpp ../Exceptions/BadImplementationException.h)
+add_executable (${TARGET} ${SOURCES} ../DB/DBWrapper.h ../DB/DBWrapper.cpp testing_uniqueDB.cpp ../Exceptions/UserAlreadyExistsException.h ../Exceptions/UserNotFoundException.h ../Exceptions/InvalidTokenException.h ../session/SessionManager.cpp ../session/SessionManager.h  ../person/relation/RelationsManager.cpp ../person/relation/RelationsManager.h ../Exceptions/TokenExpiredException.h ../session/Session.cpp ../session/Session.h ../Security/Security.cpp ../Security/Security.h ../Exceptions/NotAuthorizedException.h SearchUsersTesting.cpp ../Exceptions/BadImplementationException.h ../person/Manager.cpp ../person/Manager.h ../Exceptions/KeyNotFound.h)
 
 target_link_libraries (${TARGET} gtest)
 target_link_libraries (${TARGET} leveldb)

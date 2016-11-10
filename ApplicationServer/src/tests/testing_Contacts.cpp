@@ -135,7 +135,7 @@ TEST(Contacts, RequestContact) {
         vector<Contact*> contacts = personManager->getContactsByUserId(1);
         ASSERT_EQ(contacts.size(), 1);
         Contact* contact = contacts[0];
-        Person* person = personManager->getPersonById(contact->getUserId());
+        Person* person = personManager->getUserById(contact->getUserId());
         ASSERT_EQ(person->getId(), 2);
         ASSERT_EQ(contact->getStatus(), "requested");
         delete contact;
@@ -162,7 +162,7 @@ TEST(Contacts, AcceptContact) {
         vector<Contact*> contacts = personManager->getContactsByUserId(1);
         ASSERT_EQ(contacts.size(), 1);
         Contact* contact = contacts[0];
-        Person* person = personManager->getPersonById(contact->getUserId());
+        Person* person = personManager->getUserById(contact->getUserId());
         ASSERT_EQ(person->getId(), 2);
         ASSERT_EQ(contact->getStatus(), "active");
         delete contact;

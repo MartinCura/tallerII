@@ -1,6 +1,7 @@
 #include "PersonManager.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
 #include "../Exceptions/BadImplementationException.h"
+#include "../Exceptions/KeyNotFound.h"
 
 #include <chrono>
 #include <memory>
@@ -8,12 +9,7 @@
 #include <regex>
 #include <set>
 
-#define USER_MAIL_ID "user:mail_"
-#define USER_UUID_ID "user:uuid_"
-#define USER_PASSWORD "user:password_"
-#define USER_NAME_ID "user:name_"
-#define USER_SKILL "user:skill_"
-#define USER_JOBPOSITION "user:jobPosition_"
+
 
 PersonManager::PersonManager(DBWrapper *db) {
     this->db = db;
@@ -21,10 +17,12 @@ PersonManager::PersonManager(DBWrapper *db) {
 
 PersonManager::~PersonManager() {}
 
-void PersonManager::updateName(string user_newName, string user_oldName, string user_mail) {
+void PersonManager::updateName(Person* new_user, Person* old_user) {
+    string user_oldName = old_user->getFullName();
+    string user_newName = new_user->getFullName();
     if (user_oldName.compare(user_newName) != 0) {
-        db->deleteKey(USER_NAME_ID + user_oldName + "_" + user_mail);
-        db->puTKey(USER_NAME_ID + user_newName + "_" + user_mail, &user_mail);
+        deleteUserNameKey(old_user);
+        saveUserNameKey(new_user);
     }
 }
 
@@ -68,7 +66,7 @@ void PersonManager::updateSkills(vector<Skill *> new_skills, vector<Skill *> old
                 break;
             }
         }
-        if (!skill_exists) saveSkill(user_newSkill, user_mail);
+        if (!skill_exists) saveSkill(new_skills[i], user_mail);
     }
     for (int j = 0; j < old_skills.size(); j++) {
 
@@ -91,10 +89,10 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
     Person* new_user = new Person(juser_new_information);
     std::string user_mail = new_user->getEmail();
 
-    Person* old_user = getUserByMail(&user_mail);
+    Person* old_user = getUserByMail(user_mail);
 
     //Actualizar nombre completo de usuario;
-    updateName(new_user->getFullName(), old_user->getFullName(), user_mail);
+    updateName(new_user, old_user);
     updateSkills(new_user->getSkills(), old_user->getSkills(), user_mail);
 
     //Actualizar skill
@@ -126,7 +124,6 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
 long PersonManager::savePerson(Json::Value juser_new_information, long forceID) {
     std::string user_mail, user_password, user_name, user_information, person_string;
     Person* user = new Person(juser_new_information);
-    Json::FastWriter fastWriter;
     long uniqueId;
 
     user_mail= user->getEmail();
@@ -134,7 +131,7 @@ long PersonManager::savePerson(Json::Value juser_new_information, long forceID) 
     user_password = user->getPassword();
 
 
-    if (db->existsKey(USER_MAIL_ID + user_mail, &user_information )) {
+    if (userExistsMail(user_mail)) {
         delete user;
         throw  UserAlreadyExistsException();
     }
@@ -143,14 +140,13 @@ long PersonManager::savePerson(Json::Value juser_new_information, long forceID) 
     user->setId(uniqueId);
     user->setTotalRecommendations(0); //setting recommendation in 0
     user->setPassword(""); //delete password before saving.
-    person_string = fastWriter.write(user->serializeMe());
-    db->puTKey(USER_MAIL_ID + user_mail, &person_string);
-    db->puTKey(USER_NAME_ID + user_name + "_" + user_mail, &user_mail);
-    db->puTKey(USER_UUID_ID + std::to_string(uniqueId), &user_mail);
-    db->puTKey(USER_PASSWORD + user_mail, &user_password);
 
-    vector<Skill*> skills = user->getSkills();
-    saveSkills(skills, user_mail);
+    saveUser(user);
+    saveUserNameKey(user);
+    saveUserIdKey(user);
+    saveUserPasswordKey(user, user_password);
+
+    saveSkills(user->getSkills(), user_mail);
     savePositions(user->getWorkHistory(), user_mail);
 
     if (user->getCurrentJob() != nullptr) {
@@ -200,54 +196,41 @@ vector<Person *> * PersonManager::searchByName(std::string user_searchName) {
         if( !iterator->value().empty() )
         {
             if(regex_match(iterator->key().ToString(), e)) {
-                //busqueda del usuario
-                std::string user_mail_id = USER_MAIL_ID + iterator->value().ToString();
-                if (!db->existsKey(user_mail_id, &suser)) {
-                    throw BadImplementationException();
-                }
-
-                juser = this->getJsonFromString(suser);
-                Person* user = new Person(juser);
-                users_result->push_back(user);
+                users_result->push_back(getUserByMail(iterator->value().ToString()));
             }
-
         }
     }
-
     return users_result;
-
 }
 
 
 void PersonManager::saveSkills(std::vector<Skill *> user_newSkills, string user_mail) {
 
     for (int index2 = 0; index2 < user_newSkills.size(); index2++) {
-        std::string skill_name = user_newSkills[index2]->getName();
-        std::transform(skill_name.begin(), skill_name.end(), skill_name.begin(), ::tolower);
-        saveSkill(skill_name, user_mail);
+        saveSkill(user_newSkills[index2], user_mail);
     }
 }
 
 vector<Person *> * PersonManager::searchBySkill(std::string skill) {
-    std::string users_withSkill, user_information;
+    string users_withSkill;
     std::vector<Person*>* users_result = new vector<Person*>();
-    std::transform(skill.begin(), skill.end(), skill.begin(), ::tolower);
-    if (!db->existsKey(USER_SKILL + skill, &users_withSkill)) {
-         return users_result;
+    try {
+        users_withSkill = getUserSkillKey(skill);
+    } catch (KeyNotFound& exception1) {
+        return users_result;
     }
+
+
     size_t last = 1; size_t next = 0;
     std::string delimiter = ",";
     while ((next = users_withSkill.find(delimiter, last)) != string::npos) {
         std::string user_mail = users_withSkill.substr(last, next-last);
-
-        if (!db->existsKey(USER_MAIL_ID + user_mail, &user_information)) {
-            //El usuario se borro
-            //Aprovecho y lo elimino de acá también.
-            deleteUserFromSkill(skill, user_mail);
-        } else {
-            Json::Value juser_information = getJsonFromString(user_information);
-            Person* user = new Person(juser_information);
+        Person* user;
+        try {
+            user = getUserByMail(user_mail);
             users_result->push_back(user);
+        } catch (UserNotFoundException& exception) {
+            deleteUserFromSkill(skill, user_mail);
         }
         last = next + 1;
     }
@@ -259,58 +242,18 @@ vector<Person *> * PersonManager::searchBySkill(std::string skill) {
 
 void PersonManager::deletePerson(long id) {
 
-    std::string user_mail, user_information;
-
-    if (!db->existsKey(USER_UUID_ID+std::to_string(id), &user_mail)) {
+    Person *user = getUserById(id);
+    try {
+        deleteUserIdKey(user);
+        deleteUserNameKey(user);
+        deleteUserPasswordKey(user);
+        deleteUser(user);
+    } catch (exception &exception1) {
         throw UserNotFoundException(id);
     }
-
-    db->deleteKey(USER_UUID_ID + std::to_string(id));
-
-    if (!db->existsKey(USER_MAIL_ID + user_mail, &user_information)) {
-        throw  BadImplementationException();
-    }
-
-    Json::Value juser_information = getJsonFromString(user_information);
-    std::string user_name = juser_information["first_name"].asString() + "-" + juser_information["last_name"].asString();
-    std::transform(user_name.begin(), user_name.end(), user_name.begin(), ::tolower);
-    db->deleteKey(USER_MAIL_ID + user_mail);
-    if (!db->existsKey(USER_NAME_ID + user_name + "_" + user_mail, &user_information)) {
-        throw BadImplementationException();
-    }
-
-    db->deleteKey(USER_NAME_ID + user_name + "_" + user_mail);
-    if (!db->existsKey(USER_PASSWORD + user_mail, &user_information)) {
-        throw BadImplementationException();
-    }
-
-    db->deleteKey(USER_PASSWORD + user_mail);
 }
 
 
-Person* PersonManager::getPersonById(long id) {
-
-    std::string  user_mail;
-
-    if (db->existsKey(USER_UUID_ID + std::to_string(id), &user_mail)) {
-        return getUserByMail(&user_mail);
-    } else {
-        //No se encontro el usuario
-        throw UserNotFoundException(id);
-    }
-
-}
-
-Person* PersonManager::getUserByMail(std::string *user_mail) {
-    std::string result;
-    Json::Value json_user;
-
-    if (!db->existsKey(USER_MAIL_ID + *user_mail, &result)) {
-        throw UserNotFoundException(*user_mail);
-    }
-    json_user = getJsonFromString(result);
-    return new Person(json_user);
-}
 
 vector<Contact*> PersonManager::getContactsByUserId(long id) {
     if (!this->userExists(id)) {
@@ -391,11 +334,6 @@ long PersonManager::generateID() {
     return  labs(ms.count() << 3 + rand % 100);
 }
 
-bool PersonManager::userExists(long userId) {
-    std::string result;
-    return (db->existsKey(USER_UUID_ID + to_string(userId), &result));
-}
-
 string PersonManager::getNotificationTokenByUserId(long userId) {
     if (!this->userExists(userId)) throw UserNotFoundException(userId);
     NotificationTokenManager* notificationTokenManager = new NotificationTokenManager(this->db);
@@ -413,63 +351,57 @@ void PersonManager::setOrUpdateNotificationToken(Json::Value request, long userI
     delete notificationTokenManager;
 }
 
-Json::Value PersonManager::getJsonFromString(std::string svalue) {
-    Json::Reader reader;
-    Json::Value jvalue;
-    reader.parse(svalue.c_str(), jvalue);
-    return  jvalue;
-}
 
-void PersonManager::saveSkill(string skill_name, string user_mail) {
+
+void PersonManager::saveSkill(Skill *skill, string user_mail) {
     string users_mail;
-    if (db->existsKey(USER_SKILL + skill_name, &users_mail)) {
-
+    std::string skill_name = skill->getName();
+    std::transform(skill_name.begin(), skill_name.end(), skill_name.begin(), ::tolower);
+    try {
+        users_mail = getUserSkillKey(skill_name);
         users_mail += user_mail;
         users_mail += ",";
-    } else {
+    } catch (KeyNotFound& exception1){
         users_mail = ","+user_mail +",";
     }
-    db->puTKey(USER_SKILL + skill_name, &users_mail);
+    saveUserSkillKey(skill_name, users_mail);
 
 }
 
 void PersonManager::deleteUserFromSkill(string skill_name, string user_mail) {
     std::string output;
-    if (!db->existsKey(USER_SKILL + skill_name, &output)) {
-        throw BadImplementationException();
-    } else {
+    try {
+        output = getUserSkillKey(skill_name);
         regex reg("(.*)," + user_mail +"(.*)");
         output = regex_replace(output, reg, "$1$2");
-        db->puTKey(USER_SKILL + skill_name, &output);
+        saveUserSkillKey(skill_name, output);
+    } catch (KeyNotFound& exception1) {
+        throw BadImplementationException();
     }
 }
 
 vector<Person *> *PersonManager::searchByJobPosition(string job_position) {
-    std::string users_withJobPosition, user_information;
+    std::string users_withJobPosition;
     std::vector<Person*>* users_result = new vector<Person*>();
     std::transform(job_position.begin(), job_position.end(), job_position.begin(), ::tolower);
-    if (!db->existsKey(USER_JOBPOSITION + job_position, &users_withJobPosition)) {
+    try {
+        users_withJobPosition = getUserJobPositionKey(job_position);
+    } catch (KeyNotFound& keyNotFound) {
         return users_result;
     }
     size_t last = 1; size_t next = 0;
     std::string delimiter = ",";
     while ((next = users_withJobPosition.find(delimiter, last)) != string::npos) {
         std::string user_mail = users_withJobPosition.substr(last, next-last);
-
-        if (!db->existsKey(USER_MAIL_ID + user_mail, &user_information)) {
-            //El usuario se borro
-            //Aprovecho y lo elimino de acá también.
-            deleteUserFromJobPosition(job_position, user_mail);
-        } else {
-            Json::Value juser_information = getJsonFromString(user_information);
-            Person* user = new Person(juser_information);
+        Person* user;
+        try {
+            user = getUserByMail(user_mail);
             users_result->push_back(user);
+        } catch (UserNotFoundException& userNotFoundException) {
+            deleteUserFromJobPosition(job_position, user_mail);
         }
         last = next + 1;
     }
-
-
-
     return users_result;
 }
 
@@ -511,23 +443,25 @@ void PersonManager::savePositions(vector<WorkHistory*> positions, string user_ma
 
 void PersonManager::savePosition(string position_title, string user_mail) {
     string users_mail;
-    if (db->existsKey(USER_JOBPOSITION + position_title, &users_mail)) {
+    try {
+        users_mail = getUserJobPositionKey(position_title);
         users_mail += user_mail;
         users_mail += ",";
-    } else {
+    } catch (KeyNotFound& keyNotFound) {
         users_mail = ","+user_mail +",";
     }
-    db->puTKey(USER_JOBPOSITION + position_title, &users_mail);
+    saveUserJobPositionKey(position_title, users_mail);
 }
 
 void PersonManager::deleteUserFromJobPosition(string job_position, string user_mail) {
     std::string output;
-    if (!db->existsKey(USER_JOBPOSITION + job_position, &output)) {
-        throw BadImplementationException();
-    } else {
+    try {
+        output = getUserJobPositionKey(job_position);
         regex reg("(.*)," + user_mail +"(.*)");
         output = regex_replace(output, reg, "$1$2");
-        db->puTKey(USER_JOBPOSITION + job_position, &output);
+        saveUserJobPositionKey(job_position, output);
+    } catch (KeyNotFound& keyNotFound) {
+        throw BadImplementationException();
     }
 }
 
