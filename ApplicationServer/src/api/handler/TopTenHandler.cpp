@@ -42,7 +42,7 @@ Response *TopTenHandler::handleGetRequest(http_message *httpMessage, string url)
         result = personManager->searchByJobPosition(whichOne);
     }
 
-    std::sort ((*result).begin(), (*result).end(), myfunction); // 12 32 45 71(26 33 53 80)
+    std::sort ((*result).begin(), (*result).end(), myfunction);
 
     //TODO:COMPROBAR QUE EL SKILL SEA VALIDO
     Json::Value jresult;

@@ -3,11 +3,20 @@
 //
 
 #include <iostream>
+#include <algorithm>
 #include "SearchHandler.h"
 #include "../../person/PersonManager.h"
 
 Response *SearchHandler::handlePostRequest(http_message *httpMessage) {
         return this->getNotImplementedResponse();
+}
+
+/// Ordena de mayor a menor.
+/// \param p1
+/// \param p2
+/// \return true si p1 es mayor a p2
+bool myfunction (Person* p1,Person* p2) {
+    return p1->getTotalOfRecommendations() > p2->getTotalOfRecommendations();
 }
 
 Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url) {
@@ -41,6 +50,7 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
         result = personManager->searchByJobPosition(whichOne);
     }
 
+    std::sort ((*result).begin(), (*result).end(), myfunction);
     //FIXME: FALTA DETERMINAR COMO SE PUEDE ORDENAR Y HACERLO
     //FIxme: ver como martin&martin pueden saber la cantidad de paginas que me pueden pedir.
     long start = (page_number - 1)*page_size;
