@@ -2,9 +2,11 @@
 enable_testing()
 
 set(TARGET ApplicationServer_test)
-
+set (LCOV_PATH "${PROJECT_SOURCE_DIR}/ApplicationServer/src/lcov/bin/lcov")
 message("++ Building tests ++")
 message (STATUS "Building application ${TARGET}")
+
+include(CodeCoverage.cmake)
 
 include_directories ("${gtest_SOURCE_DIR}/include")
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/jsoncpp")
@@ -25,3 +27,9 @@ target_link_libraries (${TARGET} leveldb)
 target_link_libraries (${TARGET} JsonCpp)
 
 add_test (all ${EXECUTABLE_OUTPUT_PATH}/${TARGET})
+
+SETUP_TARGET_FOR_COVERAGE(
+        coverage_target     # Name for custom target.
+        ${TARGET}           # Name of the test driver executable that runs the tests.
+        coverage            # Name of output directory.
+)

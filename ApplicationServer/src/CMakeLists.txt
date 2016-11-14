@@ -1,6 +1,6 @@
 message (STATUS "Building source code")
 
-set (CMAKE_CXX_FLAGS " -std=c++0x")
+set (CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage -std=c++0x")
 set (TARGET ApplicationServer_src)
 
 # Used to bring the header files into the build environment
