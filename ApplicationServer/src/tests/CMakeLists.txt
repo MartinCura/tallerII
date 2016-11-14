@@ -3,6 +3,7 @@ enable_testing()
 
 set(TARGET ApplicationServer_test)
 set (LCOV_PATH "${PROJECT_SOURCE_DIR}/ApplicationServer/src/lcov/bin/lcov")
+set(GENHTML_PATH "${PROJECT_SOURCE_DIR}/ApplicationServer/src/lcov/bin/genhtml")
 message("++ Building tests ++")
 message (STATUS "Building application ${TARGET}")
 
