@@ -1,4 +1,4 @@
-package ar.fiuba.jobify;
+package ar.fiuba.jobify.utils;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

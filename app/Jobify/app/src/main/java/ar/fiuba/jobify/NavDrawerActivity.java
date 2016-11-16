@@ -6,6 +6,7 @@ import android.support.annotation.IdRes;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +23,7 @@ import com.android.volley.Response;
 import org.json.JSONObject;
 
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.utils.Utils;
 
 public class NavDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -35,17 +37,26 @@ public class NavDrawerActivity extends AppCompatActivity
     protected void onCreateDrawer(@IdRes int toolbarResId, @IdRes int drawerResId, @IdRes int navResId) {
         mDrawerResId = drawerResId;
         Toolbar toolbar = (Toolbar) findViewById(toolbarResId);
+        if (toolbar == null) {
+            Log.e(LOG_TAG, "Here's ye problem, no encontré el toolbar");//
+        }
         setSupportActionBar(toolbar);
 
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
         connectedUserID = sharedPref.getLong(getString(R.string.stored_connected_user_id), connectedUserID);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(drawerResId);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
-//            public void onDrawerOpened() {}
-//            public void onDrawerClosed() {}
+        ActionBarDrawerToggle toggle;
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+//                        public void onDrawerOpened() {}
+//                        public void onDrawerClosed() {}
         };
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
         if (drawer == null)
             Log.e(LOG_TAG, "SYSTEM FAILURE SYSTEM FAILURE SYSTEM FAILURE SYSTEM FAILURE ...");
         if (drawer != null) {
@@ -58,25 +69,22 @@ public class NavDrawerActivity extends AppCompatActivity
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-        setUpDrawerHeader();
+        setUpDrawerHeader(navigationView);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
-        if (drawer != null)
-            drawer.closeDrawer(GravityCompat.START);
     }
 
-    private void setUpDrawerHeader() {
+    private void setUpDrawerHeader(NavigationView navView) {
 
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.nav_drawer_header_layout);
+        LinearLayout headerLayout = (LinearLayout) navView.findViewById(R.id.nav_drawer_header_layout);
 //        if (headerLayout == null) {
 //            LayoutInflater inflater = (LayoutInflater) this.getSystemService
 //                    (Context.LAYOUT_INFLATER_SERVICE);
 //            headerLayout = (LinearLayout) inflater.inflate(R.layout.nav_header_nav_drawer, null, false);
-//        }
+//        } // TODO ?
         if (headerLayout != null) {
             Log.d(LOG_TAG, "Sí puedo encontrar el headerLayout... :)");
             headerLayout.setOnClickListener(new View.OnClickListener() {
@@ -96,6 +104,27 @@ public class NavDrawerActivity extends AppCompatActivity
         }
 
         setUpDrawerHeaderUser();
+    }
+
+    public void setUpDrawerHeaderUser() {
+        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), connectedUserID,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        User mUser = User.parseJSON(response.toString());
+                        if (mUser != null) {
+                            fillDrawerHeaderText(mUser);
+
+                        } else {
+                            Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el header del ND");
+                        }
+                    }
+                }, LOG_TAG);
+
+        String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_thumbnail_path));
+        ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
+
+        Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG);
     }
 
     private void fillDrawerHeaderText(User user) {
@@ -144,59 +173,54 @@ public class NavDrawerActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_manage) {
+            if (drawer != null)
+                drawer.closeDrawer(GravityCompat.START);
             startActivity(
                     new Intent(this, SettingsActivity.class)
             );
             return false;
         } else if (id == R.id.nav_solicitudes) {
+            if (drawer != null)
+                drawer.closeDrawer(GravityCompat.START);
             startActivity(
                     new Intent(this, UserListActivity.class)
                             .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_SOLICITUDES)
             );
             return false;
         } else if (id == R.id.nav_most_popular) {
+            if (drawer != null)
+                drawer.closeDrawer(GravityCompat.START);
             startActivity(
                     new Intent(this, UserListActivity.class)
                             .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_MOST_POPULAR)
             );
             return false;
         } else if (id == R.id.nav_busqueda) {
+            if (drawer != null)
+                drawer.closeDrawer(GravityCompat.START);
             startActivity(
                     new Intent(this, BusquedaActivity.class)
             );
         }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
-        if (drawer != null)
-            drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    public void setUpDrawerHeaderUser() {
-
-        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), connectedUserID,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        User mUser = User.parseJSON(response.toString());
-                        if (mUser != null) {
-                            fillDrawerHeaderText(mUser);
-
-                        } else {
-                            Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el header del ND");
-                        }
-                    }
-                }, LOG_TAG);
-
-        String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID,
-                getString(R.string.get_thumbnail_path));
-        ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
-
-        Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG);
+    protected void bloquearNavDrawer(boolean block) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
+        if (drawer == null) {
+            Log.e(LOG_TAG, "No encontré drawer para bloquearlo!");
+            return;
+        }
+        if (block) {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        } else {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED);
+        }
     }
 
     public void irAPerfilPropio(View v) {

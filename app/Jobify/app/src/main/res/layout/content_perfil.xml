@@ -309,12 +309,14 @@
                             android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
                     </GridLayout>
 
-                    <ar.fiuba.jobify.HorizontalListView
+                    <ar.fiuba.jobify.utils.HorizontalListView
                         android:id="@+id/perfil_contactos_list"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/contact_card_height">
+                        android:layout_height="wrap_content"
+                        android:minHeight="244dp">
+                        <!--Hardcodeado because of reasons-->
                         <!-- Here go them contact cards -->
-                    </ar.fiuba.jobify.HorizontalListView>
+                    </ar.fiuba.jobify.utils.HorizontalListView>
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>

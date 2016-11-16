@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import ar.fiuba.jobify.Utils;
+import ar.fiuba.jobify.utils.Utils;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
 /**

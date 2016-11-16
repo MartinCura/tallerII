@@ -44,6 +44,8 @@ import ar.fiuba.jobify.app_server_api.BusquedaResponse;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.utils.RequestQueueSingleton;
+import ar.fiuba.jobify.utils.Utils;
 
 public class UserListActivity extends NavDrawerActivity {
 

@@ -1,4 +1,4 @@
-package ar.fiuba.jobify;
+package ar.fiuba.jobify.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

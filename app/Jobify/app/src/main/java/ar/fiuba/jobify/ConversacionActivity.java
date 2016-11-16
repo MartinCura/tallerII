@@ -35,6 +35,8 @@ import java.util.List;
 import ar.fiuba.jobify.app_server_api.Message;
 import ar.fiuba.jobify.app_server_api.MessagesResponse;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.utils.RequestQueueSingleton;
+import ar.fiuba.jobify.utils.Utils;
 
 public class ConversacionActivity extends NavDrawerActivity {
 

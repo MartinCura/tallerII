@@ -4,6 +4,8 @@
     android:id="@+id/user_list_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
     android:layout_margin="@dimen/text_margin">
 
     <ImageView
@@ -11,8 +13,9 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_alignParentLeft="true"
-        android:contentDescription="@string/perfil_foto_description"
-        android:src="@drawable/ic_refreshing" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_refreshing"
+        android:contentDescription="@string/perfil_foto_description" />
     <!--TODO Fijarse si cambiar dimensiones por constantes-->
 
     <TextView

@@ -6,7 +6,7 @@ import android.util.Log;
 import java.util.List;
 
 import ar.fiuba.jobify.R;
-import ar.fiuba.jobify.Utils;
+import ar.fiuba.jobify.utils.Utils;
 
 /**
  * Created by martín on 03/10/16.

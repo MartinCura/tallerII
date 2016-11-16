@@ -48,7 +48,10 @@ import ar.fiuba.jobify.app_server_api.Recommendation;
 import ar.fiuba.jobify.app_server_api.Solicitud;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.shared_server_api.Skill;
+import ar.fiuba.jobify.utils.EditableListAdapter;
 import ar.fiuba.jobify.utils.PerfilUtils;
+import ar.fiuba.jobify.utils.RequestQueueSingleton;
+import ar.fiuba.jobify.utils.Utils;
 
 public class PerfilActivity extends NavDrawerActivity {
 
@@ -345,6 +348,7 @@ public class PerfilActivity extends NavDrawerActivity {
         }
 
         inEditingMode = !inEditingMode;
+        bloquearNavDrawer(inEditingMode);
     }
 
 
@@ -397,7 +401,8 @@ public class PerfilActivity extends NavDrawerActivity {
                 }
 
                 // Obtengo el estado de amistad del usuario fetched con el connected.
-                Contact.Status estado = contactsResponse.getStatusForId(fetchedUserID);
+                final Contact.Status estado = contactsResponse.getStatusForId(fetchedUserID);
+                PerfilUtils.colorearBotonAmistad(getActivity(), estado);
 
                 switch (estado) {
                     case NONE:
@@ -444,12 +449,11 @@ public class PerfilActivity extends NavDrawerActivity {
                     default:
                         Log.e(LOG_TAG, "This is not possible...");  // TODO: Revisar contra NONE
                 }
-                PerfilUtils.colorearBotonAmistad(getActivity(), estado);
             }
         }, LOG_TAG);
     }
 
-    public void enviarModificacionDeAmistad(Solicitud.Action action, final String responseStr) {
+    public void enviarModificacionDeAmistad(final Solicitud.Action action, final String responseStr) {
         JSONObject jsonRequest =
                 new Solicitud(connectedUserID, fetchedUserID, action)
                         .toJsonObject();
@@ -458,8 +462,22 @@ public class PerfilActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         // TODO: Ignorando response, algo que hacer con ello?
+                        // TODO: ~ Idealmente tendría el nuevo estado o el action
                         Toast.makeText(PerfilActivity.this, responseStr, Toast.LENGTH_LONG)
                                 .show();
+                        Contact.Status nuevoEstado;
+                        switch (action) {
+                            case ACCEPT:
+                                nuevoEstado = Contact.Status.ACTIVE;
+                                break;
+                            case ADD:
+                                nuevoEstado = Contact.Status.REQUESTED;
+                                break;
+                            default:
+                            case UNFRIEND:
+                                nuevoEstado = Contact.Status.NONE;
+                        }
+                        PerfilUtils.colorearBotonAmistad(getActivity(), nuevoEstado);
                     }
                 }, LOG_TAG);
     }

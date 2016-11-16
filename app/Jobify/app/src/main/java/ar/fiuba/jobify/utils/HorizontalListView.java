@@ -25,7 +25,7 @@
  *
  */
 
-package ar.fiuba.jobify;
+package ar.fiuba.jobify.utils;
 
 import java.util.LinkedList;
 import java.util.Queue;

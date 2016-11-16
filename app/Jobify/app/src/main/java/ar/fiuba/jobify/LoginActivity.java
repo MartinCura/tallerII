@@ -50,6 +50,7 @@ import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.LoginRequest;
 import ar.fiuba.jobify.app_server_api.LoginResponse;
+import ar.fiuba.jobify.utils.Utils;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -487,8 +488,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
-        long connectedUserId = 2L;
-        String mail = "jane@doe.com", pass = "123abc";//"123"; // Depende del branch...
+        long connectedUserId = 1L;
+        String  mail = connectedUserId == 1L ? "john@doe.com" : "jane@doe.com",
+                pass = "123abc";//"123"; // Depende del branch...
         mEmailView.setText(mail);
         mPasswordView.setText(pass);
 

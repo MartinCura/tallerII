@@ -44,4 +44,14 @@
     <color name="accent_translucent">#80FFEB3B</color>
     <color name="accent_bright">#FFF493</color>
 
+    <style name="PerfilTitleStyle">
+        <item name="android:shadowColor">#000001</item>
+        <item name="android:shadowDx">10</item>
+        <item name="android:shadowDy">10</item>
+        <item name="android:shadowRadius">25</item>
+        <item name="android:background">#000001</item>
+        <item name="android:textColorHighlight">#000001</item>
+        <!--TODO: Que el texto se vea con cualquier imagen de fondo...-->
+    </style>
+
 </resources>

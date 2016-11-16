@@ -46,11 +46,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import ar.fiuba.jobify.EditableListAdapter;
-import ar.fiuba.jobify.HorizontalListView;
 import ar.fiuba.jobify.PerfilActivity;
 import ar.fiuba.jobify.R;
-import ar.fiuba.jobify.Utils;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
@@ -402,6 +399,11 @@ public class PerfilUtils {
                 fab_amigar.setEnabled(false);
         }
         fab_amigar.setBackgroundTintList(csl);
+        fab_amigar.clearAnimation();
+        fab_amigar.refreshDrawableState();
+        fab_amigar.setPressed(true);
+        fab_amigar.setPressed(false);
+        fab_amigar.clearFocus();
     }
 
     public static void colorearBotonRecomendar(PerfilActivity act, boolean recomendado) {
@@ -419,6 +421,10 @@ public class PerfilUtils {
             csl = Utils.getColorStateList(act, R.color.recomendar_btn_false);
         }
         fab_recomendar.setBackgroundTintList(csl);
+        fab_recomendar.clearAnimation();
+        fab_recomendar.refreshDrawableState();
+        fab_recomendar.setPressed(false);
+        fab_recomendar.clearFocus();
     }
 
 
@@ -458,23 +464,24 @@ public class PerfilUtils {
         HorizontalListView mHLView = (HorizontalListView) act.findViewById(R.id.perfil_contactos_list);
         if (mHLView != null) {
 
-            final ContactCardAdapter mAdapter = new ContactCardAdapter(act, contacts);
-            mHLView.setAdapter(mAdapter);
+            final ContactCardAdapter mContactCardAdapter =
+                    new ContactCardAdapter(act, mHLView, contacts);
+            mHLView.setAdapter(mContactCardAdapter);
             mHLView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    Contact clickedUser = (Contact) mAdapter.getItem(position);
+                    Contact clickedUser = (Contact) mContactCardAdapter.getItem(position);
                     act.startActivity(
                             new Intent(PerfilActivity.getContext(), PerfilActivity.class)
                                     .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
                     );
                 }
             });
+//            mHLView.setMinimumHeight(800);// hardcode que arregla cosas, jeez
 
             TextView tv_cantContactos = (TextView) act.findViewById(R.id.text_perfil_cant_contactos);
             if (tv_cantContactos != null) {
-                tv_cantContactos.setText(String.valueOf(mAdapter.getCount()));
+                tv_cantContactos.setText(String.valueOf(mContactCardAdapter.getCount()));
             }
 
         } else {
@@ -484,11 +491,17 @@ public class PerfilUtils {
 
     private static class ContactCardAdapter extends BaseAdapter {
 
+        private final static String LOG_TAG = ContactCardAdapter.class.getSimpleName();
+
         PerfilActivity act;
         ArrayList<Contact> mContacts;
+        HorizontalListView mHLView;
+        int highestHeight = 0;
 
-        public ContactCardAdapter(PerfilActivity perfilActivity, List<Contact> contactList) {
+        public ContactCardAdapter(PerfilActivity perfilActivity, HorizontalListView hlv,
+                                  List<Contact> contactList) {
             this.act = perfilActivity;
+            this.mHLView = hlv;
             this.mContacts = new ArrayList<>(contactList);
         }
 
@@ -523,9 +536,11 @@ public class PerfilUtils {
                         .appendPath(act.getString(R.string.get_thumbnail_path))
                         .appendPath(Long.toString(contact.getId()))
                         .build();
-                Utils.cargarImagenDeURLenImageView(act.getApplicationContext(),
-                        (ImageView) act.findViewById(R.id.contact_card_foto),
-                        builtUri.toString(), LOG_TAG+"CC");
+                if (!Utils.cargarImagenDeURLenImageView(act.getApplicationContext(),
+                        (ImageView) itemView.findViewById(R.id.contact_card_foto),
+                        builtUri.toString(), LOG_TAG)) {
+                    Log.d(LOG_TAG, "No encontré ImageView para contacto en Perfil");
+                }
 
                 TextView tv_nombre  = (TextView) itemView.findViewById(R.id.contact_card_nombre);
                 if (tv_nombre != null)
@@ -534,9 +549,24 @@ public class PerfilUtils {
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.contact_card_trabajo);
                 if (tv_trabajo != null)
                     tv_trabajo.setText(contact.getCurrentJob().getOneLiner());
+
+                // Corrijo altura de la lista horizontal de contactos
+                itemView.measure(0, 0);
+                int altura = itemView.getMeasuredHeight();
+                if (altura > highestHeight) {
+                    highestHeight = altura;
+                    actualizarAlturaDeView();
+                }
             }
 
             return itemView;
+        }
+
+        private void actualizarAlturaDeView() {
+            Log.d(LOG_TAG, "new heighest contact card height: "+highestHeight);//
+            ViewGroup.LayoutParams params = mHLView.getLayoutParams();
+            params.height = this.highestHeight;
+            mHLView.setLayoutParams(params);
         }
     }
 

@@ -18,10 +18,12 @@
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_refreshing"
         android:contentDescription="@string/nav_drawer_thumbnail_description"
-        android:onClick="irAPerfilPropio"
-        android:visibility="gone"
-        android:src="@drawable/ic_refreshing" />
+        android:visibility="invisible"
+        android:onClick="irAPerfilPropio" />
+        <!--TODO: Lograr que lo encuentre??-->
 
     <!--<ImageView-->
         <!--android:id="@+id/imageView"-->

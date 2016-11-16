@@ -20,6 +20,8 @@ import ar.fiuba.jobify.app_server_api.BusquedaRequest;
 import ar.fiuba.jobify.shared_server_api.JobPosition;
 import ar.fiuba.jobify.shared_server_api.SharedDataSingleton;
 import ar.fiuba.jobify.shared_server_api.Skill;
+import ar.fiuba.jobify.utils.EditableListAdapter;
+import ar.fiuba.jobify.utils.Utils;
 
 public class BusquedaActivity extends NavDrawerActivity {
 
@@ -40,10 +42,14 @@ public class BusquedaActivity extends NavDrawerActivity {
 
         populateSpinners();
 
-        mSkillAdapter = EditableListAdapter.populateEditableList(this,
-                (ListView) findViewById(R.id.skill_list),
-                new ArrayList<Skill>()
-        );
+        ListView skillsListView = (ListView) findViewById(R.id.skill_list);
+        if (skillsListView != null) {
+            mSkillAdapter = EditableListAdapter.populateEditableList(this,
+                    skillsListView,
+                    new ArrayList<Skill>(),
+                    true
+            );
+        }
     }
 
     @Override

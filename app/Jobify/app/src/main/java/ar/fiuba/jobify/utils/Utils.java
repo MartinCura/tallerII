@@ -1,4 +1,4 @@
-package ar.fiuba.jobify;
+package ar.fiuba.jobify.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -48,6 +48,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import ar.fiuba.jobify.ConversacionActivity;
+import ar.fiuba.jobify.PerfilActivity;
+import ar.fiuba.jobify.R;
 
 
 /**
@@ -291,17 +295,18 @@ public class Utils {
     }
 
 
-    public static void cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
-                                                    final String  url, final String logTag) {
-        cargarImagenDeURLenImageView(ctx, imageView, url, logTag, false);
+    public static boolean cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
+                                                       final String  url, final String logTag) {
+        return cargarImagenDeURLenImageView(ctx, imageView, url, logTag, false);
     }
 
-    public static void cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
+    // Devuelve false si no se encontró el ImageView
+    public static boolean cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
                                   final String url, final String logTag, final boolean squareCrop) {
 
         if (imageView == null) {
-            //Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
-            return;
+            Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
+            return false;
         }
         ImageRequest request = new ImageRequest(url,
                 new Response.Listener<Bitmap>() {
@@ -313,7 +318,6 @@ public class Utils {
                             imageView.setImageBitmap(bitmap);
 
                     }
-
 //                }, imageView.getWidth(), imageView.getHeight(),
                 }, 1080, 960,//hardcodeo;//
                 ImageView.ScaleType.CENTER_INSIDE, null,
@@ -345,6 +349,7 @@ public class Utils {
         };
         RequestQueueSingleton.getInstance(ctx)
                 .addToRequestQueue(request);
+        return true;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -416,16 +421,16 @@ public class Utils {
         }
     }
 
-    public static void hideView(AppCompatActivity activity, @IdRes int idRes) {
-        View v = activity.findViewById(idRes);
-        if (v != null)
-            v.setVisibility(View.GONE);
-    }
-
     public static void showView(AppCompatActivity activity, @IdRes int idRes) {
         View v = activity.findViewById(idRes);
         if (v != null)
             v.setVisibility(View.VISIBLE);
+    }
+
+    public static void hideView(AppCompatActivity activity, @IdRes int idRes) {
+        View v = activity.findViewById(idRes);
+        if (v != null)
+            v.setVisibility(View.GONE);
     }
 
     public static void editTextSetErrorAndFocus(AppCompatActivity activity, @IdRes int resId, String errorMessage) {
@@ -450,7 +455,7 @@ public class Utils {
 
             mAdapter.addAll(list);
             mAdapter.notifyDataSetChanged();
-            EditableListAdapter.actualizarAlturaDeListView(mListView, mAdapter);
+            EditableListAdapter.actualizarAlturaDeListView(mListView, mAdapter);//
 
         } else
             Log.e(LOG_TAG, "No se encontró el listview! resId: "+resId);
