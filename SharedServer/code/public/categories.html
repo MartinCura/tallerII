@@ -1,0 +1,40 @@
+<div class="jumbotron text-center">
+    <h1>{{ item_name }} <span class="label label-info">{{ items.length }}</span></h1>
+    <button type="button" class="btn btn-default" onclick="$('#add-form').slideToggle()"><span class="glyphicon glyphicon-plus">Add</span></button>
+
+
+	<div ng-include="'/form.html'"></div>
+    
+    
+</div>
+
+<div id="job_positions-list" class="row">
+
+    <ul class="col-sm-10 list-group main-list">
+        
+        <li class="checkbox list-group-item" ng-repeat="item in items">
+            <label>
+            <!-- type="checkbox" ng-click="deleteTodo(todo._id)">  -->
+                <span>
+                    <span  onclick="$(this).parent().find('.info').toggleClass('hidden')">{{ item.name }}<span class="glyphicon glyphicon-pencil righty"></span></span>
+                    <span class="glyphicon glyphicon-remove righty" ng-click="delete(item.name, item.category)"></span>
+                    
+                    <div class="info hidden">
+                        <div class="" ng-repeat="(key, value) in item">
+                            <span><span class="bold">{{key}}</span>: {{value}}</span>
+                        </div>
+                        <span class="label label-success">Modificar</span>
+                        <div id="add-form">
+                            <form novalidate ng-submit="vm.onSubmit($index)">
+                                <formly-form model="vm.items[$index]" fields="vm.fields" form="vm.editForm">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </formly-form>
+                            </form>
+                        </div>
+	                </div>
+                </span>
+                
+            </label>
+        </li>
+    </ul>
+</div>

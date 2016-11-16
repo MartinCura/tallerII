@@ -40,6 +40,8 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.google.firebase.iid.FirebaseInstanceId;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,6 +78,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null){
+            Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 

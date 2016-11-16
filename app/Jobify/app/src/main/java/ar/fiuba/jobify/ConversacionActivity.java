@@ -1,5 +1,7 @@
 package ar.fiuba.jobify;
 
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.LayoutRes;
@@ -25,6 +27,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -46,7 +51,7 @@ public class ConversacionActivity extends NavDrawerActivity {
 
     private final int CANT_MENSAJES_POR_PAGE = 10;
 
-    private long corresponsalID = 0;
+    public static long corresponsalID = 0;
     private String nombreCorresponsal;
 
     // Variable setteada con el totalCount del Metadata para saber cuándo se acabaron los mensajes;
@@ -60,9 +65,20 @@ public class ConversacionActivity extends NavDrawerActivity {
     private MessageArrayAdapter mMessageArrayAdapter;
     private EndlessScrollListener mEndlessScrollListener;
 
+    public static boolean activityVisible = false;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+
+        // Toast.makeText(this, "llegó!", Toast.LENGTH_LONG).show();
+        if (!recibirMensajesNuevos(event.mensaje) || !activityVisible){
+            Log.d("log", "show notification");
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EventBus.getDefault().register(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversacion_drawer);
 
@@ -116,7 +132,21 @@ public class ConversacionActivity extends NavDrawerActivity {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        activityVisible = false;
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        activityVisible = false;
+    }
+
+    @Override
     public void onResume() {
+        activityVisible = true;
         super.onResume();
 
         if (corresponsalID > 0) {
@@ -126,6 +156,7 @@ public class ConversacionActivity extends NavDrawerActivity {
     }
 
     public void onStop() {
+        activityVisible = false;
         super.onStop();
         if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
             RequestQueue mRequestQueue = RequestQueueSingleton
@@ -139,22 +170,23 @@ public class ConversacionActivity extends NavDrawerActivity {
     /**
      * Punto de entrada para notificar por nuevos mensajes
      */
-    public void recibirMensajesNuevos(JSONObject jsonMensaje) {
+    public boolean recibirMensajesNuevos(JSONObject jsonMensaje) {
         Message nuevoMensaje = Message.parseJson(jsonMensaje.toString());
         if (nuevoMensaje == null) {
             Log.e(LOG_TAG, "Json error con nuevoMensaje");
-            return;
+            return false;
         }
 
         long from = nuevoMensaje.getFrom();
         long to   = nuevoMensaje.getTo();
         if  (!((from == connectedUserID && to == corresponsalID)
            || (from == corresponsalID || to == connectedUserID))) {
-            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación");
-            return;
+            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación " + "el usuario actual es: " + corresponsalID);
+            return false;
         }
 
         mMessageArrayAdapter.agregarNuevoMensaje(nuevoMensaje);
+        return true;
     }
 
 
