@@ -28,14 +28,14 @@ Para eliminarlo:
 sudo docker rm appserver
 ```
 
-Para instalar leveldb:
+Para medir coverage
 
 ```
-sudo apt-get install libsnappy-dev
-git clone https://github.com/google/leveldb.git
-cd leveldb
-make
-sudo mv out-shared/libleveldb.* /usr/local/lib
-sudo mv out-static/libleveldb.* /usr/local/lib
-sudo cp -R include/leveldb /usr/local/include
+/tallerII$ build
+/tallerII$ cd build/
+/tallerII/build$ cmake ..
+/tallerII/build$ make
+/tallerII/build$ make coverage_target
 ```
+
+Abrir en el browser el archivo tallerII/build/coverage/index.html para ver los resultados
