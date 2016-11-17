@@ -179,6 +179,7 @@
     <string name="get_busqueda_users_first_query">first</string>
     <string name="get_busqueda_users_last_query">last</string>
     <string name="ellipsis">…</string>
+    <string name="notification_token">notificationtokens</string>
 
     <!--Testeo, TODO: borrar-->
     <string-array name="planets_array">

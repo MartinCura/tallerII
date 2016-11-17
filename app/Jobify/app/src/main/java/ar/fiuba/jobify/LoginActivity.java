@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
@@ -78,10 +79,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        String token = FirebaseInstanceId.getInstance().getToken();
-        if (token != null){
-            Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
-        }
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -385,6 +383,32 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Guarda datos de login del LoginResponse, id y token.
      */
     private void guardarConnectedUserData(LoginResponse loginResponse) {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null){
+            Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
+
+            Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
+                    .appendPath(getString(R.string.notification_token))
+                    .appendPath(String.valueOf( loginResponse.getId()))
+                    .build();
+            String url = builtUri.toString();
+            JSONObject obj = new JSONObject();
+            try {
+                obj.put("token", token);
+                Utils.fetchJsonFromUrl(this, Request.Method.PUT, url,obj,new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response != null) {
+                            Log.d(LOG_TAG, "User PUT Response: " + response.toString());
+                        }
+                    }
+                }, LOG_TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
         SharedPreferences.Editor editor =
                 getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
                         .edit();
