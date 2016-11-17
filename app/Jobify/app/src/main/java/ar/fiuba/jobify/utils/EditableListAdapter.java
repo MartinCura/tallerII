@@ -25,7 +25,7 @@ public class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
 
     private final String LOG_TAG = EditableListAdapter.class.getSimpleName();
 
-    private static final int ALTURA_MAX_SKILLS = 160; // not my best (hardcode)
+    private static final int ALTURA_MAX_SKILLS = 200; // not my best (hardcode)
     private boolean limitarAltura = false;
 
     private ListView adaptedListView;

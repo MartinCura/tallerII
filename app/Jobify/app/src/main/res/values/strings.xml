@@ -181,6 +181,8 @@
     <string name="ellipsis">…</string>
     <string name="stored_connected_user_email">connected_user_email</string>
     <string name="stored_connected_user_password">connected_user_password</string>
+    <string name="busqueda_skills_title">Skills</string>
+    <string name="busqueda_distancia_title">Distancia</string>
 
     <!--Testeo, TODO: borrar-->
     <string-array name="planets_array">
