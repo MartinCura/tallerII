@@ -163,10 +163,12 @@ vector<Message*> MessagesHandler::doTruncate(vector<Message*> messages, int firs
 }
 
 void MessagesHandler::sendNotification(string savedMessage, PersonManager* personManager) {
-    string request = this->buildRequest(savedMessage, personManager);
-    string response = this->performRequest(request);
-    Logger::getInstance()->debug("Request realizado: \n" + request + "\n");
-    Logger::getInstance()->debug("Respuesta: \n" + response + "\n");
+    try {
+        string request = this->buildRequest(savedMessage, personManager);
+        string response = this->performRequest(request);
+        Logger::getInstance()->debug("Request realizado: \n" + request + "\n");
+        Logger::getInstance()->debug("Respuesta: \n" + response + "\n");
+    } catch (NonexistentNotificationToken &e) {}
 }
 
 string MessagesHandler::buildRequest(string savedMessage, PersonManager* personManager) {

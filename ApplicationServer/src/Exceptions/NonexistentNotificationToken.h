@@ -9,7 +9,7 @@ using namespace std;
 class NonexistentNotificationToken : public exception {
 public:
     NonexistentNotificationToken(long userId) {
-        this->message = "No token for message notifications for user " + to_string(userId);
+        this->message = "No Firebase token for notifications for user " + to_string(userId);
     }
     ~NonexistentNotificationToken() {}
 
