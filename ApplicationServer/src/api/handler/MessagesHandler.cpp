@@ -178,17 +178,14 @@ string MessagesHandler::buildRequest(string savedMessage, PersonManager* personM
     long fromUserId = root["from"].asLargestInt();
     long toUserId = root["to"].asLargestInt();
     string message = root["message"].asString();
-
-    Person* person = personManager->getPersonById(fromUserId);
-    string fromUserName = person->getFirstName() + " " + person->getLastName();
-    delete person;
+    string timestamp = root["timestamp"].asString();
 
     string token = personManager->getNotificationTokenByUserId(toUserId);
 
-    return this->buildStringRequest(fromUserName, message, token);
+    return this->buildStringRequest(fromUserId, toUserId, message, timestamp, token);
 }
 
-string MessagesHandler::buildStringRequest(string fromUserName, string message, string token) {
+string MessagesHandler::buildStringRequest(long fromUserId, long toUserId, string message, string timestamp, string token) {
     string postCommand = "curl -X POST";
     string header = "";
     header += "--header \"Authorization: key=AIzaSyD3T2nk8nqIRSN1VlPZ3QkUcrzHTD7JIfA\"";
@@ -198,9 +195,12 @@ string MessagesHandler::buildStringRequest(string fromUserName, string message, 
     string option = "-d";
     string body = "";
     body += "\"{\\\"to\\\":\\\"" + token + "\\\",";
-    body += "\\\"data\\\":{\\\"body\\\":\\\"";
-    body += "Mensaje de " + fromUserName + ": " + message;
-    body += "\\\"},\\\"priority\\\":10}\"";
+    body += "\\\"data\\\":{\\\"mensaje\\\":{";
+    body += "\\\"from\\\":" + to_string(fromUserId) + ",";
+    body += "\\\"message\\\":\\\"" + message + "\\\",";
+    body += "\\\"timestamp\\\":\\\"" + timestamp + "\\\",";
+    body += "\\\"to\\\":" + to_string(toUserId);
+    body += "}}}\"";
     string request = postCommand + " " + header + " " + url + " " + option + " " + body;
     return request;
 }

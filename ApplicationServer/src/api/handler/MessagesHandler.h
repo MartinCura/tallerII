@@ -33,7 +33,7 @@ private:
     Json::Value buildJsonResponse(vector<Message*> messages, long totalCount);
     void sendNotification(string savedMessage, PersonManager* personManager);
     string buildRequest(string savedMessage, PersonManager* personManager);
-    string buildStringRequest(string fromUserName, string message, string token);
+    string buildStringRequest(long fromUserId, long toUserId, string message, string timestamp, string token);
     string performRequest(string request);
 };
 
