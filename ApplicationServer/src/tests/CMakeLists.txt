@@ -2,7 +2,7 @@
 enable_testing()
 
 set(TARGET ApplicationServer_test)
-set (LCOV_PATH "${PROJECT_SOURCE_DIR}/ApplicationServer/src/lcov/bin/lcov")
+set(LCOV_PATH "${PROJECT_SOURCE_DIR}/ApplicationServer/src/lcov/bin/lcov")
 set(GENHTML_PATH "${PROJECT_SOURCE_DIR}/ApplicationServer/src/lcov/bin/genhtml")
 set(PATHS_TO_IGNORE_COVERAGE
     "${PROJECT_SOURCE_DIR}/ApplicationServer/src/googletest/googletest/include/gtest/*"
