@@ -4,6 +4,21 @@ enable_testing()
 set(TARGET ApplicationServer_test)
 set (LCOV_PATH "${PROJECT_SOURCE_DIR}/ApplicationServer/src/lcov/bin/lcov")
 set(GENHTML_PATH "${PROJECT_SOURCE_DIR}/ApplicationServer/src/lcov/bin/genhtml")
+set(PATHS_TO_IGNORE_COVERAGE
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/googletest/googletest/include/gtest/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/googletest/googletest/include/gtest/internal/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/googletest/googletest/src/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/jsoncpp/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/jsoncpp/json/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/db/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/helpers/memenv/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/include/leveldb/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/port/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/table/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/util/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/tests/*"
+)
+
 message("++ Building tests ++")
 message (STATUS "Building application ${TARGET}")
 
