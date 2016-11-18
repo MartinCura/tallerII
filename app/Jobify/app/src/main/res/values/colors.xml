@@ -22,4 +22,7 @@
     <color name="gray">@android:color/darker_gray</color>
     <color name="transparent">@android:color/transparent</color>
     <color name="background_tab_pressed">#6633B5E5</color>
+
+    <color name="lightgray">#9e9e9e</color>
+    <color name="lightergray">#bdbdbd</color>
 </resources>

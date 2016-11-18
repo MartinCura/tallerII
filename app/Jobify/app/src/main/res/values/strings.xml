@@ -166,7 +166,7 @@
     <string name="get_messages_last_query">last</string>
     <string name="busqueda_logo_description">logo</string>
     <string name="busqueda_job_positions_title">Experiencia</string>
-    <string name="busqueda_distancia_hint">Distancia</string>
+    <string name="busqueda_distancia_hint">10</string>
     <string name="busqueda_distancia_unidad">km</string>
     <string name="busqueda_btn_busqueda">Jobisearch!</string>
     <string name="get_messages_user_query">user</string>
@@ -182,7 +182,7 @@
     <string name="stored_connected_user_email">connected_user_email</string>
     <string name="stored_connected_user_password">connected_user_password</string>
     <string name="busqueda_skills_title">Skills</string>
-    <string name="busqueda_distancia_title">Distancia</string>
+    <string name="busqueda_distancia_title">Distancia máx.</string>
 
     <!--Testeo, TODO: borrar-->
     <string-array name="planets_array">

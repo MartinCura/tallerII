@@ -36,12 +36,12 @@ public class BusquedaRequest {
                                         int distancia/*, Activity activity*/) {
         BusquedaRequest br = new BusquedaRequest();
 
-        br.jobPosition = nombreJobPosition;
+        br.jobPosition = !nombreJobPosition.isEmpty() ? nombreJobPosition : null;
 //        br.jobPosition = JobPosition.create(activity, nombreJobPosition);
-        int i = 0;
+//        int i = 0;
         for (Skill sk : skills) {
             br.skills.add(sk.getName());
-            i++;
+//            i++;
         }
 //        br.skills.addAll(skills);
         br.distancia = distancia;
