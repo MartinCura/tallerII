@@ -161,12 +161,12 @@
     <string name="put_messages_path">messages</string>
     <string name="title_activity_conversacion">Conversación</string>
     <string name="action_enviar_mensaje">Enviar mensaje</string>
-    <string name="title_activity_busqueda">BusquedaActivity</string>
+    <string name="title_activity_busqueda">Búsqueda</string>
     <string name="get_messages_first_query">first</string>
     <string name="get_messages_last_query">last</string>
     <string name="busqueda_logo_description">logo</string>
     <string name="busqueda_job_positions_title">Experiencia</string>
-    <string name="busqueda_distancia_hint">Distancia</string>
+    <string name="busqueda_distancia_hint">10</string>
     <string name="busqueda_distancia_unidad">km</string>
     <string name="busqueda_btn_busqueda">Jobisearch!</string>
     <string name="get_messages_user_query">user</string>
@@ -179,6 +179,10 @@
     <string name="get_busqueda_users_first_query">first</string>
     <string name="get_busqueda_users_last_query">last</string>
     <string name="ellipsis">…</string>
+    <string name="stored_connected_user_email">connected_user_email</string>
+    <string name="stored_connected_user_password">connected_user_password</string>
+    <string name="busqueda_skills_title">Skills</string>
+    <string name="busqueda_distancia_title">Distancia máx.</string>
     <string name="notification_token">notificationtokens</string>
 
     <!--Testeo, TODO: borrar-->

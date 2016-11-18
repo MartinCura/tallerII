@@ -80,6 +80,7 @@ public class BusquedaActivity extends NavDrawerActivity {
             if (jobPositions != null) {
 
                 ArrayList<String> jpArray = new ArrayList<>();
+                jpArray.add("(opcional)"); // Opción vacía // TODO: des-hardcodear
                 for (JobPosition jp : jobPositions) {
                     jpArray.add(jp.getNombre());
                 }
@@ -92,6 +93,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                         mSelectedJobPositionString = (String) parent.getItemAtPosition(pos);
+                        if (mSelectedJobPositionString.equals("(opcional)"))   // TODO: des-hardcodear
+                            mSelectedJobPositionString = "";
                     }
 
                     @Override
@@ -118,6 +121,7 @@ public class BusquedaActivity extends NavDrawerActivity {
             if (skills != null) {
 
                 ArrayList<String> skArray = new ArrayList<>();
+                skArray.add("(opcional)"); // Opción vacía  // TODO: des-hardcodear
                 for (Skill sk : skills) {
                     skArray.add(sk.getNombre());
                 }
@@ -130,6 +134,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                         mSelectedSkillString = (String) parent.getItemAtPosition(pos);
+                        if (mSelectedSkillString.equals("(opcional)"))  // TODO: des-hardcodear
+                            mSelectedSkillString = "";
                     }
 
                     @Override
@@ -153,7 +159,8 @@ public class BusquedaActivity extends NavDrawerActivity {
             Log.e(LOG_TAG, "Spinner de skills no encontrado!");
             return;
         }
-        if (mSelectedSkillString.isEmpty()) return;
+        if (mSelectedSkillString.isEmpty())
+            return;
 
         try {
             Skill nuevoSkill = Skill.create(this, mSelectedSkillString);

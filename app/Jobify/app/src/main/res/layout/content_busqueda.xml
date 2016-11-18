@@ -24,92 +24,135 @@
         android:src="@drawable/logo_v2"
         android:contentDescription="@string/busqueda_logo_description" />
 
-    <!--<TextView-->
-        <!--android:layout_width="260dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="center_horizontal"-->
-        <!--android:textAppearance="@android:style/TextAppearance.Large"-->
-        <!--android:textSize="20sp"-->
-        <!--android:textAllCaps="true"-->
-        <!--android:textColor="@color/almostblack"-->
-        <!--android:text="@string/busqueda_job_positions_title" />-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <Spinner
-        android:id="@+id/job_positions_spinner"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
-
-    <!-- DIVISOR -->
-    <View
-        android:layout_width="200dp"
-        android:layout_height="1dip"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
-        android:layout_gravity="center_horizontal"
-        android:background="#3f68687c" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
-
-        <ImageButton
-            android:id="@+id/busqueda_skill_agregar_btn"
-            android:onClick="agregarSkill"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/busqueda_experiencia_title"
+            android:layout_width="110dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:padding="10dp"
-            android:layout_marginRight="10dp"
-            android:src="@drawable/ic_add"
-            android:contentDescription="@string/add_item_description"
-            android:background="#0000" />
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="10dp"
+            android:textSize="20sp"
+            android:fontFamily="cursive"
+            android:textColor="@color/almostblack"
+            android:text="@string/busqueda_job_positions_title" />
+
+        <Spinner
+            android:id="@+id/job_positions_spinner"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_toRightOf="@id/busqueda_experiencia_title"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center_vertical" />
+
+    </RelativeLayout>
+
+    <include layout="@layout/divisor" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/busqueda_skills_title"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="82dp"
+            android:textSize="20sp"
+            android:fontFamily="cursive"
+            android:textColor="@color/almostblack"
+            android:text="@string/busqueda_skills_title" />
 
         <Spinner
             android:id="@+id/skills_spinner"
-            android:layout_width="200dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:paddingTop="15dp" />
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="15dp" />
 
-    </LinearLayout>
+        <ImageButton
+            android:id="@+id/busqueda_skill_agregar_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_toRightOf="@id/busqueda_skills_title"
+            android:layout_toLeftOf="@id/skills_spinner"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="15dp"
+            android:src="@drawable/ic_add"
+            android:contentDescription="@string/add_item_description"
+            android:background="#0000"
+            android:onClick="agregarSkill" />
 
-    <ListView
-        android:id="@+id/skill_list"
-        android:layout_width="250dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="8dp"
-        android:layout_gravity="center_horizontal">
-    </ListView>
+        <ListView
+            android:id="@+id/skill_list"
+            android:layout_width="250dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="8dp"
+            android:layout_toRightOf="@id/busqueda_skills_title"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/skills_spinner"
+            android:layout_gravity="center_horizontal">
+        </ListView>
 
-    <!-- DIVISOR -->
-    <View
-        android:layout_width="200dp"
-        android:layout_height="1dip"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
-        android:layout_gravity="center_horizontal"
-        android:background="#3f68687c" />
+    </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp">
+    <include layout="@layout/divisor" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/busqueda_distancia_unidad_caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_marginTop="11dp"
+            android:layout_marginRight="80dp"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center_vertical"
+            android:text="@string/busqueda_distancia_unidad"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        <!--android:labelFor="@id/busqueda_distancia"-->
+
+        <TextView
+            android:id="@+id/busqueda_distancia_title"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="18dp"
+            android:textSize="20sp"
+            android:fontFamily="cursive"
+            android:textColor="@color/almostblack"
+            android:text="@string/busqueda_distancia_title" />
 
         <!-- Dummy item para prevenir foco automático en el input -->
         <LinearLayout
-        android:id="@+id/inutil"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:orientation="horizontal"
-        android:layout_width="0px"
-        android:layout_height="0px" />
+            android:id="@+id/inutil"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="horizontal"
+            android:layout_width="0px"
+            android:layout_height="0px" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/lightergray"
+            android:layout_toRightOf="@id/busqueda_distancia_title"
+            android:layout_toLeftOf="@id/busqueda_distancia_unidad_caption">
             <EditText
                 android:id="@+id/busqueda_distancia"
                 android:layout_width="100dp"
@@ -122,28 +165,9 @@
                 android:inputType="number" />
         </android.support.design.widget.TextInputLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:layout_marginTop="7dp"
-            android:layout_marginBottom="1dp"
-            android:layout_gravity="center_vertical"
-            android:labelFor="@id/busqueda_distancia"
-            android:text="@string/busqueda_distancia_unidad"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+    </RelativeLayout>
 
-    </LinearLayout>
-
-    <!-- DIVISOR -->
-    <View
-        android:layout_width="200dp"
-        android:layout_height="1dip"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
-        android:layout_gravity="center_horizontal"
-        android:background="#3f68687c" />
+    <include layout="@layout/divisor" />
 
    <Button
        android:id="@+id/busqueda_busqueda_btn"

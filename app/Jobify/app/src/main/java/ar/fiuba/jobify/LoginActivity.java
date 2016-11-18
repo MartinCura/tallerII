@@ -79,14 +79,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null){
+            Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
+        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        SharedPreferences sharedPref =
+                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        String storedEmail = sharedPref.getString(getString(R.string.stored_connected_user_email), "");
+        String storedPass = sharedPref.getString(getString(R.string.stored_connected_user_password), "");
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
+        mEmailView.setText(storedEmail);
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -99,6 +108,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
+        mPasswordView.setText(storedPass);
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         if (mEmailSignInButton != null) {
@@ -240,8 +250,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private void attemptLogin() {
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        final String email = mEmailView.getText().toString();
+        final String password = mPasswordView.getText().toString();
 
         if (email.isEmpty() && password.isEmpty()) {
             fakeLogin();
@@ -270,6 +280,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             }
                             Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
                                     .show();//
+
+                            guardarDatosDeLogin(email, password);
 
                             guardarConnectedUserData(loginResponse);
                             Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
@@ -414,6 +426,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         .edit();
         editor.putLong(getString(R.string.stored_connected_user_id), loginResponse.getId());
         editor.putString(getString(R.string.stored_connected_user_token), loginResponse.getToken());
+        editor.apply();
+    }
+
+    private void guardarDatosDeLogin(String email, String password) {
+        SharedPreferences.Editor editor =
+                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                        .edit();
+        editor.putString(getString(R.string.stored_connected_user_email), email);
+        editor.putString(getString(R.string.stored_connected_user_password), password);
+        // TODO: Cuidado si se quiere más seguridad, no sé qué tan bueno es guardarla en plaintext
         editor.apply();
     }
 
