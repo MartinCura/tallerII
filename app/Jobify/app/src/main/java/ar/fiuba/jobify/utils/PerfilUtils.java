@@ -601,14 +601,14 @@ public class PerfilUtils {
     }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * Shows the progress UI and hides the perfil info.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public static void showProgress(PerfilActivity act, final boolean show) {
         final LinearLayout linearLayout = (LinearLayout) act.findViewById(R.id.perfil_information_layout);
         final View progressView = act.findViewById(R.id.perfil_progress);
         if (linearLayout == null || progressView == null) {
-            Log.e(LOG_TAG, "No pude encontrar la lista de usuarios o el progress loader.");
+            Log.e(LOG_TAG, "No pude encontrar el layout de info o el progress loader.");
             return;
         }
 

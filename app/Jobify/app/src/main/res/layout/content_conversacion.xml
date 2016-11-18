@@ -6,9 +6,8 @@
     android:paddingBottom="9dp"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical">
-    <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
-    <!--android:paddingLeft="@dimen/activity_horizontal_margin"-->
-    <!--android:paddingRight="@dimen/activity_horizontal_margin"-->
+
+
 
     <!--TODO: Considerar mover esto a la Toolbar-->
     <ImageButton
@@ -27,8 +26,6 @@
         android:background="#0000"
         android:contentDescription="@string/perfil_foto_description" />
 
-    <!--TODO: Poner una especie de barra divisora acá-->
-
     <TextView
         android:id="@+id/conversacion_nombre"
         android:layout_width="match_parent"
@@ -45,6 +42,16 @@
         android:textStyle="bold"
         android:onClick="irAPerfil"
         android:layout_toRightOf="@id/conversacion_thumbnail" />
+
+    <!--DIVISOR-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1.4dp"
+        android:layout_below="@id/conversacion_thumbnail"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#3f68687c" />
 
     <ImageButton
         android:id="@+id/conversacion_btn_mandar"

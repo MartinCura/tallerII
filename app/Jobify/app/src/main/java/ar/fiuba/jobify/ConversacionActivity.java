@@ -1,9 +1,11 @@
 package ar.fiuba.jobify;
 
-import android.app.ActivityManager;
-import android.content.ComponentName;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -45,7 +47,7 @@ import ar.fiuba.jobify.utils.Utils;
 
 public class ConversacionActivity extends NavDrawerActivity {
 
-    private final String LOG_TAG = ConversacionActivity.class.getSimpleName();
+    private final static String LOG_TAG = ConversacionActivity.class.getSimpleName();
 
     public final static String CORRESPONSAL_ID_MESSAGE = "ar.fiuba.jobify.CORRESPONSAL_ID_MESSAGE";
 
@@ -66,6 +68,7 @@ public class ConversacionActivity extends NavDrawerActivity {
     private EndlessScrollListener mEndlessScrollListener;
 
     public static boolean activityVisible = false;
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
@@ -110,6 +113,7 @@ public class ConversacionActivity extends NavDrawerActivity {
 
         mListView = (ListView) findViewById(R.id.conversacion_list);
         if (mListView != null) {
+
             mMessageArrayAdapter = new MessageArrayAdapter(this, new ArrayList<Message>());
             mEndlessScrollListener = new EndlessScrollListener();
             mListView.setAdapter(mMessageArrayAdapter);
@@ -121,8 +125,6 @@ public class ConversacionActivity extends NavDrawerActivity {
             Log.e(LOG_TAG, "No se encontró la listview de mensajes! :~| Salgo ofendido.");
             finish();
         }
-
-        // TODO: Poner un loading() ?
     }
 
     @Override
@@ -221,7 +223,10 @@ public class ConversacionActivity extends NavDrawerActivity {
         Utils.iniciarPerfilActivity(this, corresponsalID, false);
     }
 
+
     private void cargarUltimosMensajes() {
+        // Mostrar que está en progreso
+        showProgress(true);
 
         final Context ctx = this;
         HashMap<String, String> map = new HashMap<>();
@@ -246,6 +251,9 @@ public class ConversacionActivity extends NavDrawerActivity {
                                     new MessageArrayAdapter(ctx, messagesResponse.getMessages());
                             mListView.setAdapter(mMessageArrayAdapter);
                             mOffset = 0;
+
+                            // Mostrar la conversación ya cargada
+                            showProgress(false);
 
                         } else {
                             Log.e(LOG_TAG, "Error de parseo de MessagesResponse");
@@ -556,6 +564,46 @@ public class ConversacionActivity extends NavDrawerActivity {
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
+    }
+
+    /**
+     * Shows the progress UI and hides the conversation.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showProgress(final boolean show) {
+        final ListView listView = (ListView) findViewById(R.id.conversacion_list);
+        final View progressView = findViewById(R.id.conversacion_progress);
+        if (listView == null || progressView == null) {
+            Log.e(LOG_TAG, "No pude encontrar la lista de conversación o el progress loader.");
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            listView.setVisibility(show ? View.GONE : View.VISIBLE);
+            listView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    listView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            listView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 }
