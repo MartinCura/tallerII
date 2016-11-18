@@ -78,6 +78,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
+    private CallbackManager callbackManager;
+
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -144,7 +146,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
 
         FacebookSdk.sdkInitialize(getApplicationContext());
-        CallbackManager callbackManager = CallbackManager.Factory.create();
+        callbackManager = CallbackManager.Factory.create();
 
         LoginButton loginButton = (LoginButton)findViewById(R.id.facebook_login_button);
         loginButton.setReadPermissions(Arrays.asList(
@@ -153,7 +155,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-
+                Log.d(LOG_TAG, "Facebook token:" + loginResult.getAccessToken().getToken());
             }
 
             @Override
@@ -173,6 +175,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.nav_drawer, menu);
         return true;
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
