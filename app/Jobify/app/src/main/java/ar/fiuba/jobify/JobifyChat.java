@@ -85,7 +85,7 @@ public class JobifyChat extends FirebaseMessagingService {
 
                 int receiver = 0;
                 try {
-                    receiver = message.getJSONObject("mensaje").getInt("to");
+                    receiver = message.getJSONObject("mensaje").getInt("from");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

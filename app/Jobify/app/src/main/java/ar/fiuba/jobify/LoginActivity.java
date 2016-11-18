@@ -399,7 +399,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response != null) {
-                            Log.d(LOG_TAG, "User PUT Response: " + response.toString());
+                            Log.d(LOG_TAG, "FirebaseToken PUT Response: " + response.toString());
                         }
                     }
                 }, LOG_TAG);
