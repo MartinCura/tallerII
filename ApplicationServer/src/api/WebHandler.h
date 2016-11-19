@@ -11,6 +11,7 @@
 #include "handler/LoginHandler.h"
 #include "handler/RecommendationsHandler.h"
 #include "handler/MessagesHandler.h"
+#include "handler/ConversationsHandler.h"
 #include "handler/NotificationTokenHandler.h"
 #include "../logger/Logger.h"
 #include <regex>

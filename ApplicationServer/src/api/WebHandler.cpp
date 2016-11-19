@@ -65,7 +65,14 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 this->logResponse(response);
                 delete handler;
                 return response;
-
+            }
+            else if (regex_match(url, regex("/conversations/.*"))) {
+                this->logRequest(httpMessage);
+                handler = new ConversationsHandler();
+                response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
             }
             else if (regex_match(url, regex("/notificationtokens/.*"))) {
                 this->logRequest(httpMessage);
