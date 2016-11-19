@@ -31,6 +31,7 @@ Response* LoginWithFacebookHandler::handlePostRequest(http_message* httpMessage)
             personId = personManager->savePerson(0, person->serializeMe());
         } else {
             string email = person->getEmail();
+            delete person;
             person = personManager->getPersonByMail(&email);
             personId = person->getId();
         }
