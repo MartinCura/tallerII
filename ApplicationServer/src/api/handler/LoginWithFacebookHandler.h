@@ -37,7 +37,6 @@ private:
     string buildStringRequest(string tokenToSend);
     string performRequest(string request);
     Json::Value parseResponse(string response);
-    int getResponseSections(string response);
     Person* createPerson(Json::Value data);
 };
 

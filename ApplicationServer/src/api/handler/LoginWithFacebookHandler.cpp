@@ -118,35 +118,11 @@ string LoginWithFacebookHandler::performRequest(string request) {
 }
 
 Json::Value LoginWithFacebookHandler::parseResponse(string response) {
-    size_t positionCurlyBraceOpen = response.find_first_of('{', 0);
-    size_t positionCurlyBraceClose = response.find_first_of('}', 0);
-    string subResponse(response.begin() + positionCurlyBraceOpen, response.begin() + positionCurlyBraceClose);
-    int sections = this->getResponseSections(subResponse);
-    for (int i = 0; i < sections; i++) {
-        size_t positionCurlyBraceClose = subResponse.find_first_of('}', positionCurlyBraceClose);
-        string subResponse2(subResponse.begin() + positionCurlyBraceClose + 1, subResponse.begin() + subResponse.size());
-        subResponse = subResponse2;
-    }
-    string subResponse3(response.begin() + positionCurlyBraceOpen, response.begin() + positionCurlyBraceClose + 2);
     Json::Value root;
     Json::Reader reader;
-    bool parsingSuccessful = reader.parse(subResponse3, root);
+    bool parsingSuccessful = reader.parse(response, root);
     if (!parsingSuccessful) {
         throw ErrorLoginWithFacebookException("Error parsing Facebook response");
     }
     return root;
-}
-
-int LoginWithFacebookHandler::getResponseSections(string subResponse) {
-    int sections = 0;
-    int maxIterations = 20;
-    string subSection = subResponse;
-    size_t found = subSection.find_first_of("{");
-    while (found != string::npos && sections < maxIterations) {
-        string subUrl(subSection.begin() + found + 1, subSection.begin() + subSection.size());
-        subSection = subUrl;
-        found = subSection.find_first_of("{");
-        sections++;
-    }
-    return sections;
 }
