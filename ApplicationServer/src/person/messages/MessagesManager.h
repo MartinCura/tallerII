@@ -17,6 +17,7 @@ public:
     string saveMessage(long fromUserId, long toUserId, string message);
     vector<Message*> getMessages(long fromUserId, long toUserId);
     void setMessagesAsReceived(long fromUserId, long toUserId, vector<Message*> deliveredMessages);
+    int getUnreadCount(long requesterUserId, long withUserId);
 
 private:
     DBWrapper* db;

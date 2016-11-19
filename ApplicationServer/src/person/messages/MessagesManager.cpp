@@ -87,3 +87,19 @@ void MessagesManager::setMessagesAsReceived(long fromUserId, long toUserId, vect
     string key = this->getKey(fromUserId, toUserId);
     this->db->puTKey(key, &valueToSave);
 }
+
+int MessagesManager::getUnreadCount(long requesterUserId, long withUserId) {
+    int unreadCount = 0;
+    vector<Message*> currentMessages = this->getMessages(requesterUserId, withUserId);
+    for (vector<Message *>::size_type i = 0; i < currentMessages.size(); i++) {
+        Message* currentMessage = currentMessages[i];
+        if (
+            (currentMessage->getState() == Message::STATE_SENT) &&
+            (requesterUserId == currentMessage->getToUserId())
+        ) {
+            unreadCount++;
+        }
+        delete currentMessage;
+    }
+    return unreadCount;
+}

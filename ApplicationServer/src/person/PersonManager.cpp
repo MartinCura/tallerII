@@ -235,8 +235,7 @@ vector<Conversation*> PersonManager::getAllConversations(long userId) {
                 conversation->setFirstName(person->getFirstName());
                 conversation->setLastName(person->getLastName());
                 delete person;
-                //FIXME: Agregar unread count
-                conversation->setUnreadCount(0);
+                conversation->setUnreadCount(messagesManager->getUnreadCount(userId, *iter));
                 conversations.push_back(conversation);
             }
         }
