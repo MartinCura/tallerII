@@ -37,9 +37,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 
@@ -48,6 +55,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ar.fiuba.jobify.app_server_api.LoginRequest;
@@ -55,6 +63,8 @@ import ar.fiuba.jobify.app_server_api.LoginResponse;
 import ar.fiuba.jobify.utils.Utils;
 
 import static android.Manifest.permission.READ_CONTACTS;
+
+
 
 /**
  * A login screen that offers login via email/password.
@@ -68,6 +78,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
+    private CallbackManager callbackManager;
+
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -78,6 +90,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         String token = FirebaseInstanceId.getInstance().getToken();
         if (token != null){
             Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
@@ -131,6 +144,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
+
+        LoginButton loginButton = (LoginButton)findViewById(R.id.facebook_login_button);
+        loginButton.setReadPermissions(Arrays.asList(
+                "public_profile", "email", "user_birthday", "user_friends"));
+
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(LOG_TAG, "Facebook token:" + loginResult.getAccessToken().getToken());
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+
+            }
+        });
     }
 
     @Override
@@ -138,6 +175,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.nav_drawer, menu);
         return true;
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -394,6 +435,32 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Guarda datos de login del LoginResponse, id y token.
      */
     private void guardarConnectedUserData(LoginResponse loginResponse) {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null){
+            Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
+
+            Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
+                    .appendPath(getString(R.string.notification_token))
+                    .appendPath(String.valueOf( loginResponse.getId()))
+                    .build();
+            String url = builtUri.toString();
+            JSONObject obj = new JSONObject();
+            try {
+                obj.put("token", token);
+                Utils.fetchJsonFromUrl(this, Request.Method.PUT, url,obj,new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response != null) {
+                            Log.d(LOG_TAG, "FirebaseToken PUT Response: " + response.toString());
+                        }
+                    }
+                }, LOG_TAG);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
         SharedPreferences.Editor editor =
                 getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
                         .edit();

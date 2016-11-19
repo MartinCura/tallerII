@@ -85,7 +85,7 @@ public class JobifyChat extends FirebaseMessagingService {
 
                 int receiver = 0;
                 try {
-                    receiver = message.getJSONObject("mensaje").getInt("to");
+                    receiver = message.getJSONObject("mensaje").getInt("from");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -112,6 +112,7 @@ public class JobifyChat extends FirebaseMessagingService {
 
                     // Adds the Intent that starts the Activity to the top of the stack
                     stackBuilder.addNextIntent(resultIntent);
+                    resultIntent.putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, (long) receiver);
                     PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
                     mBuilder.setContentIntent(resultPendingIntent);
 
