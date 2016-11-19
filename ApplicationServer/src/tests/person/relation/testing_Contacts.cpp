@@ -1,8 +1,8 @@
 #include <string>
 #include "gtest/gtest.h"
-#include "../jsoncpp/json/json.h"
-#include "../person/PersonManager.h"
-#include "../Exceptions/UserAlreadyExistsException.h"
+#include "../../../jsoncpp/json/json.h"
+#include "../../../person/PersonManager.h"
+#include "../../../Exceptions/UserAlreadyExistsException.h"
 
 #define NAME_DB "/tmp/testDB"
 

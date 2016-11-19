@@ -16,6 +16,10 @@ set(PATHS_TO_IGNORE_COVERAGE
     "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/port/*"
     "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/table/*"
     "${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/util/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/tests/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/tests/person/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/tests/person/relation/*"
+    "${PROJECT_SOURCE_DIR}/ApplicationServer/src/tests/session/*"
 )
 
 message("++ Building tests ++")
