@@ -184,28 +184,44 @@ public class NavDrawerActivity extends AppCompatActivity
                     new Intent(this, SettingsActivity.class)
             );
             return false;
+
         } else if (id == R.id.nav_solicitudes) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
             startActivity(
                     new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_SOLICITUDES)
+                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                      UserListActivity.MODE_SOLICITUDES)
             );
             return false;
+
         } else if (id == R.id.nav_most_popular) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
             startActivity(
                     new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_MOST_POPULAR)
+                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                      UserListActivity.MODE_MOST_POPULAR)
             );
             return false;
+
         } else if (id == R.id.nav_busqueda) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
             startActivity(
                     new Intent(this, BusquedaActivity.class)
             );
+            return false;
+
+        } else if (id == R.id.nav_conversaciones) {
+            if (drawer != null)
+                drawer.closeDrawer(GravityCompat.START);
+            startActivity(
+                    new Intent(this, UserListActivity.class)
+                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                      UserListActivity.MODE_CONVERSACIONES)
+            );
+            return false;
         }
         return true;
     }

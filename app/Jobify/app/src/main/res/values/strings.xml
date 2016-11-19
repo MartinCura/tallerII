@@ -183,6 +183,8 @@
     <string name="stored_connected_user_password">connected_user_password</string>
     <string name="busqueda_skills_title">Skills</string>
     <string name="busqueda_distancia_title">Distancia máx.</string>
+    <string name="get_conversations_path">conversations</string>
+    <string name="nav_conversations_option">Conversaciones</string>
 
     <!--Testeo, TODO: borrar-->
     <string-array name="planets_array">

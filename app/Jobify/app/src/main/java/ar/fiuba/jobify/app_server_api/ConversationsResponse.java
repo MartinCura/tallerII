@@ -14,22 +14,22 @@ import java.util.List;
 import ar.fiuba.jobify.shared_server_api.ResponseMetadata;
 
 /**
- * Created by martín on 06/11/16.
- * Estructura API para el response de una búsqueda.
+ * Created by martín on 18/11/16.
+ * Estructura API para recibir la lista de conversaciones iniciadas.
  */
-public class BusquedaResponse {
+public class ConversationsResponse {
 
-    List<User> users;
+    /** Guardo los corresponsales en Users,
+     * metiendo la cantidad de unread en la cantidadRecomendaciones **/
+    List<User> conversations;
     ResponseMetadata metadata;
 
-
-    @SuppressWarnings("unused")
-    BusquedaResponse() {
-        this.users = new ArrayList<>();
+    ConversationsResponse() {
+        this.conversations = new ArrayList<>();
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<User> getConversations() {
+        return conversations;
     }
 
     public ResponseMetadata getMetadata() {
@@ -37,13 +37,13 @@ public class BusquedaResponse {
     }
 
     @Nullable
-    public static BusquedaResponse parseJSON(String response) {
+    public static ConversationsResponse parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
 
         try {
-            return gson.fromJson(response, BusquedaResponse.class);
+            return gson.fromJson(response, ConversationsResponse.class);
 
         } catch (JsonSyntaxException e) {
             Log.e("API", "Json Syntax exception!");

@@ -192,7 +192,7 @@ public class BusquedaActivity extends NavDrawerActivity {
         Log.d(LOG_TAG, "BusqRequest: "+busquedaReq.toJson());//
         startActivity(
                 new Intent(this, UserListActivity.class)
-                        .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_BUSQUEDA)
+                        .putExtra(UserListActivity.LIST_MODE_MESSAGE, UserListActivity.MODE_BUSQUEDA)
                         .putExtra(UserListActivity.BUSQUEDA_REQUEST_MESSAGE, busquedaReq.toJson())
         );
     }

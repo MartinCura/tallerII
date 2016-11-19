@@ -43,6 +43,7 @@ import ar.fiuba.jobify.app_server_api.BusquedaRequest;
 import ar.fiuba.jobify.app_server_api.BusquedaResponse;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
+import ar.fiuba.jobify.app_server_api.ConversationsResponse;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.utils.RequestQueueSingleton;
 import ar.fiuba.jobify.utils.Utils;
@@ -52,14 +53,16 @@ public class UserListActivity extends NavDrawerActivity {
     private final String LOG_TAG = UserListActivity.class.getSimpleName();
 
     private final static String package_name = "ar.fiuba.jobify.USER_LIST";
-    public final static String LIST_MODE = package_name+"_MODE";
+    public final static String LIST_MODE_MESSAGE = package_name+"_MODE_MESSAGE";
 //    public final static String _PARAMETER = package_name+_TODO;
 
     public final static int MODE_NONE = 0;
     public final static int MODE_SOLICITUDES = 1;
     public final static int MODE_MOST_POPULAR = 2;
     public final static int MODE_BUSQUEDA = 3;
-//    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_MOST_POPULAR, MODE_BUSQUEDA };
+    public final static int MODE_CONVERSACIONES = 4;
+//    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_MOST_POPULAR,
+//                                              MODE_BUSQUEDA, MODE_CONVERSACIONES };
 
     public final static String BUSQUEDA_REQUEST_MESSAGE = package_name+"_BUSQUEDA_REQUEST_MESSAGE";
 
@@ -112,8 +115,8 @@ public class UserListActivity extends NavDrawerActivity {
 
         // Obtengo el modo
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(LIST_MODE)) {
-            mode = intent.getIntExtra(LIST_MODE, mode);
+        if (intent != null && intent.hasExtra(LIST_MODE_MESSAGE)) {
+            mode = intent.getIntExtra(LIST_MODE_MESSAGE, mode);
         }
 
         switch (mode) {
@@ -123,6 +126,8 @@ public class UserListActivity extends NavDrawerActivity {
                 break;
             case MODE_MOST_POPULAR:
                 showProgress(true);
+                // TODO: Tengo que settear el endless scroll listener como hice abajo?
+                listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
 //                listarMasPopulares();
                 listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
                 break;
@@ -130,6 +135,10 @@ public class UserListActivity extends NavDrawerActivity {
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
                 generarBusqueda();
+                break;
+            case MODE_CONVERSACIONES:
+                showProgress(true);
+                listarConversaciones();
                 break;
             case MODE_NONE:
             default:
@@ -271,13 +280,58 @@ public class UserListActivity extends NavDrawerActivity {
         cargarPageDeUsuarios(0, false);
     }
 
+    public void listarConversaciones() {
+        final Context ctx = this;
+        String urlConversaciones = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_conversations_path));
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlConversaciones, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        ConversationsResponse convResponse =
+                                ConversationsResponse.parseJSON(response.toString());
+
+                        if (convResponse == null) {
+                            Toast.makeText(ctx, "Ha ocurrido un error", Toast.LENGTH_LONG)
+                                    .show();
+                            Log.e(LOG_TAG, "ConversationsResponse null");
+                            mostrarNoHayResultados();
+                            return;
+                        }
+
+                        mExpectedListSize =
+                                Long.valueOf(convResponse.getMetadata().getCount()).intValue();
+
+                        if (mExpectedListSize == 0) {
+                            mostrarNoHayResultados();
+                        } else {
+                            for (User user : convResponse.getConversations()) {
+                                agregarResultado(user);
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(ctx, "Todavía no implementado / error", Toast.LENGTH_LONG)
+                                .show();//
+                        if (error.networkResponse != null)
+                            Log.e(LOG_TAG, "Listar conversaciones error status code: "
+                                    + error.networkResponse.statusCode);
+                        error.printStackTrace();
+
+                        showProgress(false);
+                    }
+                }, LOG_TAG);
+    }
+
+
 
     private List<User> ordenarPorPopularidad(List<User> lista) {
         Collections.sort(lista, new Comparator<User>() {
             @Override
             public int compare(User u1, User u2) {
-                return Long.valueOf(u1.getCantRecomendaciones())
-                        .compareTo(u2.getCantRecomendaciones());
+                return -(Long.valueOf(u1.getCantRecomendaciones())
+                        .compareTo(u2.getCantRecomendaciones()));
             }
         });
         return lista;
@@ -448,12 +502,19 @@ public class UserListActivity extends NavDrawerActivity {
                         .inflate(R.layout.user_list_item, parent, false);
             }
 
+            // El modo conversaciones muestra unreadCount
+            // en vez de trabajo actual y cantidad de recomendaciones
+            boolean usuarioReducido = true;
+            if (mode != MODE_CONVERSACIONES)
+                usuarioReducido = false;
+
             User user = getItem(position);
             if (user != null) {
                 ImageView iv_thumbnail = (ImageView) itemView.findViewById(R.id.list_item_thumbnail);
                 TextView tv_nombre  = (TextView) itemView.findViewById(R.id.list_item_nombre);
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.list_item_trabajo);
                 TextView tv_recom   = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
+                TextView tv_unread  = (TextView) itemView.findViewById(R.id.list_item_unread_messages);
 
                 if (iv_thumbnail != null) {
                     Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
@@ -468,14 +529,30 @@ public class UserListActivity extends NavDrawerActivity {
 
                 if (tv_nombre != null)
                     tv_nombre.setText(user.getFullName());
-                if (tv_trabajo != null)
-                    tv_trabajo.setText(user.getTrabajosActuales()); // TODO: Revisar si cortar a una línea
-                if (tv_recom != null) {
-                    long cantRecom = user.getCantRecomendaciones();
-                    if (cantRecom == 0)
+                // Para listar conversaciones
+                if (usuarioReducido) {
+                    if (tv_trabajo != null)
+                        tv_trabajo.setVisibility(View.GONE);
+                    if (tv_recom != null)
                         tv_recom.setVisibility(View.GONE);
-                    else
-                    tv_recom.setText(String.format(Locale.US, "%d", cantRecom));
+                    if (tv_unread != null) {
+                        long cantUnread = user.getUnreadCount();
+                        if (cantUnread > 0) {
+                            tv_unread.setText(String.format(Locale.US, "%d", cantUnread));
+                            tv_unread.setVisibility(View.VISIBLE);
+                        }
+                    }
+                // Los demás casos
+                } else {
+                    if (tv_trabajo != null)
+                        tv_trabajo.setText(user.getTrabajosActuales()); // TODO: Revisar si cortar a una línea
+                    if (tv_recom != null) {
+                        long cantRecom = user.getCantRecomendaciones();
+                        if (cantRecom == 0)
+                            tv_recom.setVisibility(View.GONE);
+                        else
+                            tv_recom.setText(String.format(Locale.US, "%d", cantRecom));
+                    }
                 }
             }
             return itemView;

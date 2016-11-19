@@ -32,6 +32,7 @@ import com.android.volley.VolleyError;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class ConversacionActivity extends NavDrawerActivity {
 
     private final int CANT_MENSAJES_POR_PAGE = 10;
 
+    // ID de aquel con quien es la conversación
     public static long corresponsalID = 0;
     private String nombreCorresponsal;
 
@@ -233,7 +235,7 @@ public class ConversacionActivity extends NavDrawerActivity {
         map.put(getString(R.string.get_messages_user_query), Long.toString(corresponsalID));
         map.put(getString(R.string.get_messages_first_query), "1");   // Carga desde el último mensaje
         map.put(getString(R.string.get_messages_last_query), Integer.toString(CANT_MENSAJES_POR_PAGE));
-        String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path), connectedUserID, map);
+        final String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path), connectedUserID, map);
 
         Utils.fetchJsonFromUrl(this, Request.Method.GET, urlMensajes, null,
                 new Response.Listener<JSONObject>() {
@@ -257,6 +259,32 @@ public class ConversacionActivity extends NavDrawerActivity {
 
                         } else {
                             Log.e(LOG_TAG, "Error de parseo de MessagesResponse");
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        showProgress(false);
+
+                        // TODO: Todo lo de abajo del onError copipeistiado de Utils... revisar
+                        // En caso de que no debía recibirse nada y el retorno fue correcto,
+                        // correr el método para response correcto.
+                        // // No debería correrse nunca ahora que modifiqué JsonObjectRequest
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 200) {
+//                            try {
+//                                responseListener.onResponse(new JSONObject("{}"));
+//                            } catch (JSONException ex) {
+//                                Log.e(LOG_TAG, "JSON vacío no aceptado");
+//                            }
+                        } else {
+                            Log.d(LOG_TAG, "Error Listener. URL: " + urlMensajes);
+                            if (error.networkResponse != null) {
+                                if (error.networkResponse.statusCode == 403)
+                                    Log.d(LOG_TAG, error.networkResponse.statusCode + " FORBIDDEN");
+                                else
+                                    Log.d(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
+                            }
+                            error.printStackTrace();
                         }
                     }
                 }, LOG_TAG);

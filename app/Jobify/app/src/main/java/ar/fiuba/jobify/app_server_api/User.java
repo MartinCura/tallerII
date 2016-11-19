@@ -6,6 +6,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,8 +40,9 @@ public class User {
 
     Locacion location;
 
-    long[] recommendations;
+    @SerializedName(value="cantidadRecomendaciones", alternate={"unread_count"})
     long cantidadRecomendaciones = -1;
+    long[] recommendations;
 
     List<Skill> skills;
     List<Employment> workHistory;
@@ -132,6 +134,13 @@ public class User {
             else
                 cantidadRecomendaciones = recommendations.length;
         }
+        return cantidadRecomendaciones;
+    }
+
+    // Para usar por ConversationsResponse
+    public long getUnreadCount() {
+        if (cantidadRecomendaciones < 0)
+            return 0;
         return cantidadRecomendaciones;
     }
 

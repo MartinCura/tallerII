@@ -14,6 +14,10 @@
             android:id="@+id/nav_solicitudes"
             android:icon="@drawable/ic_solicitudes"
             android:title="@string/nav_solicitudes_option" />
+        <item
+            android:id="@+id/nav_conversaciones"
+            android:icon="@drawable/ic_conversaciones"
+            android:title="@string/nav_conversations_option" />
     </group>
 
     <group android:checkableBehavior="none">
