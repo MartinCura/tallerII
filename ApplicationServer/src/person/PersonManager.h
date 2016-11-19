@@ -12,6 +12,7 @@
 #include "recommendation/RecommendationsManager.h"
 #include "messages/MessagesManager.h"
 #include "messages/NotificationTokenManager.h"
+#include "messages/Conversation.h"
 
 class PersonManager {
 
@@ -47,6 +48,7 @@ public:
     bool userExists(long userId);
     string getNotificationTokenByUserId(long userId);
     void setOrUpdateNotificationToken(Json::Value request, long userId);
+    vector<Conversation*> getAllConversations(long userId);
 private:
     DBWrapper* db;
     std::string nameDB;

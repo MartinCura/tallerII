@@ -220,3 +220,28 @@ void PersonManager::setOrUpdateNotificationToken(Json::Value request, long userI
     notificationTokenManager->setOrUpdateToken(userId, token);
     delete notificationTokenManager;
 }
+
+vector<Conversation*> PersonManager::getAllConversations(long userId) {
+    vector<Conversation*> conversations;
+    MessagesManager* messagesManager = new MessagesManager(this->db);
+    std::vector<long>* ids = this->getAllUsersIds();
+    for (vector<long>::iterator iter = ids->begin() ; iter != ids->end() ; iter++) {
+        if (userId != *iter) {
+            vector<Message*> messages = messagesManager->getMessages(userId, *iter);
+            if (messages.size() != 0) {
+                Conversation* conversation = new Conversation();
+                conversation->setWith(*iter);
+                Person* person = this->getPersonById(*iter);
+                conversation->setFirstName(person->getFirstName());
+                conversation->setLastName(person->getLastName());
+                delete person;
+                //FIXME: Agregar unread count
+                conversation->setUnreadCount(0);
+                conversations.push_back(conversation);
+            }
+        }
+    }
+    delete messagesManager;
+    delete ids;
+    return conversations;
+}
