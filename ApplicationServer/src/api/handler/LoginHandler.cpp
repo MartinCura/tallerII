@@ -7,7 +7,7 @@
 #include "../../session/SessionManager.h"
 #include "../../Exceptions/InvalidPasswordException.h"
 
-const string LoginHandler::TOKEN_KEY = "login";
+const string LoginHandler::TOKEN_KEY = "token";
 const string LoginHandler::USER_ID_KEY = "user_id";
 
 Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
