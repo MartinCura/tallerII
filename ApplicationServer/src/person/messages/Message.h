@@ -9,6 +9,9 @@ class Message {
 
 public:
     static const char* TIMESTAMP_FORMAT;
+    static const char* STATE_SENT;
+    static const char* STATE_RECEIVED;
+    static const char* STATE_READ;
 
     Message(Json::Value messageAsJson);
     Message();
@@ -18,11 +21,13 @@ public:
     void setTimestamp(string timestamp);
     void setFromUserId(long fromUserId);
     void setToUserId(long toUserId);
+    void setState(string state);
 
     string getMessage();
     string getTimestamp();
     long getFromUserId();
     long getToUserId();
+    string getState();
 
     Json::Value serializeMe();
 
@@ -31,6 +36,7 @@ private:
     string message;
     long fromUserId;
     long toUserId;
+    string state;
 };
 
 #endif //PROJECT_MESSAGE_H

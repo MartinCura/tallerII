@@ -245,3 +245,9 @@ vector<Conversation*> PersonManager::getAllConversations(long userId) {
     delete ids;
     return conversations;
 }
+
+void PersonManager::setMessagesAsReceived(long fromUserId, long toUserId, vector<Message*> deliveredMessages) {
+    MessagesManager* messagesManager = new MessagesManager(this->db);
+    messagesManager->setMessagesAsReceived(fromUserId, toUserId, deliveredMessages);
+    delete messagesManager;
+}

@@ -16,6 +16,7 @@ string MessagesManager::saveMessage(long fromUserId, long toUserId, string messa
     messageToSave->setToUserId(toUserId);
     messageToSave->setMessage(message);
     messageToSave->setTimestamp(this->getTimestamp());
+    messageToSave->setState(Message::STATE_SENT);
     string messageToSaveAsString = messageToSave->serializeMe().toStyledString();
     vector<Message*> currentMessages = this->getMessages(fromUserId, toUserId);
     currentMessages.push_back(messageToSave);
@@ -62,4 +63,27 @@ string MessagesManager::getTimestamp() {
     char buffer[30];
     strftime(buffer, 30, Message::TIMESTAMP_FORMAT, timeInfo);
     return string(buffer);
+}
+
+void MessagesManager::setMessagesAsReceived(long fromUserId, long toUserId, vector<Message*> deliveredMessages) {
+    vector<Message*> currentMessages = this->getMessages(fromUserId, toUserId);
+    Json::Value allMessagesAsJson;
+    for (vector<Message *>::size_type i = 0; i < currentMessages.size(); i++) {
+        Message* currentMessage = currentMessages[i];
+        for (vector<Message *>::size_type j = 0; j < deliveredMessages.size(); j++) {
+            Message* deliveredMessage = currentMessages[i];
+            if (
+                (deliveredMessage->getTimestamp() == currentMessage->getTimestamp()) &&
+                (fromUserId == currentMessage->getToUserId())
+            ) {
+                currentMessage->setState(Message::STATE_RECEIVED);
+            }
+        }
+        allMessagesAsJson.append(currentMessage->serializeMe());
+        delete currentMessage;
+    }
+    Json::FastWriter fastWriter;
+    string valueToSave = fastWriter.write(allMessagesAsJson);
+    string key = this->getKey(fromUserId, toUserId);
+    this->db->puTKey(key, &valueToSave);
 }

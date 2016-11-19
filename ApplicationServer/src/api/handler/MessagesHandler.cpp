@@ -25,6 +25,7 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
         vector<Message*> messages = personManager->getMessages(fromUserId, toUserId);
         long totalCount = messages.size();
         messages = this->truncateMessages(messages, queryParams);
+        personManager->setMessagesAsReceived(fromUserId, toUserId, messages);
         Json::Value messagesAsJson = this->buildJsonResponse(messages, totalCount);
         response->setBody(messagesAsJson.toStyledString());
         response->setSuccessfulHeader();

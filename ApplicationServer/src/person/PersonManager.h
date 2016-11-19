@@ -49,6 +49,7 @@ public:
     string getNotificationTokenByUserId(long userId);
     void setOrUpdateNotificationToken(Json::Value request, long userId);
     vector<Conversation*> getAllConversations(long userId);
+    void setMessagesAsReceived(long fromUserId, long toUserId, vector<Message*> deliveredMessages);
 private:
     DBWrapper* db;
     std::string nameDB;
