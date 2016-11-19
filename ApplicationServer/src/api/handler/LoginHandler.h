@@ -10,6 +10,8 @@
 
 class LoginHandler : public Handler{
 public:
+    static const string TOKEN_KEY;
+    static const string USER_ID_KEY;
 
     LoginHandler() {
         postPublic = true;

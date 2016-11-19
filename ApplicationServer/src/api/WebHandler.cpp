@@ -50,6 +50,14 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 delete handler;
                 return response;
             }
+            else if (regex_match(url, regex("/facebooklogin"))) {
+                this->logRequest(httpMessage);
+                handler = new LoginWithFacebookHandler();
+                response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
+            }
             else if (regex_match(url, regex("/recommendations.*"))) {
                 this->logRequest(httpMessage);
                 handler = new RecommendationsHandler();

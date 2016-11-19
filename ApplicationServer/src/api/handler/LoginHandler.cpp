@@ -7,6 +7,8 @@
 #include "../../session/SessionManager.h"
 #include "../../Exceptions/InvalidPasswordException.h"
 
+const string LoginHandler::TOKEN_KEY = "login";
+const string LoginHandler::USER_ID_KEY = "user_id";
 
 Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     string user_password, user_mail;
@@ -57,8 +59,8 @@ Response *LoginHandler::handlePostRequest(http_message *httpMessage) {
     }
 
     Json::Value responseBody;
-    responseBody["login"] = user_token; //TODO: ASK FOR DTO.
-    responseBody["user_id"] = sessionManager->getUserId(user_token); //TODO: NO SIENTO QUE SEA NECESARIO ESTO
+    responseBody[TOKEN_KEY] = user_token; //TODO: ASK FOR DTO.
+    responseBody[USER_ID_KEY] = sessionManager->getUserId(user_token); //TODO: NO SIENTO QUE SEA NECESARIO ESTO
     Response* response = new Response();
     response->setSuccessfulHeader();
     response->setBody(responseBody.toStyledString());

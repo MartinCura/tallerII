@@ -204,6 +204,11 @@ bool PersonManager::userExists(long userId) {
     return (db->existsKey(USER_UUID_ID + to_string(userId), &result));
 }
 
+bool PersonManager::userExists(string email) {
+    string result;
+    return (db->existsKey(USER_MAIL_ID + email, &result));
+}
+
 string PersonManager::getNotificationTokenByUserId(long userId) {
     if (!this->userExists(userId)) throw UserNotFoundException(userId);
     NotificationTokenManager* notificationTokenManager = new NotificationTokenManager(this->db);

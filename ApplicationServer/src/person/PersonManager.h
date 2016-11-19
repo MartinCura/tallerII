@@ -46,6 +46,7 @@ public:
     string saveMessage(Json::Value request);
     vector<Message*> getMessages(long fromUserId, long toUserId);
     bool userExists(long userId);
+    bool userExists(string email);
     string getNotificationTokenByUserId(long userId);
     void setOrUpdateNotificationToken(Json::Value request, long userId);
     vector<Conversation*> getAllConversations(long userId);

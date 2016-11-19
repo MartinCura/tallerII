@@ -9,6 +9,7 @@
 #include "handler/AllUsersHandler.h"
 #include "handler/ContactsHandler.h"
 #include "handler/LoginHandler.h"
+#include "handler/LoginWithFacebookHandler.h"
 #include "handler/RecommendationsHandler.h"
 #include "handler/MessagesHandler.h"
 #include "handler/ConversationsHandler.h"
