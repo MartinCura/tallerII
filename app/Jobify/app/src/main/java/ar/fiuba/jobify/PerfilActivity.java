@@ -152,8 +152,13 @@ public class PerfilActivity extends NavDrawerActivity {
     protected void onResume() {
         super.onResume();
 
-        refreshProfileInformation(fetchedUserID);
-        cargarFotoDePerfil(fetchedUserID);
+        if (!inEditingMode) {
+            refreshProfileInformation(fetchedUserID);
+            cargarFotoDePerfil(fetchedUserID);
+
+        } else if (mLocationListener != null) {
+            mLocationListener.unpause();
+        }
 
         // TODO: REVISAR, YA QUE ESTÁ EN EL onResume
         // Obtengo el modo en el que debe comenzar
@@ -170,6 +175,15 @@ public class PerfilActivity extends NavDrawerActivity {
                 toggleEditMode();
                 startLocationService(null);
             }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (mLocationListener != null) {
+            mLocationListener.pause();
         }
     }
 
@@ -469,6 +483,7 @@ public class PerfilActivity extends NavDrawerActivity {
                         switch (action) {
                             case ACCEPT:
                                 nuevoEstado = Contact.Status.ACTIVE;
+                                refreshProfileInformation(fetchedUserID);
                                 break;
                             case ADD:
                                 nuevoEstado = Contact.Status.REQUESTED;
@@ -476,6 +491,7 @@ public class PerfilActivity extends NavDrawerActivity {
                             default:
                             case UNFRIEND:
                                 nuevoEstado = Contact.Status.NONE;
+                                refreshProfileInformation(fetchedUserID);
                         }
                         PerfilUtils.colorearBotonAmistad(getActivity(), nuevoEstado);
                     }

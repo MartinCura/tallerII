@@ -274,14 +274,10 @@ public class Utils {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-//                        headers.put("Accept", "application/json");
-//                        headers.put("Content-Type", "application/json");//; charset=utf-8");
-//                        headers.put("accept-encoding", "gzip, deflate");
-//                        headers.put("accept-language", "en-US,en;q=0.8");
-//                        headers.put("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/" +
-//                                "537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36");
                         headers.put("Connection", "close");//Te amo, header que soluciona cosas ~ mc
-                        headers.put("Authorization", getToken(context));
+                        String token = getToken(context);
+                        if (token != null)
+                            headers.put("Authorization", token);
                         return headers;
                     }
 
@@ -343,7 +339,9 @@ public class Utils {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put("Authorization", getToken(ctx));
+                        String token = getToken(ctx);
+                        if (token != null)
+                            headers.put("Authorization", token);
                         return headers;
                     }
         };
@@ -379,8 +377,8 @@ public class Utils {
     // Devuelve string vacío en caso de error
     public static String getTextViewText(AppCompatActivity activity, @IdRes int idRes) {
         String text = "";
-        EditText et = (EditText) activity.findViewById(idRes);
-//        TextView et = (TextView) activity.findViewById(idRes);
+//        EditText et = (EditText) activity.findViewById(idRes);
+        TextView et = (TextView) activity.findViewById(idRes);
         if (et != null) {
             text = et.getText().toString();
         }
@@ -498,7 +496,9 @@ public class Utils {
                 headers = new HashMap<>();
             }
             headers.put("Accept", "application/json");
-            headers.put("Authorization", getToken(ctx));
+            String token = getToken(ctx);
+            if (token != null)
+                headers.put("Authorization", token);
             return headers;
         }
 
@@ -589,7 +589,7 @@ public class Utils {
     private static String getToken(Context ctx) {
         SharedPreferences sharedPref =
                 ctx.getSharedPreferences(ctx.getString(R.string.shared_pref_connected_user), 0);
-        return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), "null");
+        return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), null);
     }
 
     public static Bitmap cropToSquare(Bitmap bitmap) {

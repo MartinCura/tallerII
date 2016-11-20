@@ -113,6 +113,23 @@ public class PerfilUtils {
                 et_city.setText(mCityName);
         }
 
+        public void pause() {
+            try {
+                mLocationManager.removeUpdates(this);
+            } catch (SecurityException ex) {
+                Log.w(LOG_TAG, "Security exception??");
+            }
+        }
+
+        public void unpause() {
+            try {
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100,
+                        this);
+            } catch (SecurityException ex) {
+                Log.w(LOG_TAG, "Security exception??");
+            }
+        }
+
         /**
          * No olvidar llamarlo para reestablecer el orden del universo...
          * y no perder toda la batería.

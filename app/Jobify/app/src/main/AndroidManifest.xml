@@ -72,6 +72,7 @@
             android:name=".LoginActivity"
             android:label="@string/title_activity_login" />
             <!--android:noHistory="true"-->
+
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
@@ -99,7 +100,7 @@
             android:name=".BusquedaActivity"
             android:label="@string/title_activity_busqueda"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">
+            android:windowSoftInputMode="stateHidden|adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ar.fiuba.jobify.MainActivity" />

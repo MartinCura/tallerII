@@ -13,15 +13,15 @@ import com.google.gson.JsonSyntaxException;
  */
 public class LoginResponse {
 
-    long userId;
-    String login = "";//token = "";
+    long userId; // TODO: Default?
+    String token = "";
 
     public long getId() {
         return userId;
     }
 
     public String getToken() {
-        return login;//token;
+        return token;
     }
 
     public static LoginResponse parseJSON(String response) {
