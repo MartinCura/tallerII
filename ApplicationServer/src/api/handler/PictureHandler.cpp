@@ -16,6 +16,9 @@ Response* PictureHandler::handleGetRequest(http_message* httpMessage, string url
     } catch (InvalidRequestException& e) {
         response->setBadRequestHeader();
         response->setErrorBody(e.getMessage());
+    } catch (PictureNotFoundException& e) {
+        response->setNotFoundHeader();
+        response->setErrorBody(e.getMessage());
     }
     return response;
 }
@@ -70,7 +73,7 @@ Response* PictureHandler::buildGetPictureResponse(long id) {
     vector<char> buffer;
     FILE* stream = fopen(this->getFilePath(id).c_str(), "rb");
     if (stream == NULL) {
-        throw InvalidRequestException("Cannot find requested picture");
+        throw PictureNotFoundException("Cannot find requested picture");
     }
     fseek(stream, 0, SEEK_END);
     unsigned long length = (unsigned long) ftell(stream);

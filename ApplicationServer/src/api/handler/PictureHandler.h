@@ -4,6 +4,7 @@
 #include <fstream>
 #include "Handler.h"
 #include "../../Exceptions/ErrorDeletingFileException.h"
+#include "../../Exceptions/PictureNotFoundException.h"
 
 class PictureHandler : public Handler {
 public:
