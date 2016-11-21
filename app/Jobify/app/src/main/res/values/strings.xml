@@ -84,7 +84,7 @@
 
 
     <!-- Login -->
-    <string name="title_activity_login">Inicia sesión</string>
+    <string name="title_activity_login">Iniciar sesión</string>
 
     <string name="prompt_email">Correo electrónico</string>
     <string name="prompt_password">Contraseña</string>
@@ -95,7 +95,7 @@
     <string name="error_invalid_password">Contraseña muy corta</string>
     <string name="error_incorrect_password">Contraseña incorrecta</string>
     <string name="error_field_required">Este campo es obligatorio >:^[</string>
-    <string name="permission_rationale">"No tocamos tus datos! Confiá en nosotros :) (Do No Evil)"</string>
+    <string name="permission_rationale">"No tocamos tus datos! Confiá en nosotros :)\n(Do No Evil)"</string>
     <string name="permission_rationale_acceptance">"Permiso de acceso para poder autocompletar"
         "tu correo"
     </string>
