@@ -625,7 +625,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
         long connectedUserId = 1L;
-        String  mail = connectedUserId == 1L ? "john@doe.com" : "jane@doe.com",
+        String  mail = "john@doe.com",
                 pass = "123abc";
         mEmailView.setText(mail);
         mPasswordView.setText(pass);

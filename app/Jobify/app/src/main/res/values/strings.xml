@@ -192,6 +192,8 @@
     <string name="nav_conversations_option">Conversaciones</string>
     <string name="notification_token">notificationtokens</string>
     <string name="nav_logout_option">Cerrar sesión</string>
+    <string name="perfil_new_job_position_filler">(Posición de trabajo)</string>
+    <string name="perfil_new_skill_filler">(Skill)</string>
 
     <!--Testeo, TODO: borrar-->
     <string-array name="planets_array">

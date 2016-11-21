@@ -129,7 +129,8 @@ public class PerfilActivity extends NavDrawerActivity {
             });
         }
 
-        PerfilUtils.populateAutoCompleteLists(this);
+        PerfilUtils.populateSpinners(this);
+//        PerfilUtils.populateAutoCompleteLists(this); deprecated
 
         if (fetchedUserID == connectedUserID) {
             if (fabAmigar != null) fabAmigar.setVisibility(View.GONE);
@@ -312,8 +313,9 @@ public class PerfilActivity extends NavDrawerActivity {
                 Utils.setTextViewText(this, R.id.perfil_nacimiento_anio, String.valueOf(fetchedUser.getAnioNacimiento()));
             }
 
-            // Cargo autocompletado de JobPositions y Skills según SharedData
-            PerfilUtils.populateAutoCompleteLists(this);
+            // Cargo spinners de JobPositions y Skills según SharedData
+            PerfilUtils.populateSpinners(this);
+//            PerfilUtils.populateAutoCompleteLists(this); deprecated
 
             final PerfilActivity activity = this;
 

@@ -1,6 +1,5 @@
 package ar.fiuba.jobify;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -67,9 +66,6 @@ public class BusquedaActivity extends NavDrawerActivity {
 
 
     private void populateSpinners() {
-
-        final Context ctx = this;//
-
         try {
             Spinner spinner = (Spinner) findViewById(R.id.job_positions_spinner);
             if (spinner == null) {
@@ -99,8 +95,6 @@ public class BusquedaActivity extends NavDrawerActivity {
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        Toast.makeText(ctx, "onNothingSelected()", Toast.LENGTH_LONG)
-                                .show();//
                         mSelectedJobPositionString = "";
                     }
                 });
@@ -140,8 +134,6 @@ public class BusquedaActivity extends NavDrawerActivity {
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        Toast.makeText(ctx, "onNothingSelected()", Toast.LENGTH_LONG)
-                                .show();//
                         mSelectedSkillString = "";
                     }
                 });

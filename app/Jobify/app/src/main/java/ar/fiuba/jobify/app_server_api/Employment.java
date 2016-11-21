@@ -95,12 +95,15 @@ public class Employment implements Nombrable {
             throw new IllegalArgumentException("compañía");
         if (position.isEmpty() || (sdPosition = jpr.findPositionTitle(position)) == null)
             throw new IllegalArgumentException("posición");
-        if (desdeMes <= 0 || desdeMes > 12 || hastaMes < 0 || hastaMes > 12)
-            throw new IllegalArgumentException("mes");
+        if (desdeMes <= 0 || desdeMes > 12)
+            throw new IllegalArgumentException("mes desde");
+        if (hastaMes  < 0 || hastaMes > 12)
+            throw new IllegalArgumentException("mes hasta");
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        if (desdeAnio < 1900 || desdeAnio > currentYear ||
-                (hastaAnio < 1900 && hastaAnio != 0) || hastaAnio > currentYear)
-            throw new IllegalArgumentException("año");
+        if (desdeAnio < 1900 || desdeAnio > currentYear)
+            throw new IllegalArgumentException("año desde");
+        if ((hastaAnio < 1900 && hastaAnio != 0) || hastaAnio > currentYear)
+            throw new IllegalArgumentException("año hasta");
 
         String desde = ((desdeMes < 10) ? "0"+desdeMes : ""+desdeMes) + "/" + desdeAnio;
         String hasta = "";
