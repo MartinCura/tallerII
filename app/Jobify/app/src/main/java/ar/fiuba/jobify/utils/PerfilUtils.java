@@ -73,6 +73,9 @@ public class PerfilUtils {
 
         private final static String LOG_TAG = MyLocationService.class.getSimpleName();
 
+        private static final int TWO_MINUTES = 1000 * 60 * 2;
+        private static final int TEN_MINUTES = 1000 * 60 * 10;
+
         Context ctx;
         EditText et_city;
 
@@ -95,6 +98,9 @@ public class PerfilUtils {
                 throw new SecurityException();
             }
 
+            Toast.makeText(activity, "Esperando ubicación...", Toast.LENGTH_SHORT)
+                    .show();
+
             et_city = (EditText) activity.findViewById(editTextId);
             if (et_city == null) {
                 Log.e(LOG_TAG, "No encontré EditText!");
@@ -104,13 +110,16 @@ public class PerfilUtils {
             }
 
             mLocationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100,
-                    this);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100, this);
 
             mLastLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            mCityName = obtenerCiudadParaLocation(mLastLocation);
-            if (et_city != null)
-                et_city.setText(mCityName);
+            if (mLastLocation != null && System.currentTimeMillis() - mLastLocation.getTime() < TEN_MINUTES) {
+                mCityName = obtenerCiudadParaLocation(mLastLocation);
+                if (et_city != null)
+                    et_city.setText(mCityName);
+                Toast.makeText(activity, "Actualizando ubicación...", Toast.LENGTH_SHORT)
+                        .show();
+            }
         }
 
         public void pause() {
@@ -156,16 +165,10 @@ public class PerfilUtils {
 
         @Override
         public void onLocationChanged(Location loc) {
-            Toast.makeText(
-                    ctx,
-                    "Location changed: Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude(),
-                    Toast.LENGTH_SHORT).show();//
-//            String longitude = "Longitude: " + loc.getLongitude();
-//            String latitude = "Latitude: " + loc.getLatitude();
+            Toast.makeText(ctx, "Actualizando ubicación...", Toast.LENGTH_SHORT)
+                    .show();
 
             String cityName = obtenerCiudadParaLocation(loc);
-//            String s = longitude + "\n" + latitude + "\n\nMy Current City is: " + cityName;//
-//            Log.d(LOG_TAG, s);//
 
             if (isBetterLocation(loc, mLastLocation)) {
                 mLastLocation = loc;
@@ -205,8 +208,6 @@ public class PerfilUtils {
             }
             return null;
         }
-
-        private static final int TWO_MINUTES = 1000 * 60 * 2;
 
         /** Determines whether one Location reading is better than the current Location fix
          * @param newLocation  The new Location that you want to evaluate

@@ -330,6 +330,7 @@ public class Utils {
                         if (error.networkResponse.statusCode == 200) {
 //                            Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
+                            return;
                         } else if (error.networkResponse.statusCode == 403) {
                             Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
                         } else {

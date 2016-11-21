@@ -772,8 +772,6 @@ public class PerfilActivity extends NavDrawerActivity {
 
 
     public void startLocationService(View v) {
-        Toast.makeText(this, "Actualizando ubicación", Toast.LENGTH_SHORT)
-                .show();
         // TODO: Check GPS is on?
         try {
             mLocationListener =
