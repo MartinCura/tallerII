@@ -173,9 +173,9 @@ public class UserListActivity extends NavDrawerActivity {
                 .show();
 
         final Context ctx = this;
-        String url = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
+        String urlContactos = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
 
-        Utils.fetchJsonFromUrl(this, Request.Method.GET, url, null,
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlContactos, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {

@@ -19,10 +19,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.Request;
 import com.android.volley.Response;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
+import ar.fiuba.jobify.app_server_api.Contact;
+import ar.fiuba.jobify.app_server_api.ContactsResponse;
+import ar.fiuba.jobify.app_server_api.ConversationsResponse;
 import ar.fiuba.jobify.app_server_api.User;
 import ar.fiuba.jobify.utils.Utils;
 
@@ -68,6 +74,9 @@ public class NavDrawerActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(navResId);
         if (navigationView != null) {
             navigationView.setNavigationItemSelectedListener(this);
+            setUpNavigationMenu(navigationView);
+        } else {
+            Log.e(LOG_TAG, "Nav View no encontrado!");
         }
 
 //        setUpDrawerHeader();
@@ -160,12 +169,65 @@ public class NavDrawerActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {   // TODO: revisar
+        if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setUpNavigationMenu(NavigationView navView) {
+        final Menu navMenu = navView.getMenu();
+        final MenuItem solicitudesItem = navMenu.findItem(R.id.nav_solicitudes);
+        final MenuItem conversacionesItem = navMenu.findItem(R.id.nav_conversaciones);
+
+        String urlContactos = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlContactos, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        ContactsResponse contactsResponse =
+                                ContactsResponse.parseJSON(response.toString());
+
+                        if (contactsResponse == null) {
+                            Log.e(LOG_TAG, "ContactsResponse null");
+                        } else {
+                            ArrayList<Contact> contactsReceived =
+                                    contactsResponse.getContactsWithStatus(Contact.Status.RECEIVED);
+                            int cantSolicitudes = contactsReceived.size();
+                            if (cantSolicitudes > 0) {
+                                String newTitle = getString(R.string.nav_solicitudes_option)
+                                        + " (" + cantSolicitudes + ")";
+                                solicitudesItem.setTitle(newTitle);
+                            } else {
+                                navMenu.removeItem(R.id.nav_solicitudes);
+                            }
+                        }
+                    }
+                }, LOG_TAG);
+
+        String urlConversaciones = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_conversations_path));
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlConversaciones, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        ConversationsResponse convResponse =
+                                ConversationsResponse.parseJSON(response.toString());
+
+                        if (convResponse == null) {
+                            Log.e(LOG_TAG, "ConversationsResponse null");
+                        } else {
+                            long cantUnread = convResponse.getMetadata().getCount();
+                            if (cantUnread > 0) {
+                                String newTitle = getString(R.string.nav_conversations_option)
+                                        + " (" + cantUnread + ")";
+                                conversacionesItem.setTitle(newTitle);
+                                conversacionesItem.setIcon(R.drawable.ic_conversaciones_cerrado);
+                            }
+                        }
+                    }
+                }, LOG_TAG);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -231,6 +293,7 @@ public class NavDrawerActivity extends AppCompatActivity
                             finishAffinity();
                         }
                     });
+            return false;
         }
 
         return true;
