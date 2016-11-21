@@ -41,11 +41,14 @@ Response* ConversationsHandler::handlePutRequest(http_message* httpMessage, stri
 
 Json::Value ConversationsHandler::buildJsonResponse(vector<Conversation*> conversations, long totalCount) {
     Json::Value conversationsAsJson;
+    int totalUnreadCount = 0;
     conversationsAsJson["metadata"]["total_count"] = totalCount;
     for (vector<long>::size_type i = 0; i < conversations.size(); i++) {
         Conversation* conversation = conversations[i];
+        totalUnreadCount += conversation->getUnreadCount();
         conversationsAsJson["conversations"].append(conversation->serializeMe());
         delete conversation;
     }
+    conversationsAsJson["metadata"]["total_unread_count"] = totalUnreadCount;
     return conversationsAsJson;
 }
