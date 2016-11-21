@@ -87,15 +87,13 @@ public class UserListActivity extends NavDrawerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list_drawer);
 
-        /** Mostrar loading */
-
         ActionBar sab = getSupportActionBar();
         if (sab != null) sab.setDisplayHomeAsUpEnabled(true);
 
 
         ListView listView = (ListView) findViewById(R.id.user_list);
         if (listView == null) {
-            Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!!!!!");
+            Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!");
             return;
         }
         mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
@@ -121,10 +119,14 @@ public class UserListActivity extends NavDrawerActivity {
 
         switch (mode) {
             case MODE_SOLICITUDES:
+                if (sab != null)
+                    sab.setTitle("Solicitudes pendientes");
                 showProgress(true);
                 listarSolicitudesReceived();
                 break;
             case MODE_MOST_POPULAR:
+                if (sab != null)
+                    sab.setTitle("Profesionales más populares");
                 showProgress(true);
                 // TODO: Tengo que settear el endless scroll listener como hice abajo?
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
@@ -132,11 +134,15 @@ public class UserListActivity extends NavDrawerActivity {
                 listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
                 break;
             case MODE_BUSQUEDA:
+                if (sab != null)
+                    sab.setTitle("Resultados");
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
                 generarBusqueda();
                 break;
             case MODE_CONVERSACIONES:
+                if (sab != null)
+                    sab.setTitle("Conversaciones");
                 showProgress(true);
                 listarConversaciones();
                 break;
@@ -299,10 +305,11 @@ public class UserListActivity extends NavDrawerActivity {
                         }
 
                         mExpectedListSize =
-                                Long.valueOf(convResponse.getMetadata().getCount()).intValue();
+                                Long.valueOf(convResponse.getMetadata().getTotalCount()).intValue();
 
                         if (mExpectedListSize == 0) {
                             mostrarNoHayResultados();
+
                         } else {
                             for (User user : convResponse.getConversations()) {
                                 agregarResultado(user);

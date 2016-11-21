@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -321,7 +320,7 @@ public class Utils {
                 ImageView.ScaleType.CENTER_INSIDE, null,
 
                 new Response.ErrorListener() {
-                    @SuppressWarnings("deprecated")
+                    @SuppressWarnings("deprecation")
                     public void onErrorResponse(VolleyError error) {
                         if (error.networkResponse == null) {
                             Log.e(logTag, "Error de response, no pude cargar la imagen." +
@@ -333,16 +332,15 @@ public class Utils {
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
                         } else if (error.networkResponse.statusCode == 403) {
                             Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
-                        } else if (error.networkResponse.statusCode == 400) {
-                            @DrawableRes int drawableId = R.drawable.ic_person;
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                                imageView.setImageDrawable(ctx.getDrawable(drawableId));
-                            } else {
-                                imageView.setImageDrawable(ctx.getResources().getDrawable(drawableId));
-                            }
                         } else {
                             Log.e(logTag, "Error cargando imagen, response code: "
-                                    +error.networkResponse.statusCode);
+                                    + error.networkResponse.statusCode);
+                        }
+                        @DrawableRes int drawableId = R.drawable.ic_person;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            imageView.setImageDrawable(ctx.getDrawable(drawableId));
+                        } else {
+                            imageView.setImageDrawable(ctx.getResources().getDrawable(drawableId));
                         }
                     }
                 }) {

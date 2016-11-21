@@ -30,6 +30,7 @@ public class User {
     public final static int MAX_CHAR_NAMES = 35;
     public final static int MAX_CHAR_SUMMARY = 1000;
 
+    @SerializedName(value="id", alternate={"with"})
     long id;
     String  firstName = "",
             lastName = "",
@@ -108,9 +109,9 @@ public class User {
     public List<Employment> getWorkHistory() {
         return workHistory;
     }
-    public long[] getRecomendaciones() {
-        return recommendations;
-    }
+//    public long[] getRecomendaciones() {
+//        return recommendations;
+//    }
 
     public int getDiaNacimiento() {
         try {
