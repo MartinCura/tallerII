@@ -40,11 +40,60 @@ include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/leveldb/leveld
 # files (.cpp) in the project
 file(GLOB_RECURSE SOURCES *.cpp ../person/*.cpp)
 
-add_executable (${TARGET} ${SOURCES} ../DB/DBWrapper.h ../DB/DBWrapper.cpp testing_uniqueDB.cpp ../Exceptions/UserAlreadyExistsException.h ../Exceptions/UserNotFoundException.h ../Exceptions/InvalidTokenException.h ../session/SessionManager.cpp ../session/SessionManager.h  ../person/relation/RelationsManager.cpp ../person/relation/RelationsManager.h ../Exceptions/TokenExpiredException.h ../session/Session.cpp ../session/Session.h ../Security/Security.cpp ../Security/Security.h ../Exceptions/NotAuthorizedException.h)
+add_executable (${TARGET} ${SOURCES}
+    testing_uniqueDB.cpp
+    ../DB/DBWrapper.h
+    ../DB/DBWrapper.cpp
+    ../Exceptions/UserAlreadyExistsException.h
+    ../Exceptions/UserNotFoundException.h
+    ../Exceptions/InvalidTokenException.h
+    ../session/SessionManager.cpp
+    ../session/SessionManager.h
+    ../person/relation/RelationsManager.cpp
+    ../person/relation/RelationsManager.h
+    ../Exceptions/TokenExpiredException.h
+    ../session/Session.cpp
+    ../session/Session.h
+    ../Security/Security.cpp
+    ../Security/Security.h
+    ../Exceptions/NotAuthorizedException.h
+    ../Mongoose/mongoose.h
+    ../logger/Logger.cpp
+    ../logger/Logger.h
+    ../api/Response.cpp
+    ../api/Response.h
+    ../api/WebHandler.cpp
+    ../api/WebHandler.h
+    ../tools/DbBuilder.cpp
+    ../tools/DbBuilder.h
+    ../api/handler/AllUsersHandler.cpp
+    ../api/handler/ContactsHandler.cpp
+    ../api/handler/ConversationsHandler.cpp
+    ../api/handler/LoginHandler.cpp
+    ../api/handler/LoginWithFacebookHandler.cpp
+    ../api/handler/RecommendationsHandler.cpp
+    ../api/handler/AllUsersHandler.h
+    ../api/handler/ContactsHandler.h
+    ../api/handler/Handler.h
+    ../api/handler/LoginWithFacebookHandler.h
+    ../api/handler/PictureHandler.h
+    ../api/handler/RecommendationsHandler.h
+    ../api/handler/ConversationsHandler.h
+    ../api/handler/NotificationTokenHandler.h
+    ../api/handler/LoginHandler.h
+    ../api/handler/UsersHandler.h
+    ../api/handler/MessagesHandler.h
+    ../api/handler/PictureHandler.cpp
+    ../api/handler/UsersHandler.cpp
+    ../api/handler/Handler.cpp
+    ../api/handler/MessagesHandler.cpp
+    ../api/handler/NotificationTokenHandler.cpp
+)
 
 target_link_libraries (${TARGET} gtest)
 target_link_libraries (${TARGET} leveldb)
 target_link_libraries (${TARGET} JsonCpp)
+target_link_libraries (${TARGET} Mongoose)
 
 add_test (all ${EXECUTABLE_OUTPUT_PATH}/${TARGET})
 
