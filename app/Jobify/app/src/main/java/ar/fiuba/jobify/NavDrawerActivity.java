@@ -1,5 +1,6 @@
 package ar.fiuba.jobify;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.IdRes;
@@ -222,7 +223,19 @@ public class NavDrawerActivity extends AppCompatActivity
                                       UserListActivity.MODE_CONVERSACIONES)
             );
             return false;
+
+        } else if (id == R.id.nav_logout) {
+            Utils.confirmarAccion(this, "Cerrar sesión",
+                    "¿Está seguro de que quiere cerrar sesión?\nLo extrañaremos mucho...",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            borrarConnectedUserData();
+                            finishAffinity();
+                        }
+                    });
         }
+
         return true;
     }
 
@@ -241,5 +254,12 @@ public class NavDrawerActivity extends AppCompatActivity
 
     public void irAPerfilPropio(View v) {
         Utils.iniciarPerfilActivity(this, connectedUserID, false);
+    }
+
+    private void borrarConnectedUserData() {
+        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).edit();
+        editor.remove(getString(R.string.stored_connected_user_id));
+        editor.remove(getString(R.string.stored_connected_user_token));
+        editor.apply();
     }
 }

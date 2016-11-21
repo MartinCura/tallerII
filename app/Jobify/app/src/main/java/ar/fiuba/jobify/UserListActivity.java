@@ -163,7 +163,7 @@ public class UserListActivity extends NavDrawerActivity {
 
 
     private void listarSolicitudesReceived() {
-        Toast.makeText(this, "Listo las solicitudes pendientes", Toast.LENGTH_LONG)
+        Toast.makeText(this, "Se listan las solicitudes pendientes", Toast.LENGTH_LONG)
                 .show();
 
         final Context ctx = this;

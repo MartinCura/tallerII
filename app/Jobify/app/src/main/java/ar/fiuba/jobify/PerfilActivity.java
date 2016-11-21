@@ -449,7 +449,7 @@ public class PerfilActivity extends NavDrawerActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         enviarModificacionDeAmistad(Solicitud.Action.UNFRIEND, "Solicitud rechazada");
                                     }
-                                }, R.string.dialog_no);
+                                }, R.string.dialog_aceptar, R.string.dialog_rechazar);
                         break;
                     case ACTIVE:
                         Utils.confirmarAccion(getContext(), "Solicitud", getString(R.string.dialog_eliminar_contacto),

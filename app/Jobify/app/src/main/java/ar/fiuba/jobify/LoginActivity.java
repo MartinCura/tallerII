@@ -58,12 +58,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.LoginRequest;
 import ar.fiuba.jobify.app_server_api.LoginResponse;
 import ar.fiuba.jobify.utils.Utils;
 
 import static android.Manifest.permission.READ_CONTACTS;
-
 
 
 /**
@@ -74,7 +74,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private final static String LOG_TAG = LoginActivity.class.getSimpleName();
 
     /**
-     * Id to identity READ_CONTACTS permission request.
+     * Id to identify READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
@@ -99,8 +99,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        SharedPreferences sharedPref =
-                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
         String storedEmail = sharedPref.getString(getString(R.string.stored_connected_user_email), "");
         String storedPass = sharedPref.getString(getString(R.string.stored_connected_user_password), "");
 
@@ -148,26 +147,32 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
 
-        LoginButton loginButton = (LoginButton)findViewById(R.id.facebook_login_button);
-        loginButton.setReadPermissions(Arrays.asList(
-                "public_profile", "email", "user_birthday", "user_friends"));
+        LoginButton fbLoginButton = (LoginButton)findViewById(R.id.facebook_login_button);
+        if (fbLoginButton != null) {
+            fbLoginButton.setReadPermissions(Arrays.asList(
+                    "public_profile", "email", "user_birthday", "user_friends"));
 
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d(LOG_TAG, "Facebook token:" + loginResult.getAccessToken().getToken());
-            }
+            fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    Log.d(LOG_TAG, "Facebook token:" + loginResult.getAccessToken().getToken());
+                }
 
-            @Override
-            public void onCancel() {
+                @Override
+                public void onCancel() {
 
-            }
+                }
 
-            @Override
-            public void onError(FacebookException e) {
+                @Override
+                public void onError(FacebookException e) {
 
-            }
-        });
+                }
+            });
+        } else {
+            Log.e(LOG_TAG, "Fb Login Button not found.");
+        }
+
+        attemptAutomaticLogin();
     }
 
     @Override
@@ -432,38 +437,32 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     /**
-     * Guarda datos de login del LoginResponse, id y token.
+     * Guarda datos de login del LoginResponse, id y token, y envía ftoken a notificationtoken.
      */
     private void guardarConnectedUserData(LoginResponse loginResponse) {
         String token = FirebaseInstanceId.getInstance().getToken();
         if (token != null){
-            Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
+            Log.d(LOG_TAG+"-Firebase", FirebaseInstanceId.getInstance().getToken());
 
-            Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
-                    .appendPath(getString(R.string.notification_token))
-                    .appendPath(String.valueOf( loginResponse.getId()))
-                    .build();
-            String url = builtUri.toString();
+            String tokenUrl = Utils.getAppServerUrl(this, loginResponse.getId(), getString(R.string.notification_token));
             JSONObject obj = new JSONObject();
             try {
                 obj.put("token", token);
-                Utils.fetchJsonFromUrl(this, Request.Method.PUT, url,obj,new Response.Listener<JSONObject>() {
+                Utils.fetchJsonFromUrl(this, Request.Method.PUT, tokenUrl, obj, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response != null) {
-                            Log.d(LOG_TAG, "FirebaseToken PUT Response: " + response.toString());
+                            Log.d(LOG_TAG+"-Firebase", "FirebaseToken PUT Response: "
+                                    + response.toString());
                         }
                     }
-                }, LOG_TAG);
+                }, LOG_TAG+"-Firebase");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
         }
 
-        SharedPreferences.Editor editor =
-                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
-                        .edit();
+        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).edit();
         editor.putLong(getString(R.string.stored_connected_user_id), loginResponse.getId());
         editor.putString(getString(R.string.stored_connected_user_token), loginResponse.getToken());
         editor.apply();
@@ -477,6 +476,50 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         editor.putString(getString(R.string.stored_connected_user_password), password);
         // TODO: Cuidado si se quiere más seguridad, no sé qué tan bueno es guardarla en plaintext
         editor.apply();
+    }
+
+    /**
+     * Busca y prueba token ya guardado, para saltear el login.
+     */
+    private boolean attemptAutomaticLogin() {
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        final long storedId = sharedPref.getLong(getString(R.string.stored_connected_user_id), -1);
+        String storedToken = sharedPref.getString(getString(R.string.stored_connected_user_token), "");
+
+        if (!storedToken.isEmpty() && storedId > 0) {
+            showProgress(true);
+            final Activity activity = this;
+
+            // Hago un request de prueba para testear la validez del token
+            // Uso /contacts ya que pide token y no altera estados. TODO: cambiarlo por uno dedicado
+            String testUrl = Utils.getAppServerUrl(this, storedId, getString(R.string.get_contacts_path));
+            Utils.fetchJsonFromUrl(this, Request.Method.GET, testUrl, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            ContactsResponse cs = ContactsResponse.parseJSON(response.toString());
+                            if (cs != null) {
+                                Utils.iniciarPerfilActivity(activity, storedId, false);
+                                finish();
+                            } else {
+                                showProgress(false);
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            if (error.networkResponse != null) {
+                                if (error.networkResponse.statusCode == 401) {
+                                    Toast.makeText(activity, "Su sesión ha caducado", Toast.LENGTH_LONG)
+                                            .show();
+                                }
+                            }
+                            showProgress(false);
+                        }
+                    }, LOG_TAG);
+            return true;
+        }
+        return false;
     }
 
     private boolean isEmailValid(String email) {
@@ -583,7 +626,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private void fakeLogin() {
         long connectedUserId = 1L;
         String  mail = connectedUserId == 1L ? "john@doe.com" : "jane@doe.com",
-                pass = "123abc";//"123"; // Depende del branch...
+                pass = "123abc";
         mEmailView.setText(mail);
         mPasswordView.setText(pass);
 

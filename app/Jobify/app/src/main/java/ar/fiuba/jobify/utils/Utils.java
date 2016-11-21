@@ -586,9 +586,8 @@ public class Utils {
         return json;
     }
 
-    private static String getToken(Context ctx) {
-        SharedPreferences sharedPref =
-                ctx.getSharedPreferences(ctx.getString(R.string.shared_pref_connected_user), 0);
+    public static String getToken(Context ctx) {
+        SharedPreferences sharedPref = ctx.getSharedPreferences(ctx.getString(R.string.shared_pref_connected_user), 0);
         return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), null);
     }
 
@@ -617,18 +616,20 @@ public class Utils {
 
     public static void confirmarAccion(Context context, String title, String message,
                                        DialogInterface.OnClickListener yesListener) {
-        confirmarAccion(context, title, message, yesListener, null, android.R.string.no);
+        confirmarAccion(context, title, message, yesListener, null,
+                        android.R.string.yes, android.R.string.no);
     }
 
     public static void confirmarAccion(Context context, String title, String message,
                                        DialogInterface.OnClickListener yesListener,
                                        DialogInterface.OnClickListener noListener,
+                                       int positiveButtonStringId,
                                        int negativeButtonStringId) {
         new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(message)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes, yesListener)
+                .setPositiveButton(positiveButtonStringId, yesListener)
                 .setNegativeButton(negativeButtonStringId, noListener)
                 .show();
     }
