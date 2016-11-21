@@ -580,7 +580,7 @@ public class PerfilUtils {
         }
 
         private void actualizarAlturaDeView() {
-            Log.d(LOG_TAG, "new heighest contact card height: "+highestHeight);//
+//            Log.d(LOG_TAG, "new heighest contact card height: "+highestHeight);//
             ViewGroup.LayoutParams params = mHLView.getLayoutParams();
             params.height = this.highestHeight;
             mHLView.setLayoutParams(params);

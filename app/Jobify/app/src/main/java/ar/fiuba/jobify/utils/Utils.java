@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
@@ -297,13 +299,14 @@ public class Utils {
     }
 
     // Devuelve false si no se encontró el ImageView
+    // Asumo que si se le carga una imagen se la quiere ver, por lo que cambia visibilidad!
     public static boolean cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
                                   final String url, final String logTag, final boolean squareCrop) {
-
         if (imageView == null) {
             Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
             return false;
         }
+
         ImageRequest request = new ImageRequest(url,
                 new Response.Listener<Bitmap>() {
                     @Override
@@ -312,24 +315,31 @@ public class Utils {
                             imageView.setImageBitmap(cropToSquare(bitmap));
                         else
                             imageView.setImageBitmap(bitmap);
-
+                        imageView.setVisibility(View.VISIBLE);
                     }
-//                }, imageView.getWidth(), imageView.getHeight(),
-                }, 1080, 960,//hardcodeo;//
+                }, imageView.getWidth(), imageView.getHeight(),
                 ImageView.ScaleType.CENTER_INSIDE, null,
+
                 new Response.ErrorListener() {
+                    @SuppressWarnings("deprecated")
                     public void onErrorResponse(VolleyError error) {
                         if (error.networkResponse == null) {
                             Log.e(logTag, "Error de response, no pude cargar la imagen." +
                                     "(url: "+url+")");
                             return;
                         }
-                        //error.printStackTrace();//
                         if (error.networkResponse.statusCode == 200) {
 //                            Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
                         } else if (error.networkResponse.statusCode == 403) {
                             Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
+                        } else if (error.networkResponse.statusCode == 400) {
+                            @DrawableRes int drawableId = R.drawable.ic_person;
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                                imageView.setImageDrawable(ctx.getDrawable(drawableId));
+                            } else {
+                                imageView.setImageDrawable(ctx.getResources().getDrawable(drawableId));
+                            }
                         } else {
                             Log.e(logTag, "Error cargando imagen, response code: "
                                     +error.networkResponse.statusCode);

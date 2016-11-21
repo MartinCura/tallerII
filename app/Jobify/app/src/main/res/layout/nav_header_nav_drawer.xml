@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_drawer_header_layout"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
     android:background="@drawable/side_nav_bar"
@@ -10,7 +11,6 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:id="@+id/nav_drawer_header_layout"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
@@ -23,7 +23,7 @@
         android:contentDescription="@string/nav_drawer_thumbnail_description"
         android:visibility="invisible"
         android:onClick="irAPerfilPropio" />
-        <!--TODO: Lograr que lo encuentre??-->
+        <!--TODO: Lograr que lo encuentre de primera?-->
 
     <!--<ImageView-->
         <!--android:id="@+id/imageView"-->

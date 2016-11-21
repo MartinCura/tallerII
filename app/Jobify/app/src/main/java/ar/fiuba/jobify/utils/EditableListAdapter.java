@@ -151,11 +151,11 @@ public class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
             listItem.measure(0, 0);
             // tramposo
             lastHeight = listItem.getMeasuredHeight();
-            Log.d("shuddup", lastHeight+" (lastHeight");
+//            Log.d("shuddup", lastHeight+" (lastHeight");
 //            totalHeight += listItem.getMeasuredHeight();
         }
         int totalHeight = 150 * mAdapter.getCount();//hardcodeo
-        Log.d("shudduuup", "lastHeight="+lastHeight+", total="+totalHeight);
+//        Log.d("shudduuup", "lastHeight="+lastHeight+", total="+totalHeight);
 
         ViewGroup.LayoutParams params = mListView.getLayoutParams();
         params.height = totalHeight +

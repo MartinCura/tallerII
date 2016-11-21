@@ -70,24 +70,20 @@ public class NavDrawerActivity extends AppCompatActivity
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-        setUpDrawerHeader(navigationView);
+//        setUpDrawerHeader();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        setUpDrawerHeader();
     }
 
-    private void setUpDrawerHeader(NavigationView navView) {
-
-        LinearLayout headerLayout = (LinearLayout) navView.findViewById(R.id.nav_drawer_header_layout);
-//        if (headerLayout == null) {
-//            LayoutInflater inflater = (LayoutInflater) this.getSystemService
-//                    (Context.LAYOUT_INFLATER_SERVICE);
-//            headerLayout = (LinearLayout) inflater.inflate(R.layout.nav_header_nav_drawer, null, false);
-//        } // TODO ?
+    private void setUpDrawerHeader() {
+        // Misterio de la naturaleza
+        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.nav_drawer_header_layout);
         if (headerLayout != null) {
-            Log.d(LOG_TAG, "Sí puedo encontrar el headerLayout... :)");
             headerLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -100,8 +96,8 @@ public class NavDrawerActivity extends AppCompatActivity
                     }
                 }
             });
-        } else {
-            Log.d(LOG_TAG, "No puedo encontrar el headerLayout... :(");
+//        } else {
+//            Log.d(LOG_TAG, "No puedo encontrar el headerLayout... :(");
         }
 
         setUpDrawerHeaderUser();
@@ -125,7 +121,8 @@ public class NavDrawerActivity extends AppCompatActivity
         String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_thumbnail_path));
         ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
 
-        Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG);
+        if (iv_thumbnail != null)
+            Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG, true);
     }
 
     private void fillDrawerHeaderText(User user) {

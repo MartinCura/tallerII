@@ -378,7 +378,7 @@ public class ConversacionActivity extends NavDrawerActivity {
                                 recibirMensajesNuevos(jsObjMessage);
                                 return;
                             }
-                            Log.i(LOG_TAG, "Mensaje enviado: " + mensajeEnviado.getMessage());//
+//                            Log.i(LOG_TAG, "Mensaje enviado: " + mensajeEnviado.getMessage());//
 
                             // Agrego el mensaje enviado a los mostrados en la conversación
                             recibirMensajesNuevos(response);

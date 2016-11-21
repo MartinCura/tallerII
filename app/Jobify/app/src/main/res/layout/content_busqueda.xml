@@ -153,7 +153,7 @@
             android:textColorHint="@color/lightergray"
             android:layout_toRightOf="@id/busqueda_distancia_title"
             android:layout_toLeftOf="@id/busqueda_distancia_unidad_caption">
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/busqueda_distancia"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"

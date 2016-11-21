@@ -511,7 +511,7 @@ public class PerfilActivity extends NavDrawerActivity {
                         if (mUser != null) {
 
                             fetchedUser = mUser;
-                            Log.d(LOG_TAG, "Fetched user: "+response.toString());//
+//                            Log.d(LOG_TAG, "Fetched user: "+response.toString());//
                             fillProfile(mUser);
 
                         } else {
