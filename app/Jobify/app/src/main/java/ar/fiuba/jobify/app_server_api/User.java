@@ -22,7 +22,7 @@ import ar.fiuba.jobify.shared_server_api.Skill;
  * Created by martín on 08/09/16.
  * Clase que maneja todos los elementos de un usuario del sistema.
  * Para la creación de un nuevo usuario, usar el constructor de e-mail.
- * La única otra forma permitida por el momento de crear uno entero es a partir de un Json
+ * La única otra forma permitida por el momento de crear uno entero es a partir de un Json,
  * de esa forma evitando que se toque el id, elemento decidido únicamente por el servidor.
  */
 public class User {
@@ -167,7 +167,7 @@ public class User {
     }
 
     public boolean setCity(String city) {
-        // if?? TODO
+        // if?
         this.city = city;
         return true;
     }
@@ -196,12 +196,12 @@ public class User {
     }
 
     public void setSkills(List<Skill> skills) {
-        // Chequeos?? TODO
+        // Chequeos?
         this.skills = new ArrayList<>(skills);
     }
 
     public void setWorkHistory(List<Employment> workHistory) {
-        // Chequeos?? TODO
+        // Chequeos?
         this.workHistory = new ArrayList<>(workHistory);
     }
 
@@ -221,17 +221,17 @@ public class User {
         return actual;
     }
 
-//    /**
-//     * @return String de una línea con el último trabajo actual listado,
-//     * determinado por {@code Employment.esActual}.
-//     */
-//    public String getUltimoTrabajoActual() {
-//        String trabajos = getTrabajosActuales();
-//        int index = trabajos.lastIndexOf("\n");
-//        if (index < 0)
-//            return trabajos;
-//        return trabajos.substring(index);
-//    }
+    /**
+     * @return String de una línea con el último trabajo actual listado,
+     * determinado por {@code Employment.esActual}.
+     */
+    public String getUltimoTrabajoActual() {
+        String trabajos = getTrabajosActuales();
+        int index = trabajos.lastIndexOf("\n");
+        if (index < 0)
+            return trabajos;
+        return trabajos.substring(index);
+    }
 
     /**
      * @return String del formato {@code Fecha de nacimiento: 01/01/1990}.
@@ -240,7 +240,6 @@ public class User {
         return "Fecha de nacimiento: " + getDateOfBirth();
     }
 
-    // Temporal TODO
     public List<String> getListaJobs() {
         List<String> lista = new ArrayList<>();
         if (getWorkHistory() != null) {
@@ -251,7 +250,6 @@ public class User {
         return lista;
     }
 
-    // Temporal TODO
     public List<String> getListaSkills() {
         List<String> lista = new ArrayList<>();
         if (getSkills() != null) {
@@ -277,7 +275,7 @@ public class User {
             try {
                 // Para user reducido, que tiene un campo "last_job"
                 user.addEmployment(gson.fromJson(
-                        (new JSONObject(response)).getJSONObject("last_job").toString(), //;//hardcodeo
+                        (new JSONObject(response)).getJSONObject("last_job").toString(), // hardcodeo
                         Employment.class)
                 );
             } catch (JSONException ex) {/**/}

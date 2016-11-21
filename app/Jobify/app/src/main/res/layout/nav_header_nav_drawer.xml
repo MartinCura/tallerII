@@ -23,7 +23,7 @@
         android:contentDescription="@string/nav_drawer_thumbnail_description"
         android:visibility="invisible"
         android:onClick="irAPerfilPropio" />
-        <!--TODO: Lograr que lo encuentre de primera?-->
+        <!--Cómo lograr que lo encuentre de primera?-->
 
     <!--<ImageView-->
         <!--android:id="@+id/imageView"-->

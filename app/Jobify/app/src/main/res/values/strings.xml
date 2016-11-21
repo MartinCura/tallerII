@@ -36,7 +36,6 @@
     <string name="get_photo_path">profilepicture</string>
     <string name="post_photo_path">profilepicture</string>
     <string name="get_thumbnail_path">profilepicture</string>
-    <!-- TODO get thumbnail y post photo paths -->
 
 
     <!-- Strings related to Settings -->
@@ -95,7 +94,7 @@
     <string name="error_invalid_password">Contraseña muy corta</string>
     <string name="error_incorrect_password">Contraseña incorrecta</string>
     <string name="error_field_required">Este campo es obligatorio >:^[</string>
-    <string name="permission_rationale">"No tocamos tus datos! Confiá en nosotros :)\n(Do No Evil)"</string>
+    <string name="permission_rationale">"Acepta los permisos para facilitar el login"</string>
     <string name="permission_rationale_acceptance">"Permiso de acceso para poder autocompletar"
         "tu correo"
     </string>
@@ -194,16 +193,7 @@
     <string name="nav_logout_option">Cerrar sesión</string>
     <string name="perfil_new_job_position_filler">(Posición de trabajo)</string>
     <string name="perfil_new_skill_filler">(Skill)</string>
+    <string name="perfil_recommendation_success">¡Usuario recomendado!</string>
+    <string name="perfil_recommendation_deletion_success">Se ha quitado la recomendación :(</string>
 
-    <!--Testeo, TODO: borrar-->
-    <string-array name="planets_array">
-        <item>Mercury</item>
-        <item>Venus</item>
-        <item>Earth</item>
-        <item>Mars</item>
-        <item>Jupiter</item>
-        <item>Saturn</item>
-        <item>Uranus</item>
-        <item>Neptune</item>
-    </string-array>
 </resources>

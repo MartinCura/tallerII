@@ -13,7 +13,7 @@ import com.google.gson.JsonSyntaxException;
  */
 public class LoginResponse {
 
-    long userId; // TODO: Default?
+    long userId = 0;
     String token = "";
 
     public long getId() {

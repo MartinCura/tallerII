@@ -7,9 +7,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical">
 
-
-
-    <!--TODO: Considerar mover esto a la Toolbar-->
+    <!-- Considerar mover esto a la Toolbar-->
     <ImageButton
         android:id="@+id/conversacion_thumbnail"
         android:layout_width="70dp"

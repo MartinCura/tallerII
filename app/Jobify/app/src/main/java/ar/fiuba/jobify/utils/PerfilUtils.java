@@ -625,7 +625,6 @@ public class PerfilUtils {
                     );
                 }
             });
-//            mHLView.setMinimumHeight(800);// hardcode que arregla cosas, jeez
 
             TextView tv_cantContactos = (TextView) act.findViewById(R.id.text_perfil_cant_contactos);
             if (tv_cantContactos != null) {
@@ -711,7 +710,6 @@ public class PerfilUtils {
         }
 
         private void actualizarAlturaDeView() {
-//            Log.d(LOG_TAG, "new heighest contact card height: "+highestHeight);//
             ViewGroup.LayoutParams params = mHLView.getLayoutParams();
             params.height = this.highestHeight;
             mHLView.setLayoutParams(params);

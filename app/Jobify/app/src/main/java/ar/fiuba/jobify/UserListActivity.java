@@ -3,13 +3,13 @@ package ar.fiuba.jobify;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -54,7 +54,7 @@ public class UserListActivity extends NavDrawerActivity {
 
     private final static String package_name = "ar.fiuba.jobify.USER_LIST";
     public final static String LIST_MODE_MESSAGE = package_name+"_MODE_MESSAGE";
-//    public final static String _PARAMETER = package_name+_TODO;
+//    public final static String _PARAMETER = package_name+_X;
 
     public final static int MODE_NONE = 0;
     public final static int MODE_SOLICITUDES = 1;
@@ -90,7 +90,6 @@ public class UserListActivity extends NavDrawerActivity {
         ActionBar sab = getSupportActionBar();
         if (sab != null) sab.setDisplayHomeAsUpEnabled(true);
 
-
         ListView listView = (ListView) findViewById(R.id.user_list);
         if (listView == null) {
             Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!");
@@ -99,22 +98,34 @@ public class UserListActivity extends NavDrawerActivity {
         mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
         listView.setAdapter(mUserArrayAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Al cliquear un usuario, abrir su perfil
-                User clickedUser = mUserArrayAdapter.getItem(position);
-                startActivity(
-                        new Intent(UserListActivity.this, PerfilActivity.class)
-                                .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
-                );
-            }
-        });
-
         // Obtengo el modo
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(LIST_MODE_MESSAGE)) {
             mode = intent.getIntExtra(LIST_MODE_MESSAGE, mode);
+        }
+
+        if (mode == MODE_CONVERSACIONES) {
+            final Activity act = this;
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // Al cliquear una conversación con alguien, ir al chat con esa persona
+                    User clickedUser = mUserArrayAdapter.getItem(position);
+                    Utils.iniciarConversacionActivity(act, clickedUser.getId());
+                }
+            });
+        } else {
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // Al cliquear un usuario, abrir su perfil
+                    User clickedUser = mUserArrayAdapter.getItem(position);
+                    startActivity(
+                            new Intent(UserListActivity.this, PerfilActivity.class)
+                                    .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
+                    );
+                }
+            });
         }
 
         switch (mode) {
@@ -128,7 +139,6 @@ public class UserListActivity extends NavDrawerActivity {
                 if (sab != null)
                     sab.setTitle("Profesionales más populares");
                 showProgress(true);
-                // TODO: Tengo que settear el endless scroll listener como hice abajo?
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
 //                listarMasPopulares();
                 listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
@@ -159,7 +169,7 @@ public class UserListActivity extends NavDrawerActivity {
 
     public void onStop() {
         super.onStop();
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
+        if (RequestQueueSingleton.hasRequestQueue()) {
             RequestQueue mRequestQueue = RequestQueueSingleton
                     .getInstance(this.getApplicationContext())
                     .getRequestQueue();
@@ -201,10 +211,8 @@ public class UserListActivity extends NavDrawerActivity {
                             mostrarNoHayResultados();
 
                         } else {
-                            // TODO: Crear Users reducidos a partir de los Contacts y listarlos directamente
                             for (Contact c : contactsReceived) {
                                 agregarResultado(new User(c));
-//                                fetchAndAddUser(c.getId());
                             }
                         }
                     }
@@ -223,7 +231,6 @@ public class UserListActivity extends NavDrawerActivity {
 
     /// de prueba //;//
     private void listarTodosLosUsuarios() {
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
         if (toolbar != null)
             toolbar.setTitle("Todos los usuarios");
@@ -234,7 +241,6 @@ public class UserListActivity extends NavDrawerActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
                         AllUsersResponse allUsersResponse =
                                 AllUsersResponse.parseJSON(response.toString());
 
@@ -250,7 +256,6 @@ public class UserListActivity extends NavDrawerActivity {
                         if (mExpectedListSize == 0) {
                             mostrarNoHayResultados();
                         } else {
-                            // TODO: Cambiar si se adapta.
                             for (long id : allUsersResponse.getAllUsers()) {
                                 fetchAndAddUser(id);
                             }
@@ -319,13 +324,10 @@ public class UserListActivity extends NavDrawerActivity {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(ctx, "Todavía no implementado / error", Toast.LENGTH_LONG)
-                                .show();//
                         if (error.networkResponse != null)
                             Log.e(LOG_TAG, "Listar conversaciones error status code: "
                                     + error.networkResponse.statusCode);
                         error.printStackTrace();
-
                         showProgress(false);
                     }
                 }, LOG_TAG);
@@ -385,7 +387,7 @@ public class UserListActivity extends NavDrawerActivity {
         }
     }
 
-    // TODO: De prueba, CAMBIAR POR GET REDUCIDO
+    @Deprecated
     private void fetchAndAddUser(long id) {
         Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
                 new Response.Listener<JSONObject>() {
@@ -487,9 +489,6 @@ public class UserListActivity extends NavDrawerActivity {
 
     public void irABusquedaActivity(View v) {
         // Volver a la búsqueda si vengo de una? Ocultar botón si se trata de los contactos propios.
-        Snackbar.make(v, "Empezar nueva búsqueda", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();//
-
         startActivity(new Intent(this, BusquedaActivity.class));
     }
 
@@ -552,7 +551,7 @@ public class UserListActivity extends NavDrawerActivity {
                 // Los demás casos
                 } else {
                     if (tv_trabajo != null)
-                        tv_trabajo.setText(user.getTrabajosActuales()); // TODO: Revisar si cortar a una línea
+                        tv_trabajo.setText(user.getUltimoTrabajoActual());
                     if (tv_recom != null) {
                         long cantRecom = user.getCantRecomendaciones();
                         if (cantRecom == 0)

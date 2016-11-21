@@ -92,8 +92,6 @@
             android:label="@string/title_activity_conversacion"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize">
-
-            <!-- TODO: Chequear efecto -->
         </activity>
 
         <activity

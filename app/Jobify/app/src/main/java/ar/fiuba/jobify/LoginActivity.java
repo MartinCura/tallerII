@@ -316,18 +316,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            showProgress(false);
-
                             LoginResponse loginResponse = LoginResponse.parseJSON(response.toString());
                             if (loginResponse == null) {
                                 Log.e(LOG_TAG, "Error de parseo de LoginResponse");
+                                showProgress(false);
                                 return;
                             }
-                            Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
-                                    .show();//
-
                             guardarDatosDeLogin(email, password);
-
                             guardarConnectedUserData(loginResponse);
                             Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
                             finish();
@@ -341,7 +336,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 int statusCode = error.networkResponse.statusCode;
                                 Log.d(LOG_TAG, "Login error status code: " + statusCode);
 
-                                switch (statusCode) { // hardcodeado?
+                                switch (statusCode) {
                                     ///
                                     case 400:
                                         try {
@@ -369,11 +364,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                         mPasswordView.requestFocus();
                                         break;
                                     default:
-                                        Toast.makeText(ctx, "Login error status code: "+ statusCode,
-                                                Toast.LENGTH_LONG)
-                                                .show();//
-                                        error.printStackTrace();//
-                                } // TODO: Otros status codes?
+                                        Log.e(LOG_TAG, "Login error status code: "+ statusCode);
+                                        Toast.makeText(ctx, "Login error", Toast.LENGTH_LONG)
+                                                .show();
+                                        error.printStackTrace();
+                                } // Otros status codes?
                             }
                         }
                     }, LOG_TAG);
@@ -394,7 +389,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             final Context ctx = getApplicationContext();
 
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
-            Log.d(LOG_TAG, "POST de registro:\n"+jsonRequest.toString());//
 
             Utils.postJsonToAppServer(this, getString(R.string.post_user_path), jsonRequest,
                     new Response.Listener<JSONObject>() {
@@ -407,9 +401,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Log.e(LOG_TAG, "Error de parseo de LoginResponse");
                                 return;
                             }
-                            Toast.makeText(LoginActivity.this, "Registro correcto\n" +
-                                    "Id: " + loginResponse.getId(), Toast.LENGTH_LONG)
-                                    .show();//
+                            Toast.makeText(LoginActivity.this, "¡Registración exitosa!\n", Toast.LENGTH_LONG)
+                                    .show();
 
                             isNewUser = true;
                             attemptLogin();
@@ -429,7 +422,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 if (error.networkResponse.statusCode == 409) {// hardcodeo
                                     Toast.makeText(ctx, "Email ya registrado", Toast.LENGTH_LONG)
                                             .show();
-                                } // TODO: Otros status codes?
+                                } // Otros status codes?
                             }
                         }
                     }, LOG_TAG);
@@ -474,7 +467,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         .edit();
         editor.putString(getString(R.string.stored_connected_user_email), email);
         editor.putString(getString(R.string.stored_connected_user_password), password);
-        // TODO: Cuidado si se quiere más seguridad, no sé qué tan bueno es guardarla en plaintext
+        // Cuidado si se quiere más seguridad, no sé qué tan bueno es guardarla en plaintext
         editor.apply();
     }
 
@@ -491,7 +484,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             final Activity activity = this;
 
             // Hago un request de prueba para testear la validez del token
-            // Uso /contacts ya que pide token y no altera estados. TODO: cambiarlo por uno dedicado
+            // Uso /contacts ya que pide token y no altera estados.
+            // TODO: Debería cambiarlo por uno dedicado o correcto para el caso (verifique id)
             String testUrl = Utils.getAppServerUrl(this, storedId, getString(R.string.get_contacts_path));
             Utils.fetchJsonFromUrl(this, Request.Method.GET, testUrl, null,
                     new Response.Listener<JSONObject>() {
@@ -523,12 +517,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 4;
     }
 
@@ -635,11 +627,5 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 .show();
 
         attemptLogin();
-
-//        LoginResponse loginResponse =
-//                LoginResponse.parseJson("{\"id\": "+connectedUserId+", \"token\": ");
-//        guardarConnectedUserData(loginResponse);
-//        Utils.iniciarPerfilActivity(this, connectedUserId, isNewUser);
-//        finish();
     }//;//
 }

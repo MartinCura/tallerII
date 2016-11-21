@@ -52,7 +52,7 @@ public class Contact {
 
     public enum Status {
 
-        @SerializedName("") //;// Puede causar errores
+        @SerializedName("") // Puede causar errores
         NONE (0),
 
         @SerializedName("requested")

@@ -16,7 +16,6 @@
         android:scaleType="centerCrop"
         android:src="@drawable/ic_refreshing"
         android:contentDescription="@string/perfil_foto_description" />
-    <!--TODO Fijarse si cambiar dimensiones por constantes-->
 
     <TextView
         android:id="@+id/list_item_nombre"

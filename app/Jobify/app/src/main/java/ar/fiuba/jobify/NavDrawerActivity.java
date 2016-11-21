@@ -45,7 +45,7 @@ public class NavDrawerActivity extends AppCompatActivity
         mDrawerResId = drawerResId;
         Toolbar toolbar = (Toolbar) findViewById(toolbarResId);
         if (toolbar == null) {
-            Log.e(LOG_TAG, "Here's ye problem, no encontré el toolbar");//
+            Log.e(LOG_TAG, "Toolbar no encontrado");
         }
         setSupportActionBar(toolbar);
 
@@ -218,7 +218,7 @@ public class NavDrawerActivity extends AppCompatActivity
                         if (convResponse == null) {
                             Log.e(LOG_TAG, "ConversationsResponse null");
                         } else {
-                            long cantUnread = convResponse.getMetadata().getCount();
+                            long cantUnread = convResponse.getMetadata().getTotalCount();
                             if (cantUnread > 0) {
                                 String newTitle = getString(R.string.nav_conversations_option)
                                         + " (" + cantUnread + ")";

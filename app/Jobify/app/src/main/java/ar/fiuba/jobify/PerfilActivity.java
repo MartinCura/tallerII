@@ -27,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -67,7 +66,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
     private static Context mContext;
 
-    private CollapsingToolbarLayout collapsingToolbarLayout;//
+    private CollapsingToolbarLayout mCollapsingToolbarLayout;
     private boolean inEditingMode = false;  // TODO: revisar qué ocurre si giro la pantalla
     private EditableListAdapter<Skill> mSkillAdapter;
     private EditableListAdapter<Employment> mJobsAdapter;
@@ -87,7 +86,7 @@ public class PerfilActivity extends NavDrawerActivity {
             fetchedUserID = intent.getLongExtra(FETCHED_USER_ID_MESSAGE, fetchedUserID);
         }
 
-        collapsingToolbarLayout =
+        mCollapsingToolbarLayout =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar_perfil);
 
         FloatingActionButton fabAmigar = (FloatingActionButton) findViewById(R.id.fab_amigar);
@@ -192,8 +191,7 @@ public class PerfilActivity extends NavDrawerActivity {
     protected void onStop() {
         super.onStop();
 
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
-
+        if (RequestQueueSingleton.hasRequestQueue()) {
             RequestQueue mRequestQueue = RequestQueueSingleton
                     .getInstance(this.getApplicationContext())
                     .getRequestQueue();
@@ -225,7 +223,6 @@ public class PerfilActivity extends NavDrawerActivity {
     /**
      * Cambia entre los estados normal y de edición.
      */
-    // TODO: nacimiento
     private void toggleEditMode() {
         FloatingActionButton fabEditar = (FloatingActionButton) findViewById(R.id.fab_editar);
         ImageView iv_foto = (ImageView) findViewById(R.id.perfil_image);
@@ -253,7 +250,6 @@ public class PerfilActivity extends NavDrawerActivity {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
 
-            Log.d(LOG_TAG, "User PUT Request: " + fetchedUser.toJson());//
             // PUT-tear usuario posiblemente editado
             updateProfileInformation();
 
@@ -275,7 +271,6 @@ public class PerfilActivity extends NavDrawerActivity {
                 iv_foto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // TODO: Emprolijar
                         final CharSequence[] options = {"Cámara", "Galería", "Cancelar"};
                         new AlertDialog.Builder(getContext())
                                 .setTitle("Nueva imagen de perfil")
@@ -287,18 +282,15 @@ public class PerfilActivity extends NavDrawerActivity {
                                         if (options[which] == "Cámara") {
                                             if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
                                                 dispatchTakePictureIntent();
-//                                            dialog.dismiss();// Hace falta?
 
                                         } else if (options[which] == "Galería") {
                                             PerfilUtils.dispatchChoosePictureIntent(getActivity());
-//                                            dialog.dismiss();// Hace falta?
 
                                         } else {
                                             dialog.dismiss();
                                         }
                                     }
-                                })
-                                .show();
+                                }).show();
                     }
                 });
 
@@ -397,8 +389,8 @@ public class PerfilActivity extends NavDrawerActivity {
             Utils.editTextSetErrorAndFocus(this, R.id.perfil_nacimiento_anio, "Fecha inválida");
             return false;
         }
-        editedUser.setWorkHistory(mJobsAdapter.getList()); // TODO
-        editedUser.setSkills(mSkillAdapter.getList());  // TODO
+        editedUser.setWorkHistory(mJobsAdapter.getList());
+        editedUser.setSkills(mSkillAdapter.getList());
 
         fetchedUser = editedUser;
         return true;
@@ -463,7 +455,7 @@ public class PerfilActivity extends NavDrawerActivity {
                                 });
                         break;
                     default:
-                        Log.e(LOG_TAG, "This is not possible...");  // TODO: Revisar contra NONE
+                        Log.e(LOG_TAG, "This is not possible...");
                 }
             }
         }, LOG_TAG);
@@ -477,8 +469,7 @@ public class PerfilActivity extends NavDrawerActivity {
                 jsonRequest, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // TODO: Ignorando response, algo que hacer con ello?
-                        // TODO: ~ Idealmente tendría el nuevo estado o el action
+                        // Se ignora el response
                         Toast.makeText(PerfilActivity.this, responseStr, Toast.LENGTH_LONG)
                                 .show();
                         Contact.Status nuevoEstado;
@@ -513,7 +504,6 @@ public class PerfilActivity extends NavDrawerActivity {
                         if (mUser != null) {
 
                             fetchedUser = mUser;
-//                            Log.d(LOG_TAG, "Fetched user: "+response.toString());//
                             fillProfile(mUser);
 
                         } else {
@@ -556,12 +546,12 @@ public class PerfilActivity extends NavDrawerActivity {
         PerfilUtils.showProgress(this, false);
         Utils.showView(this, R.id.perfil_information_layout);
 
-        collapsingToolbarLayout.setTitle(mUser.getFullName());
+        mCollapsingToolbarLayout.setTitle(mUser.getFullName());
 
         Utils.setTextViewText(this, R.id.text_perfil_mail, mUser.getEmail());
         Utils.setTextViewText(this, R.id.text_perfil_ciudad, mUser.getCity());
         Utils.setTextViewText(this, R.id.text_perfil_cant_recomendaciones,
-                Long.toString(mUser.getCantRecomendaciones()) + " recomendaciones");//semi hardcode
+                Long.toString(mUser.getCantRecomendaciones()) + " recomendaciones"); //semi hardcode
         Utils.setTextViewText(this, R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
         Utils.setTextViewText(this, R.id.text_perfil_resumen, mUser.getSummary(), true);
         Utils.setTextViewText(this, R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales(), true);
@@ -638,14 +628,15 @@ public class PerfilActivity extends NavDrawerActivity {
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         if (storageDir == null)
             throw new IOException("getExternalFilesDir dio error");
-//        File imageFile = File.createTempFile(imageFileName, ".jpg", storageDir); TODO: REVISAR SI VOLVER A ESTO
+//        File imageFile = File.createTempFile(imageFileName, ".jpg", storageDir);
+        // Tal vez debería volverse a la anterior
         File imageFile = new File(storageDir, imageFileName + ".jpg");
 
         mCurrentPhotoPath = imageFile.getAbsolutePath();//"file:" + imageFile.getAbsolutePath();//"content:" ?
         return imageFile;
     }
 
-    // TODO: Emprolijar, extraer, generalizar.
+    // Emprolijable, refactorizable
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -654,7 +645,7 @@ public class PerfilActivity extends NavDrawerActivity {
            || requestCode == PerfilUtils.REQUEST_PICK_IMAGE)
                 && resultCode == RESULT_OK) {
 
-            File imageFile; // TODO: sacar repetición
+            File imageFile;
 
             if (requestCode == PerfilUtils.REQUEST_TAKE_PHOTO) {
                 imageFile = new File(mCurrentPhotoPath);
@@ -725,15 +716,9 @@ public class PerfilActivity extends NavDrawerActivity {
                                             error.printStackTrace();
                                         }
                                 });
-                    try {
-                        Log.d(LOG_TAG, "Headers: " + imageUploadReq.getHeaders().toString());//
-                        Log.d(LOG_TAG, "BodyContentType: " + imageUploadReq.getBodyContentType());//
-                    } catch (AuthFailureError er) {
-                        Log.d(LOG_TAG, "AuthFailureError in test Logs");//
-                        er.printStackTrace();
-                    }
                     RequestQueueSingleton.getInstance(this)
                             .addToRequestQueue(imageUploadReq);
+
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     Log.e(LOG_TAG, "Error en subido de imagen.");
@@ -829,17 +814,14 @@ public class PerfilActivity extends NavDrawerActivity {
                                 new Response.Listener<JSONObject>() {
                                     @Override
                                     public void onResponse(JSONObject response) {
-                                        // TODO: No chequea que el status sea 200, será inmediato?
-
                                         boolean ahoraRecomendado = !yaRecomendado;
                                         PerfilUtils.colorearBotonRecomendar(getActivity(), ahoraRecomendado);
 
-                                        // TODO: Mover a R.string
                                         if (ahoraRecomendado) {
-                                            Toast.makeText(getContext(), "¡Usuario recomendado!",
+                                            Toast.makeText(getContext(), R.string.perfil_recommendation_success,
                                                     Toast.LENGTH_LONG).show();
                                         } else {
-                                            Toast.makeText(getContext(), "Se ha quitado la recomendación :(",
+                                            Toast.makeText(getContext(), R.string.perfil_recommendation_deletion_success,
                                                     Toast.LENGTH_LONG).show();
                                         }
                                         refreshProfileInformation(fetchedUserID);

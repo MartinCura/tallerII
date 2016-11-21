@@ -275,7 +275,7 @@ public class Utils {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put("Connection", "close");//Te amo, header que soluciona cosas ~ mc
+                        headers.put("Connection", "close"); //Te amo, header que soluciona cosas ~ mc
                         String token = getToken(context);
                         if (token != null)
                             headers.put("Authorization", token);
@@ -333,6 +333,8 @@ public class Utils {
                             return;
                         } else if (error.networkResponse.statusCode == 403) {
                             Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
+                        } else if (error.networkResponse.statusCode == 404) {
+                            Log.d(logTag, "Imagen no existe");
                         } else {
                             Log.e(logTag, "Error cargando imagen, response code: "
                                     + error.networkResponse.statusCode);
@@ -462,7 +464,7 @@ public class Utils {
 
             mAdapter.addAll(list);
             mAdapter.notifyDataSetChanged();
-            EditableListAdapter.actualizarAlturaDeListView(mListView, mAdapter);//
+            EditableListAdapter.actualizarAlturaDeListView(mListView, mAdapter);
 
         } else
             Log.e(LOG_TAG, "No se encontró el listview! resId: "+resId);
@@ -470,7 +472,8 @@ public class Utils {
 
 
     public static Bitmap normalizarBitmap(Bitmap bitmap) {
-        int newWidth = bitmap.getWidth() > 1000 ? 1000 : bitmap.getWidth(); // HARDCODEO
+        int MAX = 1000; // Máximo en cualquier dimensión
+        int newWidth = bitmap.getWidth() > MAX ? MAX : bitmap.getWidth();
         int newHeight = (int) Math.round((1.0 * bitmap.getHeight() / bitmap.getWidth()) * newWidth);
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
     }

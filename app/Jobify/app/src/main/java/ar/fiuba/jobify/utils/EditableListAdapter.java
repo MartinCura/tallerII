@@ -145,16 +145,16 @@ public class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
     public static void actualizarAlturaDeListViewHardcode(ListView mListView, ArrayAdapter mAdapter,
                                                           boolean limitarAltura) {
         //        int totalHeight = 0;
-        int lastHeight = 0;
+//        int lastHeight = 0;
         for (int i = 0; i < mAdapter.getCount(); i++) {
             View listItem = mAdapter.getView(i, null, mListView);
             listItem.measure(0, 0);
             // tramposo
-            lastHeight = listItem.getMeasuredHeight();
+//            lastHeight = listItem.getMeasuredHeight();
 //            Log.d("shuddup", lastHeight+" (lastHeight");
 //            totalHeight += listItem.getMeasuredHeight();
         }
-        int totalHeight = 150 * mAdapter.getCount();//hardcodeo
+        int totalHeight = 150 * mAdapter.getCount(); //hardcodeo
 //        Log.d("shudduuup", "lastHeight="+lastHeight+", total="+totalHeight);
 
         ViewGroup.LayoutParams params = mListView.getLayoutParams();

@@ -61,11 +61,12 @@ public class BusquedaActivity extends NavDrawerActivity {
     public void onResume() {
         super.onResume();
 
-        populateSpinners(); // TODO: Revisar que no se acumule
+        populateSpinners();
     }
 
 
     private void populateSpinners() {
+        final String opcionVaciaStr = "(opcional)";
         try {
             Spinner spinner = (Spinner) findViewById(R.id.job_positions_spinner);
             if (spinner == null) {
@@ -76,7 +77,7 @@ public class BusquedaActivity extends NavDrawerActivity {
             if (jobPositions != null) {
 
                 ArrayList<String> jpArray = new ArrayList<>();
-                jpArray.add("(opcional)"); // Opción vacía // TODO: des-hardcodear
+                jpArray.add(opcionVaciaStr);
                 for (JobPosition jp : jobPositions) {
                     jpArray.add(jp.getNombre());
                 }
@@ -89,7 +90,7 @@ public class BusquedaActivity extends NavDrawerActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                         mSelectedJobPositionString = (String) parent.getItemAtPosition(pos);
-                        if (mSelectedJobPositionString.equals("(opcional)"))   // TODO: des-hardcodear
+                        if (mSelectedJobPositionString.equals(opcionVaciaStr))
                             mSelectedJobPositionString = "";
                     }
 
@@ -115,7 +116,7 @@ public class BusquedaActivity extends NavDrawerActivity {
             if (skills != null) {
 
                 ArrayList<String> skArray = new ArrayList<>();
-                skArray.add("(opcional)"); // Opción vacía  // TODO: des-hardcodear
+                skArray.add(opcionVaciaStr);
                 for (Skill sk : skills) {
                     skArray.add(sk.getNombre());
                 }
@@ -128,7 +129,7 @@ public class BusquedaActivity extends NavDrawerActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                         mSelectedSkillString = (String) parent.getItemAtPosition(pos);
-                        if (mSelectedSkillString.equals("(opcional)"))  // TODO: des-hardcodear
+                        if (mSelectedSkillString.equals(opcionVaciaStr))
                             mSelectedSkillString = "";
                     }
 
@@ -156,26 +157,22 @@ public class BusquedaActivity extends NavDrawerActivity {
 
         try {
             Skill nuevoSkill = Skill.create(this, mSelectedSkillString);
-            if (nuevoSkill == null) return;// false;
+            if (nuevoSkill == null)
+                return;
 
             if (!mSkillAdapter.add(nuevoSkill, true)) {
                 Toast.makeText(this, "Skill ya listado", Toast.LENGTH_LONG)
                         .show();
-                return;// false;
+                return;
             }
             mSkillAdapter.notifyDataSetChanged();
 
         } catch (IllegalArgumentException ex) {
             Log.e(LOG_TAG, "How...???.....");
-            //return false;
         }
-        //return true;
     }
 
     public void comenzarBusqueda(View v) {
-        Toast.makeText(this, "Buscando...", Toast.LENGTH_LONG)
-                .show();//
-
         int distancia = Utils.getTextViewInt(this, R.id.busqueda_distancia);
         if (distancia < 0) distancia = 0;
 

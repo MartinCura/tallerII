@@ -32,7 +32,6 @@ import com.android.volley.VolleyError;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -121,7 +120,7 @@ public class ConversacionActivity extends NavDrawerActivity {
             mListView.setAdapter(mMessageArrayAdapter);
             mListView.setOnScrollListener(mEndlessScrollListener);
             mListView.setDivider(null);
-            mListView.setDividerHeight(18);//hardcode
+            mListView.setDividerHeight(18); //hardcode
 
         } else {
             Log.e(LOG_TAG, "No se encontró la listview de mensajes! :~| Salgo ofendido.");
@@ -141,13 +140,6 @@ public class ConversacionActivity extends NavDrawerActivity {
         activityVisible = false;
     }
 
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        activityVisible = false;
-    }
-
     @Override
     public void onResume() {
         activityVisible = true;
@@ -159,10 +151,16 @@ public class ConversacionActivity extends NavDrawerActivity {
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        activityVisible = false;
+    }
+
     public void onStop() {
         activityVisible = false;
         super.onStop();
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
+        if (RequestQueueSingleton.hasRequestQueue()) {
             RequestQueue mRequestQueue = RequestQueueSingleton
                     .getInstance(this.getApplicationContext())
                     .getRequestQueue();
@@ -203,7 +201,7 @@ public class ConversacionActivity extends NavDrawerActivity {
                         public void onResponse(JSONObject response) {
                             User mUser = User.parseJSON(response.toString());
                             if (mUser != null) {
-                                //corresponsalUser = mUser;// TODO: Guardo ese user para algo?
+                                //corresponsalUser = mUser; // Alguna razón para guardar el user?
                                 nombreCorresponsal = mUser.getFullName();
                                 tv_nombre.setText(nombreCorresponsal);
                             } else {
@@ -266,26 +264,16 @@ public class ConversacionActivity extends NavDrawerActivity {
                     public void onErrorResponse(VolleyError error) {
                         showProgress(false);
 
-                        // TODO: Todo lo de abajo del onError copipeistiado de Utils... revisar
-                        // En caso de que no debía recibirse nada y el retorno fue correcto,
-                        // correr el método para response correcto.
-                        // // No debería correrse nunca ahora que modifiqué JsonObjectRequest
-                        if (error.networkResponse != null && error.networkResponse.statusCode == 200) {
-//                            try {
-//                                responseListener.onResponse(new JSONObject("{}"));
-//                            } catch (JSONException ex) {
-//                                Log.e(LOG_TAG, "JSON vacío no aceptado");
-//                            }
-                        } else {
-                            Log.d(LOG_TAG, "Error Listener. URL: " + urlMensajes);
-                            if (error.networkResponse != null) {
-                                if (error.networkResponse.statusCode == 403)
-                                    Log.d(LOG_TAG, error.networkResponse.statusCode + " FORBIDDEN");
-                                else
-                                    Log.d(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
-                            }
-                            error.printStackTrace();
+                        Log.d(LOG_TAG, "Error Listener. URL: " + urlMensajes);
+                        if (error.networkResponse != null) {
+                            if (error.networkResponse.statusCode == 403)
+                                Log.d(LOG_TAG, error.networkResponse.statusCode + " FORBIDDEN");
+                            else
+                                Log.d(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
                         }
+                        error.printStackTrace();
+                        Toast.makeText(ctx, "Error al intentar cargar mensajes", Toast.LENGTH_LONG)
+                                .show();
                     }
                 }, LOG_TAG);
     }
@@ -359,7 +347,7 @@ public class ConversacionActivity extends NavDrawerActivity {
             return;
         }
 
-        final Context context = this;//
+        final Context context = this;
 
         final String mensajeAEnviar = et_entrada.getText().toString();
         if (!mensajeAEnviar.isEmpty()) {
@@ -378,8 +366,6 @@ public class ConversacionActivity extends NavDrawerActivity {
                                 recibirMensajesNuevos(jsObjMessage);
                                 return;
                             }
-//                            Log.i(LOG_TAG, "Mensaje enviado: " + mensajeEnviado.getMessage());//
-
                             // Agrego el mensaje enviado a los mostrados en la conversación
                             recibirMensajesNuevos(response);
 
@@ -388,8 +374,8 @@ public class ConversacionActivity extends NavDrawerActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Toast.makeText(context, "¡Mensaje no enviado!", Toast.LENGTH_LONG)
-                                    .show();//
-                            Log.e(LOG_TAG, "Mensaje NO enviado: " + mensajeAEnviar);//
+                                    .show();
+                            Log.e(LOG_TAG, "Mensaje NO enviado: " + mensajeAEnviar);
                             if (error.networkResponse != null)
                                 Log.e(LOG_TAG, "Status code de mensaje no enviado: "
                                         + error.networkResponse.statusCode);
@@ -397,7 +383,7 @@ public class ConversacionActivity extends NavDrawerActivity {
                         }
                     }, LOG_TAG);
         }
-        // Vacío el input.
+        // Vacío el input
         et_entrada.setText(null);
     }
 
@@ -478,7 +464,7 @@ public class ConversacionActivity extends NavDrawerActivity {
 //                            holderOut.messageStatus.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_single_tick));
 //                        }
                         holderOut.tv_message.setText(message.getMessage());
-                        holderOut.tv_time.setText(message.getHoraSinSegundos());//.getTwoLiner());
+                        holderOut.tv_time.setText(message.getHoraSinSegundos());
                         break;
 
                     default:
@@ -501,9 +487,8 @@ public class ConversacionActivity extends NavDrawerActivity {
                         }
 
                         holderIn.tv_author.setText(nombreCorresponsal);
-//                        holderIn.tv_author.setText(message.getFrom()); TODO
                         holderIn.tv_message.setText(message.getMessage());
-                        holderIn.tv_time.setText(message.getHoraSinSegundos());//.getTwoLiner());
+                        holderIn.tv_time.setText(message.getHoraSinSegundos());
                 }
             }
             return convertView;
