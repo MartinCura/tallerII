@@ -19,10 +19,8 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 return response;
             }
             else if (regex_match(url, regex("/profilepicture/.*"))) {
-                this->logRequest(httpMessage, false);
                 handler = new PictureHandler();
                 response = handler->handleRequest(httpMessage, url);
-                this->logResponse(response, false);
                 delete handler;
                 return response;
             }
