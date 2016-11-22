@@ -77,12 +77,9 @@ void runAppServer() {
     nc = mg_bind_opt(&mgr, s_http_port, ev_handler, bind_opts);
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.enable_directory_listing = "yes";
-    Config::getInstance()->load(configFile);
-    loadDB();
     while (s_sig_num == 0) {
         mg_mgr_poll(&mgr, 1000);
     }
-    delete Config::getInstance();
     mg_mgr_free(&mgr);
 }
 
@@ -100,7 +97,9 @@ TEST(Testing, Api) {
         ASSERT_TRUE(false) << "No se pudo cargar el archivo de configuracion";
         return;
     }
+    Config::getInstance()->load(configFile);
     std::thread t1(runAppServer);
+    loadDB();
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml");
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts.yaml");
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_messages.yaml");
@@ -109,4 +108,5 @@ TEST(Testing, Api) {
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_users.yaml");
     s_sig_num = 1;
     t1.join();
+    delete Config::getInstance();
 }
