@@ -28,6 +28,13 @@
     - expected_status: [404] # not found
 
 - test:
+    - name: "Delete picture without permission"
+    - url: "/profilepicture/2"
+    - headers: {Authorization: tokenUser1}
+    - method: "DELETE"
+    - expected_status: [403] # forbidden
+
+- test:
     - name: "POST not implemented"
     - url: "/profilepicture/1"
     - headers: {Authorization: tokenUser1}
