@@ -68,6 +68,8 @@ add_executable (${TARGET} ${SOURCES}
     ../api/WebHandler.h
     ../tools/DbBuilder.cpp
     ../tools/DbBuilder.h
+    ../tools/MainHelper.cpp
+    ../tools/MainHelper.h
     ../api/handler/AllUsersHandler.cpp
     ../api/handler/ContactsHandler.cpp
     ../api/handler/ConversationsHandler.cpp

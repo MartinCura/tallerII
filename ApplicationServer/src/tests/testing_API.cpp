@@ -6,28 +6,12 @@
 #include "../api/WebHandler.h"
 #include "../logger/Logger.h"
 #include "../tools/DbBuilder.h"
+#include "../tools/MainHelper.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 static int s_sig_num = 0;
 static string configFile = "../ApplicationServer/src/tests/config.js";
-
-bool validBody(struct mbuf body, struct mbuf bodyToSend) {
-    bool validBody = true;
-    int offset = 7;
-    const char* bodyPointer = body.buf + body.len - 1;
-    const char* bodyToSendPointer = bodyToSend.buf + bodyToSend.len - 1;
-    bodyToSendPointer = bodyToSendPointer - offset;
-    for(int i = 0; i < body.len; i++) {
-        if (*bodyPointer != *bodyToSendPointer) {
-            validBody = false;
-            break;
-        }
-        bodyPointer--;
-        bodyToSendPointer--;
-    }
-    return validBody;
-}
 
 struct mbuf processMessage(struct mg_connection *nc, struct http_message *httpMessage, WebHandler *webHandler, Response* response) {
     response = webHandler->handleRequest(httpMessage);
@@ -50,11 +34,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         Response* response = new Response();
         struct http_message *httpMessage = (struct http_message *) ev_data;
         struct mbuf body = processMessage(nc, httpMessage, webHandler, response);
-        if (!validBody(body, nc->send_mbuf)) {
+        MainHelper* mainHelper = new MainHelper();
+        if (!mainHelper->validBody(body, nc->send_mbuf)) {
             Logger::getInstance()->info("Rearmando body de la respuesta");
             mbuf_remove(&nc->send_mbuf, nc->send_mbuf.len);
             processMessage(nc, httpMessage, webHandler, response);
         }
+        delete mainHelper;
         delete response;
         delete webHandler;
     }
