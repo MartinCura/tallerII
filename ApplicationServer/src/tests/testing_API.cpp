@@ -60,12 +60,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     }
 }
 
-void loadDB() {
-    DbBuilder* dbb = new DbBuilder();
-    dbb->loadUsers();
-    delete dbb;
-}
-
 void runAppServer() {
     struct mg_mgr mgr;
     struct mg_connection *nc;
@@ -90,6 +84,18 @@ void runTest(string test) {
     }
 }
 
+void loadDB() {
+    DbBuilder* dbb = new DbBuilder();
+    dbb->loadUsers();
+    delete dbb;
+}
+
+void reloadDB(string dbName) {
+    string removeDataBaseCommand = "rm -rf " + dbName;
+    system(removeDataBaseCommand.c_str());
+    loadDB();
+}
+
 TEST(Testing, Api) {
     if (FILE *file = fopen(configFile.c_str(), "r")) {
         fclose(file);
@@ -106,10 +112,15 @@ TEST(Testing, Api) {
     std::thread t1(runAppServer);
     loadDB();
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml");
+    reloadDB(dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts.yaml");
+    reloadDB(dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_messages.yaml");
+    reloadDB(dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_notificationtoken.yaml");
+    reloadDB(dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_recommendations.yaml");
+    reloadDB(dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_users.yaml");
     s_sig_num = 1;
     t1.join();
