@@ -83,7 +83,7 @@ void runAppServer() {
 }
 
 void runTest(string test) {
-    int result = system("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_allusers.yaml");
+    int result = system(test.c_str());
     if (result != 0) {
         ASSERT_TRUE(false) << "Fallo el test: " + test;
     }
@@ -97,12 +97,12 @@ TEST(Testing, Api) {
         return;
     }
     std::thread t1(runAppServer);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_allusers.yaml");
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_contacts.yaml");
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_messages.yaml");
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_notificationtoken.yaml");
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_recommendations.yaml");
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_users.yaml");
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml");
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts.yaml");
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_messages.yaml");
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_notificationtoken.yaml");
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_recommendations.yaml");
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_users.yaml");
     s_sig_num = 1;
     t1.join();
 }
