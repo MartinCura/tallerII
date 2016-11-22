@@ -77,13 +77,6 @@ void runAppServer() {
     mg_mgr_free(&mgr);
 }
 
-void runTest(string test) {
-    int result = system(test.c_str());
-    if (result != 0) {
-        ASSERT_TRUE(false) << "Fallo el test: " + test;
-    }
-}
-
 void loadDB() {
     DbBuilder* dbb = new DbBuilder();
     dbb->loadUsers();
@@ -94,6 +87,14 @@ void reloadDB(string dbName) {
     string removeDataBaseCommand = "rm -rf " + dbName;
     system(removeDataBaseCommand.c_str());
     loadDB();
+}
+
+void runTest(string test, string dbName) {
+    int result = system(test.c_str());
+    if (result != 0) {
+        ASSERT_TRUE(false) << "Fallo el test: " + test;
+    }
+    reloadDB(dbName);
 }
 
 TEST(Testing, Api) {
@@ -111,17 +112,12 @@ TEST(Testing, Api) {
     }
     std::thread t1(runAppServer);
     loadDB();
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml");
-    reloadDB(dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts.yaml");
-    reloadDB(dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_messages.yaml");
-    reloadDB(dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_notificationtoken.yaml");
-    reloadDB(dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_recommendations.yaml");
-    reloadDB(dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_users.yaml");
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_messages.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_notificationtoken.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_recommendations.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_users.yaml", dbName);
     s_sig_num = 1;
     t1.join();
     delete Config::getInstance();
