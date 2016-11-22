@@ -98,6 +98,11 @@ TEST(Testing, Api) {
         return;
     }
     Config::getInstance()->load(configFile);
+    string dbName = Config::getInstance()->get(Config::NAME_DB);
+    if (dbName == "") {
+        ASSERT_TRUE(false) << "Nombre de base de datos invalido";
+        return;
+    }
     std::thread t1(runAppServer);
     loadDB();
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml");
