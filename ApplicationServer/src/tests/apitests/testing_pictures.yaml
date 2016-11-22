@@ -1,0 +1,36 @@
+---
+- config:
+    - testset: "Testing pictures"
+
+- test:
+    - name: "Get picture ok"
+    - url: "/profilepicture/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Missing user id"
+    - url: "/profilepicture/"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+        - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Cannot get user id from url."}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Missing picture"
+    - url: "/profilepicture/12345"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+        - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Cannot find requested picture"}
+    - expected_status: [404] # not found
+
+- test:
+    - name: "POST not implemented"
+    - url: "/profilepicture/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "POST"
+    - expected_status: [501] # not implemented
+
