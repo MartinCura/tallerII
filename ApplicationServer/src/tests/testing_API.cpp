@@ -83,18 +83,18 @@ void loadDB() {
     delete dbb;
 }
 
-void reloadDB(string dbName) {
+void deleteDB(string dbName) {
     string removeDataBaseCommand = "rm -rf " + dbName;
     system(removeDataBaseCommand.c_str());
-    loadDB();
 }
 
 void runTest(string test, string dbName) {
+    loadDB();
     int result = system(test.c_str());
     if (result != 0) {
         ASSERT_TRUE(false) << "Fallo el test: " + test;
     }
-    reloadDB(dbName);
+    deleteDB(dbName);
 }
 
 TEST(Testing, Api) {
@@ -111,7 +111,6 @@ TEST(Testing, Api) {
         return;
     }
     std::thread t1(runAppServer);
-    loadDB();
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml", dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts.yaml", dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_messages.yaml", dbName);
