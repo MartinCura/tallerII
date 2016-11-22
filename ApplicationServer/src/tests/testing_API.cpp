@@ -60,6 +60,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     }
 }
 
+void loadDB() {
+    DbBuilder* dbb = new DbBuilder();
+    dbb->loadUsers();
+    delete dbb;
+}
+
 void runAppServer() {
     struct mg_mgr mgr;
     struct mg_connection *nc;
@@ -72,9 +78,7 @@ void runAppServer() {
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.enable_directory_listing = "yes";
     Config::getInstance()->load(configFile);
-    DbBuilder* dbb = new DbBuilder();
-    dbb->loadUsers();
-    delete dbb;
+    loadDB();
     while (s_sig_num == 0) {
         mg_mgr_poll(&mgr, 1000);
     }
