@@ -10,6 +10,7 @@
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 static int s_sig_num = 0;
+static string configFile = "../ApplicationServer/src/tests/config.js";
 
 bool validBody(struct mbuf body, struct mbuf bodyToSend) {
     bool validBody = true;
@@ -59,7 +60,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     }
 }
 
-int runAppServer() {
+void runAppServer() {
     struct mg_mgr mgr;
     struct mg_connection *nc;
     struct mg_bind_opts bind_opts;
@@ -70,16 +71,24 @@ int runAppServer() {
     nc = mg_bind_opt(&mgr, s_http_port, ev_handler, bind_opts);
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.enable_directory_listing = "yes";
+    Config::getInstance()->load(configFile);
     DbBuilder* dbb = new DbBuilder();
     dbb->loadUsers();
     delete dbb;
     while (s_sig_num == 0) {
         mg_mgr_poll(&mgr, 1000);
     }
+    delete Config::getInstance();
     mg_mgr_free(&mgr);
 }
 
 TEST(Testing, Api) {
+    if (FILE *file = fopen(configFile.c_str(), "r")) {
+        fclose(file);
+    } else {
+        ASSERT_TRUE(false) << "No se pudo cargar el archivo de configuracion";
+        return;
+    }
     std::thread t1(runAppServer);
     system("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_allusers.yaml");
     system("resttest.py http://127.0.0.1:8000 ../ApplicationServer/tests/testing_contacts.yaml");

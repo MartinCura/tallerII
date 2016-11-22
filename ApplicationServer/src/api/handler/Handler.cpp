@@ -9,9 +9,8 @@ static const struct mg_str s_delete_method = MG_MK_STR("DELETE");
 static const struct mg_str s_post_method = MG_MK_STR("POST");
 
 Handler::Handler() {
-    this->namedb = new string("/tmp/appDB");
+    this->namedb = new string(Config::getInstance()->get(Config::NAME_DB));
     db = DBWrapper::openDb(namedb);
-
 }
 
 Handler::~Handler() {

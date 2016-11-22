@@ -2,7 +2,7 @@
 
 
 DbBuilder::DbBuilder() {
-    this->namedb = new string("/tmp/appDB");
+    this->namedb = new string(Config::getInstance()->get(Config::NAME_DB));
     db = DBWrapper::openDb(namedb);
 }
 

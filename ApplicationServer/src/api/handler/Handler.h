@@ -9,6 +9,7 @@
 #include "../../Exceptions/InvalidRequestException.h"
 #include "../../session/Session.h"
 #include "../../DB/DBWrapper.h"
+#include "../../config/Config.h"
 
 using namespace std;
 

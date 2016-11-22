@@ -5,6 +5,7 @@
 #include "../person/PersonManager.h"
 #include "../logger/Logger.h"
 #include "../Exceptions/UserAlreadyExistsException.h"
+#include "../config/Config.h"
 
 using namespace std;
 

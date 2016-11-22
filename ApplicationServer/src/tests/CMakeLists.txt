@@ -60,6 +60,8 @@ add_executable (${TARGET} ${SOURCES}
     ../Mongoose/mongoose.h
     ../logger/Logger.cpp
     ../logger/Logger.h
+    ../config/Config.cpp
+    ../config/Config.h
     ../api/Response.cpp
     ../api/Response.h
     ../api/WebHandler.cpp

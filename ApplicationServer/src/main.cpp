@@ -2,6 +2,7 @@
 #include "api/WebHandler.h"
 #include "logger/Logger.h"
 #include "tools/DbBuilder.h"
+#include "config/Config.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -133,6 +134,20 @@ int main(int argc, char *argv[]) {
 
     Logger::getInstance()->info("Iniciando server en puerto " + string(s_http_port));
 
+    Logger::getInstance()->info("Cargando archivo de configuracion");
+    try {
+        Config::getInstance()->load("../ApplicationServer/src/config.js");
+    } catch (char const* exceptionMessage) {
+        string errorMessage = "No se puede iniciar el servidor.\n";
+        errorMessage += "No se ha podido cargar el archivo de configuracion config.js ubicado en la carpeta src.\n";
+        errorMessage += "Error: ";
+        errorMessage += exceptionMessage;
+        Logger::getInstance()->error(errorMessage);
+        cout << errorMessage << endl;
+        delete Config::getInstance();
+        return 0;
+    }
+
     Logger::getInstance()->info("Iniciando base de datos");
     DbBuilder* dbb = new DbBuilder();
     dbb->loadUsers();
@@ -145,6 +160,7 @@ int main(int argc, char *argv[]) {
     Logger::getInstance()->info("Finalizando server con señal " + to_string(s_sig_num) + "\n");
 
     delete Logger::getInstance();
+    delete Config::getInstance();
     mg_mgr_free(&mgr);
     return 0;
 }
