@@ -13,7 +13,7 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
     try {
         Json::Value responseBody;
         Json::Value parsedBody = this->parseBody(requestBody);
-        responseBody["id"] = personManager->savePerson(0, parsedBody, 0);
+        responseBody["id"] = personManager->savePerson(0, parsedBody);
         response->setSuccessfulHeader();
         response->setBody(responseBody.toStyledString());
     } catch (UserAlreadyExistsException& e) {
