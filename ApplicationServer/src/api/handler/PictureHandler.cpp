@@ -91,7 +91,7 @@ Response* PictureHandler::buildGetPictureResponse(long id) {
 }
 
 string PictureHandler::getFilePath(long id) {
-    return "../ApplicationServer/img/profile/" + to_string(id) + ".jpeg";
+    return Config::getInstance()->get(Config::IMG_FOLDER) + to_string(id) + ".jpeg";
 }
 
 bool PictureHandler::existsPictureForId(long id) {

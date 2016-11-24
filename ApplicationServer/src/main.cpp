@@ -91,7 +91,6 @@ int main(int argc, char *argv[]) {
       ssl_cert = argv[++i];
 #endif
         } else {
-            Logger::getInstance()->error("Error al iniciar server. Opción desconocida: " + string(argv[i]));
             fprintf(stderr, "Unknown option: [%s]\n", argv[i]);
             exit(1);
         }
@@ -109,7 +108,6 @@ int main(int argc, char *argv[]) {
 #endif
     nc = mg_bind_opt(&mgr, s_http_port, ev_handler, bind_opts);
     if (nc == NULL) {
-        Logger::getInstance()->error("Error al iniciar server en puerto " + string(s_http_port));
         fprintf(stderr, "Error starting server on port %s: %s\n", s_http_port,
                 *bind_opts.error_string);
         exit(1);
@@ -118,9 +116,6 @@ int main(int argc, char *argv[]) {
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.enable_directory_listing = "yes";
 
-    Logger::getInstance()->info("Iniciando server en puerto " + string(s_http_port));
-
-    Logger::getInstance()->info("Cargando archivo de configuracion");
     try {
         Config::getInstance()->load("../ApplicationServer/src/config.js");
     } catch (char const* exceptionMessage) {
@@ -128,11 +123,12 @@ int main(int argc, char *argv[]) {
         errorMessage += "No se ha podido cargar el archivo de configuracion config.js ubicado en la carpeta src.\n";
         errorMessage += "Error: ";
         errorMessage += exceptionMessage;
-        Logger::getInstance()->error(errorMessage);
         cout << errorMessage << endl;
         delete Config::getInstance();
         return 0;
     }
+
+    Logger::getInstance()->info("Iniciando server en puerto " + string(s_http_port));
 
     Logger::getInstance()->info("Iniciando base de datos");
     DbBuilder* dbb = new DbBuilder();

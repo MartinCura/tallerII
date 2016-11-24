@@ -1,6 +1,8 @@
 #include "Config.h"
 
 const char *Config::NAME_DB = "DbName";
+const char *Config::IMG_FOLDER = "imgDir";
+const char *Config::LOGS_FOLDER = "logsDir";
 
 Config* Config::instance = NULL;
 

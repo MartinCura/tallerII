@@ -34,7 +34,7 @@ void Logger::debug(string message) {
 
 void Logger::log(string prefix, string message) {
     logMutex.lock();
-    string fileName = Logger::DIRECTORY + this->getFileName() + Logger::FILE_EXTENSION;
+    string fileName = Config::getInstance()->get(Config::LOGS_FOLDER) + this->getFileName() + Logger::FILE_EXTENSION;
     this->logFile.open(fileName, ios_base::app | ios_base::ate);
     this->logFile << this->getTimestamp();
     this->logFile << prefix;
