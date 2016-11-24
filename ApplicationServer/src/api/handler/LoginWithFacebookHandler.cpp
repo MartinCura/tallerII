@@ -119,12 +119,12 @@ string LoginWithFacebookHandler::performRequest(string request) {
 }
 
 Json::Value LoginWithFacebookHandler::parseResponse(string response) {
-    size_t first = response.find_first_of("{", 0);
-    size_t second = response.find_first_of("{", first + 1);
-    string subResponse(response.begin() + second, response.begin() + response.size());
+    string endOfHeader = "\r\n\r\n";
+    size_t bodyStart = response.find(endOfHeader, 0);
+    string body(response.begin() + bodyStart + endOfHeader.size(), response.begin() + response.size());
     Json::Value root;
     Json::Reader reader;
-    bool parsingSuccessful = reader.parse(subResponse, root);
+    bool parsingSuccessful = reader.parse(body, root);
     if (!parsingSuccessful) {
         throw ErrorLoginWithFacebookException("Error parsing Facebook response");
     }
