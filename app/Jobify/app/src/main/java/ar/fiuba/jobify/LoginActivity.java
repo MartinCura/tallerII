@@ -45,6 +45,7 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -151,7 +152,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (fbLoginButton != null) {
             fbLoginButton.setReadPermissions(Arrays.asList(
                     "public_profile", "email", "user_birthday", "user_friends"));
-
+            final LoginActivity activity = this;
             fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
@@ -159,10 +160,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(getApplicationContext())).buildUpon()
                             .appendPath("facebooklogin");
 
+
                     String facebookRequestUrl = builder.build().toString();
                     JSONObject obj = new JSONObject();
                     try {
                         obj.put("token", loginResult.getAccessToken().getToken());
+                        LoginManager.getInstance().logOut();
 
                         Utils.fetchJsonFromUrl(getApplicationContext(), Request.Method.POST, facebookRequestUrl, obj, new Response.Listener<JSONObject>() {
                             @Override
@@ -170,6 +173,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 if (response != null) {
                                     Log.d(LOG_TAG+"-FacebookLogin", "FacebookLogin POST Response: "
                                             + response.toString());
+                                    LoginResponse loginResponse = LoginResponse.parseJSON(response.toString());
+                                    logInOnApp(loginResponse, activity);
                                 }
                             }
                         }, LOG_TAG+"-FacebookLogin");
@@ -343,9 +348,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 return;
                             }
                             guardarDatosDeLogin(email, password);
-                            guardarConnectedUserData(loginResponse);
-                            Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
-                            finish();
+                            logInOnApp(loginResponse, activity);
 
                         }
                     }, new Response.ErrorListener() {
@@ -393,6 +396,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         }
                     }, LOG_TAG);
         }
+    }
+
+    private void logInOnApp(LoginResponse loginResponse, Activity activity) {
+        guardarConnectedUserData(loginResponse);
+        Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
+        finish();
     }
 
     private void attemptRegister() {
