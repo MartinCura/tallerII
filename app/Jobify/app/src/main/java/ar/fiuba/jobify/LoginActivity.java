@@ -156,6 +156,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 @Override
                 public void onSuccess(LoginResult loginResult) {
                     Log.d(LOG_TAG, "Facebook token:" + loginResult.getAccessToken().getToken());
+                    Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(getApplicationContext())).buildUpon()
+                            .appendPath("facebooklogin");
+
+                    String facebookRequestUrl = builder.build().toString();
+                    JSONObject obj = new JSONObject();
+                    try {
+                        obj.put("token", loginResult.getAccessToken().getToken());
+
+                        Utils.fetchJsonFromUrl(getApplicationContext(), Request.Method.POST, facebookRequestUrl, obj, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                if (response != null) {
+                                    Log.d(LOG_TAG+"-FacebookLogin", "FacebookLogin POST Response: "
+                                            + response.toString());
+                                }
+                            }
+                        }, LOG_TAG+"-FacebookLogin");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
