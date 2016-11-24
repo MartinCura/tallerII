@@ -40,6 +40,16 @@ string SessionManager::login(std::string user_mail, std::string user_password) {
 
 }
 
+string SessionManager::facebookLogin(std::string user_mail) {
+    std::string user_bdd;
+    if (!db->existsKey(USER_PASSWORD + user_mail, &user_bdd)) {
+        throw UserNotFoundException(user_mail);
+    }
+    std::string new_token = this->getNewToken();
+    this->saveToken(new_token, user_mail);
+    return new_token;
+}
+
 SessionManager::~SessionManager() {}
 
 ///Pre: Se pre-supone que el user_mail pasado por parámetro corresponde al de un usuario valido.

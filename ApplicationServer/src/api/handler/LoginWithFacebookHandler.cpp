@@ -35,7 +35,7 @@ Response* LoginWithFacebookHandler::handlePostRequest(http_message* httpMessage)
             person = personManager->getPersonByMail(&email);
             personId = person->getId();
         }
-        string user_token = sessionManager->login(person->getEmail(), "");
+        string user_token = sessionManager->facebookLogin(person->getEmail());
         Json::Value responseAsJson;
         responseAsJson[LoginHandler::TOKEN_KEY] = user_token;
         responseAsJson[LoginHandler::USER_ID_KEY] = personId;

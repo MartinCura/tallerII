@@ -40,6 +40,7 @@ public:
      * Se supone que el token corresponde a un token válido.
      */
     long getUserId(std::string token);
+    std::string facebookLogin(std::string user_mail);
 
 private:
     DBWrapper* db;
