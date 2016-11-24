@@ -59,15 +59,11 @@ public class Message {
     }
 
     public String getFecha() {
-        // TODO
         return timestamp.substring(0, 10);
-//        return timestamp;
     }
 
     public String getHora() {
-        // TODO
-        return timestamp.substring(11);//
-//        return timestamp;
+        return timestamp.substring(11);
     }
 
     public String getHoraSinSegundos() {

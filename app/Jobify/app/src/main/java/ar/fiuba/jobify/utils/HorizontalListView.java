@@ -25,7 +25,7 @@
  *
  */
 
-package ar.fiuba.jobify;
+package ar.fiuba.jobify.utils;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -119,7 +119,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
     @Override
     public View getSelectedView() {
-        //TODO: implement
+        // to implement
         return null;
     }
 
@@ -141,7 +141,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
     @Override
     public void setSelection(int position) {
-        //TODO: implement
+        // to implement
     }
 
     private void addAndMeasureChild(final View child, int viewPos) {

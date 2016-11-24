@@ -1,4 +1,4 @@
-package ar.fiuba.jobify;
+package ar.fiuba.jobify.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
@@ -48,6 +49,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import ar.fiuba.jobify.ConversacionActivity;
+import ar.fiuba.jobify.PerfilActivity;
+import ar.fiuba.jobify.R;
 
 
 /**
@@ -270,14 +275,10 @@ public class Utils {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-//                        headers.put("Accept", "application/json");
-//                        headers.put("Content-Type", "application/json");//; charset=utf-8");
-//                        headers.put("accept-encoding", "gzip, deflate");
-//                        headers.put("accept-language", "en-US,en;q=0.8");
-//                        headers.put("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/" +
-//                                "537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36");
-                        headers.put("Connection", "close");//Te amo, header que soluciona cosas ~ mc
-                        headers.put("Authorization", getToken(context));
+                        headers.put("Connection", "close"); //Te amo, header que soluciona cosas ~ mc
+                        String token = getToken(context);
+                        if (token != null)
+                            headers.put("Authorization", token);
                         return headers;
                     }
 
@@ -291,18 +292,20 @@ public class Utils {
     }
 
 
-    public static void cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
-                                                    final String  url, final String logTag) {
-        cargarImagenDeURLenImageView(ctx, imageView, url, logTag, false);
+    public static boolean cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
+                                                       final String  url, final String logTag) {
+        return cargarImagenDeURLenImageView(ctx, imageView, url, logTag, false);
     }
 
-    public static void cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
+    // Devuelve false si no se encontró el ImageView
+    // Asumo que si se le carga una imagen se la quiere ver, por lo que cambia visibilidad!
+    public static boolean cargarImagenDeURLenImageView(final Context ctx, final ImageView imageView,
                                   final String url, final String logTag, final boolean squareCrop) {
-
         if (imageView == null) {
-            //Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
-            return;
+            Log.e(logTag, "No pude encontrar el ImageView, no cargo imagen. ("+url+")");
+            return false;
         }
+
         ImageRequest request = new ImageRequest(url,
                 new Response.Listener<Bitmap>() {
                     @Override
@@ -311,40 +314,51 @@ public class Utils {
                             imageView.setImageBitmap(cropToSquare(bitmap));
                         else
                             imageView.setImageBitmap(bitmap);
-
+                        imageView.setVisibility(View.VISIBLE);
                     }
-
-//                }, imageView.getWidth(), imageView.getHeight(),
-                }, 1080, 960,//hardcodeo;//
+                }, imageView.getWidth(), imageView.getHeight(),
                 ImageView.ScaleType.CENTER_INSIDE, null,
+
                 new Response.ErrorListener() {
+                    @SuppressWarnings("deprecation")
                     public void onErrorResponse(VolleyError error) {
                         if (error.networkResponse == null) {
                             Log.e(logTag, "Error de response, no pude cargar la imagen." +
                                     "(url: "+url+")");
                             return;
                         }
-                        //error.printStackTrace();//
                         if (error.networkResponse.statusCode == 200) {
 //                            Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
+                            return;
                         } else if (error.networkResponse.statusCode == 403) {
                             Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
+                        } else if (error.networkResponse.statusCode == 404) {
+                            Log.d(logTag, "Imagen no existe");
                         } else {
                             Log.e(logTag, "Error cargando imagen, response code: "
-                                    +error.networkResponse.statusCode);
+                                    + error.networkResponse.statusCode);
+                        }
+                        @DrawableRes int drawableId = R.drawable.ic_person;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            imageView.setImageDrawable(ctx.getDrawable(drawableId));
+                        } else {
+                            imageView.setImageDrawable(ctx.getResources().getDrawable(drawableId));
                         }
                     }
                 }) {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put("Authorization", getToken(ctx));
+                        String token = getToken(ctx);
+                        if (token != null)
+                            headers.put("Authorization", token);
                         return headers;
                     }
         };
         RequestQueueSingleton.getInstance(ctx)
                 .addToRequestQueue(request);
+        return true;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -374,8 +388,8 @@ public class Utils {
     // Devuelve string vacío en caso de error
     public static String getTextViewText(AppCompatActivity activity, @IdRes int idRes) {
         String text = "";
-        EditText et = (EditText) activity.findViewById(idRes);
-//        TextView et = (TextView) activity.findViewById(idRes);
+//        EditText et = (EditText) activity.findViewById(idRes);
+        TextView et = (TextView) activity.findViewById(idRes);
         if (et != null) {
             text = et.getText().toString();
         }
@@ -416,16 +430,16 @@ public class Utils {
         }
     }
 
-    public static void hideView(AppCompatActivity activity, @IdRes int idRes) {
-        View v = activity.findViewById(idRes);
-        if (v != null)
-            v.setVisibility(View.GONE);
-    }
-
     public static void showView(AppCompatActivity activity, @IdRes int idRes) {
         View v = activity.findViewById(idRes);
         if (v != null)
             v.setVisibility(View.VISIBLE);
+    }
+
+    public static void hideView(AppCompatActivity activity, @IdRes int idRes) {
+        View v = activity.findViewById(idRes);
+        if (v != null)
+            v.setVisibility(View.GONE);
     }
 
     public static void editTextSetErrorAndFocus(AppCompatActivity activity, @IdRes int resId, String errorMessage) {
@@ -458,7 +472,8 @@ public class Utils {
 
 
     public static Bitmap normalizarBitmap(Bitmap bitmap) {
-        int newWidth = bitmap.getWidth() > 1000 ? 1000 : bitmap.getWidth(); // HARDCODEO
+        int MAX = 1000; // Máximo en cualquier dimensión
+        int newWidth = bitmap.getWidth() > MAX ? MAX : bitmap.getWidth();
         int newHeight = (int) Math.round((1.0 * bitmap.getHeight() / bitmap.getWidth()) * newWidth);
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
     }
@@ -493,7 +508,9 @@ public class Utils {
                 headers = new HashMap<>();
             }
             headers.put("Accept", "application/json");
-            headers.put("Authorization", getToken(ctx));
+            String token = getToken(ctx);
+            if (token != null)
+                headers.put("Authorization", token);
             return headers;
         }
 
@@ -581,10 +598,9 @@ public class Utils {
         return json;
     }
 
-    private static String getToken(Context ctx) {
-        SharedPreferences sharedPref =
-                ctx.getSharedPreferences(ctx.getString(R.string.shared_pref_connected_user), 0);
-        return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), "null");
+    public static String getToken(Context ctx) {
+        SharedPreferences sharedPref = ctx.getSharedPreferences(ctx.getString(R.string.shared_pref_connected_user), 0);
+        return sharedPref.getString(ctx.getString(R.string.stored_connected_user_token), null);
     }
 
     public static Bitmap cropToSquare(Bitmap bitmap) {
@@ -612,18 +628,20 @@ public class Utils {
 
     public static void confirmarAccion(Context context, String title, String message,
                                        DialogInterface.OnClickListener yesListener) {
-        confirmarAccion(context, title, message, yesListener, null, android.R.string.no);
+        confirmarAccion(context, title, message, yesListener, null,
+                        android.R.string.yes, android.R.string.no);
     }
 
     public static void confirmarAccion(Context context, String title, String message,
                                        DialogInterface.OnClickListener yesListener,
                                        DialogInterface.OnClickListener noListener,
+                                       int positiveButtonStringId,
                                        int negativeButtonStringId) {
         new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(message)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes, yesListener)
+                .setPositiveButton(positiveButtonStringId, yesListener)
                 .setNegativeButton(negativeButtonStringId, noListener)
                 .show();
     }

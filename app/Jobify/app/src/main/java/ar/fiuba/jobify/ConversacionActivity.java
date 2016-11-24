@@ -1,7 +1,11 @@
 package ar.fiuba.jobify;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -25,6 +29,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -35,16 +42,19 @@ import java.util.List;
 import ar.fiuba.jobify.app_server_api.Message;
 import ar.fiuba.jobify.app_server_api.MessagesResponse;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.utils.RequestQueueSingleton;
+import ar.fiuba.jobify.utils.Utils;
 
 public class ConversacionActivity extends NavDrawerActivity {
 
-    private final String LOG_TAG = ConversacionActivity.class.getSimpleName();
+    private final static String LOG_TAG = ConversacionActivity.class.getSimpleName();
 
     public final static String CORRESPONSAL_ID_MESSAGE = "ar.fiuba.jobify.CORRESPONSAL_ID_MESSAGE";
 
     private final int CANT_MENSAJES_POR_PAGE = 10;
 
-    private long corresponsalID = 0;
+    // ID de aquel con quien es la conversación
+    public static long corresponsalID = 0;
     private String nombreCorresponsal;
 
     // Variable setteada con el totalCount del Metadata para saber cuándo se acabaron los mensajes;
@@ -58,9 +68,21 @@ public class ConversacionActivity extends NavDrawerActivity {
     private MessageArrayAdapter mMessageArrayAdapter;
     private EndlessScrollListener mEndlessScrollListener;
 
+    public static boolean activityVisible = false;
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+
+        // Toast.makeText(this, "llegó!", Toast.LENGTH_LONG).show();
+        if (!recibirMensajesNuevos(event.mensaje) || !activityVisible){
+            Log.d("log", "show notification");
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EventBus.getDefault().register(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversacion_drawer);
 
@@ -92,19 +114,18 @@ public class ConversacionActivity extends NavDrawerActivity {
 
         mListView = (ListView) findViewById(R.id.conversacion_list);
         if (mListView != null) {
+
             mMessageArrayAdapter = new MessageArrayAdapter(this, new ArrayList<Message>());
             mEndlessScrollListener = new EndlessScrollListener();
             mListView.setAdapter(mMessageArrayAdapter);
             mListView.setOnScrollListener(mEndlessScrollListener);
             mListView.setDivider(null);
-            mListView.setDividerHeight(18);//hardcode
+            mListView.setDividerHeight(18); //hardcode
 
         } else {
             Log.e(LOG_TAG, "No se encontró la listview de mensajes! :~| Salgo ofendido.");
             finish();
         }
-
-        // TODO: Poner un loading() ?
     }
 
     @Override
@@ -114,7 +135,14 @@ public class ConversacionActivity extends NavDrawerActivity {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        activityVisible = false;
+    }
+
+    @Override
     public void onResume() {
+        activityVisible = true;
         super.onResume();
 
         if (corresponsalID > 0) {
@@ -123,9 +151,16 @@ public class ConversacionActivity extends NavDrawerActivity {
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        activityVisible = false;
+    }
+
     public void onStop() {
+        activityVisible = false;
         super.onStop();
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
+        if (RequestQueueSingleton.hasRequestQueue()) {
             RequestQueue mRequestQueue = RequestQueueSingleton
                     .getInstance(this.getApplicationContext())
                     .getRequestQueue();
@@ -137,22 +172,23 @@ public class ConversacionActivity extends NavDrawerActivity {
     /**
      * Punto de entrada para notificar por nuevos mensajes
      */
-    public void recibirMensajesNuevos(JSONObject jsonMensaje) {
+    public boolean recibirMensajesNuevos(JSONObject jsonMensaje) {
         Message nuevoMensaje = Message.parseJson(jsonMensaje.toString());
         if (nuevoMensaje == null) {
             Log.e(LOG_TAG, "Json error con nuevoMensaje");
-            return;
+            return false;
         }
 
         long from = nuevoMensaje.getFrom();
         long to   = nuevoMensaje.getTo();
         if  (!((from == connectedUserID && to == corresponsalID)
            || (from == corresponsalID || to == connectedUserID))) {
-            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación");
-            return;
+            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación " + "el usuario actual es: " + corresponsalID);
+            return false;
         }
 
         mMessageArrayAdapter.agregarNuevoMensaje(nuevoMensaje);
+        return true;
     }
 
 
@@ -165,7 +201,7 @@ public class ConversacionActivity extends NavDrawerActivity {
                         public void onResponse(JSONObject response) {
                             User mUser = User.parseJSON(response.toString());
                             if (mUser != null) {
-                                //corresponsalUser = mUser;// TODO: Guardo ese user para algo?
+                                //corresponsalUser = mUser; // Alguna razón para guardar el user?
                                 nombreCorresponsal = mUser.getFullName();
                                 tv_nombre.setText(nombreCorresponsal);
                             } else {
@@ -187,14 +223,17 @@ public class ConversacionActivity extends NavDrawerActivity {
         Utils.iniciarPerfilActivity(this, corresponsalID, false);
     }
 
+
     private void cargarUltimosMensajes() {
+        // Mostrar que está en progreso
+        showProgress(true);
 
         final Context ctx = this;
         HashMap<String, String> map = new HashMap<>();
         map.put(getString(R.string.get_messages_user_query), Long.toString(corresponsalID));
         map.put(getString(R.string.get_messages_first_query), "1");   // Carga desde el último mensaje
         map.put(getString(R.string.get_messages_last_query), Integer.toString(CANT_MENSAJES_POR_PAGE));
-        String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path), connectedUserID, map);
+        final String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path), connectedUserID, map);
 
         Utils.fetchJsonFromUrl(this, Request.Method.GET, urlMensajes, null,
                 new Response.Listener<JSONObject>() {
@@ -213,9 +252,28 @@ public class ConversacionActivity extends NavDrawerActivity {
                             mListView.setAdapter(mMessageArrayAdapter);
                             mOffset = 0;
 
+                            // Mostrar la conversación ya cargada
+                            showProgress(false);
+
                         } else {
                             Log.e(LOG_TAG, "Error de parseo de MessagesResponse");
                         }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        showProgress(false);
+
+                        Log.d(LOG_TAG, "Error Listener. URL: " + urlMensajes);
+                        if (error.networkResponse != null) {
+                            if (error.networkResponse.statusCode == 403)
+                                Log.d(LOG_TAG, error.networkResponse.statusCode + " FORBIDDEN");
+                            else
+                                Log.d(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
+                        }
+                        error.printStackTrace();
+                        Toast.makeText(ctx, "Error al intentar cargar mensajes", Toast.LENGTH_LONG)
+                                .show();
                     }
                 }, LOG_TAG);
     }
@@ -289,7 +347,7 @@ public class ConversacionActivity extends NavDrawerActivity {
             return;
         }
 
-        final Context context = this;//
+        final Context context = this;
 
         final String mensajeAEnviar = et_entrada.getText().toString();
         if (!mensajeAEnviar.isEmpty()) {
@@ -308,8 +366,6 @@ public class ConversacionActivity extends NavDrawerActivity {
                                 recibirMensajesNuevos(jsObjMessage);
                                 return;
                             }
-                            Log.i(LOG_TAG, "Mensaje enviado: " + mensajeEnviado.getMessage());//
-
                             // Agrego el mensaje enviado a los mostrados en la conversación
                             recibirMensajesNuevos(response);
 
@@ -318,8 +374,8 @@ public class ConversacionActivity extends NavDrawerActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Toast.makeText(context, "¡Mensaje no enviado!", Toast.LENGTH_LONG)
-                                    .show();//
-                            Log.e(LOG_TAG, "Mensaje NO enviado: " + mensajeAEnviar);//
+                                    .show();
+                            Log.e(LOG_TAG, "Mensaje NO enviado: " + mensajeAEnviar);
                             if (error.networkResponse != null)
                                 Log.e(LOG_TAG, "Status code de mensaje no enviado: "
                                         + error.networkResponse.statusCode);
@@ -327,7 +383,7 @@ public class ConversacionActivity extends NavDrawerActivity {
                         }
                     }, LOG_TAG);
         }
-        // Vacío el input.
+        // Vacío el input
         et_entrada.setText(null);
     }
 
@@ -408,7 +464,7 @@ public class ConversacionActivity extends NavDrawerActivity {
 //                            holderOut.messageStatus.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_single_tick));
 //                        }
                         holderOut.tv_message.setText(message.getMessage());
-                        holderOut.tv_time.setText(message.getHoraSinSegundos());//.getTwoLiner());
+                        holderOut.tv_time.setText(message.getHoraSinSegundos());
                         break;
 
                     default:
@@ -431,9 +487,8 @@ public class ConversacionActivity extends NavDrawerActivity {
                         }
 
                         holderIn.tv_author.setText(nombreCorresponsal);
-//                        holderIn.tv_author.setText(message.getFrom()); TODO
                         holderIn.tv_message.setText(message.getMessage());
-                        holderIn.tv_time.setText(message.getHoraSinSegundos());//.getTwoLiner());
+                        holderIn.tv_time.setText(message.getHoraSinSegundos());
                 }
             }
             return convertView;
@@ -522,6 +577,46 @@ public class ConversacionActivity extends NavDrawerActivity {
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
+    }
+
+    /**
+     * Shows the progress UI and hides the conversation.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showProgress(final boolean show) {
+        final ListView listView = (ListView) findViewById(R.id.conversacion_list);
+        final View progressView = findViewById(R.id.conversacion_progress);
+        if (listView == null || progressView == null) {
+            Log.e(LOG_TAG, "No pude encontrar la lista de conversación o el progress loader.");
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            listView.setVisibility(show ? View.GONE : View.VISIBLE);
+            listView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    listView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            listView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 }

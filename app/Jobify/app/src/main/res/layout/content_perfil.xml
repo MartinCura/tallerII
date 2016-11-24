@@ -34,7 +34,7 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="@dimen/spacing_medium"
+                app:cardElevation="@dimen/card_elevation_normal"
                 app:cardUseCompatPadding="true">
 
                 <GridLayout
@@ -43,7 +43,7 @@
                     android:padding="6dp">
 
                     <android.support.design.widget.TextInputLayout>
-                        <EditText
+                        <android.support.design.widget.TextInputEditText
                             android:id="@+id/text_perfil_nombre_editable"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
 
                     <android.support.design.widget.TextInputLayout
                         android:layout_marginLeft="20dp">
-                        <EditText
+                        <android.support.design.widget.TextInputEditText
                             android:id="@+id/text_perfil_apellido_editable"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="@dimen/spacing_medium"
+                app:cardElevation="@dimen/card_elevation_normal"
                 app:cardUseCompatPadding="true">
                 <!--android:layout_marginTop="24dp"-->
 
@@ -126,7 +126,7 @@
                             android:layout_marginBottom="5dp"
                             android:layout_alignParentLeft="true"
                             android:visibility="gone">
-                            <EditText
+                            <android.support.design.widget.TextInputEditText
                                 android:id="@+id/text_perfil_ciudad_editable"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="@dimen/spacing_medium"
+                app:cardElevation="@dimen/card_elevation_normal"
                 app:cardUseCompatPadding="true">
 
                 <LinearLayout
@@ -181,7 +181,7 @@
                         android:paddingTop="10dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
-                        <EditText
+                        <android.support.design.widget.TextInputEditText
                             android:id="@+id/text_perfil_resumen_editable"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -276,7 +276,7 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="@dimen/spacing_medium"
+                app:cardElevation="@dimen/card_elevation_normal"
                 app:cardUseCompatPadding="true">
 
                 <LinearLayout
@@ -309,12 +309,13 @@
                             android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
                     </GridLayout>
 
-                    <ar.fiuba.jobify.HorizontalListView
+                    <ar.fiuba.jobify.utils.HorizontalListView
                         android:id="@+id/perfil_contactos_list"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/contact_card_height">
+                        android:layout_height="wrap_content"
+                        android:minHeight="244dp">
                         <!-- Here go them contact cards -->
-                    </ar.fiuba.jobify.HorizontalListView>
+                    </ar.fiuba.jobify.utils.HorizontalListView>
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -327,7 +328,7 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="@dimen/spacing_medium"
+                app:cardElevation="@dimen/card_elevation_normal"
                 app:cardUseCompatPadding="true">
 
                 <LinearLayout
@@ -373,6 +374,7 @@
                             android:id="@+id/perfil_employment_new_title"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
                             style="@style/Base.TextAppearance.AppCompat.Medium"
                             android:textStyle="italic|bold"
                             android:text="@string/perfil_agregar_item_titulo" />
@@ -380,40 +382,46 @@
                             android:id="@+id/boton_perfil_experiencia_laboral_agregar_item"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
-                            android:layout_below="@id/perfil_employment_new_title"
                             android:layout_marginLeft="@dimen/text_margin"
+                            android:layout_below="@id/perfil_employment_new_title"
                             android:layout_alignParentRight="true"
                             android:contentDescription="@string/add_item_description"
-                            android:layout_gravity="end"
+                            android:layout_gravity="top|end"
                             android:src="@drawable/ic_add"
                             android:background="#0000" />
+                        <Spinner
+                            android:id="@+id/perfil_employment_new_position_spinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/perfil_employment_new_title"
+                            android:layout_toLeftOf="@id/boton_perfil_experiencia_laboral_agregar_item" />
+                        <!--<AutoCompleteTextView-->
+                        <!--android:id="@+id/text_perfil_employment_new_position"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_below="@id/text_perfil_employment_new_company"-->
+                        <!--android:hint="@string/perfil_employment_new_position_hint"-->
+                        <!--android:inputType="textCapWords" />-->
                         <EditText
                             android:id="@+id/text_perfil_employment_new_company"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/perfil_employment_new_title"
+                            android:layout_below="@id/perfil_employment_new_position_spinner"
                             android:layout_toLeftOf="@id/boton_perfil_experiencia_laboral_agregar_item"
                             android:hint="@string/perfil_employment_new_company_hint"
                             android:inputType="textCapSentences" />
-                        <AutoCompleteTextView
-                            android:id="@+id/text_perfil_employment_new_position"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/text_perfil_employment_new_company"
-                            android:hint="@string/perfil_employment_new_position_hint"
-                            android:inputType="textCapWords" />
                         <!--desde-->
                         <LinearLayout
                             android:id="@+id/perfil_employment_new_desde"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/text_perfil_employment_new_position"
+                            android:layout_below="@id/text_perfil_employment_new_company"
                             android:orientation="horizontal">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="6dp"
-                                android:layout_marginRight="5dp"
+                                android:layout_marginRight="4dp"
                                 android:text="@string/desde" />
                             <EditText
                                 android:id="@+id/perfil_employment_desde_mes"
@@ -448,7 +456,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/hasta"
                                 android:layout_marginLeft="6dp"
-                                android:layout_marginRight="7dp" />
+                                android:layout_marginRight="5dp" />
                             <EditText
                                 android:id="@+id/perfil_employment_hasta_mes"
                                 android:layout_width="wrap_content"
@@ -484,7 +492,7 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="@dimen/spacing_medium"
+                app:cardElevation="@dimen/card_elevation_normal"
                 app:cardUseCompatPadding="true">
 
                 <LinearLayout
@@ -526,23 +534,38 @@
                         android:layout_margin="@dimen/text_margin"
                         android:orientation="horizontal"
                         android:visibility="gone">
+                        <TextView
+                            android:id="@+id/perfil_skills_new_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
+                            style="@style/Base.TextAppearance.AppCompat.Medium"
+                            android:textStyle="italic|bold"
+                            android:text="@string/perfil_agregar_item_titulo" />
                         <ImageButton
                             android:id="@+id/boton_perfil_skill_agregar_item"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/text_margin"
-                            android:contentDescription="@string/add_item_description"
                             android:layout_alignParentRight="true"
+                            android:layout_below="@id/perfil_skills_new_title"
                             android:layout_gravity="end"
                             android:src="@drawable/ic_add"
+                            android:contentDescription="@string/add_item_description"
                             android:background="#0000" />
-                        <AutoCompleteTextView
-                            android:id="@+id/text_perfil_skill_new"
+                        <Spinner
+                            android:id="@+id/perfil_skills_new_spinner"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/perfil_skill_new_hint"
-                            android:layout_toLeftOf="@id/boton_perfil_skill_agregar_item"
-                            android:inputType="text" />
+                            android:layout_below="@id/perfil_skills_new_title"
+                            android:layout_toLeftOf="@id/boton_perfil_skill_agregar_item" />
+                        <!--<AutoCompleteTextView-->
+                            <!--android:id="@+id/text_perfil_skill_new"-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:layout_toLeftOf="@id/boton_perfil_skill_agregar_item"-->
+                            <!--android:hint="@string/perfil_skill_new_hint"-->
+                            <!--android:inputType="text" />-->
                     </RelativeLayout>
 
                 </LinearLayout>

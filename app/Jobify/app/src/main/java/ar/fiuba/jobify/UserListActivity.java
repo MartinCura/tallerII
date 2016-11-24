@@ -3,13 +3,13 @@ package ar.fiuba.jobify;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,21 +43,26 @@ import ar.fiuba.jobify.app_server_api.BusquedaRequest;
 import ar.fiuba.jobify.app_server_api.BusquedaResponse;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
+import ar.fiuba.jobify.app_server_api.ConversationsResponse;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.utils.RequestQueueSingleton;
+import ar.fiuba.jobify.utils.Utils;
 
 public class UserListActivity extends NavDrawerActivity {
 
     private final String LOG_TAG = UserListActivity.class.getSimpleName();
 
     private final static String package_name = "ar.fiuba.jobify.USER_LIST";
-    public final static String LIST_MODE = package_name+"_MODE";
-//    public final static String _PARAMETER = package_name+_TODO;
+    public final static String LIST_MODE_MESSAGE = package_name+"_MODE_MESSAGE";
+//    public final static String _PARAMETER = package_name+_X;
 
     public final static int MODE_NONE = 0;
     public final static int MODE_SOLICITUDES = 1;
     public final static int MODE_MOST_POPULAR = 2;
     public final static int MODE_BUSQUEDA = 3;
-//    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_MOST_POPULAR, MODE_BUSQUEDA };
+    public final static int MODE_CONVERSACIONES = 4;
+//    public final static int[] ModeOptions = { MODE_NONE, MODE_SOLICITUDES, MODE_MOST_POPULAR,
+//                                              MODE_BUSQUEDA, MODE_CONVERSACIONES };
 
     public final static String BUSQUEDA_REQUEST_MESSAGE = package_name+"_BUSQUEDA_REQUEST_MESSAGE";
 
@@ -82,52 +87,74 @@ public class UserListActivity extends NavDrawerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list_drawer);
 
-        /** Mostrar loading */
-
         ActionBar sab = getSupportActionBar();
         if (sab != null) sab.setDisplayHomeAsUpEnabled(true);
 
-
         ListView listView = (ListView) findViewById(R.id.user_list);
         if (listView == null) {
-            Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!!!!!");
+            Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!");
             return;
         }
         mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
         listView.setAdapter(mUserArrayAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Al cliquear un usuario, abrir su perfil
-                User clickedUser = mUserArrayAdapter.getItem(position);
-                startActivity(
-                        new Intent(UserListActivity.this, PerfilActivity.class)
-                                .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
-                );
-            }
-        });
-
         // Obtengo el modo
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(LIST_MODE)) {
-            mode = intent.getIntExtra(LIST_MODE, mode);
+        if (intent != null && intent.hasExtra(LIST_MODE_MESSAGE)) {
+            mode = intent.getIntExtra(LIST_MODE_MESSAGE, mode);
+        }
+
+        if (mode == MODE_CONVERSACIONES) {
+            final Activity act = this;
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // Al cliquear una conversación con alguien, ir al chat con esa persona
+                    User clickedUser = mUserArrayAdapter.getItem(position);
+                    Utils.iniciarConversacionActivity(act, clickedUser.getId());
+                }
+            });
+        } else {
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // Al cliquear un usuario, abrir su perfil
+                    User clickedUser = mUserArrayAdapter.getItem(position);
+                    startActivity(
+                            new Intent(UserListActivity.this, PerfilActivity.class)
+                                    .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
+                    );
+                }
+            });
         }
 
         switch (mode) {
             case MODE_SOLICITUDES:
+                if (sab != null)
+                    sab.setTitle("Solicitudes pendientes");
                 showProgress(true);
                 listarSolicitudesReceived();
                 break;
             case MODE_MOST_POPULAR:
+                if (sab != null)
+                    sab.setTitle("Profesionales más populares");
                 showProgress(true);
+                listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
 //                listarMasPopulares();
                 listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
                 break;
             case MODE_BUSQUEDA:
+                if (sab != null)
+                    sab.setTitle("Resultados");
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
                 generarBusqueda();
+                break;
+            case MODE_CONVERSACIONES:
+                if (sab != null)
+                    sab.setTitle("Conversaciones");
+                showProgress(true);
+                listarConversaciones();
                 break;
             case MODE_NONE:
             default:
@@ -142,7 +169,7 @@ public class UserListActivity extends NavDrawerActivity {
 
     public void onStop() {
         super.onStop();
-        if (RequestQueueSingleton.hasRequestQueue()) {  // TODO: Llamar a esto acá? Revisar.
+        if (RequestQueueSingleton.hasRequestQueue()) {
             RequestQueue mRequestQueue = RequestQueueSingleton
                     .getInstance(this.getApplicationContext())
                     .getRequestQueue();
@@ -152,13 +179,13 @@ public class UserListActivity extends NavDrawerActivity {
 
 
     private void listarSolicitudesReceived() {
-        Toast.makeText(this, "Listo las solicitudes pendientes", Toast.LENGTH_LONG)
+        Toast.makeText(this, "Se listan las solicitudes pendientes", Toast.LENGTH_LONG)
                 .show();
 
         final Context ctx = this;
-        String url = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
+        String urlContactos = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
 
-        Utils.fetchJsonFromUrl(this, Request.Method.GET, url, null,
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlContactos, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -184,10 +211,8 @@ public class UserListActivity extends NavDrawerActivity {
                             mostrarNoHayResultados();
 
                         } else {
-                            // TODO: Crear Users reducidos a partir de los Contacts y listarlos directamente
                             for (Contact c : contactsReceived) {
                                 agregarResultado(new User(c));
-//                                fetchAndAddUser(c.getId());
                             }
                         }
                     }
@@ -206,7 +231,6 @@ public class UserListActivity extends NavDrawerActivity {
 
     /// de prueba //;//
     private void listarTodosLosUsuarios() {
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
         if (toolbar != null)
             toolbar.setTitle("Todos los usuarios");
@@ -217,7 +241,6 @@ public class UserListActivity extends NavDrawerActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
                         AllUsersResponse allUsersResponse =
                                 AllUsersResponse.parseJSON(response.toString());
 
@@ -233,7 +256,6 @@ public class UserListActivity extends NavDrawerActivity {
                         if (mExpectedListSize == 0) {
                             mostrarNoHayResultados();
                         } else {
-                            // TODO: Cambiar si se adapta.
                             for (long id : allUsersResponse.getAllUsers()) {
                                 fetchAndAddUser(id);
                             }
@@ -269,13 +291,56 @@ public class UserListActivity extends NavDrawerActivity {
         cargarPageDeUsuarios(0, false);
     }
 
+    public void listarConversaciones() {
+        final Context ctx = this;
+        String urlConversaciones = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_conversations_path));
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlConversaciones, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        ConversationsResponse convResponse =
+                                ConversationsResponse.parseJSON(response.toString());
+
+                        if (convResponse == null) {
+                            Toast.makeText(ctx, "Ha ocurrido un error", Toast.LENGTH_LONG)
+                                    .show();
+                            Log.e(LOG_TAG, "ConversationsResponse null");
+                            mostrarNoHayResultados();
+                            return;
+                        }
+
+                        mExpectedListSize =
+                                Long.valueOf(convResponse.getMetadata().getTotalCount()).intValue();
+
+                        if (mExpectedListSize == 0) {
+                            mostrarNoHayResultados();
+
+                        } else {
+                            for (User user : convResponse.getConversations()) {
+                                agregarResultado(user);
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse != null)
+                            Log.e(LOG_TAG, "Listar conversaciones error status code: "
+                                    + error.networkResponse.statusCode);
+                        error.printStackTrace();
+                        showProgress(false);
+                    }
+                }, LOG_TAG);
+    }
+
+
 
     private List<User> ordenarPorPopularidad(List<User> lista) {
         Collections.sort(lista, new Comparator<User>() {
             @Override
             public int compare(User u1, User u2) {
-                return Long.valueOf(u1.getCantRecomendaciones())
-                        .compareTo(u2.getCantRecomendaciones());
+                return -(Long.valueOf(u1.getCantRecomendaciones())
+                        .compareTo(u2.getCantRecomendaciones()));
             }
         });
         return lista;
@@ -322,7 +387,7 @@ public class UserListActivity extends NavDrawerActivity {
         }
     }
 
-    // TODO: De prueba, CAMBIAR POR GET REDUCIDO
+    @Deprecated
     private void fetchAndAddUser(long id) {
         Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
                 new Response.Listener<JSONObject>() {
@@ -424,9 +489,6 @@ public class UserListActivity extends NavDrawerActivity {
 
     public void irABusquedaActivity(View v) {
         // Volver a la búsqueda si vengo de una? Ocultar botón si se trata de los contactos propios.
-        Snackbar.make(v, "Empezar nueva búsqueda", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();//
-
         startActivity(new Intent(this, BusquedaActivity.class));
     }
 
@@ -446,12 +508,19 @@ public class UserListActivity extends NavDrawerActivity {
                         .inflate(R.layout.user_list_item, parent, false);
             }
 
+            // El modo conversaciones muestra unreadCount
+            // en vez de trabajo actual y cantidad de recomendaciones
+            boolean usuarioReducido = true;
+            if (mode != MODE_CONVERSACIONES)
+                usuarioReducido = false;
+
             User user = getItem(position);
             if (user != null) {
                 ImageView iv_thumbnail = (ImageView) itemView.findViewById(R.id.list_item_thumbnail);
                 TextView tv_nombre  = (TextView) itemView.findViewById(R.id.list_item_nombre);
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.list_item_trabajo);
                 TextView tv_recom   = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
+                TextView tv_unread  = (TextView) itemView.findViewById(R.id.list_item_unread_messages);
 
                 if (iv_thumbnail != null) {
                     Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
@@ -466,14 +535,30 @@ public class UserListActivity extends NavDrawerActivity {
 
                 if (tv_nombre != null)
                     tv_nombre.setText(user.getFullName());
-                if (tv_trabajo != null)
-                    tv_trabajo.setText(user.getTrabajosActuales()); // TODO: Revisar si cortar a una línea
-                if (tv_recom != null) {
-                    long cantRecom = user.getCantRecomendaciones();
-                    if (cantRecom == 0)
+                // Para listar conversaciones
+                if (usuarioReducido) {
+                    if (tv_trabajo != null)
+                        tv_trabajo.setVisibility(View.GONE);
+                    if (tv_recom != null)
                         tv_recom.setVisibility(View.GONE);
-                    else
-                    tv_recom.setText(String.format(Locale.US, "%d", cantRecom));
+                    if (tv_unread != null) {
+                        long cantUnread = user.getUnreadCount();
+                        if (cantUnread > 0) {
+                            tv_unread.setText(String.format(Locale.US, "%d", cantUnread));
+                            tv_unread.setVisibility(View.VISIBLE);
+                        }
+                    }
+                // Los demás casos
+                } else {
+                    if (tv_trabajo != null)
+                        tv_trabajo.setText(user.getUltimoTrabajoActual());
+                    if (tv_recom != null) {
+                        long cantRecom = user.getCantRecomendaciones();
+                        if (cantRecom == 0)
+                            tv_recom.setVisibility(View.GONE);
+                        else
+                            tv_recom.setText(String.format(Locale.US, "%d", cantRecom));
+                    }
                 }
             }
             return itemView;

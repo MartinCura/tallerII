@@ -1,6 +1,5 @@
 package ar.fiuba.jobify;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -20,6 +19,8 @@ import ar.fiuba.jobify.app_server_api.BusquedaRequest;
 import ar.fiuba.jobify.shared_server_api.JobPosition;
 import ar.fiuba.jobify.shared_server_api.SharedDataSingleton;
 import ar.fiuba.jobify.shared_server_api.Skill;
+import ar.fiuba.jobify.utils.EditableListAdapter;
+import ar.fiuba.jobify.utils.Utils;
 
 public class BusquedaActivity extends NavDrawerActivity {
 
@@ -40,10 +41,14 @@ public class BusquedaActivity extends NavDrawerActivity {
 
         populateSpinners();
 
-        mSkillAdapter = EditableListAdapter.populateEditableList(this,
-                (ListView) findViewById(R.id.skill_list),
-                new ArrayList<Skill>()
-        );
+        ListView skillsListView = (ListView) findViewById(R.id.skill_list);
+        if (skillsListView != null) {
+            mSkillAdapter = EditableListAdapter.populateEditableList(this,
+                    skillsListView,
+                    new ArrayList<Skill>(),
+                    true
+            );
+        }
     }
 
     @Override
@@ -56,14 +61,12 @@ public class BusquedaActivity extends NavDrawerActivity {
     public void onResume() {
         super.onResume();
 
-        populateSpinners(); // TODO: Revisar que no se acumule
+        populateSpinners();
     }
 
 
     private void populateSpinners() {
-
-        final Context ctx = this;//
-
+        final String opcionVaciaStr = "(opcional)";
         try {
             Spinner spinner = (Spinner) findViewById(R.id.job_positions_spinner);
             if (spinner == null) {
@@ -74,6 +77,7 @@ public class BusquedaActivity extends NavDrawerActivity {
             if (jobPositions != null) {
 
                 ArrayList<String> jpArray = new ArrayList<>();
+                jpArray.add(opcionVaciaStr);
                 for (JobPosition jp : jobPositions) {
                     jpArray.add(jp.getNombre());
                 }
@@ -86,12 +90,12 @@ public class BusquedaActivity extends NavDrawerActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                         mSelectedJobPositionString = (String) parent.getItemAtPosition(pos);
+                        if (mSelectedJobPositionString.equals(opcionVaciaStr))
+                            mSelectedJobPositionString = "";
                     }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        Toast.makeText(ctx, "onNothingSelected()", Toast.LENGTH_LONG)
-                                .show();//
                         mSelectedJobPositionString = "";
                     }
                 });
@@ -112,6 +116,7 @@ public class BusquedaActivity extends NavDrawerActivity {
             if (skills != null) {
 
                 ArrayList<String> skArray = new ArrayList<>();
+                skArray.add(opcionVaciaStr);
                 for (Skill sk : skills) {
                     skArray.add(sk.getNombre());
                 }
@@ -124,12 +129,12 @@ public class BusquedaActivity extends NavDrawerActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                         mSelectedSkillString = (String) parent.getItemAtPosition(pos);
+                        if (mSelectedSkillString.equals(opcionVaciaStr))
+                            mSelectedSkillString = "";
                     }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        Toast.makeText(ctx, "onNothingSelected()", Toast.LENGTH_LONG)
-                                .show();//
                         mSelectedSkillString = "";
                     }
                 });
@@ -147,30 +152,27 @@ public class BusquedaActivity extends NavDrawerActivity {
             Log.e(LOG_TAG, "Spinner de skills no encontrado!");
             return;
         }
-        if (mSelectedSkillString.isEmpty()) return;
+        if (mSelectedSkillString.isEmpty())
+            return;
 
         try {
             Skill nuevoSkill = Skill.create(this, mSelectedSkillString);
-            if (nuevoSkill == null) return;// false;
+            if (nuevoSkill == null)
+                return;
 
             if (!mSkillAdapter.add(nuevoSkill, true)) {
                 Toast.makeText(this, "Skill ya listado", Toast.LENGTH_LONG)
                         .show();
-                return;// false;
+                return;
             }
             mSkillAdapter.notifyDataSetChanged();
 
         } catch (IllegalArgumentException ex) {
             Log.e(LOG_TAG, "How...???.....");
-            //return false;
         }
-        //return true;
     }
 
     public void comenzarBusqueda(View v) {
-        Toast.makeText(this, "Buscando...", Toast.LENGTH_LONG)
-                .show();//
-
         int distancia = Utils.getTextViewInt(this, R.id.busqueda_distancia);
         if (distancia < 0) distancia = 0;
 
@@ -179,7 +181,7 @@ public class BusquedaActivity extends NavDrawerActivity {
         Log.d(LOG_TAG, "BusqRequest: "+busquedaReq.toJson());//
         startActivity(
                 new Intent(this, UserListActivity.class)
-                        .putExtra(UserListActivity.LIST_MODE, UserListActivity.MODE_BUSQUEDA)
+                        .putExtra(UserListActivity.LIST_MODE_MESSAGE, UserListActivity.MODE_BUSQUEDA)
                         .putExtra(UserListActivity.BUSQUEDA_REQUEST_MESSAGE, busquedaReq.toJson())
         );
     }

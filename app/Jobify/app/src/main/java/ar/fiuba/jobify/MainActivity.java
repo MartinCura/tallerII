@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+/**
+ * Activity salteada totalmente
+  */
 public class MainActivity extends AppCompatActivity {
 
     @Override

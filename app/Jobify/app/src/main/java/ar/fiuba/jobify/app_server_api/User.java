@@ -6,6 +6,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,14 +15,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import ar.fiuba.jobify.Utils;
+import ar.fiuba.jobify.utils.Utils;
 import ar.fiuba.jobify.shared_server_api.Skill;
 
 /**
  * Created by martín on 08/09/16.
  * Clase que maneja todos los elementos de un usuario del sistema.
  * Para la creación de un nuevo usuario, usar el constructor de e-mail.
- * La única otra forma permitida por el momento de crear uno entero es a partir de un Json
+ * La única otra forma permitida por el momento de crear uno entero es a partir de un Json,
  * de esa forma evitando que se toque el id, elemento decidido únicamente por el servidor.
  */
 public class User {
@@ -29,6 +30,7 @@ public class User {
     public final static int MAX_CHAR_NAMES = 35;
     public final static int MAX_CHAR_SUMMARY = 1000;
 
+    @SerializedName(value="id", alternate={"with"})
     long id;
     String  firstName = "",
             lastName = "",
@@ -39,8 +41,9 @@ public class User {
 
     Locacion location;
 
-    long[] recommendations;
+    @SerializedName(value="cantidadRecomendaciones", alternate={"unread_count"})
     long cantidadRecomendaciones = -1;
+    long[] recommendations;
 
     List<Skill> skills;
     List<Employment> workHistory;
@@ -106,9 +109,9 @@ public class User {
     public List<Employment> getWorkHistory() {
         return workHistory;
     }
-    public long[] getRecomendaciones() {
-        return recommendations;
-    }
+//    public long[] getRecomendaciones() {
+//        return recommendations;
+//    }
 
     public int getDiaNacimiento() {
         try {
@@ -135,6 +138,13 @@ public class User {
         return cantidadRecomendaciones;
     }
 
+    // Para usar por ConversationsResponse
+    public long getUnreadCount() {
+        if (cantidadRecomendaciones < 0)
+            return 0;
+        return cantidadRecomendaciones;
+    }
+
     public boolean fueRecomendadoPor(long pepito) {
         for (long i : recommendations)
             if (i == pepito)
@@ -157,7 +167,7 @@ public class User {
     }
 
     public boolean setCity(String city) {
-        // if?? TODO
+        // if?
         this.city = city;
         return true;
     }
@@ -186,12 +196,12 @@ public class User {
     }
 
     public void setSkills(List<Skill> skills) {
-        // Chequeos?? TODO
+        // Chequeos?
         this.skills = new ArrayList<>(skills);
     }
 
     public void setWorkHistory(List<Employment> workHistory) {
-        // Chequeos?? TODO
+        // Chequeos?
         this.workHistory = new ArrayList<>(workHistory);
     }
 
@@ -211,17 +221,17 @@ public class User {
         return actual;
     }
 
-//    /**
-//     * @return String de una línea con el último trabajo actual listado,
-//     * determinado por {@code Employment.esActual}.
-//     */
-//    public String getUltimoTrabajoActual() {
-//        String trabajos = getTrabajosActuales();
-//        int index = trabajos.lastIndexOf("\n");
-//        if (index < 0)
-//            return trabajos;
-//        return trabajos.substring(index);
-//    }
+    /**
+     * @return String de una línea con el último trabajo actual listado,
+     * determinado por {@code Employment.esActual}.
+     */
+    public String getUltimoTrabajoActual() {
+        String trabajos = getTrabajosActuales();
+        int index = trabajos.lastIndexOf("\n");
+        if (index < 0)
+            return trabajos;
+        return trabajos.substring(index);
+    }
 
     /**
      * @return String del formato {@code Fecha de nacimiento: 01/01/1990}.
@@ -230,7 +240,6 @@ public class User {
         return "Fecha de nacimiento: " + getDateOfBirth();
     }
 
-    // Temporal TODO
     public List<String> getListaJobs() {
         List<String> lista = new ArrayList<>();
         if (getWorkHistory() != null) {
@@ -241,7 +250,6 @@ public class User {
         return lista;
     }
 
-    // Temporal TODO
     public List<String> getListaSkills() {
         List<String> lista = new ArrayList<>();
         if (getSkills() != null) {
@@ -267,7 +275,7 @@ public class User {
             try {
                 // Para user reducido, que tiene un campo "last_job"
                 user.addEmployment(gson.fromJson(
-                        (new JSONObject(response)).getJSONObject("last_job").toString(), //;//hardcodeo
+                        (new JSONObject(response)).getJSONObject("last_job").toString(), // hardcodeo
                         Employment.class)
                 );
             } catch (JSONException ex) {/**/}

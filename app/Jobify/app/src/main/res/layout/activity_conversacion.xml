@@ -25,4 +25,14 @@
 
     <include layout="@layout/content_conversacion" />
 
+    <!-- Loading progress -->
+    <ProgressBar
+        android:id="@+id/conversacion_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
 </android.support.design.widget.CoordinatorLayout>

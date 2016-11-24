@@ -1,4 +1,4 @@
-package ar.fiuba.jobify;
+package ar.fiuba.jobify.utils;
 
 import android.content.Context;
 import android.util.Log;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.fiuba.jobify.R;
 import ar.fiuba.jobify.shared_server_api.Nombrable;
 
 /**
@@ -24,11 +25,20 @@ public class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
 
     private final String LOG_TAG = EditableListAdapter.class.getSimpleName();
 
+    private static final int ALTURA_MAX_SKILLS = 200; // not my best (hardcode)
+    private boolean limitarAltura = false;
+
     private ListView adaptedListView;
 
+
     public EditableListAdapter(Context context, ListView lv, List<T> list) {
+        this(context, lv, list, false);
+    }
+
+    public EditableListAdapter(Context context, ListView lv, List<T> list, boolean limitHeight) {
         super(context, R.layout.list_item_borrable, list);
         this.adaptedListView = lv;
+        this.limitarAltura = limitHeight;
     }
 
     @Override
@@ -92,12 +102,19 @@ public class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
     }
 
 
-    public static <T extends Nombrable> EditableListAdapter<T> populateEditableList(Context context, ListView mListView, List<T> list) {
+    public static <T extends Nombrable> EditableListAdapter<T> populateEditableList(Context context,
+                                                                 ListView mListView, List<T> list) {
+        return populateEditableList(context, mListView, list, false);
+    }
+
+    public static <T extends Nombrable> EditableListAdapter<T> populateEditableList(Context context,
+                                            ListView mListView, List<T> list, boolean limitHeight) {
         if (mListView != null) {
 
-            EditableListAdapter<T> mAdapter = new EditableListAdapter<>(context, mListView, list);
+            EditableListAdapter<T> mAdapter =
+                    new EditableListAdapter<>(context, mListView, list, limitHeight);
             mListView.setAdapter(mAdapter);
-            actualizarAlturaDeListViewHardcode(mListView, mAdapter);
+            actualizarAlturaDeListViewHardcode(mListView, mAdapter, limitHeight);
 
             return mAdapter;
 
@@ -121,22 +138,32 @@ public class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
         mListView.setLayoutParams(params);
     }
 
-    public static void actualizarAlturaDeListViewHardcode(ListView mListView, ArrayAdapter mAdapter) {
+    public void actualizarAlturaDeListViewHardcode(ListView mListView, ArrayAdapter mAdapter) {
+        actualizarAlturaDeListViewHardcode(mListView, mAdapter, this.limitarAltura);
+    }
+
+    public static void actualizarAlturaDeListViewHardcode(ListView mListView, ArrayAdapter mAdapter,
+                                                          boolean limitarAltura) {
         //        int totalHeight = 0;
-        int lastHeight = 0;
+//        int lastHeight = 0;
         for (int i = 0; i < mAdapter.getCount(); i++) {
             View listItem = mAdapter.getView(i, null, mListView);
             listItem.measure(0, 0);
             // tramposo
-            lastHeight = listItem.getMeasuredHeight();
-            Log.d("shuddup", lastHeight+" (lastHeight");
+//            lastHeight = listItem.getMeasuredHeight();
+//            Log.d("shuddup", lastHeight+" (lastHeight");
 //            totalHeight += listItem.getMeasuredHeight();
         }
-        int totalHeight = 150 * mAdapter.getCount();//hardcodeo
-        Log.d("shudduuup", "lastHeight="+lastHeight+", total="+totalHeight);
+        int totalHeight = 150 * mAdapter.getCount(); //hardcodeo
+//        Log.d("shudduuup", "lastHeight="+lastHeight+", total="+totalHeight);
+
         ViewGroup.LayoutParams params = mListView.getLayoutParams();
         params.height = totalHeight +
                 (mListView.getDividerHeight() * (mAdapter.getCount() - 1));
+
+        if ((limitarAltura) && params.height > ALTURA_MAX_SKILLS) {
+            params.height = ALTURA_MAX_SKILLS;
+        }
         mListView.setLayoutParams(params);
     }
 

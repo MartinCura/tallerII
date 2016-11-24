@@ -7,6 +7,9 @@
     <!-- Menúes -->
     <string name="action_settings">Settings</string>
 
+
+    <string name="facebook_app_id">1220675784659960</string>
+
     <!-- Perfil -->
     <string name="title_activity_perfil">Cargando perfil…</string>
 
@@ -33,7 +36,6 @@
     <string name="get_photo_path">profilepicture</string>
     <string name="post_photo_path">profilepicture</string>
     <string name="get_thumbnail_path">profilepicture</string>
-    <!-- TODO get thumbnail y post photo paths -->
 
 
     <!-- Strings related to Settings -->
@@ -81,7 +83,7 @@
 
 
     <!-- Login -->
-    <string name="title_activity_login">Inicia sesión</string>
+    <string name="title_activity_login">Iniciar sesión</string>
 
     <string name="prompt_email">Correo electrónico</string>
     <string name="prompt_password">Contraseña</string>
@@ -92,7 +94,7 @@
     <string name="error_invalid_password">Contraseña muy corta</string>
     <string name="error_incorrect_password">Contraseña incorrecta</string>
     <string name="error_field_required">Este campo es obligatorio >:^[</string>
-    <string name="permission_rationale">"No tocamos tus datos! Confiá en nosotros :) (Do No Evil)"</string>
+    <string name="permission_rationale">"Acepta los permisos para facilitar el login"</string>
     <string name="permission_rationale_acceptance">"Permiso de acceso para poder autocompletar"
         "tu correo"
     </string>
@@ -149,9 +151,11 @@
     <string name="anio">año</string>
     <string name="hasta">Hasta</string>
     <string name="dialog_no">No</string>
+    <string name="dialog_aceptar">Aceptar</string>
+    <string name="dialog_rechazar">Rechazar</string>
     <string name="perfil_nacimiento_title">Fecha de nacimiento:</string>
     <string name="pick_date_description">Elegir fecha</string>
-    <string name="confirmacion_recomendar">¿Quiere recomendar a este simplón?</string>
+    <string name="confirmacion_recomendar">¿Quiere recomendar a este profesional de empresa?</string>
     <string name="confirmacion_desrecomendar">¿Está seguro que quiere eliminar su recomendación?</string>
     <string name="enviar_mensaje_description">Enviar mensaje</string>
     <string name="conversacion_entrada_hint">Escriba su mensaje</string>
@@ -161,12 +165,12 @@
     <string name="put_messages_path">messages</string>
     <string name="title_activity_conversacion">Conversación</string>
     <string name="action_enviar_mensaje">Enviar mensaje</string>
-    <string name="title_activity_busqueda">BusquedaActivity</string>
+    <string name="title_activity_busqueda">Búsqueda</string>
     <string name="get_messages_first_query">first</string>
     <string name="get_messages_last_query">last</string>
     <string name="busqueda_logo_description">logo</string>
     <string name="busqueda_job_positions_title">Experiencia</string>
-    <string name="busqueda_distancia_hint">Distancia</string>
+    <string name="busqueda_distancia_hint">10</string>
     <string name="busqueda_distancia_unidad">km</string>
     <string name="busqueda_btn_busqueda">Jobisearch!</string>
     <string name="get_messages_user_query">user</string>
@@ -179,16 +183,17 @@
     <string name="get_busqueda_users_first_query">first</string>
     <string name="get_busqueda_users_last_query">last</string>
     <string name="ellipsis">…</string>
+    <string name="stored_connected_user_email">connected_user_email</string>
+    <string name="stored_connected_user_password">connected_user_password</string>
+    <string name="busqueda_skills_title">Skills</string>
+    <string name="busqueda_distancia_title">Distancia máx.</string>
+    <string name="get_conversations_path">conversations</string>
+    <string name="nav_conversations_option">Conversaciones</string>
+    <string name="notification_token">notificationtokens</string>
+    <string name="nav_logout_option">Cerrar sesión</string>
+    <string name="perfil_new_job_position_filler">(Posición de trabajo)</string>
+    <string name="perfil_new_skill_filler">(Skill)</string>
+    <string name="perfil_recommendation_success">¡Usuario recomendado!</string>
+    <string name="perfil_recommendation_deletion_success">Se ha quitado la recomendación :(</string>
 
-    <!--Testeo, TODO: borrar-->
-    <string-array name="planets_array">
-        <item>Mercury</item>
-        <item>Venus</item>
-        <item>Earth</item>
-        <item>Mars</item>
-        <item>Jupiter</item>
-        <item>Saturn</item>
-        <item>Uranus</item>
-        <item>Neptune</item>
-    </string-array>
 </resources>

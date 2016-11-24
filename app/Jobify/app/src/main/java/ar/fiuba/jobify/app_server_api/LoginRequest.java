@@ -31,7 +31,7 @@ public class LoginRequest {
     }
 
     private void setPassword(String password) {
-        // TODO: Hashear?
+        // Hashear?
         this.password = password;
     }
 

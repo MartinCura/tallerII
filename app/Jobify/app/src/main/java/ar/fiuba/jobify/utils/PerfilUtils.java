@@ -31,12 +31,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,11 +46,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import ar.fiuba.jobify.EditableListAdapter;
-import ar.fiuba.jobify.HorizontalListView;
 import ar.fiuba.jobify.PerfilActivity;
 import ar.fiuba.jobify.R;
-import ar.fiuba.jobify.Utils;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
@@ -70,11 +67,17 @@ public class PerfilUtils {
     public static final int REQUEST_PICK_IMAGE = 2;
     public static final int REQUEST_GET_LOCATION = 3;
 
+    private static String mSelectedJobPosition = "";
+    private static String mSelectedSkill = "";
+
 
     /*---------- Listener class to get coordinates ------------- */
     public static class MyLocationService implements LocationListener {
 
         private final static String LOG_TAG = MyLocationService.class.getSimpleName();
+
+        private static final int TWO_MINUTES = 1000 * 60 * 2;
+        private static final int FIFTEEN_MINUTES = 1000 * 60 * 15;
 
         Context ctx;
         EditText et_city;
@@ -98,6 +101,9 @@ public class PerfilUtils {
                 throw new SecurityException();
             }
 
+            Toast.makeText(activity, "Esperando ubicación...", Toast.LENGTH_SHORT)
+                    .show();
+
             et_city = (EditText) activity.findViewById(editTextId);
             if (et_city == null) {
                 Log.e(LOG_TAG, "No encontré EditText!");
@@ -107,13 +113,33 @@ public class PerfilUtils {
             }
 
             mLocationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100,
-                    this);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100, this);
 
             mLastLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            mCityName = obtenerCiudadParaLocation(mLastLocation);
-            if (et_city != null)
-                et_city.setText(mCityName);
+            if (mLastLocation != null && System.currentTimeMillis() - mLastLocation.getTime() < FIFTEEN_MINUTES) {
+                mCityName = obtenerCiudadParaLocation(mLastLocation);
+                if (et_city != null)
+                    et_city.setText(mCityName);
+                Toast.makeText(activity, "Actualizando ubicación...", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+
+        public void pause() {
+            try {
+                mLocationManager.removeUpdates(this);
+            } catch (SecurityException ex) {
+                Log.w(LOG_TAG, "Security exception??");
+            }
+        }
+
+        public void unpause() {
+            try {
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100,
+                        this);
+            } catch (SecurityException ex) {
+                Log.w(LOG_TAG, "Security exception??");
+            }
         }
 
         /**
@@ -142,16 +168,10 @@ public class PerfilUtils {
 
         @Override
         public void onLocationChanged(Location loc) {
-            Toast.makeText(
-                    ctx,
-                    "Location changed: Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude(),
-                    Toast.LENGTH_SHORT).show();//
-//            String longitude = "Longitude: " + loc.getLongitude();
-//            String latitude = "Latitude: " + loc.getLatitude();
+            Toast.makeText(ctx, "Actualizando ubicación...", Toast.LENGTH_SHORT)
+                    .show();
 
             String cityName = obtenerCiudadParaLocation(loc);
-//            String s = longitude + "\n" + latitude + "\n\nMy Current City is: " + cityName;//
-//            Log.d(LOG_TAG, s);//
 
             if (isBetterLocation(loc, mLastLocation)) {
                 mLastLocation = loc;
@@ -191,8 +211,6 @@ public class PerfilUtils {
             }
             return null;
         }
-
-        private static final int TWO_MINUTES = 1000 * 60 * 2;
 
         /** Determines whether one Location reading is better than the current Location fix
          * @param newLocation  The new Location that you want to evaluate
@@ -250,70 +268,163 @@ public class PerfilUtils {
     }
 
 
-    // TODO: refactorizar?
-    public static void populateAutoCompleteLists(PerfilActivity act) {
-
+    public static void populateSpinners(final Activity act) {
         try {
-            AutoCompleteTextView et_employment =
-                    (AutoCompleteTextView) act.findViewById(R.id.text_perfil_employment_new_position);
+            Spinner spinner = (Spinner) act.findViewById(R.id.perfil_employment_new_position_spinner);
+            if (spinner == null) {
+                Log.e(LOG_TAG, "Spinner de job positions no encontrado!");
+                return;
+            }
             List<JobPosition> jobPositions = SharedDataSingleton.getInstance(act).getJobPositions();
+            if (jobPositions != null) {
 
-            if (jobPositions != null && et_employment != null) {
                 ArrayList<String> jpArray = new ArrayList<>();
+                jpArray.add(act.getString(R.string.perfil_new_job_position_filler)); // Opción vacía
                 for (JobPosition jp : jobPositions) {
                     jpArray.add(jp.getNombre());
                 }
-                ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(act,
-                        android.R.layout.simple_dropdown_item_1line, jpArray);
-                et_employment.setAdapter(employmentsAdapter);
+                ArrayAdapter<String> jpAdapter =
+                        new ArrayAdapter<>(act, android.R.layout.simple_spinner_item, jpArray);
+                jpAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setAdapter(jpAdapter);
+
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                        mSelectedJobPosition = (String) parent.getItemAtPosition(pos);
+                        if (mSelectedJobPosition.equals(act.getString(R.string.perfil_new_job_position_filler)))
+                            mSelectedJobPosition = "";
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        mSelectedJobPosition = "";
+                    }
+                });
             }
         } catch (SharedDataSingleton.NoDataException ex) {
+            Toast.makeText(act, "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
+                    .show();//
             Log.e(LOG_TAG, "Problemas con SS.JobPositions");
         }
 
         try {
-            AutoCompleteTextView et_skill =
-                    (AutoCompleteTextView) act.findViewById(R.id.text_perfil_skill_new);
+            Spinner spinner = (Spinner) act.findViewById(R.id.perfil_skills_new_spinner);
+            if (spinner == null) {
+                Log.e(LOG_TAG, "Spinner de skills no encontrado!");
+                return;
+            }
             List<Skill> skills = SharedDataSingleton.getInstance(act).getSkills();
+            if (skills != null) {
 
-            if (skills != null && et_skill != null) {
                 ArrayList<String> skArray = new ArrayList<>();
+                skArray.add(act.getString(R.string.perfil_new_skill_filler)); // Opción vacía
                 for (Skill sk : skills) {
                     skArray.add(sk.getNombre());
                 }
-                ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(act,
-                        android.R.layout.simple_dropdown_item_1line, skArray);
-                et_skill.setAdapter(skillsAdapter);
+                ArrayAdapter<String> skAdapter =
+                        new ArrayAdapter<>(act, android.R.layout.simple_spinner_item, skArray);
+                skAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setAdapter(skAdapter);
+
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                        mSelectedSkill = (String) parent.getItemAtPosition(pos);
+                        if (mSelectedSkill.equals(act.getString(R.string.perfil_new_skill_filler)))
+                            mSelectedSkill = "";
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        mSelectedSkill = "";
+                    }
+                });
             }
         } catch (SharedDataSingleton.NoDataException ex) {
+            Toast.makeText(act, "Problemas con SS.Skills", Toast.LENGTH_LONG)
+                    .show();//
             Log.e(LOG_TAG, "Problemas con SS.Skills");
         }
     }
+    // deprecated
+//    public static void populateAutoCompleteLists(PerfilActivity act) {
+//        try {
+//            AutoCompleteTextView et_employment =
+//                    (AutoCompleteTextView) act.findViewById(R.id.text_perfil_employment_new_position);
+//            List<JobPosition> jobPositions = SharedDataSingleton.getInstance(act).getJobPositions();
+//
+//            if (jobPositions != null && et_employment != null) {
+//                ArrayList<String> jpArray = new ArrayList<>();
+//                for (JobPosition jp : jobPositions) {
+//                    jpArray.add(jp.getNombre());
+//                }
+//                ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(act,
+//                        android.R.layout.simple_dropdown_item_1line, jpArray);
+//                et_employment.setAdapter(employmentsAdapter);
+//            }
+//        } catch (SharedDataSingleton.NoDataException ex) {
+//            Log.e(LOG_TAG, "Problemas con SS.JobPositions");
+//        }
+//
+//        try {
+//            AutoCompleteTextView et_skill =
+//                    (AutoCompleteTextView) act.findViewById(R.id.text_perfil_skill_new);
+//            List<Skill> skills = SharedDataSingleton.getInstance(act).getSkills();
+//
+//            if (skills != null && et_skill != null) {
+//                ArrayList<String> skArray = new ArrayList<>();
+//                for (Skill sk : skills) {
+//                    skArray.add(sk.getNombre());
+//                }
+//                ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(act,
+//                        android.R.layout.simple_dropdown_item_1line, skArray);
+//                et_skill.setAdapter(skillsAdapter);
+//            }
+//        } catch (SharedDataSingleton.NoDataException ex) {
+//            Log.e(LOG_TAG, "Problemas con SS.Skills");
+//        }
+//    }
 
     public static boolean agregarEmployment(PerfilActivity act, EditableListAdapter<Employment> mJobsAdapter) {
         EditText et_company = (EditText) act.findViewById(R.id.text_perfil_employment_new_company);
-        AutoCompleteTextView et_position =
-                (AutoCompleteTextView) act.findViewById(R.id.text_perfil_employment_new_position);
-        EditText et_desde_mes =  (EditText) act.findViewById(R.id.perfil_employment_desde_mes);
+        Spinner sp_position = (Spinner) act.findViewById(R.id.perfil_employment_new_position_spinner);
+        EditText et_desde_mes = (EditText) act.findViewById(R.id.perfil_employment_desde_mes);
         EditText et_desde_anio = (EditText) act.findViewById(R.id.perfil_employment_desde_anio);
-        EditText et_hasta_mes =  (EditText) act.findViewById(R.id.perfil_employment_hasta_mes);
+        EditText et_hasta_mes = (EditText) act.findViewById(R.id.perfil_employment_hasta_mes);
         EditText et_hasta_anio = (EditText) act.findViewById(R.id.perfil_employment_hasta_anio);
-        // TODO: Cuidado si cambio por DatePickerDialog
+        // Cuidado si cambio por DatePickerDialog
 
-        if (et_company == null || et_company.length() == 0
-                || et_position == null || et_position.length() == 0
-                || et_desde_mes == null || et_desde_mes.length() == 0
-                || et_desde_anio == null || et_desde_anio.length() == 0
-                || et_hasta_mes == null || et_hasta_anio == null) {
-            if (et_position != null)
-                et_position.setError("Salvo 'hasta', ningún campo puede quedar vacío");
+        if (et_company == null || mSelectedJobPosition == null || et_desde_mes == null
+                || et_desde_anio == null || et_hasta_mes == null || et_hasta_anio == null) {
+            Log.e(LOG_TAG, "ET go null");
+            Toast.makeText(act, "Ha ocurrido un misterioso error nulo", Toast.LENGTH_LONG)
+                    .show();
             return false;
         }
-        et_position.setError(null);
+        et_company.setError(null);
 
-        if ((et_hasta_mes.length() == 0 && et_hasta_anio.length() != 0)
-                || et_hasta_mes.length() != 0 && et_hasta_anio.length() == 0) {
-            et_position.setError("Para un trabajo actual, deje mes y año de 'hasta' vacíos");
+        String errorCampoVacio = "Este campo no puede quedar vacío";
+        if (mSelectedJobPosition != null && mSelectedJobPosition.length() == 0) {
+            Toast.makeText(act, "Debe seleccionar una posición de trabajo", Toast.LENGTH_LONG)
+                    .show();
+            return false;
+        } else if (et_company.length() == 0) {
+            et_company.setError(errorCampoVacio);
+            et_company.requestFocus();
+            return false;
+        } else if (et_desde_mes.length() == 0) {
+            et_desde_mes.setError(errorCampoVacio);
+            et_desde_mes.requestFocus();
+            return false;
+        } else if (et_desde_anio.length() == 0) {
+            et_desde_anio.setError(errorCampoVacio);
+            et_desde_anio.requestFocus();
+            return false;
+        } else if ((et_hasta_mes.length() == 0 && et_hasta_anio.length() != 0)
+                 || et_hasta_mes.length() != 0 && et_hasta_anio.length() == 0) {
+            et_hasta_mes.setError("Para un trabajo actual, deje mes y año de 'hasta' vacíos");
+            et_hasta_mes.requestFocus();
             return false;
         }
 
@@ -324,7 +435,7 @@ public class PerfilUtils {
         try {
             Employment nuevoEmployment = Employment.create(act,
                     et_company.getText().toString(),
-                    et_position.getText().toString(),
+                    mSelectedJobPosition,
                     Integer.valueOf(et_desde_mes.getText().toString()),
                     Integer.valueOf(et_desde_anio.getText().toString()),
                     hastaMes, hastaAnio);
@@ -335,7 +446,8 @@ public class PerfilUtils {
                 return false;
             }
             et_company.setText(null);
-            et_position.setText(null);
+            if (sp_position != null)
+                sp_position.setSelection(0);
             et_desde_mes.setText(null);
             et_desde_anio.setText(null);
             et_hasta_mes.setText(null);
@@ -343,31 +455,64 @@ public class PerfilUtils {
             mJobsAdapter.notifyDataSetChanged();
 
         } catch (IllegalArgumentException ex) {
-            et_position.setError("Valor inválido para " + ex.getMessage());
-            et_position.requestFocus();
+            EditText et_error = et_company;
+            switch (ex.getMessage()) {
+                case "compañía":
+                    et_error = et_company;
+                    break;
+                case "posición":
+                    et_error = null;
+                    break;
+                case "mes desde":
+                    et_error = et_desde_mes;
+                    break;
+                case "mes hasta":
+                    et_error = et_hasta_mes;
+                    break;
+                case "año desde":
+                    et_error = et_desde_anio;
+                    break;
+                case "año hasta":
+                    et_error = et_hasta_anio;
+                    break;
+            }
+            String errorStr = "Valor inválido para " + ex.getMessage();
+            if (et_error != null) {
+                et_error.setError(errorStr);
+                et_error.requestFocus();
+            } else {
+                Toast.makeText(act, errorStr, Toast.LENGTH_LONG)
+                        .show();
+            }
             return false;
         }
         return true;
     }
 
     public static boolean agregarSkill(PerfilActivity act, EditableListAdapter<Skill> mSkillAdapter) {
-        EditText et_skill = (EditText) act.findViewById(R.id.text_perfil_skill_new);
-        if (et_skill == null || et_skill.length() == 0) return false;
+        Spinner sp_skill = (Spinner) act.findViewById(R.id.perfil_skills_new_spinner);
+        if (mSelectedSkill == null)
+            return false;
+        else if (mSelectedSkill.length() == 0) {
+            Toast.makeText(act, "Debe seleccionar un skill", Toast.LENGTH_LONG)
+                    .show();
+        }
 
         try {
-            Skill nuevoSkill = Skill.create(act, et_skill.getText().toString());
+            Skill nuevoSkill = Skill.create(act, mSelectedSkill);
             if (nuevoSkill == null) return false;
             if (!mSkillAdapter.add(nuevoSkill, true)) {
                 Toast.makeText(act, "Skill ya listado", Toast.LENGTH_LONG)
                         .show();
                 return false;
             }
-            et_skill.setText(null);
+            if (sp_skill != null)
+                sp_skill.setSelection(0);
             mSkillAdapter.notifyDataSetChanged();
 
         } catch (IllegalArgumentException ex) {
-            et_skill.setError("Skill desconocido");
-            et_skill.requestFocus();
+            Toast.makeText(act, "Skill desconocido", Toast.LENGTH_LONG)
+                    .show();
             return false;
         }
 
@@ -402,6 +547,11 @@ public class PerfilUtils {
                 fab_amigar.setEnabled(false);
         }
         fab_amigar.setBackgroundTintList(csl);
+        fab_amigar.clearAnimation();
+        fab_amigar.refreshDrawableState();
+        fab_amigar.setPressed(true);
+        fab_amigar.setPressed(false);
+        fab_amigar.clearFocus();
     }
 
     public static void colorearBotonRecomendar(PerfilActivity act, boolean recomendado) {
@@ -419,6 +569,10 @@ public class PerfilUtils {
             csl = Utils.getColorStateList(act, R.color.recomendar_btn_false);
         }
         fab_recomendar.setBackgroundTintList(csl);
+        fab_recomendar.clearAnimation();
+        fab_recomendar.refreshDrawableState();
+        fab_recomendar.setPressed(false);
+        fab_recomendar.clearFocus();
     }
 
 
@@ -458,13 +612,13 @@ public class PerfilUtils {
         HorizontalListView mHLView = (HorizontalListView) act.findViewById(R.id.perfil_contactos_list);
         if (mHLView != null) {
 
-            final ContactCardAdapter mAdapter = new ContactCardAdapter(act, contacts);
-            mHLView.setAdapter(mAdapter);
+            final ContactCardAdapter mContactCardAdapter =
+                    new ContactCardAdapter(act, mHLView, contacts);
+            mHLView.setAdapter(mContactCardAdapter);
             mHLView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    Contact clickedUser = (Contact) mAdapter.getItem(position);
+                    Contact clickedUser = (Contact) mContactCardAdapter.getItem(position);
                     act.startActivity(
                             new Intent(PerfilActivity.getContext(), PerfilActivity.class)
                                     .putExtra(PerfilActivity.FETCHED_USER_ID_MESSAGE, clickedUser.getId())
@@ -474,7 +628,7 @@ public class PerfilUtils {
 
             TextView tv_cantContactos = (TextView) act.findViewById(R.id.text_perfil_cant_contactos);
             if (tv_cantContactos != null) {
-                tv_cantContactos.setText(String.valueOf(mAdapter.getCount()));
+                tv_cantContactos.setText(String.valueOf(mContactCardAdapter.getCount()));
             }
 
         } else {
@@ -484,11 +638,17 @@ public class PerfilUtils {
 
     private static class ContactCardAdapter extends BaseAdapter {
 
+        private final static String LOG_TAG = ContactCardAdapter.class.getSimpleName();
+
         PerfilActivity act;
         ArrayList<Contact> mContacts;
+        HorizontalListView mHLView;
+        int highestHeight = 0;
 
-        public ContactCardAdapter(PerfilActivity perfilActivity, List<Contact> contactList) {
+        public ContactCardAdapter(PerfilActivity perfilActivity, HorizontalListView hlv,
+                                  List<Contact> contactList) {
             this.act = perfilActivity;
+            this.mHLView = hlv;
             this.mContacts = new ArrayList<>(contactList);
         }
 
@@ -523,9 +683,11 @@ public class PerfilUtils {
                         .appendPath(act.getString(R.string.get_thumbnail_path))
                         .appendPath(Long.toString(contact.getId()))
                         .build();
-                Utils.cargarImagenDeURLenImageView(act.getApplicationContext(),
-                        (ImageView) act.findViewById(R.id.contact_card_foto),
-                        builtUri.toString(), LOG_TAG+"CC");
+                if (!Utils.cargarImagenDeURLenImageView(act.getApplicationContext(),
+                        (ImageView) itemView.findViewById(R.id.contact_card_foto),
+                        builtUri.toString(), LOG_TAG)) {
+                    Log.d(LOG_TAG, "No encontré ImageView para contacto en Perfil");
+                }
 
                 TextView tv_nombre  = (TextView) itemView.findViewById(R.id.contact_card_nombre);
                 if (tv_nombre != null)
@@ -534,9 +696,23 @@ public class PerfilUtils {
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.contact_card_trabajo);
                 if (tv_trabajo != null)
                     tv_trabajo.setText(contact.getCurrentJob().getOneLiner());
+
+                // Corrijo altura de la lista horizontal de contactos
+                itemView.measure(0, 0);
+                int altura = itemView.getMeasuredHeight();
+                if (altura > highestHeight) {
+                    highestHeight = altura;
+                    actualizarAlturaDeView();
+                }
             }
 
             return itemView;
+        }
+
+        private void actualizarAlturaDeView() {
+            ViewGroup.LayoutParams params = mHLView.getLayoutParams();
+            params.height = this.highestHeight;
+            mHLView.setLayoutParams(params);
         }
     }
 
@@ -571,14 +747,14 @@ public class PerfilUtils {
     }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * Shows the progress UI and hides the perfil info.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public static void showProgress(PerfilActivity act, final boolean show) {
         final LinearLayout linearLayout = (LinearLayout) act.findViewById(R.id.perfil_information_layout);
         final View progressView = act.findViewById(R.id.perfil_progress);
         if (linearLayout == null || progressView == null) {
-            Log.e(LOG_TAG, "No pude encontrar la lista de usuarios o el progress loader.");
+            Log.e(LOG_TAG, "No pude encontrar el layout de info o el progress loader.");
             return;
         }
 

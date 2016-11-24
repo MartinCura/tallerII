@@ -14,6 +14,8 @@
     <dimen name="spacing_large">16dp</dimen>
     <dimen name="spacing_xlarge">32dp</dimen>
 
+    <dimen name="card_elevation_normal">3dp</dimen>
+
     <dimen name="elevation_low">9dp</dimen>
     <dimen name="elevation_high">12dp</dimen>
     <dimen name="status_bar_height">25dp</dimen>
@@ -21,8 +23,8 @@
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
 
-    <dimen name="contact_card_picture_width">100dp</dimen>
-    <dimen name="contact_card_picture_height">100dp</dimen>
-    <dimen name="contact_card_height">182dp</dimen>
+    <dimen name="contact_card_picture_width">112dp</dimen>
+    <dimen name="contact_card_picture_height">112dp</dimen>
+    <dimen name="contact_card_height">194dp</dimen>
     <dimen name="width_4_digitos">38dp</dimen>
 </resources>

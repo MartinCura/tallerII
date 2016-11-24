@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.app_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -35,6 +36,7 @@ public class BusquedaResponse {
         return metadata;
     }
 
+    @Nullable
     public static BusquedaResponse parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

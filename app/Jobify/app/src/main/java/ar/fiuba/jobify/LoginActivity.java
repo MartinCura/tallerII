@@ -37,21 +37,34 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
+import com.google.firebase.iid.FirebaseInstanceId;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.LoginRequest;
 import ar.fiuba.jobify.app_server_api.LoginResponse;
+import ar.fiuba.jobify.utils.Utils;
 
 import static android.Manifest.permission.READ_CONTACTS;
+
 
 /**
  * A login screen that offers login via email/password.
@@ -61,9 +74,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private final static String LOG_TAG = LoginActivity.class.getSimpleName();
 
     /**
-     * Id to identity READ_CONTACTS permission request.
+     * Id to identify READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+
+    private CallbackManager callbackManager;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -75,12 +90,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null){
+            Log.d("mylog", FirebaseInstanceId.getInstance().getToken());
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        String storedEmail = sharedPref.getString(getString(R.string.stored_connected_user_email), "");
+        String storedPass = sharedPref.getString(getString(R.string.stored_connected_user_password), "");
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
+        mEmailView.setText(storedEmail);
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -93,6 +119,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
+        mPasswordView.setText(storedPass);
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         if (mEmailSignInButton != null) {
@@ -116,6 +143,36 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
+
+        LoginButton fbLoginButton = (LoginButton)findViewById(R.id.facebook_login_button);
+        if (fbLoginButton != null) {
+            fbLoginButton.setReadPermissions(Arrays.asList(
+                    "public_profile", "email", "user_birthday", "user_friends"));
+
+            fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    Log.d(LOG_TAG, "Facebook token:" + loginResult.getAccessToken().getToken());
+                }
+
+                @Override
+                public void onCancel() {
+
+                }
+
+                @Override
+                public void onError(FacebookException e) {
+
+                }
+            });
+        } else {
+            Log.e(LOG_TAG, "Fb Login Button not found.");
+        }
+
+        attemptAutomaticLogin();
     }
 
     @Override
@@ -123,6 +180,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.nav_drawer, menu);
         return true;
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -234,8 +295,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private void attemptLogin() {
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        final String email = mEmailView.getText().toString();
+        final String password = mPasswordView.getText().toString();
 
         if (email.isEmpty() && password.isEmpty()) {
             fakeLogin();
@@ -255,16 +316,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            showProgress(false);
-
                             LoginResponse loginResponse = LoginResponse.parseJSON(response.toString());
                             if (loginResponse == null) {
                                 Log.e(LOG_TAG, "Error de parseo de LoginResponse");
+                                showProgress(false);
                                 return;
                             }
-                            Toast.makeText(LoginActivity.this, "Login correcto", Toast.LENGTH_LONG)
-                                    .show();//
-
+                            guardarDatosDeLogin(email, password);
                             guardarConnectedUserData(loginResponse);
                             Utils.iniciarPerfilActivity(activity, loginResponse.getId(), isNewUser);
                             finish();
@@ -278,7 +336,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 int statusCode = error.networkResponse.statusCode;
                                 Log.d(LOG_TAG, "Login error status code: " + statusCode);
 
-                                switch (statusCode) { // hardcodeado?
+                                switch (statusCode) {
                                     ///
                                     case 400:
                                         try {
@@ -306,11 +364,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                         mPasswordView.requestFocus();
                                         break;
                                     default:
-                                        Toast.makeText(ctx, "Login error status code: "+ statusCode,
-                                                Toast.LENGTH_LONG)
-                                                .show();//
-                                        error.printStackTrace();//
-                                } // TODO: Otros status codes?
+                                        Log.e(LOG_TAG, "Login error status code: "+ statusCode);
+                                        Toast.makeText(ctx, "Login error", Toast.LENGTH_LONG)
+                                                .show();
+                                        error.printStackTrace();
+                                } // Otros status codes?
                             }
                         }
                     }, LOG_TAG);
@@ -331,7 +389,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             final Context ctx = getApplicationContext();
 
             JSONObject jsonRequest = new LoginRequest(email, password).toJsonObject();
-            Log.d(LOG_TAG, "POST de registro:\n"+jsonRequest.toString());//
 
             Utils.postJsonToAppServer(this, getString(R.string.post_user_path), jsonRequest,
                     new Response.Listener<JSONObject>() {
@@ -344,9 +401,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Log.e(LOG_TAG, "Error de parseo de LoginResponse");
                                 return;
                             }
-                            Toast.makeText(LoginActivity.this, "Registro correcto\n" +
-                                    "Id: " + loginResponse.getId(), Toast.LENGTH_LONG)
-                                    .show();//
+                            Toast.makeText(LoginActivity.this, "¡Registración exitosa!\n", Toast.LENGTH_LONG)
+                                    .show();
 
                             isNewUser = true;
                             attemptLogin();
@@ -366,7 +422,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 if (error.networkResponse.statusCode == 409) {// hardcodeo
                                     Toast.makeText(ctx, "Email ya registrado", Toast.LENGTH_LONG)
                                             .show();
-                                } // TODO: Otros status codes?
+                                } // Otros status codes?
                             }
                         }
                     }, LOG_TAG);
@@ -374,24 +430,97 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     /**
-     * Guarda datos de login del LoginResponse, id y token.
+     * Guarda datos de login del LoginResponse, id y token, y envía ftoken a notificationtoken.
      */
     private void guardarConnectedUserData(LoginResponse loginResponse) {
-        SharedPreferences.Editor editor =
-                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
-                        .edit();
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null){
+            Log.d(LOG_TAG+"-Firebase", FirebaseInstanceId.getInstance().getToken());
+
+            String tokenUrl = Utils.getAppServerUrl(this, loginResponse.getId(), getString(R.string.notification_token));
+            JSONObject obj = new JSONObject();
+            try {
+                obj.put("token", token);
+                Utils.fetchJsonFromUrl(this, Request.Method.PUT, tokenUrl, obj, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response != null) {
+                            Log.d(LOG_TAG+"-Firebase", "FirebaseToken PUT Response: "
+                                    + response.toString());
+                        }
+                    }
+                }, LOG_TAG+"-Firebase");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).edit();
         editor.putLong(getString(R.string.stored_connected_user_id), loginResponse.getId());
         editor.putString(getString(R.string.stored_connected_user_token), loginResponse.getToken());
         editor.apply();
     }
 
+    private void guardarDatosDeLogin(String email, String password) {
+        SharedPreferences.Editor editor =
+                getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                        .edit();
+        editor.putString(getString(R.string.stored_connected_user_email), email);
+        editor.putString(getString(R.string.stored_connected_user_password), password);
+        // Cuidado si se quiere más seguridad, no sé qué tan bueno es guardarla en plaintext
+        editor.apply();
+    }
+
+    /**
+     * Busca y prueba token ya guardado, para saltear el login.
+     */
+    private boolean attemptAutomaticLogin() {
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        final long storedId = sharedPref.getLong(getString(R.string.stored_connected_user_id), -1);
+        String storedToken = sharedPref.getString(getString(R.string.stored_connected_user_token), "");
+
+        if (!storedToken.isEmpty() && storedId > 0) {
+            showProgress(true);
+            final Activity activity = this;
+
+            // Hago un request de prueba para testear la validez del token
+            // Uso /contacts ya que pide token y no altera estados.
+            // TODO: Debería cambiarlo por uno dedicado o correcto para el caso (verifique id)
+            String testUrl = Utils.getAppServerUrl(this, storedId, getString(R.string.get_contacts_path));
+            Utils.fetchJsonFromUrl(this, Request.Method.GET, testUrl, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            ContactsResponse cs = ContactsResponse.parseJSON(response.toString());
+                            if (cs != null) {
+                                Utils.iniciarPerfilActivity(activity, storedId, false);
+                                finish();
+                            } else {
+                                showProgress(false);
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            if (error.networkResponse != null) {
+                                if (error.networkResponse.statusCode == 401) {
+                                    Toast.makeText(activity, "Su sesión ha caducado", Toast.LENGTH_LONG)
+                                            .show();
+                                }
+                            }
+                            showProgress(false);
+                        }
+                    }, LOG_TAG);
+            return true;
+        }
+        return false;
+    }
+
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 4;
     }
 
@@ -487,8 +616,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
-        long connectedUserId = 2L;
-        String mail = "jane@doe.com", pass = "123abc";//"123"; // Depende del branch...
+        long connectedUserId = 1L;
+        String  mail = "john@doe.com",
+                pass = "123abc";
         mEmailView.setText(mail);
         mPasswordView.setText(pass);
 
@@ -497,11 +627,5 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 .show();
 
         attemptLogin();
-
-//        LoginResponse loginResponse =
-//                LoginResponse.parseJson("{\"id\": "+connectedUserId+", \"token\": ");
-//        guardarConnectedUserData(loginResponse);
-//        Utils.iniciarPerfilActivity(this, connectedUserId, isNewUser);
-//        finish();
     }//;//
 }
