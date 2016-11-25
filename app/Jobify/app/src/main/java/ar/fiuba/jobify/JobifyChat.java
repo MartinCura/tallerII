@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -106,6 +107,8 @@ public class JobifyChat extends FirebaseMessagingService {
                                 .setContentTitle("Notificación")
                                 .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                                 .setAutoCancel(true)
+                                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mensaje))
+                                .setSmallIcon(R.drawable.logo_v2_j_square)
                                 .setContentText(message.getJSONObject("mensaje").getString("message"));
                     } catch (JSONException e) {
                         e.printStackTrace();
