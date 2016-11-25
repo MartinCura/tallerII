@@ -20,6 +20,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -81,14 +82,23 @@ public class JobifyChat extends FirebaseMessagingService {
 
             if (message.has("mensaje")){
 
-                int receiver = 0;
+                long sender= 0, reveicer = 0;
                 try {
-                    receiver = message.getJSONObject("mensaje").getInt("from");
+                    reveicer = message.getJSONObject("mensaje").getInt("to");
+                    sender = message.getJSONObject("mensaje").getInt("from");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                if (!(ConversacionActivity.activityVisible && ConversacionActivity.corresponsalID == receiver)) {
+                long currentId = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).getLong(getString(R.string.stored_connected_user_id), -1);
+                //Log.d("MYTAG", editor.g getLong( getString(R.string.stored_connected_user_id)));
+
+                if (reveicer != currentId){
+                    // la app no esta abierta
+                    return;
+                }
+
+                if (!(ConversacionActivity.activityVisible && ConversacionActivity.corresponsalID == sender)) {
                     NotificationCompat.Builder mBuilder =
                             null;
                     try {
@@ -110,7 +120,7 @@ public class JobifyChat extends FirebaseMessagingService {
 
                     // Adds the Intent that starts the Activity to the top of the stack
                     stackBuilder.addNextIntent(resultIntent);
-                    resultIntent.putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, (long) receiver);
+                    resultIntent.putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, (long) sender);
                     PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
                     mBuilder.setContentIntent(resultPendingIntent);
 
