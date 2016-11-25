@@ -25,6 +25,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -347,7 +348,10 @@ public class PerfilActivity extends NavDrawerActivity {
                 });
             }
 
+            // Fix
             Utils.hideView(this, R.id.perfil_contactos_frame);
+            Utils.hideView(this, R.id.text_perfil_cant_recomendaciones);
+
         }
 
         // Togglear la visibilidad de views pertinentes a cada modo
@@ -540,18 +544,57 @@ public class PerfilActivity extends NavDrawerActivity {
         Utils.cargarImagenDeURLenImageView(getApplicationContext(),
                 (ImageView) findViewById(R.id.perfil_image),
                 url, LOG_TAG);
+
+        setUpDrawerHeaderImage();
     }
 
     private void fillProfile(User mUser) {
         PerfilUtils.showProgress(this, false);
         Utils.showView(this, R.id.perfil_information_layout);
 
-        mCollapsingToolbarLayout.setTitle(mUser.getFullName());
+        final String userFullName = mUser.getFullName();
+        mCollapsingToolbarLayout.setTitle(userFullName);
 
-        Utils.setTextViewText(this, R.id.text_perfil_mail, mUser.getEmail());
+        final String userEmail = mUser.getEmail();
+        Utils.setTextViewText(this, R.id.text_perfil_mail, userEmail);
+        TextView tv_mail = (TextView) findViewById(R.id.text_perfil_mail);
+        if (tv_mail != null) {
+            tv_mail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String destinatarios[] = { userEmail };
+                    String chooserTitle = "Enviar correo electrónico a " + userFullName;
+                    String mailFooter = "Estimada " + userFullName + "," +
+                            "\n\n\n\n\n\n\nTe encontré mediante Jobify!";
+
+//                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+//                            "mailto", userEmail, null));
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                            "mailto","abc@gmail.com", null));
+                    emailIntent.putExtra(Intent.EXTRA_EMAIL, destinatarios);
+                    emailIntent.putExtra(Intent.EXTRA_TEXT, mailFooter);
+
+                    startActivity( Intent.createChooser(emailIntent, chooserTitle) );
+                }
+            });
+        }
+
         Utils.setTextViewText(this, R.id.text_perfil_ciudad, mUser.getCity());
-        Utils.setTextViewText(this, R.id.text_perfil_cant_recomendaciones,
-                Long.toString(mUser.getCantRecomendaciones()) + " recomendaciones"); //semi hardcode
+
+        long cantRecom = mUser.getCantRecomendaciones();
+        if (cantRecom == 1) {
+            Utils.setTextViewText(this, R.id.text_perfil_cant_recomendaciones,
+                    "Recomendado por " + Long.toString(cantRecom) + " profesional"); //semi hardcode
+        } else {
+            Utils.setTextViewText(this, R.id.text_perfil_cant_recomendaciones,
+                    "¡Recomendado por " + Long.toString(cantRecom) + " profesionales!"); //semi hardcode
+        }
+        if (cantRecom > 0) {
+            Utils.showView(this, R.id.text_perfil_cant_recomendaciones);
+        } else {
+            Utils.hideView(this, R.id.text_perfil_cant_recomendaciones);
+        }
+
         Utils.setTextViewText(this, R.id.text_perfil_nacimiento, mUser.getLineaNacimiento());
         Utils.setTextViewText(this, R.id.text_perfil_resumen, mUser.getSummary(), true);
         Utils.setTextViewText(this, R.id.text_perfil_trabajo_actual, mUser.getTrabajosActuales(), true);
@@ -706,14 +749,13 @@ public class PerfilActivity extends NavDrawerActivity {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
                                             Log.e(LOG_TAG, "Volley image post error");
-                                            if (error.networkResponse != null)
-                                                if (error.networkResponse.statusCode == 403)
-                                                    Log.d(LOG_TAG, error.networkResponse.statusCode
-                                                            + " FORBIDDEN");
-                                                else
-                                                    Log.e(LOG_TAG, "Status code: "
-                                                            + error.networkResponse.statusCode);
                                             error.printStackTrace();
+                                            if (error.networkResponse != null) {
+                                                int statusCode = error.networkResponse.statusCode;
+                                                Log.d(LOG_TAG, Utils.statusCodeString(statusCode));
+                                                Toast.makeText(getContext(), Utils.statusCodeString(statusCode),
+                                                        Toast.LENGTH_LONG).show();
+                                            }
                                         }
                                 });
                     RequestQueueSingleton.getInstance(this)

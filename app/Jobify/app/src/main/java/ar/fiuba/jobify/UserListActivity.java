@@ -219,9 +219,12 @@ public class UserListActivity extends NavDrawerActivity {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        if (error.networkResponse != null)
-                            Log.e(LOG_TAG, "Contactos error status code: "
-                                    + error.networkResponse.statusCode);
+                        if (error.networkResponse != null) {
+                            String sc = Utils.statusCodeString(error.networkResponse.statusCode);
+                            Log.e(LOG_TAG, "Contactos: " + sc);
+                            Toast.makeText(ctx, sc, Toast.LENGTH_LONG)
+                                    .show();
+                        }
                         error.printStackTrace();
 
                         showProgress(false);
@@ -324,9 +327,12 @@ public class UserListActivity extends NavDrawerActivity {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        if (error.networkResponse != null)
-                            Log.e(LOG_TAG, "Listar conversaciones error status code: "
-                                    + error.networkResponse.statusCode);
+                        if (error.networkResponse != null) {
+                            String sc = Utils.statusCodeString(error.networkResponse.statusCode);
+                            Log.e(LOG_TAG, "Listar conversaciones: " + sc);
+                            Toast.makeText(ctx, sc, Toast.LENGTH_LONG)
+                                    .show();
+                        }
                         error.printStackTrace();
                         showProgress(false);
                     }
@@ -460,9 +466,12 @@ public class UserListActivity extends NavDrawerActivity {
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(ctx, "Todavía no implementado / error", Toast.LENGTH_LONG)
                                 .show();//
-                        if (error.networkResponse != null)
-                            Log.e(LOG_TAG, "Busqueda error status code: "
-                                    + error.networkResponse.statusCode);
+                        if (error.networkResponse != null) {
+                            String sc = Utils.statusCodeString(error.networkResponse.statusCode);
+                            Log.e(LOG_TAG, "Búsqueda: " + sc);
+                            Toast.makeText(ctx, sc, Toast.LENGTH_LONG)
+                                    .show();
+                        }
                         error.printStackTrace();
 
                         showProgress(false);
@@ -530,7 +539,7 @@ public class UserListActivity extends NavDrawerActivity {
                     final String url = builtUri.toString();
 
                     Utils.cargarImagenDeURLenImageView(getContext(),
-                            iv_thumbnail, url, LOG_TAG);
+                            iv_thumbnail, url, LOG_TAG, true);
                 }
 
                 if (tv_nombre != null)

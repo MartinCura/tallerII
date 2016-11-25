@@ -36,11 +36,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HttpHeaderParser;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -54,7 +53,6 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -157,11 +155,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 @Override
                 public void onSuccess(LoginResult loginResult) {
                     Log.d(LOG_TAG, "Facebook token:" + loginResult.getAccessToken().getToken());
-                    Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(getApplicationContext())).buildUpon()
-                            .appendPath("facebooklogin");
 
-
-                    String facebookRequestUrl = builder.build().toString();
+                    String facebookRequestUrl = Utils.getAppServerUrl(getApplicationContext(), "facebooklogin");
                     JSONObject obj = new JSONObject();
                     try {
                         obj.put("token", loginResult.getAccessToken().getToken());
@@ -355,44 +350,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             showProgress(false);
-                            if (error.networkResponse != null) {
-                                int statusCode = error.networkResponse.statusCode;
-                                Log.d(LOG_TAG, "Login error status code: " + statusCode);
 
-                                switch (statusCode) {
-                                    ///
-                                    case 400:
-                                        try {
-                                            NetworkResponse response = error.networkResponse;
-                                            String res = new String(response.data,
-                                                    HttpHeaderParser.parseCharset(response.headers, "utf-8"));
-                                            // Now you can use any deserializer to make sense of data
-                                            Log.d(LOG_TAG, "json string: "+res);
-                                            new JSONObject(res);                    //;//
-                                        } catch (UnsupportedEncodingException e1) {
-                                            Log.d(LOG_TAG, "..couldn't decode data?");
-                                            e1.printStackTrace();
-                                        } catch (JSONException e2) {
-                                            Log.d(LOG_TAG, "..not a json object?");
-                                            e2.printStackTrace();
-                                        }
-                                        break;
-                                    ///
-                                    case 404:
-                                        Toast.makeText(ctx, "Email no registrado", Toast.LENGTH_LONG)
-                                                .show();
-                                        break;
-                                    case 401:
-                                        mPasswordView.setError(getString(R.string.error_incorrect_password));
-                                        mPasswordView.requestFocus();
-                                        break;
-                                    default:
-                                        Log.e(LOG_TAG, "Login error status code: "+ statusCode);
-                                        Toast.makeText(ctx, "Login error", Toast.LENGTH_LONG)
-                                                .show();
-                                        error.printStackTrace();
-                                } // Otros status codes?
-                            }
+                            handleLoginError(ctx, error);
                         }
                     }, LOG_TAG);
         }
@@ -448,10 +407,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             if (error.networkResponse != null) {
                                 int statusCode = error.networkResponse.statusCode;
                                 Log.d(LOG_TAG, "Register error status code: " + statusCode);
-                                if (error.networkResponse.statusCode == 409) {// hardcodeo
+                                if (statusCode == Utils.ServerStatusCode.CONFLICT) {
                                     Toast.makeText(ctx, "Email ya registrado", Toast.LENGTH_LONG)
                                             .show();
-                                } // Otros status codes?
+                                } else {
+                                    Toast.makeText(ctx, Utils.statusCodeString(statusCode), Toast.LENGTH_LONG)
+                                            .show();
+                                }
                             }
                         }
                     }, LOG_TAG);
@@ -484,9 +446,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         }
 
-        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).edit();
+        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                .edit();
         editor.putLong(getString(R.string.stored_connected_user_id), loginResponse.getId());
         editor.putString(getString(R.string.stored_connected_user_token), loginResponse.getToken());
+        editor.apply();
+    }
+
+    private void borrarConnectedUserData() {
+        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                .edit();
+        editor.remove(getString(R.string.stored_connected_user_id));
+        editor.remove(getString(R.string.stored_connected_user_token));
         editor.apply();
     }
 
@@ -510,6 +481,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         if (!storedToken.isEmpty() && storedId > 0) {
             showProgress(true);
+
+
             final Activity activity = this;
 
             // Hago un request de prueba para testear la validez del token
@@ -531,11 +504,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            if (error.networkResponse != null) {
-                                if (error.networkResponse.statusCode == 401) {
-                                    Toast.makeText(activity, "Su sesión ha caducado", Toast.LENGTH_LONG)
-                                            .show();
-                                }
+                            if (error.networkResponse != null
+                                && error.networkResponse.statusCode == Utils.ServerStatusCode.UNAUTHORIZED) {
+                                borrarConnectedUserData();
+                                Toast.makeText(activity, "Su sesión ha caducado", Toast.LENGTH_LONG)
+                                        .show();
+                            } else {
+                                handleLoginError(activity, error);
                             }
                             showProgress(false);
                         }
@@ -642,6 +617,36 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int ADDRESS = 0;
 //        int IS_PRIMARY = 1;
     }
+
+
+    private void handleLoginError(Context ctx, VolleyError error) {
+        if (error instanceof NoConnectionError) {
+            Log.d(LOG_TAG, "No Connection Error");
+            Toast.makeText(ctx, "Servidor no encontrado.\n¿Corregir IP?", Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
+
+        if (error.networkResponse != null) {
+            int statusCode = error.networkResponse.statusCode;
+            switch (statusCode) {
+                case Utils.ServerStatusCode.NOTFOUND:
+                    Toast.makeText(ctx, "Email no registrado", Toast.LENGTH_LONG)
+                            .show();
+                    break;
+                case Utils.ServerStatusCode.UNAUTHORIZED:
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                    break;
+                default:
+                    Toast.makeText(ctx, Utils.statusCodeString(statusCode), Toast.LENGTH_LONG)
+                            .show();
+                    error.printStackTrace();
+                    Log.e(LOG_TAG, "Login error status code: " + statusCode);
+            }
+        }
+    }
+
 
     // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
     private void fakeLogin() {
