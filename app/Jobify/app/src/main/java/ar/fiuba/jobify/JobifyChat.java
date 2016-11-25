@@ -143,6 +143,21 @@ public class JobifyChat extends FirebaseMessagingService {
                 }
             } else if (message.has("solicitud")){
 
+                long reveicer = 0;
+                try {
+                    reveicer = message.getJSONObject("solicitud").getInt("toId");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                long currentId = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).getLong(getString(R.string.stored_connected_user_id), -1);
+                //Log.d("MYTAG", editor.g getLong( getString(R.string.stored_connected_user_id)));
+
+                if (reveicer != currentId){
+                    // la app no esta abierta
+                    return;
+                }
+
                 NotificationCompat.Builder mBuilder = null;
                 try {
                     mBuilder = new NotificationCompat.Builder(this)
