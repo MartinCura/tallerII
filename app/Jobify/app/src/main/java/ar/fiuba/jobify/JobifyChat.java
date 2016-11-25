@@ -104,7 +104,7 @@ public class JobifyChat extends FirebaseMessagingService {
                             null;
                     try {
                         mBuilder = new NotificationCompat.Builder(this)
-                                .setContentTitle("Notificación")
+                                .setContentTitle("Nuevo mensaje")
                                 .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                                 .setAutoCancel(true)
                                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mensaje))
@@ -141,6 +141,41 @@ public class JobifyChat extends FirebaseMessagingService {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            } else if (message.has("solicitud")){
+
+                NotificationCompat.Builder mBuilder = null;
+                try {
+                    mBuilder = new NotificationCompat.Builder(this)
+                            .setContentTitle("Nueva solicitud")
+                            .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                            .setAutoCancel(true)
+                            .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.solicitud))
+                            .setSmallIcon(R.drawable.logo_v2_j_square)
+                            .setContentText(message.getJSONObject("solicitud").getString("fromNombre"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                Intent resultIntent = new Intent(this, ConversacionActivity.class);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                stackBuilder.addParentStack(ConversacionActivity.class);
+
+
+                // Adds the Intent that starts the Activity to the top of the stack
+                stackBuilder.addNextIntent(resultIntent);
+                resultIntent.putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, (long) 0);
+                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                mBuilder.setContentIntent(resultPendingIntent);
+
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                Random r = new Random();
+                mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
+
+
             }
             // if this is a notification:
                 // TODO
