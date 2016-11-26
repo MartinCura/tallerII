@@ -52,14 +52,13 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
 Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string url) {
     PersonManager *personManager = new PersonManager(this->db);
     Response* response = new Response();
-    long userId = this->getUserIdFromUrl(url);
-    //Seguridad:
-    // El usuario solo puede eliminar su perfil.
-    if (!Security::hasPermissionToDeleteUser(this->session->getUserId(), userId)) {
-        throw NotAuthorizedException();
-    }
-
     try {
+        long userId = this->getUserIdFromUrl(url);
+        //Seguridad:
+        // El usuario solo puede eliminar su perfil.
+        if (!Security::hasPermissionToDeleteUser(this->session->getUserId(), userId)) {
+            throw NotAuthorizedException();
+        }
         personManager->deletePerson(userId);
         response->setSuccessfulHeader();
     } catch (InvalidRequestException& e) {
@@ -74,20 +73,17 @@ Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string ur
 }
 
 Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) {
-
-    string requestBody = string(httpMessage->body.p);
-    Json::Value parsedBody = this->parseBody(requestBody);
-    long userId = this->getUserIdFromUrl(url);
-    //Seguridad:
-    // El usuario solo puede editar su perfil.
-    if (!Security::hasPermissionToEdit(this->session->getUserId(), userId)) {
-        throw NotAuthorizedException();
-    }
     PersonManager *personManager = new PersonManager(this->db);
     Response* response = new Response();
-
+    string requestBody = string(httpMessage->body.p);
     try {
-
+        long userId = this->getUserIdFromUrl(url);
+        //Seguridad:
+        // El usuario solo puede editar su perfil.
+        if (!Security::hasPermissionToEdit(this->session->getUserId(), userId)) {
+            throw NotAuthorizedException();
+        }
+        Json::Value parsedBody = this->parseBody(requestBody);
         Person* person = personManager->getPersonById(userId);
         person->updateMe(parsedBody);
         Json::Value jperson = person->serializeMe();

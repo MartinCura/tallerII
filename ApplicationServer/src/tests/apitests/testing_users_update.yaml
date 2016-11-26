@@ -1,0 +1,34 @@
+---
+- config:
+    - testset: "Testing users url - update"
+
+- test:
+    - name: "Get user data before update"
+    - group: "[users - update]"
+    - url: "/users/1"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "id", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "first_name", comparator: "eq", expected: "John"}
+          - compare: {jsonpath_mini: "last_name", comparator: "eq", expected: "Doe"}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Update user 1"
+    - group: "[users - update]"
+    - url: "/users/1"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"first_name": "Juan", "last_name": "Perez"}'
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Get user data after update"
+    - group: "[users - update]"
+    - url: "/users/1"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "id", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "first_name", comparator: "eq", expected: "Juan"}
+          - compare: {jsonpath_mini: "last_name", comparator: "eq", expected: "Perez"}
+    - expected_status: [200] # ok
