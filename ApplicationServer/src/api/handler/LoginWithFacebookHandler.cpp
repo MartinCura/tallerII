@@ -8,6 +8,9 @@ const string LoginWithFacebookHandler::EMAIL = "email";
 
 LoginWithFacebookHandler::LoginWithFacebookHandler() {
     postPublic = true;
+    putPublic = true;
+    deletePublic = true;
+    getPublic = true;
 }
 
 LoginWithFacebookHandler::~LoginWithFacebookHandler() {}
