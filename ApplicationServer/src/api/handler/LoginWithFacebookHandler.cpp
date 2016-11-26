@@ -95,7 +95,7 @@ Person* LoginWithFacebookHandler::createPerson(Json::Value data) {
 
 string LoginWithFacebookHandler::buildStringRequest(string tokenToSend) {
     string getCommand = "curl -i -X GET";
-    string url = "https://graph.facebook.com/v2.8/me";
+    string url = Config::getInstance()->get(Config::FACEBOOK_URL);
     string fields = "fields=" + FIRST_NAME + "," + LAST_NAME + "," + BIRTHDAY + "," + EMAIL;
     string token = "access_token=" + tokenToSend;
     string request = getCommand + " \"" + url + "?" + fields + "&" + token + "\"";

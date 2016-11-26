@@ -6,6 +6,7 @@
 #include "../../person/PersonManager.h"
 #include "../../person/Person.h"
 #include "../../logger/Logger.h"
+#include "../../config/Config.h"
 #include "../../Exceptions/ErrorLoginWithFacebookException.h"
 #include "../../session/SessionManager.h"
 #include <cstdio>

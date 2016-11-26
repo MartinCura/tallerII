@@ -3,6 +3,7 @@
 const char *Config::NAME_DB = "DbName";
 const char *Config::IMG_FOLDER = "imgDir";
 const char *Config::LOGS_FOLDER = "logsDir";
+const char *Config::FACEBOOK_URL = "facebookUrl";
 const char *Config::FIREBASE_URL = "firebaseUrl";
 const char *Config::FIREBASE_AUTHORIZATION_KEY = "firebaseAuthorizationKey";
 
