@@ -7,6 +7,8 @@
 #include "../../jsoncpp/json/json-forwards.h"
 #include "../Response.h"
 #include "../../Exceptions/InvalidRequestException.h"
+#include "../../Exceptions/InvalidTokenException.h"
+#include "../../Exceptions/TokenExpiredException.h"
 #include "../../session/Session.h"
 #include "../../DB/DBWrapper.h"
 #include "../../config/Config.h"

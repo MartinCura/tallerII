@@ -44,7 +44,12 @@ Response* Handler::handleRequest(http_message* httpMessage, string url) {
         response->setForbiddenRequestHeader();
         response->setErrorBody(e.what());
         return response;
-    } catch (exception& e) {
+    } catch (InvalidTokenException& e) {
+        Response* response = new Response();
+        response->setUnauthorizedHeader();
+        response->setBody(e.what());
+        return response;
+    } catch (TokenExpiredException& e) {
         Response* response = new Response();
         response->setUnauthorizedHeader();
         response->setBody(e.what());
