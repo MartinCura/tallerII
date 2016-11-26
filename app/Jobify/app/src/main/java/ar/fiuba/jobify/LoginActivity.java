@@ -318,11 +318,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         final String email = mEmailView.getText().toString();
         final String password = mPasswordView.getText().toString();
 
-        if (email.isEmpty() && password.isEmpty()) {
-            fakeLogin();
-            return;
-        }
-
         if (validateLoginInput()) {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
@@ -487,7 +482,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             // Hago un request de prueba para testear la validez del token
             // Uso /contacts ya que pide token y no altera estados.
-            // TODO: Debería cambiarlo por uno dedicado o correcto para el caso (verifique id)
+            // TODO: Debería cambiarse por uno dedicado o correcto para el caso (verifique token)
             String testUrl = Utils.getAppServerUrl(this, storedId, getString(R.string.get_contacts_path));
             Utils.fetchJsonFromUrl(this, Request.Method.GET, testUrl, null,
                     new Response.Listener<JSONObject>() {
@@ -646,20 +641,4 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         }
     }
-
-
-    // PARA TESTING, ONLY DEBUGGING, TODO: BORRAR en final
-    private void fakeLogin() {
-        long connectedUserId = 1L;
-        String  mail = "john@doe.com",
-                pass = "123abc";
-        mEmailView.setText(mail);
-        mPasswordView.setText(pass);
-
-        Toast.makeText(LoginActivity.this, "Automatic fake login\n" +
-                "user id: "+connectedUserId, Toast.LENGTH_LONG)
-                .show();
-
-        attemptLogin();
-    }//;//
 }
