@@ -1,12 +1,12 @@
 #include "RelationsManager.h"
 
-const string CONTACT_KEY = "contact_";
-const string ACTIVE = "active";
-const string RECEIVED = "received";
-const string REQUESTED = "requested";
-const  string ADD_CONTACT_ACTION = "add_contact";
-const  string ACCEPT_CONTACT_ACTION = "accept_contact";
-const  string REMOVE_CONTACT_ACTION = "remove_contact";
+const string RelationsManager::CONTACT_KEY = "contact_";
+const string RelationsManager::ACTIVE = "active";
+const string RelationsManager::RECEIVED = "received";
+const string RelationsManager::REQUESTED = "requested";
+const string RelationsManager::ADD_CONTACT_ACTION = "add_contact";
+const string RelationsManager::ACCEPT_CONTACT_ACTION = "accept_contact";
+const string RelationsManager::REMOVE_CONTACT_ACTION = "remove_contact";
 
 RelationsManager::RelationsManager(DBWrapper* db) {
     this->db = db;

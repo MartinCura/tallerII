@@ -11,6 +11,14 @@ using namespace std;
 class RelationsManager {
 
 public:
+    static const string CONTACT_KEY;
+    static const string ACTIVE;
+    static const string RECEIVED;
+    static const string REQUESTED;
+    static const string ADD_CONTACT_ACTION;
+    static const string ACCEPT_CONTACT_ACTION;
+    static const string REMOVE_CONTACT_ACTION;
+
     RelationsManager(DBWrapper* db);
     ~RelationsManager();
 
