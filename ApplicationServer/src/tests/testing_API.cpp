@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <thread>
+#include <dirent.h>
 #include "gtest/gtest.h"
 #include "../Mongoose/mongoose.h"
 #include "../api/WebHandler.h"
@@ -97,18 +98,19 @@ TEST(Testing, Api) {
         return;
     }
     std::thread t1(runAppServer);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_pictures.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_commonErrors.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_addContact.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_rejectContact.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_deleteContact.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_twoContacts.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_notification.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_messages.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_notificationtoken.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_recommendations.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_users.yaml", dbName);
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir("../ApplicationServer/src/tests/apitests")) != NULL) {
+        while ((ent = readdir (dir)) != NULL) {
+            string fileName(ent->d_name);
+            size_t found = fileName.find("testing_");
+            if (found != string::npos) {
+                string test = "resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/" + fileName;
+                runTest(test, dbName);
+            }
+        }
+        closedir (dir);
+    }
     s_sig_num = 1;
     t1.join();
     delete Config::getInstance();
