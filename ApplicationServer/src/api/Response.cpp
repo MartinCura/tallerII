@@ -54,12 +54,6 @@ void Response::setErrorBody(string errorDetails) {
     this->setBody(root.toStyledString());
 }
 
-void Response::setSuccessfulBody() {
-    Json::Value root;
-    root["successful"] = "true";
-    this->setBody(root.toStyledString());
-}
-
 void Response::setSuccessfulHeader() {
     this->header = "200 OK";
 }

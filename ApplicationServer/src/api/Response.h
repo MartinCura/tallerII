@@ -18,7 +18,6 @@ public:
     void setBody(string body);
     void setBinaryBody(char* body, unsigned long length, string contentType);
     void setErrorBody(string errorDetails);
-    void setSuccessfulBody();
 
     void setSuccessfulHeader();
     void setNotFoundHeader();
