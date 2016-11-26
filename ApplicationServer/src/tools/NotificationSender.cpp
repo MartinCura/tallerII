@@ -37,7 +37,7 @@ string NotificationSender::buildCommonRequest(string data, string token) {
     header += "--header \"Authorization: key=AIzaSyD3T2nk8nqIRSN1VlPZ3QkUcrzHTD7JIfA\"";
     header += " ";
     header += "--header \"Content-Type: application/json\"";
-    string url = "http://requestb.in/wilwsbwi";
+    string url = "https://fcm.googleapis.com/fcm/send";
     string option = "-d";
     string body = "";
     body += "\"{\\\"to\\\":\\\"" + token + "\\\",\\\"data\\\":" + data  + "}\"";
