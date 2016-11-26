@@ -15,6 +15,9 @@ public:
 
     LoginHandler() {
         postPublic = true;
+        putPublic = true;
+        getPublic = true;
+        deletePublic = true;
     }
 
     Response* handlePostRequest(http_message* httpMessage);
