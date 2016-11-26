@@ -5,12 +5,13 @@ ConversationsHandler::ConversationsHandler() {}
 ConversationsHandler::~ConversationsHandler() {}
 
 Response* ConversationsHandler::handleGetRequest(http_message* httpMessage, string url) {
-    //TODO: AGREGAR VALIDACION DE SEGURIDAD
-
     PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
         long userId = this->getUserIdFromUrl(url);
+        if (!Security::hasPermissionToGetMessages(this->session->getUserId(), userId)) {
+            throw NotAuthorizedException();
+        }
         vector<Conversation*> conversations = personManager->getAllConversations(userId);
         long totalCount = conversations.size();
         Json::Value conversationsAsJson = this->buildJsonResponse(conversations, totalCount);

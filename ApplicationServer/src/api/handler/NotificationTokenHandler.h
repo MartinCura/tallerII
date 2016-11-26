@@ -3,6 +3,8 @@
 
 #include "../../person/PersonManager.h"
 #include "../../api/handler/Handler.h"
+#include "../../Security/Security.h"
+#include "../../Exceptions/NotAuthorizedException.h"
 
 class NotificationTokenHandler : public Handler{
 public:

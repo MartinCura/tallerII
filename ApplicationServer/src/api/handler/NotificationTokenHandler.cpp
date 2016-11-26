@@ -18,14 +18,14 @@ Response* NotificationTokenHandler::handleDeleteRequest(http_message* httpMessag
 
 Response* NotificationTokenHandler::handlePutRequest(http_message* httpMessage, string url) {
     string requestBody = string(httpMessage->body.p);
-
-    //TODO:: Agregar validacion de seguridad
-
     PersonManager* personManager = new PersonManager(this->db);
     Response* response = new Response();
     try {
-        Json::Value parsedBody = this->parseBody(requestBody);
         long userId = this->getUserIdFromUrl(url);
+        if (!Security::hasPermissionToUpdateNotificationToken(this->session->getUserId(), userId)) {
+            throw NotAuthorizedException();
+        }
+        Json::Value parsedBody = this->parseBody(requestBody);
         personManager->setOrUpdateNotificationToken(parsedBody, userId);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {

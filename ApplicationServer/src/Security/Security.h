@@ -23,6 +23,8 @@ public:
     static bool hasPermissionToSendRecommendations(long id, long userId);
 
     static bool hasPermissionToDeleteRecommendations(long id, long userId);
+    static bool hasPermissionToUpdateNotificationToken(long id, long userId);
+    static bool hasPermissionToGetMessages(long id, long userId);
 
 private:
     Security(){};

@@ -39,3 +39,11 @@ bool Security::hasPermissionToSendRecommendations(long id, long userId) {
 bool Security::hasPermissionToDeleteRecommendations(long id, long userId) {
     return id == userId;
 }
+
+bool Security::hasPermissionToUpdateNotificationToken(long id, long userId) {
+    return id == userId;
+}
+
+bool Security::hasPermissionToGetMessages(long id, long userId) {
+    return id == userId;
+}

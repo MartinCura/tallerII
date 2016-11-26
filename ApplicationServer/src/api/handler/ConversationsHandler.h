@@ -4,6 +4,8 @@
 #include "../../api/handler/Handler.h"
 #include "../../person/PersonManager.h"
 #include "../../person/messages/Conversation.h"
+#include "../../Security/Security.h"
+#include "../../Exceptions/NotAuthorizedException.h"
 
 class ConversationsHandler : public Handler {
 public:
