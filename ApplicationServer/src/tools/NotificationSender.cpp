@@ -34,10 +34,10 @@ string NotificationSender::buildContactRequest(long fromUserId, long toUserId, s
 string NotificationSender::buildCommonRequest(string data, string token) {
     string postCommand = "curl -X POST";
     string header = "";
-    header += "--header \"Authorization: key=AIzaSyD3T2nk8nqIRSN1VlPZ3QkUcrzHTD7JIfA\"";
+    header += "--header \"Authorization: key=" + Config::getInstance()->get(Config::FIREBASE_AUTHORIZATION_KEY) + "\"";
     header += " ";
     header += "--header \"Content-Type: application/json\"";
-    string url = "https://fcm.googleapis.com/fcm/send";
+    string url = Config::getInstance()->get(Config::FIREBASE_URL);
     string option = "-d";
     string body = "";
     body += "\"{\\\"to\\\":\\\"" + token + "\\\",\\\"data\\\":" + data  + "}\"";

@@ -18,6 +18,8 @@ public:
     static const char* NAME_DB;
     static const char* IMG_FOLDER;
     static const char* LOGS_FOLDER;
+    static const char* FIREBASE_URL;
+    static const char* FIREBASE_AUTHORIZATION_KEY;
 
     static Config* getInstance();
     virtual ~Config();

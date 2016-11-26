@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string>
 #include "../logger/Logger.h"
+#include "../config/Config.h"
 
 using namespace std;
 
