@@ -21,6 +21,16 @@ string NotificationSender::buildMessageRequest(long fromUserId, long toUserId, s
     return request;
 }
 
+string NotificationSender::buildContactRequest(long fromUserId, long toUserId, string name, string token) {
+    string data = "{\\\"solicitud\\\":{";
+    data += "\\\"from\\\":" + to_string(fromUserId) + ",";
+    data += "\\\"fromNombre\\\":\\\"" + name + "\\\",";
+    data += "\\\"toId\\\":" + to_string(toUserId);
+    data += "}}";
+    string request = this->buildCommonRequest(data, token);
+    return request;
+}
+
 string NotificationSender::buildCommonRequest(string data, string token) {
     string postCommand = "curl -X POST";
     string header = "";

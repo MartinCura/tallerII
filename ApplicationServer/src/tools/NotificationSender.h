@@ -18,6 +18,7 @@ public:
     ~NotificationSender();
     void sendNotification(string request);
     string buildMessageRequest(long fromUserId, long toUserId, string message, string timestamp, string token);
+    string buildContactRequest(long fromUserId, long toUserId, string name, string token);
 
 private:
     string buildCommonRequest(string data, string token);
