@@ -1,6 +1,6 @@
 ---
 - config:
-    - testset: "Testing recommendations url"
+    - testset: "Testing recommendations url - common errors"
 
 - test:
     - name: "Add recommendation - missing from id"
@@ -43,18 +43,42 @@
     - expected_status: [404] # not found
 
 - test:
-    - name: "Add recommendation"
+    - name: "Recommendations - GET"
     - url: "/recommendations"
-    - method: "PUT"
     - headers: {Authorization: tokenUser1}
-    - body: '{"from": 1, "to": 2}'
-    - expected_status: [200] # ok
+    - method: "GET"
+    - expected_status: [501] # not implemented
 
 - test:
-    - name: "Delete recommendation"
-    - url: "/recommendations?from=1&to=2"
+    - name: "Recommendations - POST"
+    - url: "/recommendations"
+    - headers: {Authorization: tokenUser1}
+    - method: "POST"
+    - expected_status: [501] # not implemented
+
+- test:
+    - name: "Delete recommendation - missing from parameter"
+    - url: "/recommendations"
     - method: "DELETE"
     - headers: {Authorization: tokenUser1}
-    - expected_status: [200] # ok
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing from parameter"}
+    - expected_status: [400] # bad request
 
+- test:
+    - name: "Delete recommendation - invalid from parameter"
+    - url: "/recommendations?from=notANumber&to=2"
+    - method: "DELETE"
+    - headers: {Authorization: tokenUser1}
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Not a numeric id"}
+    - expected_status: [400] # bad request
 
+- test:
+    - name: "Delete recommendation - invalid to parameter"
+    - url: "/recommendations?from=1&to=notANumber"
+    - method: "DELETE"
+    - headers: {Authorization: tokenUser1}
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Not a numeric id"}
+    - expected_status: [400] # bad request
