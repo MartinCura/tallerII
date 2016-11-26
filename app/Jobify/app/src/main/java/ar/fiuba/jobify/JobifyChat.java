@@ -141,11 +141,13 @@ public class JobifyChat extends FirebaseMessagingService {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+
             } else if (message.has("solicitud")){
 
-                long reveicer = 0;
+                long receiver = 0;
                 try {
-                    reveicer = message.getJSONObject("solicitud").getInt("toId");
+                    receiver = message.getJSONObject("solicitud").getInt("toId");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -153,7 +155,7 @@ public class JobifyChat extends FirebaseMessagingService {
                 long currentId = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).getLong(getString(R.string.stored_connected_user_id), -1);
                 //Log.d("MYTAG", editor.g getLong( getString(R.string.stored_connected_user_id)));
 
-                if (reveicer != currentId){
+                if (receiver != currentId){
                     // la app no esta abierta
                     return;
                 }
@@ -172,7 +174,7 @@ public class JobifyChat extends FirebaseMessagingService {
                 }
 
 
-                Intent resultIntent = new Intent(this, ConversacionActivity.class);
+                Intent resultIntent = new Intent(this, UserListActivity.class);
                 TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
                 stackBuilder.addParentStack(UserListActivity.class);
 

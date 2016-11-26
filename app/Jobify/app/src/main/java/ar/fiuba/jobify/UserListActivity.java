@@ -179,8 +179,8 @@ public class UserListActivity extends NavDrawerActivity {
 
 
     private void listarSolicitudesReceived() {
-        Toast.makeText(this, "Se listan las solicitudes pendientes", Toast.LENGTH_LONG)
-                .show();
+//        Toast.makeText(this, "Se listan las solicitudes pendientes", Toast.LENGTH_LONG)
+//                .show();
 
         final Context ctx = this;
         String urlContactos = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
