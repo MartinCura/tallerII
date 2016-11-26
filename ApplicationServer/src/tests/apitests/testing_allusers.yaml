@@ -3,7 +3,7 @@
     - testset: "Testing allusers url"
 
 - test:
-    - name: "Get all users"
+    - name: "All users - GET"
     - url: "/allusers"
     - headers: {Authorization: tokenUser1}
     - method: "GET"
@@ -12,3 +12,23 @@
           - compare: {jsonpath_mini: "all_users.1", comparator: "eq", expected: 2}
     - expected_status: [200] # ok
 
+- test:
+    - name: "All users - POST"
+    - url: "/allusers"
+    - headers: {Authorization: tokenUser1}
+    - method: "POST"
+    - expected_status: [501] # not implemented
+
+- test:
+    - name: "Get all users - DELETE"
+    - url: "/allusers"
+    - headers: {Authorization: tokenUser1}
+    - method: "DELETE"
+    - expected_status: [501] # not implemented
+
+- test:
+    - name: "Get all users - PUT"
+    - url: "/allusers"
+    - headers: {Authorization: tokenUser1}
+    - method: "PUT"
+    - expected_status: [501] # not implemented
