@@ -4,6 +4,7 @@
 
 - test:
     - name: "Add messages - missing to id"
+    - group: "[messages]"
     - url: "/messages"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}
@@ -14,6 +15,7 @@
 
 - test:
     - name: "Add messages - equals ids"
+    - group: "[messages]"
     - url: "/messages"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}
@@ -24,6 +26,7 @@
 
 - test:
     - name: "Add messages - nonexistent to user"
+    - group: "[messages]"
     - url: "/messages"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}

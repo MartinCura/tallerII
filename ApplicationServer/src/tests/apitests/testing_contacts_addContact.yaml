@@ -4,6 +4,7 @@
 
 - test:
     - name: "Get contacts - before"
+    - group: "[contacts - add]"
     - url: "/contacts/1"
     - headers: {Authorization: tokenUser1}
     - method: "GET"
@@ -13,6 +14,7 @@
 
 - test:
     - name: "Add contact"
+    - group: "[contacts - add]"
     - url: "/contacts"
     - headers: {Authorization: tokenUser1}
     - method: "PUT"
@@ -21,6 +23,7 @@
 
 - test:
     - name: "Get contacts - after - not accepted yet"
+    - group: "[contacts - add]"
     - url: "/contacts/1"
     - headers: {Authorization: tokenUser1}
     - method: "GET"
@@ -32,6 +35,7 @@
 
 - test:
     - name: "Accept contact"
+    - group: "[contacts - add]"
     - url: "/contacts"
     - headers: {Authorization: tokenUser2}
     - method: "PUT"
@@ -40,6 +44,7 @@
 
 - test:
     - name: "Get contacts - after - accepted"
+    - group: "[contacts - add]"
     - url: "/contacts/1"
     - headers: {Authorization: tokenUser1}
     - method: "GET"

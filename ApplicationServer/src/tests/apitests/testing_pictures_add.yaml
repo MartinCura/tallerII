@@ -4,6 +4,7 @@
 
 - test:
     - name: "Save picture"
+    - group: "[profilepicture - add]"
     - url: "/profilepicture/1"
     - headers: {Authorization: tokenUser1}
     - method: "PUT"

@@ -4,6 +4,7 @@
 
 - test:
     - name: "Get picture ok"
+    - group: "[profilepicture - get]"
     - url: "/profilepicture/1"
     - headers: {Authorization: tokenUser1}
     - method: "GET"

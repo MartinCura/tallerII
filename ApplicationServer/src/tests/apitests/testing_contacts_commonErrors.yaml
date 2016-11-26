@@ -4,6 +4,7 @@
 
 - test:
     - name: "Get contacts - missing id"
+    - group: "[contacts - errros]"
     - url: "/contacts"
     - headers: {Authorization: tokenUser1}
     - method: "GET"
@@ -13,6 +14,7 @@
 
 - test:
     - name: "Send contact request - missing author_id"
+    - group: "[contacts - errros]"
     - url: "/contacts"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}
@@ -23,6 +25,7 @@
 
 - test:
     - name: "Send contact request - missing contact_id"
+    - group: "[contacts - errros]"
     - url: "/contacts"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}
@@ -33,6 +36,7 @@
 
 - test:
     - name: "Send contact request - missing action"
+    - group: "[contacts - errros]"
     - url: "/contacts"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}
@@ -43,6 +47,7 @@
 
 - test:
     - name: "Send contact request a nonexistent user"
+    - group: "[contacts - errros]"
     - url: "/contacts"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}
@@ -51,6 +56,7 @@
 
 - test:
     - name: "Delete contact"
+    - group: "[contacts - errros]"
     - url: "/contacts"
     - headers: {Authorization: tokenUser2}
     - method: "PUT"
@@ -61,6 +67,7 @@
 
 - test:
     - name: "Add contact - POST"
+    - group: "[contacts - errros]"
     - url: "/contacts"
     - headers: {Authorization: tokenUser1}
     - method: "POST"
@@ -68,6 +75,7 @@
 
 - test:
     - name: "Add contact - DELETE"
+    - group: "[contacts - errros]"
     - url: "/contacts"
     - headers: {Authorization: tokenUser1}
     - method: "DELETE"

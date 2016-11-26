@@ -4,6 +4,7 @@
 
 - test:
     - name: "Add recommendation - from 2 to 1"
+    - group: "[recommendations - add]"
     - url: "/recommendations"
     - method: "PUT"
     - headers: {Authorization: tokenUser2}
@@ -12,6 +13,7 @@
 
 - test:
     - name: "Get user - one recommendation"
+    - group: "[recommendations - add]"
     - url: "/users/1"
     - method: "GET"
     - headers: {Authorization: tokenUser1}
@@ -21,6 +23,7 @@
 
 - test:
     - name: "Add recommendation - from 3 to 1"
+    - group: "[recommendations - add]"
     - url: "/recommendations"
     - method: "PUT"
     - headers: {Authorization: tokenUser3}
@@ -29,6 +32,7 @@
 
 - test:
     - name: "Get user - two recommendations"
+    - group: "[recommendations - add]"
     - url: "/users/1"
     - method: "GET"
     - headers: {Authorization: tokenUser1}

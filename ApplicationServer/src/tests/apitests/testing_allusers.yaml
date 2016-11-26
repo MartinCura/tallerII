@@ -4,6 +4,7 @@
 
 - test:
     - name: "All users - GET"
+    - group: "[allusers]"
     - url: "/allusers"
     - headers: {Authorization: tokenUser1}
     - method: "GET"
@@ -14,6 +15,7 @@
 
 - test:
     - name: "All users - POST"
+    - group: "[allusers]"
     - url: "/allusers"
     - headers: {Authorization: tokenUser1}
     - method: "POST"
@@ -21,6 +23,7 @@
 
 - test:
     - name: "Get all users - DELETE"
+    - group: "[allusers]"
     - url: "/allusers"
     - headers: {Authorization: tokenUser1}
     - method: "DELETE"
@@ -28,6 +31,7 @@
 
 - test:
     - name: "Get all users - PUT"
+    - group: "[allusers]"
     - url: "/allusers"
     - headers: {Authorization: tokenUser1}
     - method: "PUT"

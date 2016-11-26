@@ -4,6 +4,7 @@
 
 - test:
     - name: "Get picture ok"
+    - group: "[profilepicture - delete]"
     - url: "/profilepicture/1"
     - headers: {Authorization: tokenUser1}
     - method: "GET"
@@ -11,6 +12,7 @@
 
 - test:
      - name: "Delete picture"
+     - group: "[profilepicture - delete]"
      - url: "/profilepicture/1"
      - headers: {Authorization: tokenUser1}
      - method: "DELETE"
@@ -18,6 +20,7 @@
 
 - test:
     - name: "Missing picture"
+    - group: "[profilepicture - delete]"
     - url: "/profilepicture/1"
     - headers: {Authorization: tokenUser1}
     - method: "GET"

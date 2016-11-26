@@ -4,6 +4,7 @@
 
 - test:
     - name: "Missing user id"
+    - group: "[profilepicture - errors]"
     - url: "/profilepicture/"
     - headers: {Authorization: tokenUser1}
     - method: "GET"
@@ -13,6 +14,7 @@
 
 - test:
     - name: "Missing picture - get"
+    - group: "[profilepicture - errors]"
     - url: "/profilepicture/12345"
     - headers: {Authorization: tokenUser1}
     - method: "GET"
@@ -22,6 +24,7 @@
 
 - test:
     - name: "Missing picture - delete"
+    - group: "[profilepicture - errors]"
     - url: "/profilepicture/3"
     - headers: {Authorization: tokenUser3}
     - method: "DELETE"
@@ -31,6 +34,7 @@
 
 - test:
     - name: "Delete picture without permission"
+    - group: "[profilepicture - errors]"
     - url: "/profilepicture/2"
     - headers: {Authorization: tokenUser1}
     - method: "DELETE"
@@ -38,6 +42,7 @@
 
 - test:
     - name: "POST not implemented"
+    - group: "[profilepicture - errors]"
     - url: "/profilepicture/1"
     - headers: {Authorization: tokenUser1}
     - method: "POST"

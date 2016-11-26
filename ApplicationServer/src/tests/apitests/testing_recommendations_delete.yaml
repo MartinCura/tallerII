@@ -4,6 +4,7 @@
 
 - test:
     - name: "Add recommendation - from 2 to 1"
+    - group: "[recommendations - delete]"
     - url: "/recommendations"
     - method: "PUT"
     - headers: {Authorization: tokenUser2}
@@ -12,6 +13,7 @@
 
 - test:
     - name: "Add recommendation - from 3 to 1"
+    - group: "[recommendations - delete]"
     - url: "/recommendations"
     - method: "PUT"
     - headers: {Authorization: tokenUser3}
@@ -20,6 +22,7 @@
 
 - test:
     - name: "Get user - two recommendations"
+    - group: "[recommendations - delete]"
     - url: "/users/1"
     - method: "GET"
     - headers: {Authorization: tokenUser1}
@@ -30,6 +33,7 @@
 
 - test:
     - name: "Delete recommendation"
+    - group: "[recommendations - delete]"
     - url: "/recommendations?from=2&to=1"
     - method: "DELETE"
     - headers: {Authorization: tokenUser2}
@@ -37,6 +41,7 @@
 
 - test:
     - name: "Get user - one recommendation"
+    - group: "[recommendations - delete]"
     - url: "/users/1"
     - method: "GET"
     - headers: {Authorization: tokenUser1}

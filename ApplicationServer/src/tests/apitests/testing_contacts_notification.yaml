@@ -4,6 +4,7 @@
 
 - test:
     - name: "Set notifications token"
+    - group: "[contacts - notification]"
     - url: "/notificationtokens/2"
     - headers: {Authorization: tokenUser2}
     - method: "PUT"
@@ -12,6 +13,7 @@
 
 - test:
     - name: "Add contact"
+    - group: "[contacts - notification]"
     - url: "/contacts"
     - headers: {Authorization: tokenUser1}
     - method: "PUT"
