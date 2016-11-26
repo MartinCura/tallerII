@@ -22,12 +22,41 @@ add_subdirectory(tests)
 
 # Used to set a variable(SOURCE_FILES) that contains the name values of all of the source
 # files (.cpp) in the project
-file(GLOB_RECURSE SOURCE_FILES main.cpp api/*.cpp logger/*.cpp person/*.cpp api/handler/*.cpp tools/*.cpp config/*.cpp)
+file(GLOB_RECURSE SOURCE_FILES
+    main.cpp
+    api/*.cpp
+    api/*.h
+    logger/*.cpp
+    person/*.cpp
+    api/handler/*.cpp
+    api/handler/*.h
+    tools/*.cpp
+    config/*.cpp
+)
 
 # Requests that an executable is to be built using ${SOURCE_FILES}. 
 # The first argument is the name of the executable
 # The second argument are the source files from wich to build the executable
-add_executable(${TARGET} ${SOURCE_FILES} DB/ApplicationSDB.cpp DB/ApplicationSDB.h Exceptions/UserAlreadyExistsException.h  Exceptions/UserNotFoundException.h DB/DBWrapper.cpp DB/DBWrapper.h api/handler/LoginHandler.cpp api/handler/LoginHandler.h Exceptions/InvalidPasswordException.h session/SessionManager.cpp session/SessionManager.h Exceptions/InvalidTokenException.h Exceptions/TokenExpiredException.h session/Session.cpp session/Session.h Security/Security.cpp Security/Security.h Exceptions/NotAuthorizedException.h)
+add_executable(${TARGET} ${SOURCE_FILES}
+    DB/ApplicationSDB.cpp
+    DB/ApplicationSDB.h
+    Exceptions/UserAlreadyExistsException.h
+    Exceptions/UserNotFoundException.h
+    DB/DBWrapper.cpp
+    DB/DBWrapper.h
+    api/handler/LoginHandler.cpp
+    api/handler/LoginHandler.h
+    Exceptions/InvalidPasswordException.h
+    session/SessionManager.cpp
+    session/SessionManager.h
+    Exceptions/InvalidTokenException.h
+    Exceptions/TokenExpiredException.h
+    session/Session.cpp
+    session/Session.h
+    Security/Security.cpp
+    Security/Security.h
+    Exceptions/NotAuthorizedException.h
+)
 
 target_link_libraries (${TARGET} Mongoose)
 target_link_libraries (${TARGET} JsonCpp)
