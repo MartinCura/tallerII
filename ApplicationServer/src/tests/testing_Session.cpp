@@ -4,8 +4,8 @@
 
 
 #include <gtest/gtest.h>
-#include "../../session/SessionManager.h"
-#include "../../Exceptions/InvalidTokenException.h"
+#include "../session/SessionManager.h"
+#include "../Exceptions/InvalidTokenException.h"
 
 TEST(SessionToken, trySession) {
     std::string* namedb = new std::string();
