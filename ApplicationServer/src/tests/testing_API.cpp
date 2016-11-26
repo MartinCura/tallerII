@@ -99,7 +99,12 @@ TEST(Testing, Api) {
     std::thread t1(runAppServer);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_pictures.yaml", dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_allusers.yaml", dbName);
-    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_commonErrors.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_addContact.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_rejectContact.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_deleteContact.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_twoContacts.yaml", dbName);
+    runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_contacts_notification.yaml", dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_messages.yaml", dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_notificationtoken.yaml", dbName);
     runTest("resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/testing_recommendations.yaml", dbName);
