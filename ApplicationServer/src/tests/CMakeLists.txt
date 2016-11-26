@@ -70,6 +70,8 @@ add_executable (${TARGET} ${SOURCES}
     ../tools/DbBuilder.h
     ../tools/MainHelper.cpp
     ../tools/MainHelper.h
+    ../tools/NotificationSender.cpp
+    ../tools/NotificationSender.h
     ../api/handler/AllUsersHandler.cpp
     ../api/handler/ContactsHandler.cpp
     ../api/handler/ConversationsHandler.cpp

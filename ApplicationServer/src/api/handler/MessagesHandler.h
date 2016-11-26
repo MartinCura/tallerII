@@ -5,6 +5,7 @@
 #include "Handler.h"
 #include "../../person/messages/Message.h"
 #include "../../logger/Logger.h"
+#include "../../tools/NotificationSender.h"
 #include "../../Exceptions/NonexistentNotificationToken.h"
 #include <algorithm>
 #include <vector>
@@ -32,9 +33,6 @@ private:
     vector<Message*> doTruncate(vector<Message*> messages, int first, int last);
     Json::Value buildJsonResponse(vector<Message*> messages, long totalCount);
     void sendNotification(string savedMessage, PersonManager* personManager);
-    string buildRequest(string savedMessage, PersonManager* personManager);
-    string buildStringRequest(long fromUserId, long toUserId, string message, string timestamp, string token);
-    string performRequest(string request);
 };
 
 #endif //PROJECT_MESSAGESHANDLER_H

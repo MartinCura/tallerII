@@ -165,55 +165,19 @@ vector<Message*> MessagesHandler::doTruncate(vector<Message*> messages, int firs
 
 void MessagesHandler::sendNotification(string savedMessage, PersonManager* personManager) {
     try {
-        string request = this->buildRequest(savedMessage, personManager);
-        string response = this->performRequest(request);
-        Logger::getInstance()->debug("Request realizado: \n" + request + "\n");
-        Logger::getInstance()->debug("Respuesta: \n" + response + "\n");
+        Json::Value root;
+        Json::Reader reader;
+        reader.parse(savedMessage, root);
+        long fromUserId = root["from"].asLargestInt();
+        long toUserId = root["to"].asLargestInt();
+        string message = root["message"].asString();
+        string timestamp = root["timestamp"].asString();
+
+        string token = personManager->getNotificationTokenByUserId(toUserId);
+
+        NotificationSender* notificationSender = new NotificationSender();
+        string request = notificationSender->buildMessageRequest(fromUserId, toUserId, message, timestamp, token);
+        notificationSender->sendNotification(request);
+        delete notificationSender;
     } catch (NonexistentNotificationToken &e) {}
-}
-
-string MessagesHandler::buildRequest(string savedMessage, PersonManager* personManager) {
-    Json::Value root;
-    Json::Reader reader;
-    reader.parse(savedMessage, root);
-    long fromUserId = root["from"].asLargestInt();
-    long toUserId = root["to"].asLargestInt();
-    string message = root["message"].asString();
-    string timestamp = root["timestamp"].asString();
-
-    string token = personManager->getNotificationTokenByUserId(toUserId);
-
-    return this->buildStringRequest(fromUserId, toUserId, message, timestamp, token);
-}
-
-string MessagesHandler::buildStringRequest(long fromUserId, long toUserId, string message, string timestamp, string token) {
-    string postCommand = "curl -X POST";
-    string header = "";
-    header += "--header \"Authorization: key=AIzaSyD3T2nk8nqIRSN1VlPZ3QkUcrzHTD7JIfA\"";
-    header += " ";
-    header += "--header \"Content-Type: application/json\"";
-    string url = "https://fcm.googleapis.com/fcm/send";
-    string option = "-d";
-    string body = "";
-    body += "\"{\\\"to\\\":\\\"" + token + "\\\",";
-    body += "\\\"data\\\":{\\\"mensaje\\\":{";
-    body += "\\\"from\\\":" + to_string(fromUserId) + ",";
-    body += "\\\"message\\\":\\\"" + message + "\\\",";
-    body += "\\\"timestamp\\\":\\\"" + timestamp + "\\\",";
-    body += "\\\"to\\\":" + to_string(toUserId);
-    body += "}}}\"";
-    string request = postCommand + " " + header + " " + url + " " + option + " " + body;
-    return request;
-}
-
-string MessagesHandler::performRequest(string request) {
-    char buffer[128];
-    std::string result = "";
-    std::shared_ptr<FILE> pipe(popen(request.c_str(), "r"), pclose);
-    if (!pipe) throw std::runtime_error("Failed request to Firebase");
-    while (!feof(pipe.get())) {
-        if (fgets(buffer, 128, pipe.get()) != NULL)
-            result += buffer;
-    }
-    return result;
 }
