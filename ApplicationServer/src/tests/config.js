@@ -1,7 +1,7 @@
 {
     "DbName" : "/tmp/testingApiDb",
-    "imgDir": "../ApplicationServer/img/profile/",
-    "logsDir": "../ApplicationServer/logs/",
+    "imgDir": "/tmp/testingApiDb/img/profile/",
+    "logsDir": "/tmp/testingApiDb/logs/",
     "firebaseUrl": "http://www.someurl.com",
     "firebaseAuthorizationKey": "someKey"
 }

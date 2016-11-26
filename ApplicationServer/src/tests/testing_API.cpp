@@ -75,8 +75,24 @@ void deleteDB(string dbName) {
     system(removeDataBaseCommand.c_str());
 }
 
-void runTest(string test, string dbName) {
+void reloadImages() {
+    string command = "mkdir -p " + Config::getInstance()->get(Config::IMG_FOLDER);
+    int result = system(command.c_str());
+    if (result != 0) {
+        ASSERT_TRUE(false) << "No se ha podido crear el directorio para cargar las imagenes de prueba";
+    }
+    command = "cp ../ApplicationServer/src/tests/img/* " + Config::getInstance()->get(Config::IMG_FOLDER);
+    result = system(command.c_str());
+    if (result != 0) {
+        ASSERT_TRUE(false) << "No se han podido cargar las imagenes de prueba";
+    }
+}
+
+void runTest(string test, string dbName, bool shouldReloadImages) {
     loadDB();
+    if (shouldReloadImages) {
+        reloadImages();
+    }
     int result = system(test.c_str());
     if (result != 0) {
         ASSERT_TRUE(false) << "Fallo el test: " + test;
@@ -103,10 +119,13 @@ TEST(Testing, Api) {
     if ((dir = opendir("../ApplicationServer/src/tests/apitests")) != NULL) {
         while ((ent = readdir (dir)) != NULL) {
             string fileName(ent->d_name);
-            size_t found = fileName.find("testing_");
-            if (found != string::npos) {
+            if (fileName.find("testing_") != string::npos) {
                 string test = "resttest.py http://127.0.0.1:8000 ../ApplicationServer/src/tests/apitests/" + fileName;
-                runTest(test, dbName);
+                bool shouldReloadImages = false;
+                if (fileName.find("picture") != string::npos) {
+                    shouldReloadImages = true;
+                }
+                runTest(test, dbName, shouldReloadImages);
             }
         }
         closedir (dir);
