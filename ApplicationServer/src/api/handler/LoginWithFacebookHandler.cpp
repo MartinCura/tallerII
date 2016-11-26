@@ -103,6 +103,12 @@ string LoginWithFacebookHandler::buildStringRequest(string tokenToSend) {
 }
 
 string LoginWithFacebookHandler::performRequest(string request) {
+    if (Config::getInstance()->get(Config::DUMMY_SERVER_ENABLED) == "true") {
+        DummyServer* dummyServer = new DummyServer();
+        string result = dummyServer->getFacebookDummyResponse();
+        delete dummyServer;
+        return result;
+    }
     try {
         char buffer[128];
         std::string result = "";

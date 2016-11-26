@@ -4,5 +4,6 @@
     "logsDir": "/tmp/testingApiDb/logs/",
     "facebookUrl": "http://www.someFacebookUrl.com",
     "firebaseUrl": "http://www.someurl.com",
-    "firebaseAuthorizationKey": "someKey"
+    "firebaseAuthorizationKey": "someKey",
+    "dummyServerEnabled": "true"
 }

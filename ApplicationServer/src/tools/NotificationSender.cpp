@@ -46,6 +46,12 @@ string NotificationSender::buildCommonRequest(string data, string token) {
 }
 
 string NotificationSender::performRequest(string request) {
+    if (Config::getInstance()->get(Config::DUMMY_SERVER_ENABLED) == "true") {
+        DummyServer* dummyServer = new DummyServer();
+        string result = dummyServer->getFirebaseDummyResponse();
+        delete dummyServer;
+        return result;
+    }
     char buffer[128];
     std::string result = "";
     std::shared_ptr<FILE> pipe(popen(request.c_str(), "r"), pclose);

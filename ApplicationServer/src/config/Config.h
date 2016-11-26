@@ -21,6 +21,7 @@ public:
     static const char* FACEBOOK_URL;
     static const char* FIREBASE_URL;
     static const char* FIREBASE_AUTHORIZATION_KEY;
+    static const char* DUMMY_SERVER_ENABLED;
 
     static Config* getInstance();
     virtual ~Config();

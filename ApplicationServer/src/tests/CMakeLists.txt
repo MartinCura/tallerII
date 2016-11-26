@@ -72,6 +72,8 @@ add_executable (${TARGET} ${SOURCES}
     ../tools/MainHelper.h
     ../tools/NotificationSender.cpp
     ../tools/NotificationSender.h
+    ../tools/DummyServer.cpp
+    ../tools/DummyServer.h
     ../api/handler/AllUsersHandler.cpp
     ../api/handler/ContactsHandler.cpp
     ../api/handler/ConversationsHandler.cpp

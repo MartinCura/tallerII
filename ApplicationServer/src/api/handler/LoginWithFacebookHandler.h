@@ -7,6 +7,7 @@
 #include "../../person/Person.h"
 #include "../../logger/Logger.h"
 #include "../../config/Config.h"
+#include "../../tools/DummyServer.h"
 #include "../../Exceptions/ErrorLoginWithFacebookException.h"
 #include "../../session/SessionManager.h"
 #include <cstdio>

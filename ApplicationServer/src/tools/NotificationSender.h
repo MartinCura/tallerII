@@ -10,6 +10,7 @@
 #include <string>
 #include "../logger/Logger.h"
 #include "../config/Config.h"
+#include "../tools/DummyServer.h"
 
 using namespace std;
 
