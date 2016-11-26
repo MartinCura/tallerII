@@ -36,15 +36,10 @@ Response* PictureHandler::handleDeleteRequest(http_message* httpMessage, string 
     Response* response = new Response();
     if(!this->existsPictureForId(userId)) {
         response->setNotFoundHeader();
-        response->setErrorBody("No such image");
+        response->setErrorBody("Cannot find requested picture");
     } else {
-        try {
-            this->deletePicture(userId);
-            response->setSuccessfulHeader();
-        } catch (ErrorDeletingFileException &e) {
-            response->setInternalServerErrorHeader();
-            response->setErrorBody(e.getMessage());
-        }
+        this->deletePicture(userId);
+        response->setSuccessfulHeader();
     }
     return response;
 }
@@ -56,13 +51,7 @@ Response* PictureHandler::handlePutRequest(http_message* httpMessage, string url
     if (!Security::hasPermissionToEditProfilePicture(this->session->getUserId(), userId)) throw NotAuthorizedException();
     Response* response = new Response;
     if (this->existsPictureForId(userId)) {
-        try {
-            this->deletePicture(userId);
-        } catch (ErrorDeletingFileException &e) {
-            response->setInternalServerErrorHeader();
-            response->setErrorBody(e.getMessage());
-            return response;
-        }
+        this->deletePicture(userId);
     }
     this->savePicture(userId, httpMessage->body.p, httpMessage->body.len);
     response->setSuccessfulHeader();

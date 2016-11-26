@@ -1,0 +1,10 @@
+---
+- config:
+    - testset: "Testing pictures - get"
+
+- test:
+    - name: "Get picture ok"
+    - url: "/profilepicture/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - expected_status: [200] # ok

@@ -1,0 +1,11 @@
+---
+- config:
+    - testset: "Testing pictures - add"
+
+- test:
+    - name: "Save picture"
+    - url: "/profilepicture/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "PUT"
+    - body: '00000000000000000000000000000000000000000000000000000'
+    - expected_status: [200] # ok
