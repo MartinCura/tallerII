@@ -132,5 +132,6 @@ TEST(Testing, Api) {
     }
     s_sig_num = 1;
     t1.join();
+    delete Logger::getInstance();
     delete Config::getInstance();
 }
