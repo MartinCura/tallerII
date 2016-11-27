@@ -55,7 +55,6 @@ std::string SessionManager::getNewToken() {
                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                     "abcdefghijklmnopqrstuvwxyz";
 
-    srand ((unsigned int)time(NULL));
 
     for (int i = 0; i < token_length; ++i) {
         token[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
@@ -88,8 +87,8 @@ void SessionManager::saveToken(std::string token, std::string user_mail) {
 
     token2_string = fastWriter.write(jtoken2);
 
-    db->puTKey(USER_TOKEN + user_mail, &token_string);
-    db->puTKey(USER_TOKEN + token, &token2_string);
+    db->putKey(USER_TOKEN + user_mail, &token_string);
+    db->putKey(USER_TOKEN + token, &token2_string);
 
 
 }

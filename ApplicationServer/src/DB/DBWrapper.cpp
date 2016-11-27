@@ -31,7 +31,7 @@ DBWrapper::ResponseCode DBWrapper::getKey(std::string key, std::string *output) 
 }
 
 
-DBWrapper::ResponseCode DBWrapper::puTKey(std::string key, std::string *value) {
+DBWrapper::ResponseCode DBWrapper::putKey(std::string key, std::string *value) {
     if (!db) {
         throw std::exception(); //Se debe primero iniciar la base
     }

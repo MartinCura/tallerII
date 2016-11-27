@@ -177,7 +177,7 @@ string MessagesHandler::buildRequest(string savedMessage, PersonManager* personM
     long toUserId = root["to"].asLargestInt();
     string message = root["message"].asString();
 
-    Person* person = personManager->getPersonById(fromUserId);
+    Person* person = personManager->getUserById(fromUserId);
     string fromUserName = person->getFirstName() + " " + person->getLastName();
     delete person;
 

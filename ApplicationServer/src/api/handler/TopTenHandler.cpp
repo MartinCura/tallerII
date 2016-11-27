@@ -15,7 +15,7 @@ Response *TopTenHandler::handlePostRequest(http_message *httpMessage) {
 /// \param p1
 /// \param p2
 /// \return true si p1 es mayor a p2
-bool myfunction (Person* p1,Person* p2) {
+bool TopTenHandler::myfunction (Person* p1,Person* p2) {
     return p1->getTotalOfRecommendations() > p2->getTotalOfRecommendations();
 }
 
@@ -42,7 +42,7 @@ Response *TopTenHandler::handleGetRequest(http_message *httpMessage, string url)
         result = personManager->searchByJobPosition(whichOne);
     }
 
-    std::sort ((*result).begin(), (*result).end(), myfunction);
+    std::sort ((*result).begin(), (*result).end(), this->myfunction);
 
     //TODO:COMPROBAR QUE EL SKILL SEA VALIDO
     Json::Value jresult;

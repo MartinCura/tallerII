@@ -117,7 +117,7 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
 
     Json::FastWriter fastWriter;
     std::string person_string = fastWriter.write(new_user->serializeMe());
-    db->puTKey(USER_MAIL_ID + user_mail, &person_string);
+    db->putKey(USER_MAIL_ID + user_mail, &person_string);
     delete new_user;
     return new_user->getId();
 }
@@ -125,7 +125,7 @@ long PersonManager::savePerson(Json::Value juser_new_information, long forceID) 
     std::string user_mail, user_password, user_name, user_information, person_string;
     Person* user = new Person(juser_new_information);
     long uniqueId;
-
+    std::cout << juser_new_information.toStyledString()<<endl;
     user_mail= user->getEmail();
     user_name = user->getFullName();
     user_password = user->getPassword();
@@ -328,10 +328,14 @@ void PersonManager::validateUsersOfRequest(long fromUserId, long toUserId) {
 }
 
 long PersonManager::generateID() {
-    std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::system_clock::now().time_since_epoch() );
-    srand ((unsigned int)time(NULL));
+    std::string last_id;
+    db->getKey("lastID", &last_id);
+    std::string new_last_id = std::to_string(std::stol(last_id) + 1);
+    db->putKey("lastID", &new_last_id);
+    return std::stol(last_id) + 1;
+    /*std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::system_clock::now().time_since_epoch() );
     int rand = std::rand();
-    return  labs(ms.count() << 3 + rand % 100);
+    return  labs(ms.count() << 2 + rand % 100);*/
 }
 
 string PersonManager::getNotificationTokenByUserId(long userId) {

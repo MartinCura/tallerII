@@ -15,7 +15,7 @@ Response *SearchHandler::handlePostRequest(http_message *httpMessage) {
 /// \param p1
 /// \param p2
 /// \return true si p1 es mayor a p2
-bool myfunction (Person* p1,Person* p2) {
+bool SearchHandler::myfunction (Person* p1,Person* p2) {
     return p1->getTotalOfRecommendations() > p2->getTotalOfRecommendations();
 }
 

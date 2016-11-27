@@ -20,5 +20,5 @@ string NotificationTokenManager::getTokenByUserId(long userId) {
 
 void NotificationTokenManager::setOrUpdateToken(long userId, string token) {
     string key = TOKEN_KEY_FOR_DATABASE + to_string(userId);
-    this->db->puTKey(key, &token);
+    this->db->putKey(key, &token);
 }

@@ -20,7 +20,7 @@ public:
     static DBWrapper * openDb(std::string *nameDB);
 
     DBWrapper::ResponseCode getKey(std::string key, std::string *output);
-    DBWrapper::ResponseCode puTKey(std::string key, std::string *output);
+    DBWrapper::ResponseCode putKey(std::string key, std::string *output);
     DBWrapper::ResponseCode deleteKey(std::string key);
     DBWrapper::ResponseCode existsKey(std::string key, std::string *output);
     DBWrapper::ResponseCode destroyDB(std::string *nameDB);

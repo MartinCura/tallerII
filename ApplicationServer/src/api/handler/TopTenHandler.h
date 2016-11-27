@@ -7,6 +7,7 @@
 
 
 #include "Handler.h"
+#include "../../person/Person.h"
 
 class TopTenHandler : public Handler{
 public:
@@ -19,6 +20,8 @@ private:
     string getOrderTypeFromQueryParams(string query_params);
 
     string getWhichOneFromQueryParams(string query_params);
+
+    bool static myfunction(Person *p1, Person *p2);
 };
 
 

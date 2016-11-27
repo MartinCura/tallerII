@@ -16,7 +16,7 @@ Response* ContactsHandler::handleGetRequest(http_message* httpMessage, string ur
         responseBody["metadata"]["count"] = contacts.size();
         for (vector<Contact*>::size_type i = 0; i < contacts.size(); i++) {
             Contact* contact = contacts[i];
-            Person* person = personManager->getPersonById(contact->getUserId());
+            Person* person = personManager->getUserById(contact->getUserId());
             Json::Value contactAsJson;
             contactAsJson["id"] = person->getId();
             contactAsJson["first_name"] = person->getFirstName();

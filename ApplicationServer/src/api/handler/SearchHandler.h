@@ -7,6 +7,7 @@
 
 
 #include "Handler.h"
+#include "../../person/Person.h"
 
 class SearchHandler: public Handler {
 public:
@@ -20,7 +21,7 @@ private:
     string getWhichOneFromQueryParams(string query_params);
     long getPageSizeFromQueryParams(string query_params);
     long getPageNumberFromQueryParams(string query_params);
-
+    bool static myfunction(Person *p1, Person *p2);
 };
 
 
