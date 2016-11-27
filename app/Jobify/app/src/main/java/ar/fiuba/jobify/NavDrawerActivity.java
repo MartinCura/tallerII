@@ -192,7 +192,7 @@ public class NavDrawerActivity extends AppCompatActivity
         MenuItem solItem = navMenu.findItem(R.id.nav_solicitudes);
         // Si fue quitado, lo vuelvo a agregar
         if (solItem == null) {
-            solItem = navMenu.add(0, Menu.NONE, Menu.NONE, R.string.nav_solicitudes_option);
+            solItem = navMenu.add(0, Menu.NONE, 3, R.string.nav_solicitudes_option);
         }
         final MenuItem solicitudesItem = solItem;
         final MenuItem conversacionesItem = navMenu.findItem(R.id.nav_conversaciones);
@@ -215,8 +215,8 @@ public class NavDrawerActivity extends AppCompatActivity
                                 String newTitle = getString(R.string.nav_solicitudes_option)
                                         + " (" + cantSolicitudes + ")";
                                 solicitudesItem.setTitle(newTitle);
-                            } else {
-                                navMenu.removeItem(R.id.nav_solicitudes);
+//                            } else {
+//                                navMenu.removeItem(R.id.nav_solicitudes);
                             }
                         }
                     }
@@ -252,7 +252,7 @@ public class NavDrawerActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_manage) {
+        if (id == R.id.nav_settings) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
             startActivity(
