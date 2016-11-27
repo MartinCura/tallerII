@@ -48,9 +48,9 @@ int Conversation::getUnreadCount() {
 
 Json::Value Conversation::serializeMe() {
     Json::Value conversationAsJson;
-    conversationAsJson[WITH_KEY] = this->with;
-    conversationAsJson[FIRST_NAME_KEY] = this->firstName;
-    conversationAsJson[LAST_NAME_KEY] = this->lastName;
-    conversationAsJson[UNREAD_COUNT_KEY] = this->unreadCount;
+    conversationAsJson[WITH_KEY] = this->getWith();
+    conversationAsJson[FIRST_NAME_KEY] = this->getFirstName();
+    conversationAsJson[LAST_NAME_KEY] = this->getLastName();
+    conversationAsJson[UNREAD_COUNT_KEY] = this->getUnreadCount();
     return conversationAsJson;
 }

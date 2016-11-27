@@ -59,10 +59,10 @@ string Message::getState() {
 
 Json::Value Message::serializeMe() {
     Json::Value messageAsJson;
-    messageAsJson["from"] = this->fromUserId;
-    messageAsJson["to"] = this->toUserId;
-    messageAsJson["message"] = this->message;
-    messageAsJson["timestamp"] = this->timestamp;
-    messageAsJson["state"] = this->state;
+    messageAsJson["from"] = this->getFromUserId();
+    messageAsJson["to"] = this->getToUserId();
+    messageAsJson["message"] = this->getMessage();
+    messageAsJson["timestamp"] = this->getTimestamp();
+    messageAsJson["state"] = this->getState();
     return messageAsJson;
 }
