@@ -1,0 +1,143 @@
+---
+- config:
+    - testset: "Testing conversations url"
+
+- test:
+    - name: "conversations - empty"
+    - group: "[conversations]"
+    - url: "/conversations/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 0}
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 0}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Add messages - send message from 1 to 2"
+    - group: "[conversations]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"from": 1, "to": 2, "message": "hola, como estas?"}'
+    - validators:
+          - compare: {jsonpath_mini: "from", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "to", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "message", comparator: "eq", expected: "hola, como estas?"}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Add messages - send message from 2 to 1"
+    - group: "[conversations]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser2}
+    - body: '{"from": 2, "to": 1, "message": "todo bien, vos?"}'
+    - validators:
+          - compare: {jsonpath_mini: "from", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "to", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "message", comparator: "eq", expected: "todo bien, vos?"}
+    - expected_status: [200] # ok
+
+
+- test:
+    - name: "Add messages - send message from 1 to 2"
+    - group: "[conversations]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"from": 1, "to": 2, "message": "todo en orden"}'
+    - validators:
+          - compare: {jsonpath_mini: "from", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "to", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "message", comparator: "eq", expected: "todo en orden"}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Add messages - send message from 2 to 1"
+    - group: "[conversations]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser2}
+    - body: '{"from": 2, "to": 1, "message": "me alegro mucho! :)"}'
+    - validators:
+          - compare: {jsonpath_mini: "from", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "to", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "message", comparator: "eq", expected: "me alegro mucho! :)"}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "conversations - get conversations of John Doe"
+    - group: "[conversations]"
+    - url: "/conversations/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "Jane"}
+          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "conversations.0.unread_count", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "conversations.0.with", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "conversations - get conversations of Jane Doe"
+    - group: "[conversations]"
+    - url: "/conversations/2"
+    - headers: {Authorization: tokenUser2}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "John"}
+          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "conversations.0.unread_count", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "conversations.0.with", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Add messages - get John Doe"
+    - group: "[conversations]"
+    - url: "/messages/1?user=2"
+    - method: "GET"
+    - headers: {Authorization: tokenUser1}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Add messages - get Jane Doe"
+    - group: "[conversations]"
+    - url: "/messages/2?user=1"
+    - method: "GET"
+    - headers: {Authorization: tokenUser2}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "conversations - get conversations of John Doe - all read"
+    - group: "[conversations]"
+    - url: "/conversations/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "Jane"}
+          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "conversations.0.unread_count", comparator: "eq", expected: 0}
+          - compare: {jsonpath_mini: "conversations.0.with", comparator: "eq", expected: 2}
+          - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 0}
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "conversations - get conversations of Jane Doe - all read"
+    - group: "[conversations]"
+    - url: "/conversations/2"
+    - headers: {Authorization: tokenUser2}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "John"}
+          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "conversations.0.unread_count", comparator: "eq", expected: 0}
+          - compare: {jsonpath_mini: "conversations.0.with", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 0}
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+    - expected_status: [200] # ok
