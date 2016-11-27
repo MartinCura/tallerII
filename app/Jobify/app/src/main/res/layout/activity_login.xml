@@ -119,7 +119,7 @@
                     android:textColor="@color/white"
                     style="?android:textAppearanceSmall"
                     android:textStyle="bold"
-                    facebook:login_text="INGRESAR CON FACEBOOk"/>
+                    facebook:login_text="INGRESAR CON FACEBOOK"/>
 
             </FrameLayout>
 
