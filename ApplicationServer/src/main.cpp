@@ -32,7 +32,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         struct mbuf body = processMessage(nc, httpMessage, webHandler, response);
         MainHelper* mainHelper = new MainHelper();
         if (!mainHelper->validBody(body, nc->send_mbuf)) {
-            Logger::getInstance()->info("Rearmando body de la respuesta");
             mbuf_remove(&nc->send_mbuf, nc->send_mbuf.len);
             processMessage(nc, httpMessage, webHandler, response);
         }
@@ -117,10 +116,10 @@ int main(int argc, char *argv[]) {
     s_http_server_opts.enable_directory_listing = "yes";
 
     try {
-        Config::getInstance()->load("../ApplicationServer/src/config.js");
+        Config::getInstance()->load("/usr/appServer/config.js");
     } catch (char const* exceptionMessage) {
         string errorMessage = "No se puede iniciar el servidor.\n";
-        errorMessage += "No se ha podido cargar el archivo de configuracion config.js ubicado en la carpeta src.\n";
+        errorMessage += "No se ha podido cargar el archivo de configuracion config.js ubicado en la carpeta /usr/appServer.\n";
         errorMessage += "Error: ";
         errorMessage += exceptionMessage;
         cout << errorMessage << endl;

@@ -2,6 +2,10 @@ message (STATUS "Building source code")
 
 set (CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage -std=c++0x")
 set (TARGET ApplicationServer_src)
+set (CPACK_GENERATOR "DEB")
+set (CPACK_DEBIAN_PACKAGE_MAINTAINER "David Doria")
+
+include(CPack)
 
 # Used to bring the header files into the build environment
 include_directories ("${PROJECT_SOURCE_DIR}/ApplicationServer/src/jsoncpp")
@@ -65,3 +69,13 @@ target_link_libraries (${TARGET} leveldb)
 # Creates a directory for log files
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ApplicationServer/logs")
 execute_process(COMMAND /bin/chmod 777 "${PROJECT_SOURCE_DIR}/ApplicationServer/logs")
+
+execute_process(COMMAND cp -rf "${PROJECT_SOURCE_DIR}/ApplicationServer/logs" "/usr/${INSTALLATION_DIR}")
+execute_process(COMMAND cp -rf "${PROJECT_SOURCE_DIR}/ApplicationServer/img" "/usr/${INSTALLATION_DIR}")
+execute_process(COMMAND cp "${PROJECT_SOURCE_DIR}/ApplicationServer/src/config.js" "/usr/${INSTALLATION_DIR}")
+
+set (INSTALLATION_DIR appServer)
+install(TARGETS ${TARGET} DESTINATION ${INSTALLATION_DIR})
+install(FILES ${PROJECT_SOURCE_DIR}/ApplicationServer/src/config.js DESTINATION ${INSTALLATION_DIR})
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/ApplicationServer/img DESTINATION ${INSTALLATION_DIR})
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/ApplicationServer/logs DESTINATION ${INSTALLATION_DIR} USE_SOURCE_PERMISSIONS)
