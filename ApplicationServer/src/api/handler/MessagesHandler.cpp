@@ -71,9 +71,6 @@ Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string ur
     } catch (InvalidRequestException &e) {
         response->setBadRequestHeader();
         response->setErrorBody(e.getMessage());
-    } catch (NonexistentNotificationToken &e) {
-        response->setBadRequestHeader();
-        response->setErrorBody(e.getMessage());
     }
     delete personManager;
     return response;

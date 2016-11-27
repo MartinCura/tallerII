@@ -1,7 +1,6 @@
 #include "Logger.h"
 
 const char *Logger::FILE_EXTENSION = ".log";
-const char *Logger::DIRECTORY = "../ApplicationServer/logs/";
 
 Logger* Logger::instance = NULL;
 
