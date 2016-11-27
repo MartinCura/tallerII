@@ -85,8 +85,8 @@ public class JobifyChat extends FirebaseMessagingService {
 
                 long sender= 0, receiver = 0;
                 try {
-                    receiver = message.getJSONObject("mensaje").getInt("to");
-                    sender = message.getJSONObject("mensaje").getInt("from");
+                    receiver = message.getJSONObject("mensaje").getLong("to");
+                    sender = message.getJSONObject("mensaje").getLong("from");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -147,7 +147,7 @@ public class JobifyChat extends FirebaseMessagingService {
 
                 long receiver = 0;
                 try {
-                    receiver = message.getJSONObject("solicitud").getInt("toId");
+                    receiver = message.getJSONObject("solicitud").getLong("toId");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
