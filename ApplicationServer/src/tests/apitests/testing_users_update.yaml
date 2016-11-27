@@ -19,7 +19,7 @@
     - url: "/users/1"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}
-    - body: '{"first_name": "Juan", "last_name": "Perez"}'
+    - body: '{"first_name": "Juan", "last_name": "Perez", "work_history": [{"company": "IBM", "from_date": "10/2012", "to_date": "", "position_title": "Developer"}], "skills": [{"category": "software", "description": "Java developer", "name": "Java"}]}'
     - expected_status: [200] # ok
 
 - test:
@@ -31,4 +31,11 @@
           - compare: {jsonpath_mini: "id", comparator: "eq", expected: 1}
           - compare: {jsonpath_mini: "first_name", comparator: "eq", expected: "Juan"}
           - compare: {jsonpath_mini: "last_name", comparator: "eq", expected: "Perez"}
+          - compare: {jsonpath_mini: "skills.0.category", comparator: "eq", expected: "software"}
+          - compare: {jsonpath_mini: "skills.0.description", comparator: "eq", expected: "Java developer"}
+          - compare: {jsonpath_mini: "skills.0.name", comparator: "eq", expected: "Java"}
+          - compare: {jsonpath_mini: "work_history.0.company", comparator: "eq", expected: "IBM"}
+          - compare: {jsonpath_mini: "work_history.0.from_date", comparator: "eq", expected: "10/2012"}
+          - compare: {jsonpath_mini: "work_history.0.position_title", comparator: "eq", expected: "Developer"}
+          - compare: {jsonpath_mini: "work_history.0.to_date", comparator: "eq", expected: ""}
     - expected_status: [200] # ok
