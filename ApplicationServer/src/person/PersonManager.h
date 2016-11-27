@@ -32,7 +32,7 @@ public:
      * USER_UUID_ID + <user_id> = <user_mail>
      * USER_PASSWORD + <user_mail> = <password>
      */
-    long savePerson(Json::Value juser_new_information, long forceID);
+    long savePerson(Json::Value juser_new_information, long forceID = -1);
 
     void deletePerson(long id);
     vector<Contact*> getContactsByUserId(long id);
@@ -59,14 +59,9 @@ private:
     void saveSkill(Skill *skill, string user_mail);
     void updateSkills(vector<Skill *> new_skills, vector<Skill *> old_skills, string user_mail);
     void deleteUserFromSkill(string skill_name, string user_mail);
-
-
     void savePositions(vector<WorkHistory *> positions, string user_mail);
-
     void savePosition(string position_title, string user_mail);
-
     void deleteUserFromJobPosition(string job_position, string user_mail);
-
     void updateWorkHistory(vector<WorkHistory *> new_positions, vector<WorkHistory *> old_positions, string user_mail);
 };
 

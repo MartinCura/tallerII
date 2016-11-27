@@ -1,4 +1,5 @@
 #include "WebHandler.h"
+#include "handler/SearchHandler.h"
 
 WebHandler::WebHandler() {}
 
@@ -74,7 +75,14 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 this->logResponse(response);
                 delete handler;
                 return response;
-            } else {
+            } else if (regex_match(url, regex("/search.*"))) {
+                this->logRequest(httpMessage);
+                handler = new SearchHandler();
+                response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
+            }else {
                 this->logRequest(httpMessage);
                 response->setNotFoundHeader();
                 this->logResponse(response);

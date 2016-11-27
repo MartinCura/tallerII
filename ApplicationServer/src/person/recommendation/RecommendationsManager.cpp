@@ -20,7 +20,7 @@ void RecommendationsManager::addRecommendation(long fromId, long toId) {
         Json::Value recommendationsAsJson = this->buildJsonToSave(currentRecommendations);
         Json::FastWriter fastWriter;
         string valueToSave = fastWriter.write(recommendationsAsJson);
-        this->db->puTKey(RECOMMENDATION_KEY + to_string(toId), &valueToSave);
+        this->db->putKey(RECOMMENDATION_KEY + to_string(toId), &valueToSave);
         updateTotalRecommendation(1, toId);
     }
 }
@@ -37,7 +37,7 @@ void RecommendationsManager::removeRecommendation(long fromId, long toId) {
         Json::Value recommendationsAsJson = this->buildJsonToSave(newRecommendations);
         Json::FastWriter fastWriter;
         string valueToSave = fastWriter.write(recommendationsAsJson);
-        this->db->puTKey(RECOMMENDATION_KEY + to_string(toId), &valueToSave);
+        this->db->putKey(RECOMMENDATION_KEY + to_string(toId), &valueToSave);
         updateTotalRecommendation(-1, toId);
     }
 }
@@ -112,7 +112,7 @@ void RecommendationsManager::updateTotalRecommendation(int delta, long id) {
 
     Json::FastWriter fastWriter;
     string updated_user = fastWriter.write(person->serializeMe());
-    this->db->puTKey(USER_MAIL_ID + output, &updated_user );
+    this->db->putKey(USER_MAIL_ID + output, &updated_user);
     delete person;
 
 

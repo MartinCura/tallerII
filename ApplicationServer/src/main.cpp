@@ -1,6 +1,5 @@
 #include "Mongoose/mongoose.h"
 #include "api/WebHandler.h"
-#include "logger/Logger.h"
 #include "tools/DbBuilder.h"
 
 static const char *s_http_port = "8000";
@@ -137,6 +136,8 @@ int main(int argc, char *argv[]) {
     DbBuilder* dbb = new DbBuilder();
     dbb->loadUsers();
     delete dbb;
+
+    srand ((unsigned int)time(NULL));
 
     while (s_sig_num == 0) {
         mg_mgr_poll(&mgr, 1000);

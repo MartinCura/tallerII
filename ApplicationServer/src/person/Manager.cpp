@@ -10,7 +10,7 @@
 void Manager::saveUser(Person *user) {
     Json::FastWriter fastWriter;
     string person_string = fastWriter.write(user->serializeMe());
-    db->puTKey(USER_MAIL_ID + user->getEmail(), &person_string);
+    db->putKey(USER_MAIL_ID + user->getEmail(), &person_string);
 }
 
 bool Manager::userExistsMail(string user_mail) {
@@ -25,16 +25,16 @@ bool Manager::userExists(long user_id) {
 
 void Manager::saveUserNameKey(Person *user) {
     string user_mail = user->getEmail();
-    db->puTKey(USER_NAME_ID + user->getFullName() + "_" + user_mail, &user_mail);
+    db->putKey(USER_NAME_ID + user->getFullName() + "_" + user_mail, &user_mail);
 }
 
 void Manager::saveUserIdKey(Person *user) {
     string user_mail = user->getEmail();
-    db->puTKey(USER_UUID_ID + std::to_string(user->getId()), &user_mail);
+    db->putKey(USER_UUID_ID + std::to_string(user->getId()), &user_mail);
 }
 
 void Manager::saveUserPasswordKey(Person *user, string user_password) {
-    db->puTKey(USER_PASSWORD + user->getEmail(), &user_password);
+    db->putKey(USER_PASSWORD + user->getEmail(), &user_password);
 }
 
 Person *Manager::getUserByMail(string user_mail) {
@@ -49,11 +49,11 @@ Person *Manager::getUserByMail(string user_mail) {
 }
 
 void Manager::saveUserSkillKey(string skill_name, string value) {
-    db->puTKey(USER_SKILL + skill_name, &value);
+    db->putKey(USER_SKILL + skill_name, &value);
 }
 
 void Manager::saveUserJobPositionKey(string job_position, string value) {
-    db->puTKey(USER_JOBPOSITION + job_position, &value);
+    db->putKey(USER_JOBPOSITION + job_position, &value);
 }
 
 Json::Value Manager::getJsonFromString(std::string svalue) {

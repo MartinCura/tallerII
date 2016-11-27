@@ -11,9 +11,16 @@ DbBuilder::~DbBuilder() {
     delete namedb;
 }
 
+void DbBuilder::setLastId(){
+    std::string last_id = std::to_string(0);
+    db->putKey("lastID", &last_id);
+}
+
 void DbBuilder::loadUsers() {
+    setLastId();
     PersonManager *personManager = new PersonManager(this->db);
-    try {
+    RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
+    /*try {
         Person* person1 = this->getFakePerson1();
         personManager->savePerson(person1->serializeMe(), (long) 1);
         this->saveToken("tokenUser1", person1->getEmail());
@@ -31,8 +38,57 @@ void DbBuilder::loadUsers() {
         this->saveToken("tokenUser3", person3->getEmail());
         delete person3;
     } catch (UserAlreadyExistsException &exception) {}
-    delete personManager;
+    delete personManager;*/
+
+    vector<long> users_id;
+    vector<Skill*> skills_disponibles = getSkillsDisponibles();
+    vector<WorkHistory*> trabajos_disponibles = getTrabajosDisponibles();
+    for (int i = 0; i < 100; i++) {
+        Person* user = new Person();
+        user->setId(0);
+        user->setCity("Ciudad" + std::to_string(rand() % 5));
+        user->setDateOfBirth(std::to_string(rand() % 30 + 1) + "/" + std::to_string(rand() % 12 + 1) + "/1993");
+        user->setEmail("usuarioFalso" + std::to_string(i+1) + "@gmail.com");
+        user->setLastName("ApellidoFalso" + std::to_string(i + 1));
+        user->setFirstName("NombreFalso" + std::to_string(rand() % 100 + 1));
+        user->setSummary("DescripcionFalsa" + std::to_string(i + 1));
+        float x = -180.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(180.0 + 180.0)));
+        float y =  -180.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(180.0 + 180.0)));
+        user->setLocation(x, y);
+        user->setPassword("usuarioFalso" + std::to_string(i + 1));
+        int has_n_skills = rand() % 3;
+        int has_n_jobs = rand() % 3;
+        for (int j = 0; j < has_n_skills; j++) {
+            user->addSkill(skills_disponibles[rand() % skills_disponibles.size()]);
+        }
+
+        for (int h = 0; h < has_n_jobs; h++) {
+            user->addWorkHistory(trabajos_disponibles[rand() % trabajos_disponibles.size()]);
+        }
+
+        try {
+            long user_id = personManager->savePerson(user->serializeMe());
+            std::cout<< user_id << std::endl;
+            users_id.push_back(user_id);
+
+        }catch(UserAlreadyExistsException& exception1) {}
+
+    }
+
+    if (users_id.size() != 0) {
+        for (int k = 0; k < 200; k++) {
+            long from_id = users_id[rand() % users_id.size()];
+            long to_id = users_id[rand() % users_id.size()];
+            while (to_id == from_id) {
+                to_id = users_id[rand() % users_id.size()];
+            }
+            recommendationsManager->addRecommendation(from_id, to_id);
+        }
+    }
+
 }
+
+
 
 Person* DbBuilder::getFakePerson1() {
     Person* person = new Person();
@@ -165,6 +221,27 @@ void DbBuilder::saveToken(string token, string user_mail) {
 
     token2_string = fastWriter.write(jtoken2);
 
-    this->db->puTKey("user:token_" + user_mail, &token_string);
-    this->db->puTKey("user:token_" + token, &token2_string);
+    this->db->putKey("user:token_" + user_mail, &token_string);
+    this->db->putKey("user:token_" + token, &token2_string);
+}
+
+vector<Skill *> DbBuilder::getSkillsDisponibles() {
+    vector<Skill*> skills_disponibles;
+    for (int i = 0; i < 50; i++) {
+        Skill* skill = new Skill();
+        skill->setName("skill" + std::to_string(i + 1));
+        skills_disponibles.push_back(skill);
+    }
+
+    return skills_disponibles;
+}
+
+vector<WorkHistory *> DbBuilder::getTrabajosDisponibles() {
+    vector<WorkHistory*> trabajos_disponibles;
+    for (int i = 0; i < 10; i++) {
+        WorkHistory* workHistory = new WorkHistory();
+        workHistory->setPositionTitle("jobPosition" + std::to_string(i + 1));
+        trabajos_disponibles.push_back(workHistory);
+    }
+    return trabajos_disponibles;
 }

@@ -32,7 +32,7 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
     Response* response = new Response();
     try {
         long userId = this->getUserIdFromUrl(url);
-        Person *person = personManager->getPersonById(userId);
+        Person *person = personManager->getUserById(userId);
         response->setSuccessfulHeader();
         Json::Value body = person->serializeMe();
         body["recommendations"] = personManager->getRecommendationsByUserId(userId);
@@ -88,7 +88,7 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) 
 
     try {
 
-        Person* person = personManager->getPersonById(userId);
+        Person* person = personManager->getUserById(userId);
         person->updateMe(parsedBody);
         Json::Value jperson = person->serializeMe();
         personManager->updateUser(jperson);

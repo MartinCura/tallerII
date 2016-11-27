@@ -51,9 +51,7 @@ public:
     string getFullName();
 
     int getTotalOfRecommendations();
-
     void setTotalRecommendations(int i);
-
     string getPassword();
 
 private:

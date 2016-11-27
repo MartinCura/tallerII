@@ -15,7 +15,7 @@ Response *SearchHandler::handlePostRequest(http_message *httpMessage) {
 /// \param p1
 /// \param p2
 /// \return true si p1 es mayor a p2
-bool myfunction (Person* p1,Person* p2) {
+bool SearchHandler::myfunction (Person* p1,Person* p2) {
     return p1->getTotalOfRecommendations() > p2->getTotalOfRecommendations();
 }
 
@@ -23,11 +23,10 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
     string queryParams = this->getStringFromMgStr(httpMessage->query_string);
     std::cout << queryParams <<endl;
     Response* response = new Response();
-    string searchBy_type, whichOne;
+    string searchBy_type, search_value;
     long page_size, page_number;
     try {
-        searchBy_type = this->getSearchByFromQueryParams(queryParams);
-        whichOne = this->getWhichOneFromQueryParams(queryParams);
+        searchBy_type = this->getSearchByFromQueryParams(queryParams, &search_value);
         page_number = this->getPageNumberFromQueryParams(queryParams);
         page_size = this->getPageSizeFromQueryParams(queryParams);
 
@@ -41,13 +40,13 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
     vector<Person*>* result;
 
     if (searchBy_type.compare("name") == 0) {
-        result = personManager->searchByName(whichOne);
+        result = personManager->searchByName(search_value);
     } else if (searchBy_type.compare("mail") == 0) {
-        result = personManager->searchByMail(whichOne);
+        result = personManager->searchByMail(search_value);
     } else if (searchBy_type.compare("skill") == 0) {
-        result = personManager->searchBySkill(whichOne);
+        result = personManager->searchBySkill(search_value);
     } else {
-        result = personManager->searchByJobPosition(whichOne);
+        result = personManager->searchByJobPosition(search_value);
     }
 
     std::sort ((*result).begin(), (*result).end(), myfunction);
@@ -85,17 +84,61 @@ Response *SearchHandler::handlePutRequest(http_message *httpMessage, string url)
         return this->getNotImplementedResponse();
 }
 
-string SearchHandler::getSearchByFromQueryParams(string query_params) {
-    string orderBy_type = this->getParameterFromQueryParams(query_params, "orderBy");
-    if (orderBy_type.compare("name") != 0 || orderBy_type.compare("position") != 0 || orderBy_type.compare("skill") != 0 || orderBy_type.compare("mail") != 0) {
-        throw InvalidRequestException("No cumple con ninguno de los posibles filtros de busqueda. Están disponibles: skill/position/mail/name");
+
+bool SearchHandler::hasParameter(std::string query_params, std::string parameter) {
+    size_t found = query_params.find(parameter);
+
+    if (found == string::npos) {
+        return false;
     }
-    return orderBy_type;
+    if ((found + parameter.length() + 2) > query_params.length()) {
+        return false;
+    }
+    return true;
+
 }
 
-string SearchHandler::getWhichOneFromQueryParams(string query_params) {
-    return std::__cxx11::string();
+string SearchHandler::getParameterFromQueryParams(string queryParams, string parameter) {
+    size_t init_position = queryParams.find(parameter);
+    if (init_position == string::npos) {
+        throw InvalidRequestException("Missing " + parameter + " parameter");
+    }
+    std::string result = "";
+    //+1 porque tiene que ser la primera letra despues del =
+    for (int i = (int)init_position + (int)parameter.size() + 1; i < queryParams.size(); i++) {
+        if (queryParams[i] == '&' || queryParams[i] == '\n') {
+            return result;
+        }
+        result += queryParams[i];
+    }
 }
+
+
+string SearchHandler::getSearchByFromQueryParams(string query_params, string *search_value) {
+     //elemento de busqueda
+    if (hasParameter(query_params, "name")) {
+        *search_value = this->getParameterFromQueryParams(query_params, "name");
+        return  "name";
+    }
+
+    if (hasParameter(query_params, "position")) {
+        *search_value = this->getParameterFromQueryParams(query_params, "position");
+        return "position";
+    }
+
+    if (hasParameter(query_params, "skill")) {
+        *search_value = this->getParameterFromQueryParams(query_params, "skill");
+        return "skill";
+    }
+
+    if (hasParameter(query_params, "mail")) {
+        *search_value = this->getParameterFromQueryParams(query_params, "mail");
+        return "mail";
+    }
+    *search_value = "";
+    throw InvalidRequestException("No cumple con ninguno de los posibles filtros de busqueda. Están disponibles: skill/position/mail/name");
+}
+
 long SearchHandler::getPageSizeFromQueryParams(string query_params) {
 
     string size_of = this->getParameterFromQueryParams(query_params, "size");
@@ -119,4 +162,8 @@ long SearchHandler::getPageNumberFromQueryParams(string query_params) {
         throw InvalidRequestException("Page Number isn't an integer");
     }
     return ipage_number;
+}
+
+SearchHandler::SearchHandler() {
+    getPublic = true;
 }
