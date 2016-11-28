@@ -20,6 +20,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -81,21 +83,32 @@ public class JobifyChat extends FirebaseMessagingService {
 
             if (message.has("mensaje")){
 
-                int receiver = 0;
+                long sender= 0, receiver = 0;
                 try {
-                    receiver = message.getJSONObject("mensaje").getInt("from");
+                    receiver = message.getJSONObject("mensaje").getLong("to");
+                    sender = message.getJSONObject("mensaje").getLong("from");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                if (!(ConversacionActivity.activityVisible && ConversacionActivity.corresponsalID == receiver)) {
+                long currentId = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).getLong(getString(R.string.stored_connected_user_id), -1);
+                //Log.d("MYTAG", editor.g getLong( getString(R.string.stored_connected_user_id)));
+
+                if (receiver != currentId){
+                    // la app no esta abierta
+                    return;
+                }
+
+                if (!(ConversacionActivity.activityVisible && ConversacionActivity.corresponsalID == sender)) {
                     NotificationCompat.Builder mBuilder =
                             null;
                     try {
                         mBuilder = new NotificationCompat.Builder(this)
-                                .setContentTitle("Notificación")
+                                .setContentTitle("Nuevo mensaje")
                                 .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                                 .setAutoCancel(true)
+                                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mensaje))
+                                .setSmallIcon(R.drawable.logo_v2_j_square)
                                 .setContentText(message.getJSONObject("mensaje").getString("message"));
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -110,7 +123,7 @@ public class JobifyChat extends FirebaseMessagingService {
 
                     // Adds the Intent that starts the Activity to the top of the stack
                     stackBuilder.addNextIntent(resultIntent);
-                    resultIntent.putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, (long) receiver);
+                    resultIntent.putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, (long) sender);
                     PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
                     mBuilder.setContentIntent(resultPendingIntent);
 
@@ -128,6 +141,59 @@ public class JobifyChat extends FirebaseMessagingService {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+
+            } else if (message.has("solicitud")){
+
+                long receiver = 0;
+                try {
+                    receiver = message.getJSONObject("solicitud").getLong("toId");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                long currentId = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0).getLong(getString(R.string.stored_connected_user_id), -1);
+                //Log.d("MYTAG", editor.g getLong( getString(R.string.stored_connected_user_id)));
+
+                if (receiver != currentId){
+                    // la app no esta abierta
+                    return;
+                }
+
+                NotificationCompat.Builder mBuilder = null;
+                try {
+                    mBuilder = new NotificationCompat.Builder(this)
+                            .setContentTitle("Nueva solicitud")
+                            .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                            .setAutoCancel(true)
+                            .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.solicitud))
+                            .setSmallIcon(R.drawable.logo_v2_j_square)
+                            .setContentText(message.getJSONObject("solicitud").getString("fromNombre"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                Intent resultIntent = new Intent(this, UserListActivity.class);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                stackBuilder.addParentStack(UserListActivity.class);
+
+
+                // Adds the Intent that starts the Activity to the top of the stack
+                stackBuilder.addNextIntent(resultIntent);
+                resultIntent.putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                        UserListActivity.MODE_SOLICITUDES);
+                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                mBuilder.setContentIntent(resultPendingIntent);
+
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                Random r = new Random();
+                mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
+
+
             }
             // if this is a notification:
                 // TODO

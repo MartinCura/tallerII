@@ -264,15 +264,14 @@ public class ConversacionActivity extends NavDrawerActivity {
                     public void onErrorResponse(VolleyError error) {
                         showProgress(false);
 
-                        Log.d(LOG_TAG, "Error Listener. URL: " + urlMensajes);
-                        if (error.networkResponse != null) {
-                            if (error.networkResponse.statusCode == 403)
-                                Log.d(LOG_TAG, error.networkResponse.statusCode + " FORBIDDEN");
-                            else
-                                Log.d(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
-                        }
+                        Log.d(LOG_TAG, "Error carga de mensajes. URL: " + urlMensajes);
                         error.printStackTrace();
-                        Toast.makeText(ctx, "Error al intentar cargar mensajes", Toast.LENGTH_LONG)
+                        String sc = "";
+                        if (error.networkResponse != null) {
+                            sc = Utils.statusCodeString(error.networkResponse.statusCode);
+                            Log.d(LOG_TAG, sc);
+                        }
+                        Toast.makeText(ctx, "Error al intentar cargar mensajes\n" + sc, Toast.LENGTH_LONG)
                                 .show();
                     }
                 }, LOG_TAG);
@@ -373,13 +372,15 @@ public class ConversacionActivity extends NavDrawerActivity {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(context, "¡Mensaje no enviado!", Toast.LENGTH_LONG)
-                                    .show();
-                            Log.e(LOG_TAG, "Mensaje NO enviado: " + mensajeAEnviar);
-                            if (error.networkResponse != null)
-                                Log.e(LOG_TAG, "Status code de mensaje no enviado: "
-                                        + error.networkResponse.statusCode);
                             error.printStackTrace();
+                            String sc = "";
+                            Log.e(LOG_TAG, "Mensaje no enviado: " + mensajeAEnviar);
+                            if (error.networkResponse != null) {
+                                sc = Utils.statusCodeString(error.networkResponse.statusCode);
+                                Log.e(LOG_TAG, "Mensaje no enviado " + sc);
+                            }
+                            Toast.makeText(context, "¡Mensaje no enviado!\n" + sc, Toast.LENGTH_LONG)
+                                    .show();
                         }
                     }, LOG_TAG);
         }

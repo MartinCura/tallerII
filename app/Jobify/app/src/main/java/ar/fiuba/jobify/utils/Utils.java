@@ -1,5 +1,8 @@
 package ar.fiuba.jobify.utils;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -54,7 +58,6 @@ import ar.fiuba.jobify.ConversacionActivity;
 import ar.fiuba.jobify.PerfilActivity;
 import ar.fiuba.jobify.R;
 
-
 /**
  * Created by martín on 29/09/16.
  * Wrapper para herramientas.
@@ -80,6 +83,46 @@ public class Utils {
     }
 
     /////////////////////////////////////////// FETCHER ////////////////////////////////////////////
+
+    public interface ServerStatusCode {
+        int OK = 200,
+            OK_CREATED = 201,
+            OK_ACCEPTED = 202,
+            OK_NOCONTENT = 204,
+
+            BADREQUEST = 400,
+            UNAUTHORIZED = 401,
+            FORBIDDEN = 403,
+            NOTFOUND = 404,
+            CONFLICT = 409,
+            GONE = 410,
+
+            INTERNALERROR = 500,
+            NOTIMPLEMENTED = 501,
+            BADGATEWAY = 502;
+    }
+
+    @NonNull
+    public static String statusCodeString(int statusCode) {
+        switch (statusCode) {
+            case ServerStatusCode.OK:             return "OK";
+            case ServerStatusCode.OK_CREATED:     return "Creado";
+            case ServerStatusCode.OK_ACCEPTED:    return "Aceptado";
+            case ServerStatusCode.OK_NOCONTENT:   return "No content";
+            case ServerStatusCode.BADREQUEST:     return "Bad request";
+            case ServerStatusCode.UNAUTHORIZED:   return "No autorizado";
+            case ServerStatusCode.FORBIDDEN:      return "Prohibido";
+            case ServerStatusCode.NOTFOUND:       return "No encontrado";
+            case ServerStatusCode.CONFLICT:       return "Conflicto";
+            case ServerStatusCode.GONE:           return "Gone";
+            case ServerStatusCode.INTERNALERROR:  return "Error interno del server";
+            case ServerStatusCode.NOTIMPLEMENTED: return "No implementado";
+            case ServerStatusCode.BADGATEWAY:     return "Bad gateway";
+            default:
+                return "Error inesperado";
+        }
+    }
+
 
     public static String getAppServerBaseURL(Context ctx) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -228,7 +271,7 @@ public class Utils {
                 jsonRequest, responseListener, logTag);
     }
 
-    public static void fetchJsonFromUrl(Context context, int method, final String url,
+    public static void fetchJsonFromUrl(final Context context, int method, final String url,
                                         JSONObject jsonRequest,
                                         final Response.Listener<JSONObject> responseListener,
                                         final String logTag) {
@@ -237,25 +280,23 @@ public class Utils {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
                         // En caso de que no debía recibirse nada y el retorno fue correcto,
                         // correr el método para response correcto.
                         // // No debería correrse nunca ahora que modifiqué JsonObjectRequest
-                        if (error.networkResponse != null && error.networkResponse.statusCode == 200) {
+                        if (error.networkResponse != null
+                                && error.networkResponse.statusCode == ServerStatusCode.OK) {
                             try {
                                 responseListener.onResponse(new JSONObject("{}"));
                             } catch (JSONException ex) {
                                 Log.e(LOG_TAG, "JSON vacío no aceptado");
                             }
                         } else {
-                            Log.d(logTag, "Error Listener. URL: " + url);
+                            Log.e(logTag, "Error Listener. URL: " + url);
                             if (error.networkResponse != null) {
-                                if (error.networkResponse.statusCode == 403)
-                                    Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
-                                else
-                                    Log.d(logTag, "Status code: " + error.networkResponse.statusCode);
+                                String sc = statusCodeString(error.networkResponse.statusCode);
+                                Log.e(LOG_TAG, "Fetch error: " + sc);
                             }
-                            error.printStackTrace();
+//                            error.printStackTrace();
                         }
                     }
                 }, logTag);
@@ -310,11 +351,12 @@ public class Utils {
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {
+                        imageView.setVisibility(View.INVISIBLE);
                         if (squareCrop)
                             imageView.setImageBitmap(cropToSquare(bitmap));
                         else
                             imageView.setImageBitmap(bitmap);
-                        imageView.setVisibility(View.VISIBLE);
+                        animateViewVisibility(imageView, true);
                     }
                 }, imageView.getWidth(), imageView.getHeight(),
                 ImageView.ScaleType.CENTER_INSIDE, null,
@@ -324,21 +366,24 @@ public class Utils {
                     public void onErrorResponse(VolleyError error) {
                         if (error.networkResponse == null) {
                             Log.e(logTag, "Error de response, no pude cargar la imagen." +
-                                    "(url: "+url+")");
+                                    " (url: " + url + ")");
                             return;
                         }
-                        if (error.networkResponse.statusCode == 200) {
+                        if (error.networkResponse.statusCode == ServerStatusCode.OK) {
 //                            Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
                             return;
-                        } else if (error.networkResponse.statusCode == 403) {
-                            Log.d(logTag, error.networkResponse.statusCode + " FORBIDDEN");
-                        } else if (error.networkResponse.statusCode == 404) {
-                            Log.d(logTag, "Imagen no existe");
-                        } else {
-                            Log.e(logTag, "Error cargando imagen, response code: "
-                                    + error.networkResponse.statusCode);
                         }
+                        switch (error.networkResponse.statusCode) {
+                            case ServerStatusCode.NOTFOUND:
+                            case ServerStatusCode.OK_NOCONTENT:
+                                Log.d(logTag, "Imagen no existe");
+                                break;
+                            default:
+                                Log.d(logTag, "Error cargando imagen: " +
+                                        statusCodeString(error.networkResponse.statusCode));
+                        }
+
                         @DrawableRes int drawableId = R.drawable.ic_person;
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                             imageView.setImageDrawable(ctx.getDrawable(drawableId));
@@ -361,18 +406,20 @@ public class Utils {
         return true;
     }
 
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static @IdRes int[] perfilVisibilityViews = {
             R.id.perfil_nombre_editable_frame, R.id.text_perfil_trabajo_actual,
             R.id.text_perfil_ciudad, R.id.text_perfil_ciudad_editable_wrapper,
             R.id.text_perfil_ciudad_editable, R.id.boton_perfil_location,
-            R.id.text_perfil_cant_recomendaciones, R.id.text_perfil_resumen,
+            R.id.text_perfil_resumen,
             R.id.text_perfil_nacimiento, R.id.perfil_nacimiento_editable,
             R.id.text_perfil_resumen_editable_wrapper, R.id.perfil_experiencia_laboral_list,
             R.id.perfil_experiencia_laboral_list_editable, R.id.perfil_experiencia_laboral_list_new,
             R.id.perfil_skills_list, R.id.perfil_skills_list_editable, R.id.perfil_skills_list_new
     };
+//    R.id.text_perfil_cant_recomendaciones se maneja por separado
 
     // Devuelve -1 en caso de error
     public static int getTextViewInt(AppCompatActivity activity, @IdRes int idRes) {
@@ -440,6 +487,31 @@ public class Utils {
         View v = activity.findViewById(idRes);
         if (v != null)
             v.setVisibility(View.GONE);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public static void animateViewVisibility(final View v, final boolean show) {
+        if (v == null)
+            return;
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = 200;
+            v.setVisibility(show ? View.VISIBLE : View.GONE);
+            v.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    v.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+
+        } else {
+            // The ViewPropertyAnimator APIs are not available,
+            // so simply show and hide the relevant UI components.
+            v.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
     }
 
     public static void editTextSetErrorAndFocus(AppCompatActivity activity, @IdRes int resId, String errorMessage) {

@@ -40,6 +40,8 @@ public class NavDrawerActivity extends AppCompatActivity
 
     public long connectedUserID = 0;
 
+    private NavigationView navView;
+
 
     protected void onCreateDrawer(@IdRes int toolbarResId, @IdRes int drawerResId, @IdRes int navResId) {
         mDrawerResId = drawerResId;
@@ -71,12 +73,11 @@ public class NavDrawerActivity extends AppCompatActivity
             toggle.syncState();
         }
 
-        NavigationView navigationView = (NavigationView) findViewById(navResId);
-        if (navigationView != null) {
-            navigationView.setNavigationItemSelectedListener(this);
-            setUpNavigationMenu(navigationView);
+        navView = (NavigationView) findViewById(navResId);
+        if (navView != null) {
+            navView.setNavigationItemSelectedListener(this);
         } else {
-            Log.e(LOG_TAG, "Nav View no encontrado!");
+            Log.e(LOG_TAG, "Nav View no encontrado");
         }
 
 //        setUpDrawerHeader();
@@ -87,6 +88,10 @@ public class NavDrawerActivity extends AppCompatActivity
         super.onResume();
 
         setUpDrawerHeader();
+
+        if (navView != null) {
+            setUpNavigationMenu(navView);
+        }
     }
 
     private void setUpDrawerHeader() {
@@ -127,6 +132,10 @@ public class NavDrawerActivity extends AppCompatActivity
                     }
                 }, LOG_TAG);
 
+        setUpDrawerHeaderImage();
+    }
+
+    protected void setUpDrawerHeaderImage() {
         String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_thumbnail_path));
         ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
 
@@ -179,7 +188,13 @@ public class NavDrawerActivity extends AppCompatActivity
 
     public void setUpNavigationMenu(NavigationView navView) {
         final Menu navMenu = navView.getMenu();
-        final MenuItem solicitudesItem = navMenu.findItem(R.id.nav_solicitudes);
+
+        MenuItem solItem = navMenu.findItem(R.id.nav_solicitudes);
+        // Si fue quitado, lo vuelvo a agregar
+        if (solItem == null) {
+            solItem = navMenu.add(0, Menu.NONE, 3, R.string.nav_solicitudes_option);
+        }
+        final MenuItem solicitudesItem = solItem;
         final MenuItem conversacionesItem = navMenu.findItem(R.id.nav_conversaciones);
 
         String urlContactos = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
@@ -200,8 +215,8 @@ public class NavDrawerActivity extends AppCompatActivity
                                 String newTitle = getString(R.string.nav_solicitudes_option)
                                         + " (" + cantSolicitudes + ")";
                                 solicitudesItem.setTitle(newTitle);
-                            } else {
-                                navMenu.removeItem(R.id.nav_solicitudes);
+//                            } else {
+//                                navMenu.removeItem(R.id.nav_solicitudes);
                             }
                         }
                     }
@@ -218,7 +233,7 @@ public class NavDrawerActivity extends AppCompatActivity
                         if (convResponse == null) {
                             Log.e(LOG_TAG, "ConversationsResponse null");
                         } else {
-                            long cantUnread = convResponse.getMetadata().getTotalCount();
+                            long cantUnread = convResponse.getMetadata().getCount();
                             if (cantUnread > 0) {
                                 String newTitle = getString(R.string.nav_conversations_option)
                                         + " (" + cantUnread + ")";
@@ -237,7 +252,7 @@ public class NavDrawerActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_manage) {
+        if (id == R.id.nav_settings) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
             startActivity(
@@ -285,7 +300,7 @@ public class NavDrawerActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_logout) {
             Utils.confirmarAccion(this, "Cerrar sesión",
-                    "¿Está seguro de que quiere cerrar sesión?\nLo extrañaremos mucho...",
+                    "¿Está seguro de que quiere cerrar sesión?\n\nLo extrañaremos mucho...",
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
