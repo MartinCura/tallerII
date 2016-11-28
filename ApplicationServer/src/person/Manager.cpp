@@ -98,7 +98,7 @@ string Manager::getUserSkillKey(string skill){
 
 string Manager::getUserJobPositionKey(string job_position){
     string users_withSkill;
-    if (!db->existsKey(USER_SKILL + job_position, &users_withSkill)) throw KeyNotFound();
+    if (!db->existsKey(USER_JOBPOSITION + job_position, &users_withSkill)) throw KeyNotFound();
     return users_withSkill;
 }
 
