@@ -210,6 +210,9 @@ void PersonManager::saveSkills(std::vector<Skill *> user_newSkills, string user_
     }
 }
 
+/// Busca por nombre completo del skill que entra por parámetro.
+/// \param skill
+/// \return lista de usuarios que tienen el skill.
 vector<Person *> * PersonManager::searchBySkill(std::string skill) {
     string users_withSkill;
     std::vector<Person*>* users_result = new vector<Person*>();
