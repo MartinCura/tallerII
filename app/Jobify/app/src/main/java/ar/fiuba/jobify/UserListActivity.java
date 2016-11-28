@@ -45,6 +45,7 @@ import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.ConversationsResponse;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.shared_server_api.ResponseMetadata;
 import ar.fiuba.jobify.utils.RequestQueueSingleton;
 import ar.fiuba.jobify.utils.Utils;
 
@@ -252,7 +253,12 @@ public class UserListActivity extends NavDrawerActivity {
                             return;
                         }
 
-                        int cant = Long.valueOf(allUsersResponse.getMetadata().getCount()).intValue();
+                        int cant = 0;
+                        ResponseMetadata meta = allUsersResponse.getMetadata();
+                        if (meta != null) {
+                            cant = Long.valueOf(meta.getCount()).intValue();
+                        } else
+                            Log.e(LOG_TAG, "AllUsersResponse Metadata null!");
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
@@ -312,9 +318,11 @@ public class UserListActivity extends NavDrawerActivity {
                             return;
                         }
 
-                        mExpectedListSize =
-                                Long.valueOf(convResponse.getMetadata().getTotalCount()).intValue();
-
+                        ResponseMetadata meta = convResponse.getMetadata();
+                        if (meta != null) {
+                            mExpectedListSize = Long.valueOf(meta.getTotalCount()).intValue();
+                        } else
+                            Log.e(LOG_TAG, "ConversationsResponse Metadata null!");
                         if (mExpectedListSize == 0) {
                             mostrarNoHayResultados();
 
@@ -447,7 +455,13 @@ public class UserListActivity extends NavDrawerActivity {
                             mostrarNoHayResultados();
                             return;
                         }
-                        int cant = Long.valueOf(busqResponse.getMetadata().getCount()).intValue();
+
+                        int cant = 0;
+                        ResponseMetadata meta = busqResponse.getMetadata();
+                        if (meta != null)
+                            cant = Long.valueOf(meta.getCount()).intValue();
+                        else
+                            Log.e(LOG_TAG, "BusquedaResponse Metadata null!");
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 

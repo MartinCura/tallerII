@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public class ResponseMetadata {
 
-    String  version;
+    String  version = "";
     @SerializedName(value="count", alternate={"total_unread_count"})
     long      count = 0;
     long totalCount = 0;

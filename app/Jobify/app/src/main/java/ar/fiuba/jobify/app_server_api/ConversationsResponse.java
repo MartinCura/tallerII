@@ -32,6 +32,7 @@ public class ConversationsResponse {
         return conversations;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }

@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.shared_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -24,25 +25,12 @@ public class JobPositionsResponse {
         jobPositions = new ArrayList<>();
     }
 
-    public static JobPositionsResponse parseJSON(String response) {
-        Gson gson = new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .create();
-
-        try {
-            return gson.fromJson(response, JobPositionsResponse.class);
-
-        } catch (JsonSyntaxException e) {
-            Log.e("API", "Json Syntax exception!");
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public List<JobPosition> getJobPositions() {
         return jobPositions;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }
@@ -56,11 +44,28 @@ public class JobPositionsResponse {
         return null;
     }
 
+    @Nullable
     public JobPosition findPosition(String jobPos) {
         for (JobPosition jp : jobPositions) {
             if (jp.getName().equalsIgnoreCase(jobPos))
                 return jp;
         }
         return null;
+    }
+
+    @Nullable
+    public static JobPositionsResponse parseJSON(String response) {
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
+
+        try {
+            return gson.fromJson(response, JobPositionsResponse.class);
+
+        } catch (JsonSyntaxException e) {
+            Log.e("API", "Json Syntax exception!");
+            e.printStackTrace();
+            return null;
+        }
     }
 }

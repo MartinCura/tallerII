@@ -694,8 +694,11 @@ public class PerfilUtils {
                     tv_nombre.setText(contact.getFullName());
 
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.contact_card_trabajo);
-                if (tv_trabajo != null)
-                    tv_trabajo.setText(contact.getCurrentJob().getOneLiner());
+                if (tv_trabajo != null) {
+                    Employment currJob = contact.getCurrentJob();
+                    if (currJob != null)
+                        tv_trabajo.setText(currJob.getOneLiner());
+                }
 
                 // Corrijo altura de la lista horizontal de contactos
                 itemView.measure(0, 0);

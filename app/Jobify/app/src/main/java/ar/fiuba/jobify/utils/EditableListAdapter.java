@@ -1,6 +1,7 @@
 package ar.fiuba.jobify.utils;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,6 +108,7 @@ public class EditableListAdapter<T extends Nombrable> extends ArrayAdapter<T> {
         return populateEditableList(context, mListView, list, false);
     }
 
+    @Nullable
     public static <T extends Nombrable> EditableListAdapter<T> populateEditableList(Context context,
                                             ListView mListView, List<T> list, boolean limitHeight) {
         if (mListView != null) {

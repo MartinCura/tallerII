@@ -6,8 +6,7 @@ package ar.fiuba.jobify.shared_server_api;
  */
 public class Category {
 
-    String
-            name = "",
+    String  name = "",
             description = "";
 
 

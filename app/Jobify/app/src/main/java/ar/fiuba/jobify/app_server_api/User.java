@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.app_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -73,7 +74,9 @@ public class User {
         this.id = c.getId();
         this.firstName = c.getFirstName();
         this.lastName = c.getLastName();
-        this.workHistory.add(c.getCurrentJob());
+        Employment currJob = c.getCurrentJob();
+        if (currJob != null)
+            this.workHistory.add(currJob);
     }
 
     public long getId() {
@@ -261,10 +264,13 @@ public class User {
     }
 
     private void addEmployment(Employment emp) {
+        if (this.workHistory == null)
+            this.workHistory = new ArrayList<>();
         this.workHistory.add(emp);
     }
 
 
+    @Nullable
     public static User parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

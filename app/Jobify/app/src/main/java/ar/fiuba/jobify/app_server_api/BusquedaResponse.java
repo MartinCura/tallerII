@@ -32,6 +32,7 @@ public class BusquedaResponse {
         return users;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }

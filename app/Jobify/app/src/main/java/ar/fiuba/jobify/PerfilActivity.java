@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -774,6 +775,7 @@ public class PerfilActivity extends NavDrawerActivity {
         }
     }
 
+    @Nullable
     private File guardarImagen(Bitmap bitmap) {
         boolean success = false;
         File imageFile = null;

@@ -42,6 +42,7 @@ import java.util.List;
 import ar.fiuba.jobify.app_server_api.Message;
 import ar.fiuba.jobify.app_server_api.MessagesResponse;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.shared_server_api.ResponseMetadata;
 import ar.fiuba.jobify.utils.RequestQueueSingleton;
 import ar.fiuba.jobify.utils.Utils;
 
@@ -243,7 +244,11 @@ public class ConversacionActivity extends NavDrawerActivity {
                                 MessagesResponse.parseJSON(response.toString());
 
                         if (messagesResponse != null) {
-                            maxMensaje = messagesResponse.getMetadata().getTotalCount();
+                            ResponseMetadata meta = messagesResponse.getMetadata();
+                            if (meta != null)
+                                maxMensaje = meta.getTotalCount();
+                            else
+                                Log.e(LOG_TAG, "Metadata de MessagesResponse null!");
 
                             if (mMessageArrayAdapter != null)
                                 mMessageArrayAdapter.vaciar();
@@ -310,7 +315,11 @@ public class ConversacionActivity extends NavDrawerActivity {
                                 MessagesResponse.parseJSON(response.toString());
 
                         if (messagesResponse != null) {
-                            maxMensaje = messagesResponse.getMetadata().getTotalCount();
+                            ResponseMetadata meta = messagesResponse.getMetadata();
+                            if (meta != null)
+                                maxMensaje = meta.getTotalCount();
+                            else
+                                Log.e(LOG_TAG, "Metadata de MessagesResponse null!");
                             mMessageArrayAdapter.appendearMensajes(messagesResponse.getMessages());
                             mEndlessScrollListener.activar();
 

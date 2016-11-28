@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.shared_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -24,6 +25,7 @@ public class SkillsResponse {
         skills = new ArrayList<>();
     }
 
+    @Nullable
     public static SkillsResponse parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -43,10 +45,12 @@ public class SkillsResponse {
         return skills;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }
 
+    @Nullable
     public Skill findSkill(String skillName) {
         for (Skill sk : skills) {
             if (sk.getName().equalsIgnoreCase(skillName))

@@ -30,6 +30,7 @@ import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.ConversationsResponse;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.shared_server_api.ResponseMetadata;
 import ar.fiuba.jobify.utils.Utils;
 
 public class NavDrawerActivity extends AppCompatActivity
@@ -233,13 +234,17 @@ public class NavDrawerActivity extends AppCompatActivity
                         if (convResponse == null) {
                             Log.e(LOG_TAG, "ConversationsResponse null");
                         } else {
-                            long cantUnread = convResponse.getMetadata().getCount();
-                            if (cantUnread > 0) {
-                                String newTitle = getString(R.string.nav_conversations_option)
-                                        + " (" + cantUnread + ")";
-                                conversacionesItem.setTitle(newTitle);
-                                conversacionesItem.setIcon(R.drawable.ic_conversaciones_cerrado);
-                            }
+                            ResponseMetadata meta = convResponse.getMetadata();
+                            if (meta != null) {
+                                long cantUnread = convResponse.getMetadata().getCount();
+                                if (cantUnread > 0) {
+                                    String newTitle = getString(R.string.nav_conversations_option)
+                                            + " (" + cantUnread + ")";
+                                    conversacionesItem.setTitle(newTitle);
+                                    conversacionesItem.setIcon(R.drawable.ic_conversaciones_cerrado);
+                                }
+                            } else
+                                Log.e(LOG_TAG, "ConversationsResponse Metadata null!");
                         }
                     }
                 }, LOG_TAG);

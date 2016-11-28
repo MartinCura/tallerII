@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.app_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -31,6 +32,7 @@ public class MessagesResponse {
         return messages;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }
@@ -47,6 +49,7 @@ public class MessagesResponse {
     }
 
     /** Ordena de mayor a menor antes de devolver */
+    @Nullable
     public static MessagesResponse parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
