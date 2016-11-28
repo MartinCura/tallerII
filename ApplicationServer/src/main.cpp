@@ -14,7 +14,7 @@ struct mbuf processMessage(struct mg_connection *nc, struct http_message *httpMe
     struct mbuf body;
     body.buf = (char*) response->getBody();
     body.len = response->getBodyLength();
-    mg_printf(nc, response->getHeader());
+    mg_printf(nc, "%s", response->getHeader());
     if (response->hasBinaryContent) {
         mg_send_http_chunk(nc, body.buf, body.len);
     } else {
