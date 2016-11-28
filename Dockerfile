@@ -27,5 +27,9 @@ RUN make
 
 RUN ./ApplicationServer_test;
 
+COPY /ApplicationServer/logs /usr/appServer
+COPY /ApplicationServer/img /usr/appServer
+COPY /ApplicationServer/src/config.js /usr/appServer
+
 CMD ./ApplicationServer_src 
 
