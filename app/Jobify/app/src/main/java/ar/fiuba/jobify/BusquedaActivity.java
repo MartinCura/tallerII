@@ -79,7 +79,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                 ArrayList<String> jpArray = new ArrayList<>();
                 jpArray.add(opcionVaciaStr);
                 for (JobPosition jp : jobPositions) {
-                    jpArray.add(jp.getNombre());
+                    if (jp != null)
+                        jpArray.add(jp.getNombre());
                 }
                 ArrayAdapter<String> jpAdapter =
                         new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, jpArray);
@@ -118,7 +119,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                 ArrayList<String> skArray = new ArrayList<>();
                 skArray.add(opcionVaciaStr);
                 for (Skill sk : skills) {
-                    skArray.add(sk.getNombre());
+                    if (sk != null)
+                        skArray.add(sk.getNombre());
                 }
                 ArrayAdapter<String> skAdapter =
                         new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, skArray);

@@ -149,6 +149,8 @@ public class User {
     }
 
     public boolean fueRecomendadoPor(long pepito) {
+        if (recommendations == null)
+            return false;
         for (long i : recommendations)
             if (i == pepito)
                 return true;
@@ -198,11 +200,13 @@ public class User {
         return true;
     }
 
+    // Reemplaza los Skill ya guardados
     public void setSkills(List<Skill> skills) {
         // Chequeos?
         this.skills = new ArrayList<>(skills);
     }
 
+    // Reemplaza los Employment ya guardados
     public void setWorkHistory(List<Employment> workHistory) {
         // Chequeos?
         this.workHistory = new ArrayList<>(workHistory);
@@ -214,8 +218,10 @@ public class User {
      */
     public String getTrabajosActuales() {
         String actual = "";
+        if (workHistory == null)
+            return actual;
         for (Employment trabajo : workHistory) {
-            if (trabajo.esActual()) {
+            if (trabajo != null && trabajo.esActual()) {
                 if (!actual.isEmpty())
                     actual = actual.concat("\n");
                 actual = actual.concat(trabajo.getOneLiner());
@@ -247,7 +253,8 @@ public class User {
         List<String> lista = new ArrayList<>();
         if (getWorkHistory() != null) {
             for (Employment job : getWorkHistory()) {
-                lista.add(job.getCompleto());
+                if (job != null)
+                    lista.add(job.getCompleto());
             }
         }
         return lista;
@@ -257,13 +264,16 @@ public class User {
         List<String> lista = new ArrayList<>();
         if (getSkills() != null) {
             for (Skill skill : getSkills()) {
-                lista.add(skill.getName());
+                if (skill != null)
+                    lista.add(skill.getName());
             }
         }
         return lista;
     }
 
     private void addEmployment(Employment emp) {
+        if (emp == null)
+            return;
         if (this.workHistory == null)
             this.workHistory = new ArrayList<>();
         this.workHistory.add(emp);

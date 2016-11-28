@@ -37,9 +37,11 @@ public class JobPositionsResponse {
 
     public String findPositionTitle(String jobPos) {
         for (JobPosition jp : jobPositions) {
-            String title = jp.getName();
-            if (title.equalsIgnoreCase(jobPos))
-                return title;
+            if (jp != null) {
+                String title = jp.getName();
+                if (title.equalsIgnoreCase(jobPos))
+                    return title;
+            }
         }
         return null;
     }
@@ -47,7 +49,7 @@ public class JobPositionsResponse {
     @Nullable
     public JobPosition findPosition(String jobPos) {
         for (JobPosition jp : jobPositions) {
-            if (jp.getName().equalsIgnoreCase(jobPos))
+            if (jp != null && jp.getName().equalsIgnoreCase(jobPos))
                 return jp;
         }
         return null;

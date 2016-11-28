@@ -281,7 +281,8 @@ public class PerfilUtils {
                 ArrayList<String> jpArray = new ArrayList<>();
                 jpArray.add(act.getString(R.string.perfil_new_job_position_filler)); // Opción vacía
                 for (JobPosition jp : jobPositions) {
-                    jpArray.add(jp.getNombre());
+                    if (jp != null)
+                        jpArray.add(jp.getNombre());
                 }
                 ArrayAdapter<String> jpAdapter =
                         new ArrayAdapter<>(act, android.R.layout.simple_spinner_item, jpArray);
@@ -320,7 +321,8 @@ public class PerfilUtils {
                 ArrayList<String> skArray = new ArrayList<>();
                 skArray.add(act.getString(R.string.perfil_new_skill_filler)); // Opción vacía
                 for (Skill sk : skills) {
-                    skArray.add(sk.getNombre());
+                    if (sk != null)
+                        skArray.add(sk.getNombre());
                 }
                 ArrayAdapter<String> skAdapter =
                         new ArrayAdapter<>(act, android.R.layout.simple_spinner_item, skArray);
@@ -347,44 +349,7 @@ public class PerfilUtils {
             Log.e(LOG_TAG, "Problemas con SS.Skills");
         }
     }
-    // deprecated
-//    public static void populateAutoCompleteLists(PerfilActivity act) {
-//        try {
-//            AutoCompleteTextView et_employment =
-//                    (AutoCompleteTextView) act.findViewById(R.id.text_perfil_employment_new_position);
-//            List<JobPosition> jobPositions = SharedDataSingleton.getInstance(act).getJobPositions();
-//
-//            if (jobPositions != null && et_employment != null) {
-//                ArrayList<String> jpArray = new ArrayList<>();
-//                for (JobPosition jp : jobPositions) {
-//                    jpArray.add(jp.getNombre());
-//                }
-//                ArrayAdapter<String> employmentsAdapter = new ArrayAdapter<>(act,
-//                        android.R.layout.simple_dropdown_item_1line, jpArray);
-//                et_employment.setAdapter(employmentsAdapter);
-//            }
-//        } catch (SharedDataSingleton.NoDataException ex) {
-//            Log.e(LOG_TAG, "Problemas con SS.JobPositions");
-//        }
-//
-//        try {
-//            AutoCompleteTextView et_skill =
-//                    (AutoCompleteTextView) act.findViewById(R.id.text_perfil_skill_new);
-//            List<Skill> skills = SharedDataSingleton.getInstance(act).getSkills();
-//
-//            if (skills != null && et_skill != null) {
-//                ArrayList<String> skArray = new ArrayList<>();
-//                for (Skill sk : skills) {
-//                    skArray.add(sk.getNombre());
-//                }
-//                ArrayAdapter<String> skillsAdapter = new ArrayAdapter<>(act,
-//                        android.R.layout.simple_dropdown_item_1line, skArray);
-//                et_skill.setAdapter(skillsAdapter);
-//            }
-//        } catch (SharedDataSingleton.NoDataException ex) {
-//            Log.e(LOG_TAG, "Problemas con SS.Skills");
-//        }
-//    }
+    
 
     public static boolean agregarEmployment(PerfilActivity act, EditableListAdapter<Employment> mJobsAdapter) {
         EditText et_company = (EditText) act.findViewById(R.id.text_perfil_employment_new_company);

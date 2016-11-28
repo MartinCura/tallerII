@@ -41,7 +41,8 @@ public class BusquedaRequest {
 //        br.jobPosition = JobPosition.create(activity, nombreJobPosition);
 //        int i = 0;
         for (Skill sk : skills) {
-            br.skills.add(sk.getName());
+            if (sk != null)
+                br.skills.add(sk.getName());
 //            i++;
         }
 //        br.skills.addAll(skills);

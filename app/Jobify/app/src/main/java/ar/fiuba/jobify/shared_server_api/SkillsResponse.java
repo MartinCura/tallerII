@@ -53,7 +53,7 @@ public class SkillsResponse {
     @Nullable
     public Skill findSkill(String skillName) {
         for (Skill sk : skills) {
-            if (sk.getName().equalsIgnoreCase(skillName))
+            if (sk != null && sk.getName().equalsIgnoreCase(skillName))
                 return sk;
         }
         return null;

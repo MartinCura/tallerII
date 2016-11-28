@@ -54,7 +54,7 @@ public class ContactsResponse {
 
     public Contact.Status getStatusForId(long idRequester) {
         for ( Contact c : contacts ) {
-            if (c.getId() == idRequester)
+            if (c != null && c.getId() == idRequester)
                 return c.getStatus();
         }
         return Contact.Status.NONE;
@@ -63,7 +63,7 @@ public class ContactsResponse {
     public ArrayList<Contact> getContactsWithStatus(Contact.Status st) {
         ArrayList<Contact> list = new ArrayList<>();
         for (Contact c : contacts) {
-            if (c.getStatus().equals(st))
+            if (c != null && c.getStatus().equals(st))
                 list.add(c);
         }
         return list;

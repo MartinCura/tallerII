@@ -415,7 +415,8 @@ public class ConversacionActivity extends NavDrawerActivity {
             ArrayList<Message> auxList = new ArrayList<>(messageList);
             Collections.reverse(auxList);
             for (Message mensajeMasViejo : auxList) {
-                this.chatMessages.add(0, mensajeMasViejo);
+                if (mensajeMasViejo != null)
+                    this.chatMessages.add(0, mensajeMasViejo);
             }
             notifyDataSetChanged();
         }

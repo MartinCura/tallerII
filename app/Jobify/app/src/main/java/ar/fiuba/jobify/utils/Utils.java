@@ -178,8 +178,10 @@ public class Utils {
      */
     public static String getAppServerUrl(Context ctx, long idFetched, String ... paths) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
-        for (String path : paths)
-            builder = builder.appendPath(path);
+        for (String path : paths) {
+            if (path != null)
+                builder = builder.appendPath(path);
+        }
         Uri builtUri = builder.appendPath(Long.toString(idFetched)).build();
         return builtUri.toString();
     }
@@ -190,8 +192,10 @@ public class Utils {
      */
     public static String getAppServerUrl(Context ctx, String ... paths) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
-        for (String path : paths)
-            builder = builder.appendPath(path);
+        for (String path : paths) {
+            if (path != null)
+                builder = builder.appendPath(path);
+        }
         Uri builtUri = builder.build();
         return builtUri.toString();
     }

@@ -213,7 +213,8 @@ public class UserListActivity extends NavDrawerActivity {
 
                         } else {
                             for (Contact c : contactsReceived) {
-                                agregarResultado(new User(c));
+                                if (c != null)
+                                    agregarResultado(new User(c));
                             }
                         }
                     }
@@ -328,7 +329,8 @@ public class UserListActivity extends NavDrawerActivity {
 
                         } else {
                             for (User user : convResponse.getConversations()) {
-                                agregarResultado(user);
+                                if (user != null)
+                                    agregarResultado(user);
                             }
                         }
                     }
@@ -470,7 +472,8 @@ public class UserListActivity extends NavDrawerActivity {
 
                         } else {
                             for (User user : busqResponse.getUsers()) {
-                                agregarResultado(user);
+                                if (user != null)
+                                    agregarResultado(user);
                             }
                             mEndlessScrollListener.activar();
                         }
