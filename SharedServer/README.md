@@ -1,12 +1,8 @@
-Código y test para el Shared  Server
-------------------------------------
+Ejecución
+---------
 
-obtener un ambiente con docker
+Para obtener una instancia del SharedServer y una base de datos PostgreSQL, basta con ejecutar lo siguiente en una línea de comando en este directorio:
 
+`sudo docker-compose up`
 
-`sudo docker run -it -p80:80  -vcode/:/home node bash`
-
-create databases:
-
-`psql -h db -U postgres -W postgres -f db.sql`
-
+El servidor será accesible desde el puerto 80.
