@@ -71,7 +71,13 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
 
     response->setBody(jresult.toStyledString());
     response->setSuccessfulHeader();
+
     delete personManager;
+    std::vector<Person*>::iterator iterator = result->begin();
+    while (iterator != result->end()) {
+        delete (*iterator);
+        iterator++;
+    }
     delete result;
     return response;
 }
