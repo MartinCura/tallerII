@@ -69,14 +69,27 @@ target_link_libraries (${TARGET} leveldb)
 set (INSTALLATION_DIR appServer)
 
 # Creates a directory for log files
-file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ApplicationServer/logs")
-execute_process(COMMAND /bin/chmod 777 "${PROJECT_SOURCE_DIR}/ApplicationServer/logs")
 
-execute_process(COMMAND cp -rf "${PROJECT_SOURCE_DIR}/ApplicationServer/logs" "/usr/${INSTALLATION_DIR}")
+file(MAKE_DIRECTORY "/usr/${INSTALLATION_DIR}/logs")
+execute_process(COMMAND /bin/chmod 777 "/usr/${INSTALLATION_DIR}/logs")
+
 execute_process(COMMAND cp -rf "${PROJECT_SOURCE_DIR}/ApplicationServer/img" "/usr/${INSTALLATION_DIR}")
 execute_process(COMMAND cp "${PROJECT_SOURCE_DIR}/ApplicationServer/src/config.js" "/usr/${INSTALLATION_DIR}")
 
 install(TARGETS ${TARGET} DESTINATION ${INSTALLATION_DIR})
 install(FILES ${PROJECT_SOURCE_DIR}/ApplicationServer/src/config.js DESTINATION ${INSTALLATION_DIR})
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/ApplicationServer/img DESTINATION ${INSTALLATION_DIR})
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/ApplicationServer/logs DESTINATION ${INSTALLATION_DIR} USE_SOURCE_PERMISSIONS)
+install(
+    DIRECTORY /usr/${INSTALLATION_DIR}/logs
+    DIRECTORY_PERMISSIONS
+	OWNER_READ
+	OWNER_WRITE
+	OWNER_EXECUTE
+	GROUP_READ
+	GROUP_WRITE
+	GROUP_EXECUTE
+	WORLD_READ
+	WORLD_WRITE
+	WORLD_EXECUTE
+    DESTINATION ${INSTALLATION_DIR}
+)
