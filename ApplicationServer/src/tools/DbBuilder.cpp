@@ -75,6 +75,53 @@ void DbBuilder::loadUsers() {
 
     }
 
+    for(int k = 0; k < 200; k++) {
+        long from_id = users_id[rand()% users_id.size()];
+        long to_id = users_id[rand() % users_id.size()];
+        while (to_id == from_id) {
+            to_id = users_id[rand() % users_id.size()];
+        }
+        recommendationsManager->addRecommendation(from_id, to_id);
+    }
+
+
+    delete personManager;*/
+
+    vector<long> users_id;
+    vector<Skill*> skills_disponibles = getSkillsDisponibles();
+    vector<WorkHistory*> trabajos_disponibles = getTrabajosDisponibles();
+    for (int i = 0; i < 100; i++) {
+        Person* user = new Person();
+        user->setId(0);
+        user->setCity("Ciudad" + std::to_string(rand() % 5));
+        user->setDateOfBirth(std::to_string(rand() % 30 + 1) + "/" + std::to_string(rand() % 12 + 1) + "/1993");
+        user->setEmail("usuarioFalso" + std::to_string(i+1) + "@gmail.com");
+        user->setLastName("ApellidoFalso" + std::to_string(i + 1));
+        user->setFirstName("NombreFalso" + std::to_string(rand() % 100 + 1));
+        user->setSummary("DescripcionFalsa" + std::to_string(i + 1));
+        float x = -180.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(180.0 + 180.0)));
+        float y =  -180.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(180.0 + 180.0)));
+        user->setLocation(x, y);
+        user->setPassword("usuarioFalso" + std::to_string(i + 1));
+        int has_n_skills = rand() % 3;
+        int has_n_jobs = rand() % 3;
+        for (int j = 0; j < has_n_skills; j++) {
+            user->addSkill(skills_disponibles[rand() % skills_disponibles.size()]);
+        }
+
+        for (int h = 0; h < has_n_jobs; h++) {
+            user->addWorkHistory(trabajos_disponibles[rand() % trabajos_disponibles.size()]);
+        }
+
+        try {
+            long user_id = personManager->savePerson(user->serializeMe());
+            std::cout<< user_id << std::endl;
+            users_id.push_back(user_id);
+
+        }catch(UserAlreadyExistsException& exception1) {}
+
+    }
+
     if (users_id.size() != 0) {
         for (int k = 0; k < 200; k++) {
             long from_id = users_id[rand() % users_id.size()];
