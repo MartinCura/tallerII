@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "DbBuilder.h"
 
 
@@ -20,7 +21,7 @@ void DbBuilder::loadUsers() {
     setLastId();
     PersonManager *personManager = new PersonManager(this->db);
     RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
-    /*try {
+    try {
         Person* person1 = this->getFakePerson1();
         personManager->savePerson(person1->serializeMe(), (long) 1);
         this->saveToken("tokenUser1", person1->getEmail());
@@ -38,7 +39,7 @@ void DbBuilder::loadUsers() {
         this->saveToken("tokenUser3", person3->getEmail());
         delete person3;
     } catch (UserAlreadyExistsException &exception) {}
-    delete personManager;*/
+
 
     vector<long> users_id;
     vector<Skill*> skills_disponibles = getSkillsDisponibles();
@@ -70,11 +71,13 @@ void DbBuilder::loadUsers() {
             long user_id = personManager->savePerson(user->serializeMe());
             std::cout<< user_id << std::endl;
             users_id.push_back(user_id);
+            delete(user);
 
         }catch(UserAlreadyExistsException& exception1) {}
 
     }
 
+    //Simulación de recomendación entre usuarios.
     if (users_id.size() != 0) {
         for (int k = 0; k < 200; k++) {
             long from_id = users_id[rand() % users_id.size()];
@@ -86,6 +89,19 @@ void DbBuilder::loadUsers() {
         }
     }
 
+    delete personManager;
+    delete recommendationsManager;
+    std::vector<Skill*>::iterator it1 = skills_disponibles.begin();
+    while (it1 != skills_disponibles.end()) {
+        delete (*it1);
+        it1 ++;
+    }
+
+    std::vector<WorkHistory*>::iterator it2 = trabajos_disponibles.begin();
+    while (it2 != trabajos_disponibles.end()) {
+        delete (*it2);
+        it2 ++;
+    }
 }
 
 
