@@ -25,7 +25,7 @@
     <include layout="@layout/content_user_list" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/user_list_fab"
         android:onClick="irABusquedaActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -133,6 +134,7 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_SOLICITUDES:
                 if (sab != null)
                     sab.setTitle("Solicitudes pendientes");
+                esconderBotonDeBusqueda();
                 showProgress(true);
                 listarSolicitudesReceived();
                 break;
@@ -155,6 +157,7 @@ public class UserListActivity extends NavDrawerActivity {
                 if (sab != null)
                     sab.setTitle("Conversaciones");
                 showProgress(true);
+                esconderBotonDeBusqueda();
                 listarConversaciones();
                 break;
             case MODE_NONE:
@@ -175,6 +178,13 @@ public class UserListActivity extends NavDrawerActivity {
                     .getInstance(this.getApplicationContext())
                     .getRequestQueue();
             mRequestQueue.cancelAll(LOG_TAG);
+        }
+    }
+
+    private void esconderBotonDeBusqueda() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.user_list_fab);
+        if (fab != null) {
+            fab.setVisibility(View.GONE);
         }
     }
 

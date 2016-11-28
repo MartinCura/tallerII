@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
@@ -150,6 +151,7 @@ public class PerfilActivity extends NavDrawerActivity {
         onCreateDrawer(R.id.perfil_toolbar, R.id.perfil_drawer_layout, R.id.perfil_nav_view);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onResume() {
         super.onResume();
@@ -169,6 +171,16 @@ public class PerfilActivity extends NavDrawerActivity {
 
             boolean empezarEnModoEdicion = intent.getBooleanExtra(PERFIL_MODE_MESSAGE, false);
             if (empezarEnModoEdicion) {
+
+                @DrawableRes int drawableId = R.drawable.ic_camera;
+                ImageView iv_perfil = (ImageView) findViewById(R.id.perfil_image);
+                if (iv_perfil != null) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        iv_perfil.setImageDrawable(getDrawable(drawableId));
+                    } else {
+                        iv_perfil.setImageDrawable(getResources().getDrawable(drawableId));
+                    }
+                }
 
                 PerfilUtils.showProgress(this, false);
                 Utils.showView(this, R.id.perfil_information_layout);
@@ -269,7 +281,7 @@ public class PerfilActivity extends NavDrawerActivity {
             }
 
             // Permitir cambiar la foto
-            if (iv_foto != null)
+            if (iv_foto != null) {
                 iv_foto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -295,6 +307,7 @@ public class PerfilActivity extends NavDrawerActivity {
                                 }).show();
                     }
                 });
+            }
 
             // Precargar campos con valores actuales
             if (fetchedUser != null) {
@@ -320,8 +333,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     (ListView) findViewById(R.id.perfil_skills_list_editable),
                     skillsList
             );
-            ImageButton ib_skills =
-                    (ImageButton) findViewById(R.id.boton_perfil_skill_agregar_item);
+            ImageButton ib_skills = (ImageButton) findViewById(R.id.boton_perfil_skill_agregar_item);
             if (ib_skills != null) {
                 ib_skills.setOnClickListener(new View.OnClickListener() {
                     @Override

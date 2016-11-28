@@ -42,6 +42,7 @@ public class NavDrawerActivity extends AppCompatActivity
     public long connectedUserID = 0;
 
     private NavigationView navView;
+    private Toolbar mToolbar = null;
 
 
     protected void onCreateDrawer(@IdRes int toolbarResId, @IdRes int drawerResId, @IdRes int navResId) {
@@ -49,6 +50,8 @@ public class NavDrawerActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(toolbarResId);
         if (toolbar == null) {
             Log.e(LOG_TAG, "Toolbar no encontrado");
+        } else {
+            mToolbar = toolbar;
         }
         setSupportActionBar(toolbar);
 
@@ -329,6 +332,13 @@ public class NavDrawerActivity extends AppCompatActivity
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         } else {
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED);
+        }
+        if (mToolbar != null) {
+            if (block) {
+                mToolbar.setVisibility(View.INVISIBLE);
+            } else {
+                mToolbar.setVisibility(View.VISIBLE);
+            }
         }
     }
 
