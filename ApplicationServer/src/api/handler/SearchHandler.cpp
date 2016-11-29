@@ -144,23 +144,15 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
     if (search_value_distance != nullptr) distance = this->split(*search_value_distance, ',');
 
 
+    delete search_value_distance;
+    delete search_value_mail;
+    delete search_value_name;
+    delete search_value_position;
+    delete search_value_skill;
 
     PersonManager* personManager = new PersonManager(this->db);
     vector<Person*>* result;
 
-
-/*
-    if (searchBy_type.compare("names") == 0) {
-        result = personManager->searchByName(search_value);
-    } else if (searchBy_type.compare("mails") == 0) {
-        result = personManager->searchByMail(search_value);
-    } else if (searchBy_type.compare("skill") == 0) {
-        result = personManager->searchBySkill(search_value);
-    } else {
-        result = personManager->searchByJobPosition(search_value);
-    }
-
- */
     std::map<string, vector<string>*>* search_values = new std::map<string, vector<string>*>();
     search_values->insert(std::pair<string, vector<string>*>("name",names));
     search_values->insert(std::pair<string, vector<string>*>("positions",positions));
@@ -200,12 +192,18 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
     response->setBody(jresult.toStyledString());
     response->setSuccessfulHeader();
 
-    delete personManager;
-    std::vector<Person*>::iterator iterator = result->begin();
-    while (iterator != result->end()) {
+
+    //delete de todas los users guardados en el vector result.
+    for (std::vector<Person*>::iterator iterator = result->begin(); iterator != result->end(); ++iterator) {
         delete (*iterator);
-        iterator++;
     }
+
+    //delete de todos los vectores que guardan los argumentos de busqueda en el map.
+    for (std::map<string, vector<string>*>::iterator iter = search_values->begin(); iter != search_values->end(); ++iter) {
+        delete (iter->second);
+    }
+    delete search_values;
+    delete personManager;
     delete result;
     return response;
 }
@@ -245,6 +243,7 @@ string SearchHandler::getParameterFromQueryParams(string queryParams, string par
         }
         result += queryParams[i];
     }
+    throw InvalidRequestException("Missing " + parameter + " parameter");
 }
 
 
