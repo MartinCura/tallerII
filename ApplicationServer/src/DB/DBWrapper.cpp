@@ -89,9 +89,7 @@ DBWrapper::DBWrapper(std::string* nameDB) {
     options.create_if_missing = true;
     //options.error_if_exists = true;
     leveldb::Status s = leveldb::DB::Open(options, *nameDB, &db);
-    //std::cout << s.ToString();
-    std::string mensaje = s.ToString();
-    //std::cout << mensaje;
+
 }
 
 DBWrapper::ResponseCode DBWrapper::destroyDB(std::string *nameDB) {
