@@ -180,11 +180,11 @@ vector<Person*> * PersonManager::getAllUsers() {
     }
     return all_users;
 }
-vector<Person *> * PersonManager::searchByName(std::string user_searchName) {
+vector<Person *> * PersonManager::searchByName(vector<string> *user_searchName) {
     std::vector<Person*>* users_result = new vector<Person*>();
     leveldb::Slice startSlice = USER_NAME_ID;
     leveldb::Slice endSlice = USER_UUID_ID;
-    std::string user_search = user_searchName;
+    std::string user_search = (*user_searchName)[0];
     std::transform(user_search.begin(), user_search.end(), user_search.begin(), ::tolower);
     std::regex e ("(.*)("+user_search+")(.*)");
     shared_ptr<leveldb::Iterator> iterator(db->newIterator());
@@ -210,19 +210,24 @@ void PersonManager::saveSkills(std::vector<Skill *> user_newSkills, string user_
     }
 }
 
+
 /// Busca por nombre completo del skill que entra por parámetro.
-/// \param skill
+/// \param skills_search
 /// \return lista de usuarios que tienen el skill.
-vector<Person *> * PersonManager::searchBySkill(std::string skill) {
+vector<Person *> * PersonManager::searchBySkill(vector<string> *skills_search) {
+    //fixme
     string users_withSkill;
     std::vector<Person*>* users_result = new vector<Person*>();
+
+    //Se filtra por uno solo de los skills primero
     try {
-        users_withSkill = getUserSkillKey(skill);
+        //Todos los usuarios con el skill en forma persona1, persona2, persona3
+        users_withSkill = getUserSkillKey((*skills_search)[0]);
     } catch (KeyNotFound& exception1) {
         return users_result;
     }
 
-
+    //Parseo
     size_t last = 1; size_t next = 0;
     std::string delimiter = ",";
     while ((next = users_withSkill.find(delimiter, last)) != string::npos) {
@@ -232,11 +237,20 @@ vector<Person *> * PersonManager::searchBySkill(std::string skill) {
             user = getUserByMail(user_mail);
             users_result->push_back(user);
         } catch (UserNotFoundException& exception) {
-            deleteUserFromSkill(skill, user_mail);
+            deleteUserFromSkill((*skills_search)[0], user_mail);
         }
         last = next + 1;
     }
-    return users_result;
+
+    std::vector<Person*>* result = new std::vector<Person*>();
+
+    for (int i = 0; i < users_result->size(); i++) {
+        if ((*users_result)[i]->has_every_skill(skills_search)) result->push_back((*users_result)[i]);
+        else {delete (*users_result)[i];};
+    }
+
+    delete (users_result);
+    return result;
 
 }
 
@@ -386,12 +400,14 @@ void PersonManager::deleteUserFromSkill(string skill_name, string user_mail) {
     }
 }
 
-vector<Person *> *PersonManager::searchByJobPosition(string job_position) {
+vector<Person *> *PersonManager::searchByJobPosition(vector<string> *job_positions) {
     std::string users_withJobPosition;
     std::vector<Person*>* users_result = new vector<Person*>();
-    std::transform(job_position.begin(), job_position.end(), job_position.begin(), ::tolower);
+    for(int i = 0; i < job_positions->size(); i++) {
+        std::transform((*job_positions)[i].begin(), (*job_positions)[i].end(), (*job_positions)[i].begin(), ::tolower);
+    }
     try {
-        users_withJobPosition = getUserJobPositionKey(job_position);
+        users_withJobPosition = getUserJobPositionKey((*job_positions)[0]);
     } catch (KeyNotFound& keyNotFound) {
         return users_result;
     }
@@ -404,18 +420,28 @@ vector<Person *> *PersonManager::searchByJobPosition(string job_position) {
             user = getUserByMail(user_mail);
             users_result->push_back(user);
         } catch (UserNotFoundException& userNotFoundException) {
-            deleteUserFromJobPosition(job_position, user_mail);
+            deleteUserFromJobPosition((*job_positions)[0], user_mail);
         }
         last = next + 1;
     }
-    return users_result;
+
+    std::vector<Person*>* result = new std::vector<Person*>();
+
+    for (int i = 0; i < users_result->size(); i++) {
+        if ((*users_result)[i]->has_every_position(job_positions)) result->push_back((*users_result)[i]);
+        else {delete (*users_result)[i];};
+    }
+
+    delete (users_result);
+    return result;
+
 }
 
-vector<Person *> *PersonManager::searchByMail(string user_mail) {
+vector<Person *> *PersonManager::searchByMail(vector<string> *user_mail) {
     std::vector<Person*>* users_result = new vector<Person*>();
     leveldb::Slice startSlice = USER_MAIL_ID;
     leveldb::Slice endSlice = USER_NAME_ID;
-    std::string user_search = user_mail;
+    std::string user_search = (*user_mail)[0];
     std::transform(user_search.begin(), user_search.end(), user_search.begin(), ::tolower);
     std::regex e ("(.*)("+user_search+")(.*)");
     Json::Value juser;
@@ -425,6 +451,7 @@ vector<Person *> *PersonManager::searchByMail(string user_mail) {
         // Read the record
         if( !iterator->value().empty() )
         {
+            std::cout<<iterator->key().ToString()<<endl;
             if(regex_match(iterator->key().ToString(), e)) {
                 //busqueda del usuario
                 std::string user_information = iterator->value().ToString();
@@ -469,6 +496,117 @@ void PersonManager::deleteUserFromJobPosition(string job_position, string user_m
     } catch (KeyNotFound& keyNotFound) {
         throw BadImplementationException();
     }
+}
+
+vector<Person *> *PersonManager::search_users_by(map<string, vector<string>*> *search_values) {
+    std::vector<Person*>* partial_result = nullptr;
+    std::vector<Person*>* result = nullptr;
+    if((*search_values)["skill"] != nullptr) partial_result = this->searchBySkill((*search_values)["skill"]);
+    if(partial_result == nullptr) {
+        //La busqueda se realizó por skills y no se hallaron resultados
+        //o la busqueda no se realizó por skills
+        if((*search_values)["position"] != nullptr) partial_result = this->searchByJobPosition((*search_values)["position"]);
+    }
+    else{
+        if((*search_values)["position"] != nullptr) {
+        //fixme
+        for(int i = 0; i < partial_result->size(); i++) {
+            if (!(*partial_result)[i]->has_every_position((*search_values)["position"])) delete (*partial_result)[i];
+        }}
+    }if(partial_result == nullptr) {
+        if((*search_values)["mail"] != nullptr) partial_result = this->searchByMail((*search_values)["mail"]);
+    }
+    else{
+        if((*search_values)["mail"] != nullptr) {
+        std::string search_mail = (*((*search_values)["mail"]))[0];
+        std::regex e ("(.*)("+search_mail+")(.*)");
+        for(int i = 0; i < partial_result->size(); i++) {
+            if ((*partial_result)[i] != nullptr) {
+                if(!regex_match((*partial_result)[i]->getEmail(), e)) delete (*partial_result)[i];
+            }
+        }}
+    }if(partial_result == nullptr) {
+        if((*search_values)["name"] != nullptr) partial_result = this->searchByName((*search_values)["name"]);
+    }
+    else{
+        if ((*search_values)["name"] != nullptr) {
+        std::string search_name = (*((*search_values)["name"]))[0];
+        std::transform(search_name.begin(), search_name.end(), search_name.begin(), ::tolower);
+        std::regex e ("(.*)("+search_name+")(.*)");
+        for(int i = 0; i < partial_result->size(); i++) {
+            if ((*partial_result)[i] != nullptr) {
+                if (!regex_match((*partial_result)[i]->getFirstName(), e) and !regex_match((*partial_result)[i]->getLastName(), e)) {
+                    delete (*partial_result)[i];
+                }
+            }
+        }}
+    }if(partial_result == nullptr) {
+        if((*search_values)["distance"] != nullptr) partial_result = this->searchByDistance((*search_values)["distance"]);
+    }
+    else{
+        //fixme
+        if ((*search_values)["distance"] != nullptr) {
+            vector<string> *distance_search = (*search_values)["distance"];
+            double latitud = stod((*distance_search)[0]);
+            double longitud = stod((*distance_search)[1]);
+            double max_distance = stod((*distance_search)[3]);
+            Location* search_location = new Location();
+            search_location->setLatitude(latitud);
+            search_location->setLongitude(longitud);
+            for(int i = 0; i < partial_result->size(); i++) {
+                if ((*partial_result)[i] != nullptr) {
+                    double distance = search_location->getDistanceFrom((*partial_result)[i]->getLocation());
+                    if(distance >= max_distance) {
+                        //busqueda del usuario
+                        delete (*partial_result)[i];
+                    }
+                }
+            }
+            delete search_location;
+        }
+    }
+    result = new vector<Person*>();
+    if (partial_result == nullptr) partial_result = new std::vector<Person*>();
+    for (int k = 0; k < partial_result->size(); k++) {
+        if ((*partial_result)[k] != nullptr) {
+            result->push_back((*partial_result)[k]);
+        }
+    }
+    delete partial_result;
+    return result;
+
+}
+
+vector<Person *> *PersonManager::searchByDistance(vector<string> *distance_search) {
+    std::vector<Person*>* users_result = new vector<Person*>();
+    leveldb::Slice startSlice = USER_UUID_ID;
+    leveldb::Slice endSlice = USER_NAME_ID;
+    double latitud = stod((*distance_search)[0]);
+    double longitud = stod((*distance_search)[1]);
+    double max_distance = stod((*distance_search)[3]);
+    Location* search_location = new Location();
+    search_location->setLatitude(latitud);
+    search_location->setLongitude(longitud);
+    Json::Value juser;
+    shared_ptr<leveldb::Iterator> iterator(db->newIterator());
+    for(iterator->Seek(startSlice); iterator->Valid() && ((iterator->key()).ToString().compare(endSlice.ToString())) > 0 ; iterator->Next())
+    {
+        // Read the record
+        if( !iterator->value().empty() )
+        {
+            std::string user_information = iterator->value().ToString();
+            juser = this->getJsonFromString(user_information);
+            Person* user = new Person(juser);
+            double distance = search_location->getDistanceFrom(user->getLocation());
+            if(distance < max_distance) {
+                //busqueda del usuario
+                users_result->push_back(user);
+            }
+
+        }
+    }
+    delete search_location;
+    return users_result;
 }
 
 

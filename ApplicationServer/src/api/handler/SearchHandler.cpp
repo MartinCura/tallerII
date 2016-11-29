@@ -19,14 +19,40 @@ bool SearchHandler::myfunction (Person* p1,Person* p2) {
     return p1->getTotalOfRecommendations() > p2->getTotalOfRecommendations();
 }
 
+
+void SearchHandler::split2(const std::string &s, char delim, vector<string> *elems) {
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems->push_back(item);
+    }
+}
+
+vector<string>* SearchHandler::split(const std::string &s, char delim) {
+    std::vector<std::string>* elems = new std::vector<std::string>();
+    split2(s, delim, elems);
+    return elems;
+}
+
 Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url) {
     string queryParams = this->getStringFromMgStr(httpMessage->query_string);
     std::cout << queryParams <<endl;
     Response* response = new Response();
-    string searchBy_type, search_value;
+    string searchBy_type;
     long page_size, page_number;
+    std::string *search_value_name, *search_value_mail, *search_value_skill, *search_value_distance, *search_value_position;
+    search_value_name = nullptr;
+    search_value_distance = nullptr;
+    search_value_position = nullptr;
+    search_value_skill = nullptr;
+    search_value_distance = nullptr;
     try {
-        searchBy_type = this->getSearchByFromQueryParams(queryParams, &search_value);
+        search_value_name = this->getSearchByFromQueryParams(queryParams, "names");
+        search_value_distance = this->getSearchByFromQueryParams(queryParams, "distances");
+        search_value_position = this->getSearchByFromQueryParams(queryParams, "positions");
+        search_value_skill = this->getSearchByFromQueryParams(queryParams, "skills");
+        search_value_mail = this->getSearchByFromQueryParams(queryParams, "mails");
         page_number = this->getPageNumberFromQueryParams(queryParams);
         page_size = this->getPageSizeFromQueryParams(queryParams);
 
@@ -36,12 +62,29 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
         return response;
     }
 
+    //search_value_ sera un string con todos los valores que quieran encontrarse en la persona a hallar
+    //separados todos ellos por coma
+    //Ejemplo: skill=skill1,skill2,skill3
+
+    //Parseo por ,
+
+    std::vector<string>* skills = nullptr, *mails = nullptr, *names = nullptr, *positions = nullptr, *distance = nullptr;
+    if (search_value_skill != nullptr) skills = this->split(*search_value_skill, ',');
+    if (search_value_mail != nullptr) mails = this->split(*search_value_mail, ',');
+    if (search_value_name != nullptr) names = this->split(*search_value_name, ',');
+    if (search_value_position != nullptr) positions = this->split(*search_value_position, ',');
+    if (search_value_distance != nullptr) distance = this->split(*search_value_distance, ',');
+
+
+
     PersonManager* personManager = new PersonManager(this->db);
     vector<Person*>* result;
 
-    if (searchBy_type.compare("name") == 0) {
+
+/*
+    if (searchBy_type.compare("names") == 0) {
         result = personManager->searchByName(search_value);
-    } else if (searchBy_type.compare("mail") == 0) {
+    } else if (searchBy_type.compare("mails") == 0) {
         result = personManager->searchByMail(search_value);
     } else if (searchBy_type.compare("skill") == 0) {
         result = personManager->searchBySkill(search_value);
@@ -49,6 +92,19 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
         result = personManager->searchByJobPosition(search_value);
     }
 
+ */
+    std::map<string, vector<string>*>* search_values = new std::map<string, vector<string>*>();
+    search_values->insert(std::pair<string, vector<string>*>("name",names));
+    search_values->insert(std::pair<string, vector<string>*>("positions",positions));
+    search_values->insert(std::pair<string, vector<string>*>("skill",skills));
+    search_values->insert(std::pair<string, vector<string>*>("distance",distance));
+    search_values->insert(std::pair<string, vector<string>*>("mail",mails));
+
+
+    result = personManager->search_users_by(search_values);
+
+    //fixme -> delete memory
+    //TODO
     std::sort ((*result).begin(), (*result).end(), myfunction);
     //FIXME: FALTA DETERMINAR COMO SE PUEDE ORDENAR Y HACERLO
     //FIxme: ver como martin&martin pueden saber la cantidad de paginas que me pueden pedir.
@@ -58,13 +114,17 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
     else end = start + page_size;
 
 
+
     Json::Value jresult;
-    jresult["metadata"]["total_results"] = result->size();
+    jresult["metadata"]["total_count"] = result->size();
     for (long i = start; i< end; i++) {
         Json::Value user_minInformation;
         user_minInformation["first_name"] = (*result)[i]->getFirstName();
         user_minInformation["last_name"] = (*result)[i]->getLastName();
         user_minInformation["id"] = (*result)[i]->getId();
+        user_minInformation["current_job"] = ((*result)[i]->getCurrentJob() == nullptr) ? "":(*result)[i]->getCurrentJob()->serializeMe();
+        user_minInformation["tot_recommendations"] = (*result)[i]->getTotalOfRecommendations();
+        user_minInformation["mail"] = (*result)[i]->getEmail();
         //user_minInformation["picture]
         jresult["result"].append(user_minInformation);
     }
@@ -120,29 +180,12 @@ string SearchHandler::getParameterFromQueryParams(string queryParams, string par
 }
 
 
-string SearchHandler::getSearchByFromQueryParams(string query_params, string *search_value) {
+string * SearchHandler::getSearchByFromQueryParams(string query_params, std::string parameter) {
      //elemento de busqueda
-    if (hasParameter(query_params, "name")) {
-        *search_value = this->getParameterFromQueryParams(query_params, "name");
-        return  "name";
+    if (hasParameter(query_params, parameter)) {
+        return new string(this->getParameterFromQueryParams(query_params, parameter));
     }
-
-    if (hasParameter(query_params, "position")) {
-        *search_value = this->getParameterFromQueryParams(query_params, "position");
-        return "position";
-    }
-
-    if (hasParameter(query_params, "skill")) {
-        *search_value = this->getParameterFromQueryParams(query_params, "skill");
-        return "skill";
-    }
-
-    if (hasParameter(query_params, "mail")) {
-        *search_value = this->getParameterFromQueryParams(query_params, "mail");
-        return "mail";
-    }
-    *search_value = "";
-    throw InvalidRequestException("No cumple con ninguno de los posibles filtros de busqueda. Están disponibles: skill/position/mail/name");
+    return nullptr;
 }
 
 long SearchHandler::getPageSizeFromQueryParams(string query_params) {

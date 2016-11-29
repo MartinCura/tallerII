@@ -32,6 +32,8 @@ public:
     void addWorkHistory(WorkHistory* workHistory);
     void addSkill(Skill* skill);
 
+    bool has_every_skill(std::vector<string>* skills); //fixme
+    bool has_every_position(std::vector<string> *positions);
     long getId();
     string getFirstName();
     string getLastName();
@@ -72,9 +74,8 @@ private:
     void deserializeMe(Json::Value personAsJson);
     void deleteWorkHistory();
     void deleteSkills();
-
-
-
+    bool hasSkill(std::string skill);
+    bool hasPosition(string position);
 };
 
 #endif //PROJECT_PERSON_H

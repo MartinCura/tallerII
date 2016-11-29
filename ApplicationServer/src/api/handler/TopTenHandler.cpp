@@ -5,7 +5,6 @@
 #include <iostream>
 #include <algorithm>
 #include "TopTenHandler.h"
-#include "../../person/PersonManager.h"
 
 Response *TopTenHandler::handlePostRequest(http_message *httpMessage) {
     return this->getNotImplementedResponse();
@@ -33,7 +32,7 @@ Response *TopTenHandler::handleGetRequest(http_message *httpMessage, string url)
         response->setErrorBody(e.getMessage());
         return response;
     }
-
+/*
     PersonManager* personManager = new PersonManager(this->db);
     vector<Person*>* result;
     if (orderBy_type.compare("skill")) {
@@ -61,7 +60,7 @@ Response *TopTenHandler::handleGetRequest(http_message *httpMessage, string url)
     response->setBody(jresult.toStyledString());
     response->setSuccessfulHeader();
     delete personManager;
-    delete result;
+    delete result;*/
     return response;
 
 }

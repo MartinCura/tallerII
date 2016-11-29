@@ -44,12 +44,15 @@ public:
     vector<Message*> getMessages(long fromUserId, long toUserId);
     string getNotificationTokenByUserId(long userId);
     void setOrUpdateNotificationToken(Json::Value request, long userId);
-    vector<Person *> *searchByName(std::string user_searchName);
+    vector<Person *> *searchByName(vector<string> *user_searchName);
     long updateUser(Json::Value juser_new_information);
     vector<Person*> *getAllUsers();
-    vector<Person *> * searchBySkill(string skill);
-    vector<Person *> *searchByJobPosition(string job_position);
-    vector<Person *> *searchByMail(string user_mail);
+    vector<Person *> * searchBySkill(vector<string> *skills_search);
+    vector<Person *> *searchByJobPosition(vector<string> *job_positions);
+    vector<Person *> *searchByMail(vector<string> *user_mail);
+
+
+    vector<Person *> *search_users_by(map<string, vector<string>*> *search_values);
 
 private:
     long generateID();
@@ -63,6 +66,10 @@ private:
     void savePosition(string position_title, string user_mail);
     void deleteUserFromJobPosition(string job_position, string user_mail);
     void updateWorkHistory(vector<WorkHistory *> new_positions, vector<WorkHistory *> old_positions, string user_mail);
+
+    vector<Person *> *searchByDistance(vector<string> *distance_search);
+
+
 };
 
 #endif //PROJECT_PERSONMANAGER_H

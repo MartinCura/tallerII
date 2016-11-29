@@ -18,6 +18,7 @@ public:
     double getLatitude();
     double getLongitude();
 
+    double getDistanceFrom(Location* location);
     bool isEmpty();
 
 private:

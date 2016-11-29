@@ -241,3 +241,31 @@ int Person::getTotalOfRecommendations() {
 void Person::setTotalRecommendations(int i) {
     this->totRecommendations = i;
 }
+
+bool Person::has_every_skill(std::vector<string> *skills) {
+    for(int i = 0; i < skills->size(); i++ ) {
+        if (!this->hasSkill((*skills)[i])) return false;
+    }
+    return true;
+}
+
+bool Person::hasSkill(std::string skill) {
+    for(int j = 0; j < this->skills.size(); j++) {
+        if(this->skills[j]->getName().compare(skill) == 0) return true;
+    }
+    return false;
+}
+
+bool Person::has_every_position(std::vector<string> *positions) {
+    for(int i = 0; i < positions->size(); i++ ) {
+        if (!this->hasPosition((*positions)[i])) return false;
+    }
+    return true;
+}
+
+bool Person::hasPosition(std::string position) {
+    for(int j = 0; j < this->workHistory.size(); j++) {
+        if(this->skills[j]->getName().compare(position) == 0) return true;
+    }
+    return false;
+}

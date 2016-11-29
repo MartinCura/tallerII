@@ -1,3 +1,4 @@
+#include <cmath>
 #include "Location.h"
 
 Location::Location() {
@@ -25,4 +26,8 @@ double Location::getLatitude() {
 
 double Location::getLongitude() {
     return longitude;
+}
+
+double Location::getDistanceFrom(Location *location) {
+    return std::pow(this->latitude - location->getLatitude(), double(2)) + std::pow(this->longitude - location->getLongitude(), double(2));
 }

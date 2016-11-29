@@ -18,7 +18,7 @@ public:
     Response* handlePutRequest(http_message* httpMessage, string url);
 private:
 
-    string getSearchByFromQueryParams(string query_params, string *search_value);
+    string * getSearchByFromQueryParams(string query_params, std::string parameter);
     string getWhichOneFromQueryParams(string query_params);
     long getPageSizeFromQueryParams(string query_params);
     long getPageNumberFromQueryParams(string query_params);
@@ -29,6 +29,10 @@ private:
     bool hasParameter(string query_params, string parameter);
 
     string getParameterFromQueryParams(string queryParams, string parameter);
+
+    void split2(const string &s, char delim, vector<string> *elems);
+
+    vector<string> * split(const string &s, char delim);
 };
 
 

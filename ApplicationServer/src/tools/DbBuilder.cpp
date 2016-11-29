@@ -49,7 +49,7 @@ void DbBuilder::loadUsers() {
         user->setId(0);
         user->setCity("Ciudad" + std::to_string(rand() % 5));
         user->setDateOfBirth(std::to_string(rand() % 30 + 1) + "/" + std::to_string(rand() % 12 + 1) + "/1993");
-        user->setEmail("usuarioFalso" + std::to_string(i+1) + "@gmail.com");
+        user->setEmail("usuariofalso" + std::to_string(i+1) + "@gmail.com");
         user->setLastName("ApellidoFalso" + std::to_string(i + 1));
         user->setFirstName("NombreFalso" + std::to_string(rand() % 100 + 1));
         user->setSummary("DescripcionFalsa" + std::to_string(i + 1));
