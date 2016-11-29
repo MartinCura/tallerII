@@ -501,6 +501,7 @@ void PersonManager::deleteUserFromJobPosition(string job_position, string user_m
 vector<Person *> *PersonManager::search_users_by(map<string, vector<string>*> *search_values) {
     std::vector<Person*>* partial_result = nullptr;
     std::vector<Person*>* result = nullptr;
+
     if((*search_values)["skill"] != nullptr) partial_result = this->searchBySkill((*search_values)["skill"]);
     if(partial_result == nullptr) {
         //La busqueda se realizó por skills y no se hallaron resultados
@@ -509,42 +510,43 @@ vector<Person *> *PersonManager::search_users_by(map<string, vector<string>*> *s
     }
     else{
         if((*search_values)["position"] != nullptr) {
-        //fixme
-        for(int i = 0; i < partial_result->size(); i++) {
-            if (!(*partial_result)[i]->has_every_position((*search_values)["position"])) delete (*partial_result)[i];
-        }}
+            for(int i = 0; i < partial_result->size(); i++) {
+                if (!(*partial_result)[i]->has_every_position((*search_values)["position"])) delete (*partial_result)[i];
+            }
+        }
     }if(partial_result == nullptr) {
         if((*search_values)["mail"] != nullptr) partial_result = this->searchByMail((*search_values)["mail"]);
     }
     else{
         if((*search_values)["mail"] != nullptr) {
-        std::string search_mail = (*((*search_values)["mail"]))[0];
-        std::regex e ("(.*)("+search_mail+")(.*)");
-        for(int i = 0; i < partial_result->size(); i++) {
-            if ((*partial_result)[i] != nullptr) {
-                if(!regex_match((*partial_result)[i]->getEmail(), e)) delete (*partial_result)[i];
+            std::string search_mail = (*((*search_values)["mail"]))[0];
+            std::regex e ("(.*)("+search_mail+")(.*)");
+            for(int i = 0; i < partial_result->size(); i++) {
+                if ((*partial_result)[i] != nullptr) {
+                    if(!regex_match((*partial_result)[i]->getEmail(), e)) delete (*partial_result)[i];
+                }
             }
-        }}
+        }
     }if(partial_result == nullptr) {
         if((*search_values)["name"] != nullptr) partial_result = this->searchByName((*search_values)["name"]);
     }
     else{
         if ((*search_values)["name"] != nullptr) {
-        std::string search_name = (*((*search_values)["name"]))[0];
-        std::transform(search_name.begin(), search_name.end(), search_name.begin(), ::tolower);
-        std::regex e ("(.*)("+search_name+")(.*)");
-        for(int i = 0; i < partial_result->size(); i++) {
-            if ((*partial_result)[i] != nullptr) {
-                if (!regex_match((*partial_result)[i]->getFirstName(), e) and !regex_match((*partial_result)[i]->getLastName(), e)) {
-                    delete (*partial_result)[i];
+            std::string search_name = (*((*search_values)["name"]))[0];
+            std::transform(search_name.begin(), search_name.end(), search_name.begin(), ::tolower);
+            std::regex e ("(.*)("+search_name+")(.*)");
+            for(int i = 0; i < partial_result->size(); i++) {
+                if ((*partial_result)[i] != nullptr) {
+                    if (!regex_match((*partial_result)[i]->getFirstName(), e) and !regex_match((*partial_result)[i]->getLastName(), e)) {
+                        delete (*partial_result)[i];
+                    }
                 }
             }
-        }}
+        }
     }if(partial_result == nullptr) {
         if((*search_values)["distance"] != nullptr) partial_result = this->searchByDistance((*search_values)["distance"]);
     }
     else{
-        //fixme
         if ((*search_values)["distance"] != nullptr) {
             vector<string> *distance_search = (*search_values)["distance"];
             double latitud = stod((*distance_search)[0]);

@@ -163,8 +163,6 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
 
     result = personManager->search_users_by(search_values);
 
-    //fixme -> delete memory
-    //TODO
     std::sort ((*result).begin(), (*result).end(), myfunction);
     //FIXME: FALTA DETERMINAR COMO SE PUEDE ORDENAR Y HACERLO
     //FIxme: ver como martin&martin pueden saber la cantidad de paginas que me pueden pedir.
