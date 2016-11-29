@@ -144,24 +144,33 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
     if (search_value_distance != nullptr) distance = this->split(*search_value_distance, ',');
 
 
+    PersonManager* personManager = new PersonManager(this->db);
+    vector<Person*>* result;
+    std::map<string, vector<string>*>* search_values = new std::map<string, vector<string>*>();
+
+
+    if (search_value_distance == nullptr && search_value_skill == nullptr &&
+        search_value_name == nullptr && search_value_mail==nullptr &&
+        search_value_position == nullptr) {
+        result = personManager->getAllUsers();
+    }else {
+
+        search_values->insert(std::pair<string, vector<string>*>("name",names));
+        search_values->insert(std::pair<string, vector<string>*>("positions",positions));
+        search_values->insert(std::pair<string, vector<string>*>("skill",skills));
+        search_values->insert(std::pair<string, vector<string>*>("distance",distance));
+        search_values->insert(std::pair<string, vector<string>*>("mail",mails));
+
+        result = personManager->search_users_by(search_values);
+    }
+
     delete search_value_distance;
     delete search_value_mail;
     delete search_value_name;
     delete search_value_position;
     delete search_value_skill;
 
-    PersonManager* personManager = new PersonManager(this->db);
-    vector<Person*>* result;
 
-    std::map<string, vector<string>*>* search_values = new std::map<string, vector<string>*>();
-    search_values->insert(std::pair<string, vector<string>*>("name",names));
-    search_values->insert(std::pair<string, vector<string>*>("positions",positions));
-    search_values->insert(std::pair<string, vector<string>*>("skill",skills));
-    search_values->insert(std::pair<string, vector<string>*>("distance",distance));
-    search_values->insert(std::pair<string, vector<string>*>("mail",mails));
-
-
-    result = personManager->search_users_by(search_values);
 
     std::sort ((*result).begin(), (*result).end(), myfunction);
     //FIXME: FALTA DETERMINAR COMO SE PUEDE ORDENAR Y HACERLO
