@@ -453,6 +453,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 .edit();
         editor.remove(getString(R.string.stored_connected_user_id));
         editor.remove(getString(R.string.stored_connected_user_token));
+        editor.remove(getString(R.string.stored_connected_user_location));
         editor.apply();
     }
 

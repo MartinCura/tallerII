@@ -102,8 +102,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                 });
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(this, "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
-                    .show();//
+//            Toast.makeText(this, "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
+//                    .show();//
             Log.e(LOG_TAG, "Problemas con SS.JobPositions");
         }
 
@@ -142,8 +142,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                 });
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(this, "Problemas con SS.Skills", Toast.LENGTH_LONG)
-                    .show();//
+//            Toast.makeText(this, "Problemas con SS.Skills", Toast.LENGTH_LONG)
+//                    .show();//
             Log.e(LOG_TAG, "Problemas con SS.Skills");
         }
     }
@@ -178,8 +178,14 @@ public class BusquedaActivity extends NavDrawerActivity {
         int distancia = Utils.getTextViewInt(this, R.id.busqueda_distancia);
         if (distancia < 0) distancia = 0;
 
-        BusquedaRequest busquedaReq = BusquedaRequest.crear(mSelectedJobPositionString,
-                                                        mSkillAdapter.getList(), distancia);
+        String nombre = Utils.getTextViewText(this, R.id.busqueda_nombre);
+        if (nombre.isEmpty()) nombre = null;
+
+        String mail = Utils.getTextViewText(this, R.id.busqueda_mail);
+        if (mail.isEmpty()) mail = null;
+
+        BusquedaRequest busquedaReq = BusquedaRequest.crear(nombre, mail,
+                mSelectedJobPositionString, mSkillAdapter.getList(), distancia);
         Log.d(LOG_TAG, "BusqRequest: "+busquedaReq.toJson());//
         startActivity(
                 new Intent(this, UserListActivity.class)

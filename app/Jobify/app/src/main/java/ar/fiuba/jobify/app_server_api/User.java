@@ -42,7 +42,7 @@ public class User {
 
     Locacion location;
 
-    @SerializedName(value="cantidadRecomendaciones", alternate={"unread_count"})
+    @SerializedName(value="cantidadRecomendaciones", alternate={"cantRecomendaciones", "unread_count"})
     long cantidadRecomendaciones = -1;
     long[] recommendations;
 
@@ -178,8 +178,9 @@ public class User {
     }
 
     public boolean setLocacion(double latitud, double longitud) {
-        if (location == null)
+        if (location == null) {
             location = new Locacion();
+        }
         return location.setLocation(latitud, longitud);
     }
 
@@ -288,8 +289,14 @@ public class User {
 
         try {
             User user = gson.fromJson(response, User.class);
+            // Para user reducido, que puede tener un campo "last_job" o "current_job"
             try {
-                // Para user reducido, que tiene un campo "last_job"
+                user.addEmployment(gson.fromJson(
+                        (new JSONObject(response)).getJSONObject("current_job").toString(), // hardcodeo
+                        Employment.class)
+                );
+            } catch (JSONException ex) {/**/}
+            try {
                 user.addEmployment(gson.fromJson(
                         (new JSONObject(response)).getJSONObject("last_job").toString(), // hardcodeo
                         Employment.class)

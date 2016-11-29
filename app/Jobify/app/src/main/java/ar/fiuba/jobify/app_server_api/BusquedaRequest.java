@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.app_server_api;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -8,24 +9,25 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import ar.fiuba.jobify.R;
 import ar.fiuba.jobify.shared_server_api.Skill;
+import ar.fiuba.jobify.utils.Utils;
 
 /**
  * Created by martín on 02/11/16.
  * Estructura API para obtener una búsqueda.
+ * NO se envía directamente como en otros casos; utilizar {@code generarRequestUrl()}.
  */
 public class BusquedaRequest {
 
+    String name = null;
+    String mail = null;
     String jobPosition = null;
     List<String> skills;
-//    JobPosition jobPosition;   // TODO: TENDRÍA QUE ENVIAR ESTO? Mirar todo lo comentado si cambia
-//    List<Skill> skills;
     int distancia = 0;
 
 
@@ -33,22 +35,60 @@ public class BusquedaRequest {
         skills = new ArrayList<>();
     }
 
-    public static BusquedaRequest crear(String nombreJobPosition, List<Skill> skills,
-                                        int distancia/*, Activity activity*/) {
+    public static BusquedaRequest crear(String nombre, String email, String nombreJobPosition,
+                                        List<Skill> skills, int distancia) {
         BusquedaRequest br = new BusquedaRequest();
 
-        br.jobPosition = !nombreJobPosition.isEmpty() ? nombreJobPosition : null;
-//        br.jobPosition = JobPosition.create(activity, nombreJobPosition);
-//        int i = 0;
+        br.name = nombre;
+        br.mail = email;
+        br.jobPosition = nombreJobPosition != null && !nombreJobPosition.isEmpty()
+                ? nombreJobPosition : null;
         for (Skill sk : skills) {
             if (sk != null)
                 br.skills.add(sk.getName());
-//            i++;
         }
-//        br.skills.addAll(skills);
         br.distancia = distancia;
 
         return br;
+    }
+
+
+    // pageNumber empieza en 1
+    public String generarRequestUrl(Context ctx, int pageSize, int pageNumber, Locacion loc) {
+        HashMap<String, String> map = new HashMap<>();
+
+        if (pageNumber < 1)
+            pageNumber = 1;
+        map.put(ctx.getString(R.string.get_busqueda_users_page_number_query), Integer.toString(pageNumber));
+        if (pageSize < 1)
+            pageSize = 1;
+        map.put(ctx.getString(R.string.get_busqueda_users_page_size_query),  Integer.toString(pageSize));
+
+        if (name != null && !name.isEmpty())
+            map.put(ctx.getString(R.string.get_busqueda_users_name_query), name);
+        if (mail != null && !mail.isEmpty())
+            map.put(ctx.getString(R.string.get_busqueda_users_mail_query), mail);
+
+        if (jobPosition != null && !jobPosition.isEmpty())
+            map.put(ctx.getString(R.string.get_busqueda_users_job_positions_query), jobPosition);
+        if (skills != null) {
+            String sks = "";
+            for (String sk : skills) {
+                if (sk != null && !sk.isEmpty()) {
+                    if (!sks.isEmpty())
+                        sks += ",";
+                    sks += sk;
+                }
+            }
+            if (!sks.isEmpty())
+                map.put(ctx.getString(R.string.get_busqueda_users_skills_query), sks);
+        }
+        if (distancia > 0 && loc != null) {
+            String d = loc.getLatitude() + "," + loc.getLongitude() + "," + Integer.toString(distancia);
+            map.put(ctx.getString(R.string.get_busqueda_users_distance_query), d);
+        }
+        return Utils.getAppServerUrl(ctx, ctx.getString(R.string.get_search_path), map);
+        // TODO: Reemplazar espacios por otra cosa??
     }
 
 
@@ -60,16 +100,16 @@ public class BusquedaRequest {
         return gson.toJson(this);
     }
 
-    public JSONObject toJsonObject() {
-        try {
-            return new JSONObject(toJson());
-
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-            Log.e("BusquedaRequest", "No se convirtió correctamente, bizarro, ¿culpa de gson?");
-            return null;
-        }
-    }
+//    public JSONObject toJsonObject() {
+//        try {
+//            return new JSONObject(toJson());
+//
+//        } catch (JSONException ex) {
+//            ex.printStackTrace();
+//            Log.e("BusquedaRequest", "No se convirtió correctamente, bizarro, ¿culpa de gson?");
+//            return null;
+//        }
+//    }
 
     @Nullable
     public static BusquedaRequest parseJSON(String response) {

@@ -304,8 +304,8 @@ public class PerfilUtils {
                 });
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(act, "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
-                    .show();//
+//            Toast.makeText(act, "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
+//                    .show();//
             Log.e(LOG_TAG, "Problemas con SS.JobPositions");
         }
 
@@ -344,8 +344,8 @@ public class PerfilUtils {
                 });
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(act, "Problemas con SS.Skills", Toast.LENGTH_LONG)
-                    .show();//
+//            Toast.makeText(act, "Problemas con SS.Skills", Toast.LENGTH_LONG)
+//                    .show();//
             Log.e(LOG_TAG, "Problemas con SS.Skills");
         }
     }

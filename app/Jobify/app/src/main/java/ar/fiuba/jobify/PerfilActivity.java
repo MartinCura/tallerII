@@ -3,6 +3,7 @@ package ar.fiuba.jobify;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -46,6 +47,7 @@ import java.util.List;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.Employment;
+import ar.fiuba.jobify.app_server_api.Locacion;
 import ar.fiuba.jobify.app_server_api.Recommendation;
 import ar.fiuba.jobify.app_server_api.Solicitud;
 import ar.fiuba.jobify.app_server_api.User;
@@ -646,9 +648,9 @@ public class PerfilActivity extends NavDrawerActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        if (response != null) {
-                            Log.d(LOG_TAG, "User PUT Response: " + response.toString());
-                        }
+//                        if (response != null) {
+//                            Log.d(LOG_TAG, "User PUT Response: " + response.toString());
+//                        }
                     }
                 }, LOG_TAG);
     }
@@ -829,9 +831,17 @@ public class PerfilActivity extends NavDrawerActivity {
             return;
 
         Location location = mLocationListener.getLocation();
-        if (location != null)
+        if (location != null) {
             fetchedUser.setLocacion(location.getLatitude(), location.getLongitude());
 
+            // Guardo locación para búsquedas
+            Locacion loc = new Locacion(location);
+            SharedPreferences.Editor editor =
+                    getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                            .edit();
+            editor.putString(getString(R.string.stored_connected_user_location), loc.toJson());
+            editor.apply();
+        }
         mLocationListener.finish();
     }
 
