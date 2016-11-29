@@ -19,19 +19,11 @@ public:
 private:
 
     string * getSearchByFromQueryParams(string query_params, std::string parameter);
-    string getWhichOneFromQueryParams(string query_params);
     long getPageSizeFromQueryParams(string query_params);
     long getPageNumberFromQueryParams(string query_params);
     bool static myfunction(Person *p1, Person *p2);
-
-    string getUrlsParameter(string query_params, string parameter);
-
     bool hasParameter(string query_params, string parameter);
-
-    string getParameterFromQueryParams(string queryParams, string parameter);
-
     void split2(const string &s, char delim, vector<string> *elems);
-
     vector<string> * split(const string &s, char delim);
 };
 
