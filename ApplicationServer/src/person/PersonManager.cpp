@@ -122,7 +122,7 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
     return new_user->getId();
 }
 long PersonManager::savePerson(Json::Value juser_new_information, long forceID) {
-    std::string user_mail, user_password, user_name, user_information, person_string;
+    std::string user_mail, user_password, user_name;
     Person* user = new Person(juser_new_information);
     long uniqueId;
     std::cout << juser_new_information.toStyledString()<<endl;

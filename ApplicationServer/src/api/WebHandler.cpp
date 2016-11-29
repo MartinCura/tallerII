@@ -27,14 +27,6 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 delete handler;
                 return response;
             }
-            else if (regex_match(url, regex("/allusers"))) {
-                this->logRequest(httpMessage);
-                handler = new AllUsersHandler();
-                response = handler->handleRequest(httpMessage, url);
-                this->logResponse(response);
-                delete handler;
-                return response;
-            }
             else if (regex_match(url, regex("/contacts/.*")) || regex_match(url, regex("/contacts"))) {
                 this->logRequest(httpMessage);
                 handler = new ContactsHandler();

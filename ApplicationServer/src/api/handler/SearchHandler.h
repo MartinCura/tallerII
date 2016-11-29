@@ -25,6 +25,8 @@ private:
     bool hasParameter(string query_params, string parameter);
     void split2(const string &s, char delim, vector<string> *elems);
     vector<string> * split(const string &s, char delim);
+
+    string getParameterFromQueryParams(string queryParams, string parameter);
 };
 
 
