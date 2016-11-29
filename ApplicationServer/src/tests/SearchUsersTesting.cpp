@@ -25,14 +25,21 @@ TEST(SearchEngine, SearchByName) {
     user["summary"] = "Me gusta el arrte";
 
     personManager->savePerson(user, 0);
-    vector<Person*>* user_result = personManager->searchByName("carlos");
-    vector<Person*>* user_result2 = personManager->searchByName("rodriguez");
+
+    std::vector<string>* search1 = new std::vector<string>();
+    search1->push_back("carlos");
+    std::vector<string>* search2 = new std::vector<string>();
+    search2->push_back("rodriguez");
+    vector<Person*>* user_result = personManager->searchByName(search1);
+    vector<Person*>* user_result2 = personManager->searchByName(search2);
 
     EXPECT_EQ((*user_result)[0]->getFirstName(),"carlos");
     EXPECT_EQ((*user_result2)[0]->getFirstName(), "carlos");
 
     delete user_result;
     delete user_result2;
+    delete search1;
+    delete search2;
     db->destroyDB(namedb);
     DBWrapper::ResetInstance();
     delete personManager;
@@ -122,14 +129,20 @@ TEST(SearchEngine, SearchBySkill) {
     personManager->savePerson(getFakePerson2()->serializeMe(), 2);
     personManager->savePerson(getFakePerson3()->serializeMe(), 3);
 
-    vector<Person*>* result = personManager->searchBySkill("qa");
-    vector<Person*>* result2 = personManager->searchBySkill("javascript");
+    std::vector<string>* search1 = new std::vector<string>();
+    search1->push_back("qa");
+    std::vector<string>* search2 = new std::vector<string>();
+    search2->push_back("javascript");
+    vector<Person*>* result = personManager->searchBySkill(search1);
+    vector<Person*>* result2 = personManager->searchBySkill(search2);
 
     EXPECT_EQ((*result).size(), 2);
     EXPECT_EQ((*result2).size(), 1);
     db->destroyDB(namedb);
     DBWrapper::ResetInstance();
     delete personManager;
+    delete search1;
+    delete(search2);
     delete result;
     delete result2;
     delete namedb;
