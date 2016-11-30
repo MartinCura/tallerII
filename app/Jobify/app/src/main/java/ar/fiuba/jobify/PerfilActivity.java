@@ -72,7 +72,7 @@ public class PerfilActivity extends NavDrawerActivity {
     private static Context mContext;
 
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
-    private boolean inEditingMode = false;  // TODO: revisar qué ocurre si giro la pantalla
+    private boolean inEditingMode = false;
     private EditableListAdapter<Skill> mSkillAdapter;
     private EditableListAdapter<Employment> mJobsAdapter;
 
@@ -166,7 +166,6 @@ public class PerfilActivity extends NavDrawerActivity {
             mLocationListener.unpause();
         }
 
-        // TODO: REVISAR, YA QUE ESTÁ EN EL onResume
         // Obtengo el modo en el que debe comenzar
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(PERFIL_MODE_MESSAGE)) {
@@ -617,6 +616,8 @@ public class PerfilActivity extends NavDrawerActivity {
         Utils.populateStringList(this, R.id.perfil_experiencia_laboral_list, mUser.getListaJobs());
         Utils.populateStringList(this, R.id.perfil_skills_list, mUser.getListaSkills());
 
+        // Se cargan las contact cards, se esconde el frame por si no tiene
+        Utils.hideView(this, R.id.perfil_contactos_frame);
         Utils.getJsonFromAppServer(getContext(), getString(R.string.get_contacts_path), fetchedUserID,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -817,7 +818,6 @@ public class PerfilActivity extends NavDrawerActivity {
 
 
     public void startLocationService(View v) {
-        // TODO: Check GPS is on?
         try {
             mLocationListener =
                     new PerfilUtils.MyLocationService(this, R.id.text_perfil_ciudad_editable);

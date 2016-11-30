@@ -194,11 +194,12 @@
     <string name="perfil_recommendation_success">¡Usuario recomendado!</string>
     <string name="perfil_recommendation_deletion_success">Se ha quitado la recomendación :(</string>
 
-    <string name="get_search_path">search</string>
+    <string name="get_search_path">users</string>
+    <!--<string name="get_search_path">search</string>-->
     <string name="get_busqueda_users_first_query">first</string>
     <string name="get_busqueda_users_last_query">last</string>
-    <string name="get_busqueda_users_name_query">name</string>
-    <string name="get_busqueda_users_mail_query">mail</string>
+    <string name="get_busqueda_users_name_query">names</string>
+    <string name="get_busqueda_users_mail_query">mails</string>
     <string name="get_busqueda_users_job_positions_query">positions</string>
     <string name="get_busqueda_users_skills_query">skills</string>
     <string name="get_busqueda_users_distance_query">distance</string>

@@ -25,4 +25,8 @@ public class ResponseMetadata {
     public long getTotalCount() {
         return totalCount;
     }
+
+    public long getTotalUnreadCount() {
+        return count;
+    }
 }

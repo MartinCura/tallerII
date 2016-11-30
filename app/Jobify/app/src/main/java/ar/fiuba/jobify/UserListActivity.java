@@ -249,9 +249,10 @@ public class UserListActivity extends NavDrawerActivity {
     /// de prueba //;//
     private void listarTodosLosUsuarios() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
-        if (toolbar != null)
-            toolbar.setTitle("Todos los usuarios");
-        else
+        if (toolbar != null) {
+            toolbar.setTitle("Profesionales más populares");
+//            toolbar.setTitle("Todos los usuarios");
+        } else
             Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
 
         Utils.getJsonFromAppServer(this, getString(R.string.get_all_users_path),
@@ -486,9 +487,15 @@ public class UserListActivity extends NavDrawerActivity {
 
                         int cant = 0;
                         ResponseMetadata meta = busqResponse.getMetadata();
-                        if (meta != null)
-                            cant = Long.valueOf(meta.getCount()).intValue();
-                        else
+                        if (meta != null) {
+                            if (meta.getTotalCount() == 0)
+                                cant = 0;
+                            else {
+                                cant = Long.valueOf(meta.getCount()).intValue();
+                                if (cant == 0)
+                                    cant = PAGE_SIZE; // Por si no se envía
+                            }
+                        } else
                             Log.e(LOG_TAG, "BusquedaResponse Metadata null!");
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;

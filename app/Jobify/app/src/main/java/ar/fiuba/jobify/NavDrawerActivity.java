@@ -214,6 +214,7 @@ public class NavDrawerActivity extends AppCompatActivity
                         } else {
                             ArrayList<Contact> contactsReceived =
                                     contactsResponse.getContactsWithStatus(Contact.Status.RECEIVED);
+                            // Muestro la cantidad de solicitudes de amistad pendientes
                             int cantSolicitudes = contactsReceived.size();
                             if (cantSolicitudes > 0) {
                                 String newTitle = getString(R.string.nav_solicitudes_option)
@@ -239,7 +240,8 @@ public class NavDrawerActivity extends AppCompatActivity
                         } else {
                             ResponseMetadata meta = convResponse.getMetadata();
                             if (meta != null) {
-                                long cantUnread = convResponse.getMetadata().getCount();
+                                // Muestro la cantidad total de mensajes sin leer
+                                long cantUnread = convResponse.getMetadata().getTotalUnreadCount();
                                 if (cantUnread > 0) {
                                     String newTitle = getString(R.string.nav_conversations_option)
                                             + " (" + cantUnread + ")";
@@ -308,7 +310,7 @@ public class NavDrawerActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_logout) {
             Utils.confirmarAccion(this, "Cerrar sesión",
-                    "¿Está seguro de que quiere cerrar sesión?\n\nLo extrañaremos mucho...",
+                    "¿Está seguro de que quiere cerrar sesión?\n\n¡Lo extrañaremos mucho!",
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {

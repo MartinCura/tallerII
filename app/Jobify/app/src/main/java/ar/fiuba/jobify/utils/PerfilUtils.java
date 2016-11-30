@@ -565,9 +565,9 @@ public class PerfilUtils {
         Contact.Status estado = response.getStatusForId(connectedUserID);
         PerfilUtils.colorearBotonAmistad(act, estado);
 
-        ArrayList<Contact> contacts = response.getContactsWithStatus(Contact.Status.ACTIVE);
+        ArrayList<Contact> activeContacts = response.getContactsWithStatus(Contact.Status.ACTIVE);
 
-        if (contacts.size() == 0) {
+        if (activeContacts.size() == 0) {
             Utils.hideView(act, R.id.perfil_contactos_frame);
             return;
         } else {
@@ -578,7 +578,7 @@ public class PerfilUtils {
         if (mHLView != null) {
 
             final ContactCardAdapter mContactCardAdapter =
-                    new ContactCardAdapter(act, mHLView, contacts);
+                    new ContactCardAdapter(act, mHLView, activeContacts);
             mHLView.setAdapter(mContactCardAdapter);
             mHLView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
