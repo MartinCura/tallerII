@@ -24,6 +24,12 @@ private:
     DBWrapper* db;
     string *namedb;
     void saveToken(string token, string user_mail);
+
+    vector<Skill *> getSkillsDisponibles();
+
+    vector<WorkHistory *> getTrabajosDisponibles();
+
+    void setLastId();
 };
 
 #endif //PROJECT_DBBUILDER_H

@@ -132,7 +132,6 @@ extern void *(*test_calloc)(size_t count, size_t size);
 #define CS_COMMON_CS_DBG_H_
 
 #ifndef CS_DISABLE_STDIO
-#include <stdio.h>
 #endif
 
 #ifdef __cplusplus
@@ -203,9 +202,6 @@ void cs_log_printf(const char *fmt, ...);
 
 /* Amalgamated: #include "common/cs_dbg.h" */
 
-#include <stdarg.h>
-#include <stdio.h>
-
 /* Amalgamated: #include "common/cs_time.h" */
 
 enum cs_log_level cs_log_level =
@@ -267,7 +263,6 @@ void cs_log_set_level(enum cs_log_level level) {
 #ifndef EXCLUDE_COMMON
 
 /* Amalgamated: #include "common/base64.h" */
-#include <string.h>
 
 /* ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ */
 
@@ -663,10 +658,8 @@ typedef int cs_dirent_dummy;
 /* Amalgamated: #include "common/cs_time.h" */
 
 #ifndef _WIN32
-#include <stddef.h>
 #if !defined(CS_PLATFORM) || \
     (CS_PLATFORM != CS_P_CC3200 && CS_PLATFORM != CS_P_MSP432)
-#include <sys/time.h>
 #endif
 #else
 #include <windows.h>
@@ -968,7 +961,6 @@ char *cs_md5(char buf[33], ...) {
 #ifndef EXCLUDE_COMMON
 
 #include <assert.h>
-#include <string.h>
 /* Amalgamated: #include "common/mbuf.h" */
 
 #ifndef MBUF_REALLOC
@@ -1063,8 +1055,6 @@ void mbuf_remove(struct mbuf *mb, size_t n) {
  */
 
 /* Amalgamated: #include "common/mg_str.h" */
-
-#include <string.h>
 
 int mg_ncasecmp(const char *s1, const char *s2, size_t len);
 
@@ -1717,7 +1707,7 @@ MG_INTERNAL void mg_call(struct mg_connection *nc,
     unsigned long flags_before = nc->flags;
     size_t recv_mbuf_before = nc->recv_mbuf.len, recved;
     ev_handler(nc, ev, ev_data);
-    recved = (recv_mbuf_before - nc->recv_mbuf.len);
+      recved = (recv_mbuf_before - nc->recv_mbuf.len);
     /* Prevent user handler from fiddling with system flags. */
     if (ev_handler == nc->handler && nc->flags != flags_before) {
       nc->flags = (flags_before & ~_MG_CALLBACK_MODIFIABLE_FLAGS_MASK) |

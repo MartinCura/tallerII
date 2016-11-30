@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Person.h"
 
 Person::Person() {
@@ -9,14 +10,13 @@ Person::Person() {
     this->dateOfBirth = "";
     this->city = "";
     this->summary = "";
-    this->personAsJson = "";
+    this->totRecommendations = 0;
     this->location = new Location();
 }
 
 Person::Person(Json::Value personAsJson) {
     this->location = new Location();
     deserializeMe(personAsJson);
-    this->personAsJson = personAsJson;
 }
 
 Person::~Person() {
@@ -30,10 +30,14 @@ void Person::setId(long id) {
 }
 
 void Person::setFirstName(string firstName) {
+    std::string aux = firstName;
+    transform(aux.begin(), aux.end(), aux.begin(), ::tolower);
     this->firstName = firstName;
 }
 
 void Person::setLastName(string lastName) {
+    std::string aux = lastName;
+    transform(aux.begin(), aux.end(), aux.begin(), ::tolower);
     this->lastName = lastName;
 }
 
@@ -50,6 +54,7 @@ void Person::setDateOfBirth(string dateOfBirth) {
 }
 
 void Person::setCity(string city) {
+    transform(city.begin(), city.end(), city.begin(), ::tolower);
     this->city = city;
 }
 
@@ -82,6 +87,10 @@ string Person::getLastName() {
     return this->lastName;
 }
 
+string Person::getFullName() {
+    return this->firstName + "-" + this->lastName;
+
+}
 string Person::getEmail() {
     return this->email;
 }
@@ -110,6 +119,10 @@ vector<Skill*> Person::getSkills() {
     return this->skills;
 }
 
+string Person::getPassword() {
+    return this->password;
+}
+
 WorkHistory* Person::getCurrentJob() {
     vector<WorkHistory*> workHistoryVector = this->getWorkHistory();
     for (vector<WorkHistory*>::size_type i = 0; i != workHistoryVector.size(); i++) {
@@ -123,12 +136,17 @@ WorkHistory* Person::getCurrentJob() {
 void Person::deserializeMe(Json::Value personAsJson) {
     this->id = personAsJson["id"].asLargestInt();
     this->firstName = personAsJson["first_name"].asString();
+    std::transform(this->firstName.begin(), this->firstName.end(), this->firstName.begin(), ::tolower);
     this->lastName = personAsJson["last_name"].asString();
+    std::transform(this->lastName.begin(), this->lastName.end(), this->lastName.begin(), ::tolower);
     this->email = personAsJson["email"].asString();
+    std::transform(this->email.begin(), this->email.end(), this->email.begin(), ::tolower);
     this->password = personAsJson["password"].asString();
     this->dateOfBirth = personAsJson["date_of_birth"].asString();
     this->city = personAsJson["city"].asString();
+    std::transform(this->city.begin(), this->city.end(), this->city.begin(), ::tolower);
     this->summary = personAsJson["summary"].asString();
+    this->totRecommendations = personAsJson["tot_recommendations"].asInt();
 
     this->location->setLatitude(personAsJson["location"]["latitude"].asDouble());
     this->location->setLongitude(personAsJson["location"]["longitude"].asDouble());
@@ -187,6 +205,7 @@ Json::Value Person::serializeMe() {
     personAsJson["summary"] = this->summary;
     personAsJson["location"]["latitude"] = this->location->getLatitude();
     personAsJson["location"]["longitude"] = this->location->getLongitude();
+    personAsJson["tot_recommendations"] = this->totRecommendations;
 
     for (vector<WorkHistory*>::size_type i = 0; i != this->workHistory.size(); i++) {
         WorkHistory* workHistory = this->workHistory[i];
@@ -213,4 +232,42 @@ void Person::deleteSkills() {
     for (int i = 0; i != size; i++) {
         this->skills.pop_back();
     }
+}
+
+int Person::getTotalOfRecommendations() {
+    return this->totRecommendations;
+}
+
+void Person::setTotalRecommendations(int i) {
+    this->totRecommendations = i;
+}
+
+bool Person::has_every_skill(std::vector<string> *skills) {
+    for(int i = 0; i < skills->size(); i++ ) {
+        if (!this->hasSkill((*skills)[i])) return false;
+    }
+    return true;
+}
+
+bool Person::hasSkill(std::string skill) {
+    for(int j = 0; j < this->skills.size(); j++) {
+        if(this->skills[j]->getName().compare(skill) == 0) return true;
+    }
+    return false;
+}
+
+bool Person::has_every_position(std::vector<string> *positions) {
+    for(int i = 0; i < positions->size(); i++ ) {
+        if (!this->hasPosition((*positions)[i])) return false;
+    }
+    return true;
+}
+
+bool Person::hasPosition(std::string position) {
+    for(int j = 0; j < this->workHistory.size(); j++) {
+        std::string position2 = this->workHistory[j]->getPositionTitle();
+        std::transform(position2.begin(), position2.end(), position2.begin(), ::tolower);
+        if(position2.compare(position) == 0) return true;
+    }
+    return false;
 }

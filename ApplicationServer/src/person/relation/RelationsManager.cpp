@@ -58,7 +58,7 @@ void RelationsManager::addOrUpdateRelation(long keyUserId, long contactId, strin
     }
     Json::FastWriter fastWriter;
     string allContactsAsString = fastWriter.write(allContactsAsJson);
-    this->db->puTKey(CONTACT_KEY + to_string(keyUserId), &allContactsAsString);
+    this->db->putKey(CONTACT_KEY + to_string(keyUserId), &allContactsAsString);
 }
 
 void RelationsManager::removeRelation(long keyUserId, long contactId) {
@@ -83,7 +83,7 @@ void RelationsManager::removeRelation(long keyUserId, long contactId) {
     }
     Json::FastWriter fastWriter;
     string allContactsAsString = fastWriter.write(allContactsAsJson);
-    this->db->puTKey(CONTACT_KEY + to_string(keyUserId), &allContactsAsString);
+    this->db->putKey(CONTACT_KEY + to_string(keyUserId), &allContactsAsString);
 }
 
 vector<Contact*> RelationsManager::getContactsByUserId(long userId) {

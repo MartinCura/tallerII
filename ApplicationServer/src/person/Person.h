@@ -32,6 +32,8 @@ public:
     void addWorkHistory(WorkHistory* workHistory);
     void addSkill(Skill* skill);
 
+    bool has_every_skill(std::vector<string>* skills); //fixme
+    bool has_every_position(std::vector<string> *positions);
     long getId();
     string getFirstName();
     string getLastName();
@@ -48,8 +50,15 @@ public:
     Json::Value serializeMe();
     void updateMe(Json::Value values);
 
+    string getFullName();
+
+    int getTotalOfRecommendations();
+    void setTotalRecommendations(int i);
+    string getPassword();
+
 private:
     long id;
+    int totRecommendations;
     string firstName;
     string lastName;
     string email;
@@ -60,12 +69,13 @@ private:
     Location* location;
     vector<WorkHistory*> workHistory;
     vector<Skill*> skills;
-    Json::Value personAsJson;
 
     /// Creates an object Person from a Json
     void deserializeMe(Json::Value personAsJson);
     void deleteWorkHistory();
     void deleteSkills();
+    bool hasSkill(std::string skill);
+    bool hasPosition(string position);
 };
 
 #endif //PROJECT_PERSON_H

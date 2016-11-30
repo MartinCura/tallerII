@@ -13,7 +13,7 @@ Response* UsersHandler::handlePostRequest(http_message* httpMessage) {
     try {
         Json::Value responseBody;
         Json::Value parsedBody = this->parseBody(requestBody);
-        responseBody["id"] = personManager->savePerson(0, parsedBody);
+        responseBody["id"] = personManager->savePerson(parsedBody);
         response->setSuccessfulHeader();
         response->setBody(responseBody.toStyledString());
     } catch (UserAlreadyExistsException& e) {
@@ -32,7 +32,7 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
     Response* response = new Response();
     try {
         long userId = this->getUserIdFromUrl(url);
-        Person *person = personManager->getPersonById(userId);
+        Person *person = personManager->getUserById(userId);
         response->setSuccessfulHeader();
         Json::Value body = person->serializeMe();
         body["recommendations"] = personManager->getRecommendationsByUserId(userId);
@@ -76,20 +76,27 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) 
     PersonManager *personManager = new PersonManager(this->db);
     Response* response = new Response();
     string requestBody = string(httpMessage->body.p);
+
+    long userId = this->getUserIdFromUrl(url);
+    //Seguridad:
+    // El usuario solo puede editar su perfil.
+    if (!Security::hasPermissionToEdit(this->session->getUserId(), userId)) {
+        throw NotAuthorizedException();
+    }
+
     try {
-        long userId = this->getUserIdFromUrl(url);
-        //Seguridad:
-        // El usuario solo puede editar su perfil.
-        if (!Security::hasPermissionToEdit(this->session->getUserId(), userId)) {
-            throw NotAuthorizedException();
-        }
         Json::Value parsedBody = this->parseBody(requestBody);
-        Person* person = personManager->getPersonById(userId);
-        person->updateMe(parsedBody);
-        Json::Value jperson = person->serializeMe();
-        personManager->savePerson(userId, jperson);
-        delete person;
+
+        //Person* person = personManager->getUserById(userId);
+        //person->updateMe(parsedBody);
+        //Json::Value jperson = person->serializeMe();
+        //personManager->updateUser(jperson);
+        //delete person;
+        Json::Value responseBody;
+        responseBody["id"] = personManager->updateUser(parsedBody);
+
         response->setSuccessfulHeader();
+        response->setBody(responseBody.toStyledString());
     } catch (InvalidRequestException& e) {
         response->setBadRequestHeader();
         response->setErrorBody(e.getMessage());

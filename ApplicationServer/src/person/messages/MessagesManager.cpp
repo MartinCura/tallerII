@@ -29,7 +29,7 @@ string MessagesManager::saveMessage(long fromUserId, long toUserId, string messa
     Json::FastWriter fastWriter;
     string valueToSave = fastWriter.write(allMessagesAsJson);
     string key = this->getKey(fromUserId, toUserId);
-    this->db->puTKey(key, &valueToSave);
+    this->db->putKey(key, &valueToSave);
     return messageToSaveAsString;
 }
 
@@ -85,7 +85,7 @@ void MessagesManager::setMessagesAsReceived(long fromUserId, long toUserId, vect
     Json::FastWriter fastWriter;
     string valueToSave = fastWriter.write(allMessagesAsJson);
     string key = this->getKey(fromUserId, toUserId);
-    this->db->puTKey(key, &valueToSave);
+    this->db->putKey(key, &valueToSave);
 }
 
 int MessagesManager::getUnreadCount(long requesterUserId, long withUserId) {

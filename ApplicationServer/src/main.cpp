@@ -1,6 +1,5 @@
 #include "Mongoose/mongoose.h"
 #include "api/WebHandler.h"
-#include "logger/Logger.h"
 #include "tools/DbBuilder.h"
 #include "tools/MainHelper.h"
 #include "config/Config.h"
@@ -133,6 +132,8 @@ int main(int argc, char *argv[]) {
     DbBuilder* dbb = new DbBuilder();
     dbb->loadUsers();
     delete dbb;
+
+    srand ((unsigned int)time(NULL));
 
     while (s_sig_num == 0) {
         mg_mgr_poll(&mgr, 1000);

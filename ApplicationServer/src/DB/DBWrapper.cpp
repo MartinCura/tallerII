@@ -1,5 +1,5 @@
 //
-// Created by milena on 28/09/16.
+// Clase creada con el objetivo de evitar la dependecia directa con LevelDB.
 //
 
 #include <iostream>
@@ -31,7 +31,7 @@ DBWrapper::ResponseCode DBWrapper::getKey(std::string key, std::string *output) 
 }
 
 
-DBWrapper::ResponseCode DBWrapper::puTKey(std::string key, std::string *value) {
+DBWrapper::ResponseCode DBWrapper::putKey(std::string key, std::string *value) {
     if (!db) {
         throw std::exception(); //Se debe primero iniciar la base
     }
@@ -89,9 +89,7 @@ DBWrapper::DBWrapper(std::string* nameDB) {
     options.create_if_missing = true;
     //options.error_if_exists = true;
     leveldb::Status s = leveldb::DB::Open(options, *nameDB, &db);
-    //std::cout << s.ToString();
-    std::string mensaje = s.ToString();
-    //std::cout << mensaje;
+
 }
 
 DBWrapper::ResponseCode DBWrapper::destroyDB(std::string *nameDB) {

@@ -100,7 +100,9 @@ void runTest(string test, string dbName, bool shouldReloadImages) {
     deleteDB(dbName);
 }
 
+
 TEST(Testing, Api) {
+
     if (FILE *file = fopen(configFile.c_str(), "r")) {
         fclose(file);
     } else {

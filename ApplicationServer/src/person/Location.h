@@ -18,9 +18,13 @@ public:
     double getLatitude();
     double getLongitude();
 
+    double getDistanceFrom(Location* location);
+    bool isEmpty();
+
 private:
     double latitude;
     double longitude;
+
 };
 
 #endif //PROJECT_LOCATION_H

@@ -12,6 +12,7 @@
 
 #define USER_TOKEN "user:token_"
 #define USER_MAIL_ID "user:mail_"
+#define USER_UUID_ID "user:uuid_"
 #define USER_PASSWORD "user:password_"
 
 class SessionManager {

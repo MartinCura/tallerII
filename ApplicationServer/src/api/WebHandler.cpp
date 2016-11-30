@@ -1,4 +1,5 @@
 #include "WebHandler.h"
+#include "handler/SearchHandler.h"
 
 WebHandler::WebHandler() {}
 
@@ -10,7 +11,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
     try {
         if (&httpMessage->uri) {
             string url = this->getUrl(httpMessage->uri);
-            if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users"))) {
+            if (regex_match(url, regex("/users/.*"))) {
                 this->logRequest(httpMessage);
                 handler = new UsersHandler();
                 response = handler->handleRequest(httpMessage, url);
@@ -21,14 +22,6 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
             else if (regex_match(url, regex("/profilepicture/.*"))) {
                 handler = new PictureHandler();
                 response = handler->handleRequest(httpMessage, url);
-                delete handler;
-                return response;
-            }
-            else if (regex_match(url, regex("/allusers"))) {
-                this->logRequest(httpMessage);
-                handler = new AllUsersHandler();
-                response = handler->handleRequest(httpMessage, url);
-                this->logResponse(response);
                 delete handler;
                 return response;
             }
@@ -87,7 +80,14 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 this->logResponse(response);
                 delete handler;
                 return response;
-            } else {
+            } else if (regex_match(url, regex("/users.*"))) {
+                this->logRequest(httpMessage);
+                handler = new SearchHandler();
+                response = handler->handleRequest(httpMessage, url);
+                this->logResponse(response);
+                delete handler;
+                return response;
+            }else {
                 this->logRequest(httpMessage);
                 response->setNotFoundHeader();
                 this->logResponse(response);

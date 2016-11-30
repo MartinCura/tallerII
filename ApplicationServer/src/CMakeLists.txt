@@ -60,6 +60,14 @@ add_executable(${TARGET} ${SOURCE_FILES}
     Security/Security.cpp
     Security/Security.h
     Exceptions/NotAuthorizedException.h
+    Exceptions/BadImplementationException.h
+    api/handler/TopTenHandler.cpp
+    api/handler/TopTenHandler.h
+    api/handler/SearchHandler.cpp
+    api/handler/SearchHandler.h
+    person/Manager.cpp
+    person/Manager.h
+    Exceptions/KeyNotFound.h
 )
 
 target_link_libraries (${TARGET} Mongoose)

@@ -76,13 +76,11 @@ add_executable (${TARGET} ${SOURCES}
     ../tools/NotificationSender.h
     ../tools/DummyServer.cpp
     ../tools/DummyServer.h
-    ../api/handler/AllUsersHandler.cpp
     ../api/handler/ContactsHandler.cpp
     ../api/handler/ConversationsHandler.cpp
     ../api/handler/LoginHandler.cpp
     ../api/handler/LoginWithFacebookHandler.cpp
     ../api/handler/RecommendationsHandler.cpp
-    ../api/handler/AllUsersHandler.h
     ../api/handler/ContactsHandler.h
     ../api/handler/Handler.h
     ../api/handler/LoginWithFacebookHandler.h
@@ -92,13 +90,21 @@ add_executable (${TARGET} ${SOURCES}
     ../api/handler/NotificationTokenHandler.h
     ../api/handler/LoginHandler.h
     ../api/handler/UsersHandler.h
+        ../api/handler/SearchHandler.h
+        ../api/handler/SearchHandler.cpp
     ../api/handler/MessagesHandler.h
     ../api/handler/PictureHandler.cpp
     ../api/handler/UsersHandler.cpp
     ../api/handler/Handler.cpp
     ../api/handler/MessagesHandler.cpp
     ../api/handler/NotificationTokenHandler.cpp
-)
+    ../person/Manager.cpp
+    ../person/Manager.h
+    ../Exceptions/BadImplementationException.h
+    ../Exceptions/KeyNotFound.h
+    SearchUsersTesting.cpp
+
+        testing_api2.cpp testing_api2.h)
 
 target_link_libraries (${TARGET} gtest)
 target_link_libraries (${TARGET} leveldb)

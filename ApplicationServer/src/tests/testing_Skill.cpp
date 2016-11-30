@@ -17,7 +17,7 @@ TEST(NewSkill, FillValues) {
     skill->setName("PHP");
     skill->setDescription("PHP knowledge");
     skill->setCategory("Software");
-    EXPECT_EQ(skill->getName(), "PHP");
+    EXPECT_EQ(skill->getName(), "php");
     EXPECT_EQ(skill->getDescription(), "PHP knowledge");
     EXPECT_EQ(skill->getCategory(), "Software");
     delete skill;
@@ -29,7 +29,7 @@ TEST(NewSkill, FromJson) {
     skillAsJson["description"] = "PHP knowledge";
     skillAsJson["category"] = "Software";
     Skill* skill = new Skill(skillAsJson);
-    EXPECT_EQ(skill->getName(), "PHP");
+    EXPECT_EQ(skill->getName(), "php");
     EXPECT_EQ(skill->getDescription(), "PHP knowledge");
     EXPECT_EQ(skill->getCategory(), "Software");
     delete skill;
@@ -41,7 +41,7 @@ TEST(NewSkill, ToJson) {
     skill->setDescription("PHP knowledge");
     skill->setCategory("Software");
     Json::Value skillAsJson = skill->serializeMe();
-    EXPECT_EQ(skillAsJson["name"].asString(), "PHP");
+    EXPECT_EQ(skillAsJson["name"].asString(), "php");
     EXPECT_EQ(skillAsJson["description"].asString(), "PHP knowledge");
     EXPECT_EQ(skillAsJson["category"].asString(), "Software");
     delete skill;

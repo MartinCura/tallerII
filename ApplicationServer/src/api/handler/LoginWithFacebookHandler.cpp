@@ -30,12 +30,12 @@ Response* LoginWithFacebookHandler::handlePostRequest(http_message* httpMessage)
         Json::Value data = this->getUserDataFromFacebook(parsedBody);
         person = this->createPerson(data);
         long personId;
-        if (!personManager->userExists(person->getEmail())) {
-            personId = personManager->savePerson(0, person->serializeMe());
+        if (!personManager->userExistsMail(person->getEmail())) {
+            personId = personManager->savePerson(person->serializeMe());
         } else {
             string email = person->getEmail();
             delete person;
-            person = personManager->getPersonByMail(&email);
+            person = personManager->getUserByMail(email);
             personId = person->getId();
         }
         string user_token = sessionManager->facebookLogin(person->getEmail());

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Skill.h"
 
 Skill::Skill() {
@@ -12,7 +13,9 @@ Skill::Skill(Json::Value jvalue) {
 Skill::~Skill() {}
 
 void Skill::setName(string name) {
-    this->name = name;
+    std::string name2 = name;
+    transform(name2.begin(), name2.end(), name2.begin(), ::tolower);
+    this->name = name2;
 }
 
 void Skill::setDescription(string description) {
@@ -36,7 +39,9 @@ string Skill::getCategory() {
 }
 
 void Skill::deserializeMe(Json::Value jvalue) {
-	this->name = jvalue["name"].asString();
+    std::string skill_name = jvalue["name"].asString();
+    transform(skill_name.begin(), skill_name.end(), skill_name.begin(), ::tolower);
+	this->name = skill_name;
     this->description = jvalue["description"].asString();
     this->category = jvalue["category"].asString();
 }
