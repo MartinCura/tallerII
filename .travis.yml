@@ -1,21 +1,44 @@
+# Use new trusty images, should yield newer compilers and packages
 sudo: required
 
 services:
   - docker
 
-before_install:
-- sudo docker-compose -f SharedServer/docker-compose.yml build
-- sudo docker build -t sharedservertest SharedServer/tests/
-- sudo docker-compose -f SharedServer/docker-compose.yml up -d db 
-- sleep 10
-- sudo docker-compose -f SharedServer/docker-compose.yml up -d 
-- sudo docker exec -itd sharedserver_sharedserver_1 node code/server.js
-- sleep 10
+branches:
 
+  only:
+    - master
+    - ApplicationServer
+
+notifications:
+    email: false
+    slack:
+      rooms:
+        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#commit
+        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#appser
+        
+      on_success: change
+      on_failure: never
+
+  
+before_install:
+  # Creates docker image from Dockerfile called "appserverimg" on the local machine.
+  - docker build -t appserverimg .
+  - docker images #To verify that the new images are on the local host.
+  
 script:
-- sudo docker ps -a
-- sudo docker exec -it sharedserver_sharedserver_1 ps -A
-- sudo docker logs sharedserver_sharedserver_1
-- sudo docker exec -it sharedserver_sharedserver_1 curl -I localhost
-- curl -I localhost
-- sudo docker run -it sharedservertest bash
+
+  # Creates dockers from docker images
+
+  # -d: tells Docker to run the container in the background
+  # -p: tells Docker to map port:8000 of the container to our  local port 8000
+  # appserverimg: we specified an image, that was built previously.
+  # appserver: is the name of the container
+  - docker run --name appserver -d -p 8000:8000 appserverimg;
+  # To see the running container
+  # -l: tells Docker to return de details of the last container started.
+  - docker ps -l
+
+ # - mkdir build
+ # - cd build
+ # - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make install && make test
