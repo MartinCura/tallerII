@@ -50,6 +50,8 @@ protected:
     string getUserJobPositionKey(string job_position);
 
     void saveUserJobPositionKey(string job_position, string value);
+
+    void deleteUserSkillKey(string skill_name);
 };
 
 

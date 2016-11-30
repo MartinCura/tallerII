@@ -6,7 +6,6 @@
 #include "handler/Handler.h"
 #include "handler/UsersHandler.h"
 #include "handler/PictureHandler.h"
-#include "handler/AllUsersHandler.h"
 #include "handler/ContactsHandler.h"
 #include "handler/LoginHandler.h"
 #include "handler/RecommendationsHandler.h"

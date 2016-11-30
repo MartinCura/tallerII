@@ -52,6 +52,10 @@ void Manager::saveUserSkillKey(string skill_name, string value) {
     db->putKey(USER_SKILL + skill_name, &value);
 }
 
+void Manager::deleteUserSkillKey(string skill_name) {
+    db->deleteKey(USER_SKILL + skill_name);
+}
+
 void Manager::saveUserJobPositionKey(string job_position, string value) {
     db->putKey(USER_JOBPOSITION + job_position, &value);
 }

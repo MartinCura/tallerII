@@ -54,8 +54,12 @@ void PersonManager::updateWorkHistory(vector<WorkHistory*> new_positions, vector
     }
 
 }
-void PersonManager::updateSkills(vector<Skill *> new_skills, vector<Skill *> old_skills, string user_mail) {
+void PersonManager::updateSkills(Person *new_user, Person *old_user) {
 
+    std::vector<Skill*> new_skills = new_user->getSkills();
+    std::vector<Skill*> old_skills = old_user->getSkills();
+
+    //Controla nuevos skills.
     for (int i = 0; i < new_skills.size(); i++) {
         bool skill_exists = false;
         std::string user_newSkill = new_skills[i]->getName();
@@ -66,8 +70,10 @@ void PersonManager::updateSkills(vector<Skill *> new_skills, vector<Skill *> old
                 break;
             }
         }
-        if (!skill_exists) saveSkill(new_skills[i], user_mail);
+        if (!skill_exists) saveSkill(new_skills[i], new_user->getEmail());
     }
+
+    //Controla borrado de skills
     for (int j = 0; j < old_skills.size(); j++) {
 
         bool skill_exists = false;
@@ -78,7 +84,7 @@ void PersonManager::updateSkills(vector<Skill *> new_skills, vector<Skill *> old
                 break;
             }
         }
-        if (!skill_exists) deleteUserFromSkill(old_skills[j]->getName(), user_mail);
+        if (!skill_exists) deleteUserFromSkill(old_skills[j]->getName(), new_user->getEmail());
 
     }
 
@@ -88,15 +94,20 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
     //The person already exists in the system and it wants to refresh his information
     Person* new_user = new Person(juser_new_information);
     std::string user_mail = new_user->getEmail();
+    Person* old_user;
 
-    Person* old_user = getUserByMail(user_mail);
+    try {
+        old_user = getUserByMail(user_mail);
+    } catch (UserNotFoundException& exception1) {
+        delete new_user;
+        throw UserNotFoundException(user_mail);
+    }
 
     //Actualizar nombre completo de usuario;
     updateName(new_user, old_user);
-    updateSkills(new_user->getSkills(), old_user->getSkills(), user_mail);
 
     //Actualizar skill
-    updateSkills(new_user->getSkills(), old_user->getSkills(), user_mail);
+    updateSkills(new_user, old_user);
 
     //Actualizar WorkHistory
     vector<WorkHistory*> new_WorkHistory = new_user->getWorkHistory();
@@ -125,7 +136,7 @@ long PersonManager::savePerson(Json::Value juser_new_information, long forceID) 
     std::string user_mail, user_password, user_name;
     Person* user = new Person(juser_new_information);
     long uniqueId;
-    std::cout << juser_new_information.toStyledString()<<endl;
+
     user_mail= user->getEmail();
     user_name = user->getFullName();
     user_password = user->getPassword();
@@ -216,40 +227,33 @@ void PersonManager::saveSkills(std::vector<Skill *> user_newSkills, string user_
 /// \return lista de usuarios que tienen el skill.
 vector<Person *> * PersonManager::searchBySkill(vector<string> *skills_search) {
     //fixme
-    string users_withSkill;
+    std::vector<string>* users_withSkill;
     std::vector<Person*>* users_result = new vector<Person*>();
 
-    //Se filtra por uno solo de los skills primero
+    //Se filtra por uno solo de los skills primero, obteniendo todos los usuarios que tienen dicho skill.
     try {
         //Todos los usuarios con el skill en forma persona1, persona2, persona3
-        users_withSkill = getUserSkillKey((*skills_search)[0]);
+        users_withSkill = split(getUserSkillKey((*skills_search)[0]),',');
     } catch (KeyNotFound& exception1) {
         return users_result;
     }
 
-    //Parseo
-    size_t last = 1; size_t next = 0;
-    std::string delimiter = ",";
-    while ((next = users_withSkill.find(delimiter, last)) != string::npos) {
-        std::string user_mail = users_withSkill.substr(last, next-last);
-        Person* user;
-        try {
-            user = getUserByMail(user_mail);
-            users_result->push_back(user);
-        } catch (UserNotFoundException& exception) {
-            deleteUserFromSkill((*skills_search)[0], user_mail);
-        }
-        last = next + 1;
+    for(int i = 0; i < users_withSkill->size(); i++) {
+        Person* user = getUserByMail((*users_withSkill)[i]);
+        users_result->push_back(user);
     }
 
     std::vector<Person*>* result = new std::vector<Person*>();
 
     for (int i = 0; i < users_result->size(); i++) {
         if ((*users_result)[i]->has_every_skill(skills_search)) result->push_back((*users_result)[i]);
-        else {delete (*users_result)[i];};
+        else {
+            delete (*users_result)[i];
+        };
     }
 
     delete (users_result);
+    delete users_withSkill;
     return result;
 
 }
@@ -371,6 +375,20 @@ void PersonManager::setOrUpdateNotificationToken(Json::Value request, long userI
     delete notificationTokenManager;
 }
 
+void PersonManager::split2(const std::string &s, char delim, vector<string> *elems) {
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems->push_back(item);
+    }
+}
+
+vector<string>* PersonManager::split(const std::string &s, char delim) {
+    std::vector<std::string>* elems = new std::vector<std::string>();
+    split2(s, delim, elems);
+    return elems;
+}
 
 
 void PersonManager::saveSkill(Skill *skill, string user_mail) {
@@ -379,10 +397,10 @@ void PersonManager::saveSkill(Skill *skill, string user_mail) {
     std::transform(skill_name.begin(), skill_name.end(), skill_name.begin(), ::tolower);
     try {
         users_mail = getUserSkillKey(skill_name);
-        users_mail += user_mail;
         users_mail += ",";
+        users_mail += user_mail;
     } catch (KeyNotFound& exception1){
-        users_mail = ","+user_mail +",";
+        users_mail = user_mail;
     }
     saveUserSkillKey(skill_name, users_mail);
 
@@ -392,9 +410,21 @@ void PersonManager::deleteUserFromSkill(string skill_name, string user_mail) {
     std::string output;
     try {
         output = getUserSkillKey(skill_name);
-        regex reg("(.*)," + user_mail +"(.*)");
-        output = regex_replace(output, reg, "$1$2");
-        saveUserSkillKey(skill_name, output);
+        std::vector<string>* users_mails = split(output, ',');
+        string new_users = "";
+        for (int i = 0; i < users_mails->size(); i++) {
+            if (user_mail.compare((*users_mails)[i]) != 0) {
+                if (new_users.compare("") == 0) new_users += (*users_mails)[i];
+                else {
+                    new_users += ",";
+                    new_users += (*users_mails)[i];
+                }
+            }
+        }
+        delete users_mails;
+        if (new_users.compare("") == 0) deleteUserSkillKey(skill_name);
+
+        saveUserSkillKey(skill_name, new_users);
     } catch (KeyNotFound& exception1) {
         throw BadImplementationException();
     }

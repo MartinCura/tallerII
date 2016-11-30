@@ -60,7 +60,7 @@ private:
     void saveSkills(std::vector<Skill *> user_newSkills, string user_mail);
     void updateName(Person* new_user, Person* old_user);
     void saveSkill(Skill *skill, string user_mail);
-    void updateSkills(vector<Skill *> new_skills, vector<Skill *> old_skills, string user_mail);
+    void updateSkills(Person *new_user, Person *old_user);
     void deleteUserFromSkill(string skill_name, string user_mail);
     void savePositions(vector<WorkHistory *> positions, string user_mail);
     void savePosition(string position_title, string user_mail);
@@ -70,6 +70,9 @@ private:
     vector<Person *> *searchByDistance(vector<string> *distance_search);
 
 
+    void split2(const string &s, char delim, vector<string> *elems);
+
+    vector<string> *split(const string &s, char delim);
 };
 
 #endif //PROJECT_PERSONMANAGER_H
