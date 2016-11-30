@@ -2,7 +2,6 @@
 #include "api/WebHandler.h"
 #include "tools/DbBuilder.h"
 #include "tools/MainHelper.h"
-#include "config/Config.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -129,7 +128,7 @@ int main(int argc, char *argv[]) {
     Logger::getInstance()->info("Iniciando server en puerto " + string(s_http_port));
 
     Logger::getInstance()->info("Iniciando base de datos");
-    DbBuilder* dbb = new DbBuilder();
+    DbBuilder* dbb = new DbBuilder(Config::getInstance()->get(Config::NAME_DB));
     dbb->loadUsers();
     delete dbb;
 

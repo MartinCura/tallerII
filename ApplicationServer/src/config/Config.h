@@ -16,6 +16,7 @@ class Config {
 
 public:
     static const char* NAME_DB;
+    static const char* TEST_DB;
     static const char* IMG_FOLDER;
     static const char* LOGS_FOLDER;
     static const char* FACEBOOK_URL;
