@@ -12,15 +12,13 @@ using namespace std;
 class DbBuilder {
 
 public:
-    DbBuilder(string name_db);
+    DbBuilder();
     ~DbBuilder();
 
     void loadUsers();
     Person* getFakePerson1();
     Person* getFakePerson2();
     Person* getFakePerson3();
-
-    void loadUsers2();
 
 private:
     DBWrapper* db;

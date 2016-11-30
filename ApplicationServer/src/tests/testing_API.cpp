@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "../Mongoose/mongoose.h"
 #include "../api/WebHandler.h"
+#include "../logger/Logger.h"
 #include "../tools/DbBuilder.h"
 #include "../tools/MainHelper.h"
 
@@ -64,8 +65,8 @@ void runAppServer() {
 }
 
 void loadDB() {
-    DbBuilder* dbb = new DbBuilder(Config::getInstance()->get(Config::TEST_DB));
-    dbb->loadUsers2();
+    DbBuilder* dbb = new DbBuilder();
+    dbb->loadUsers();
     delete dbb;
 }
 
