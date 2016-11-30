@@ -32,7 +32,7 @@ protected:
     void saveUser(Person* user);
     void saveUserNameKey(Person *user);
     void saveUserIdKey(Person *user);
-    void saveUserPasswordKey(Person *user, string user_password);
+    void saveUserPasswordKey(Person *user);
 
 
     string getUserSkillKey(string skill);

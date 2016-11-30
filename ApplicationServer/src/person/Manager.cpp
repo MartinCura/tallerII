@@ -33,7 +33,8 @@ void Manager::saveUserIdKey(Person *user) {
     db->putKey(USER_UUID_ID + std::to_string(user->getId()), &user_mail);
 }
 
-void Manager::saveUserPasswordKey(Person *user, string user_password) {
+void Manager::saveUserPasswordKey(Person *user) {
+    std::string user_password = user->getPassword();
     db->putKey(USER_PASSWORD + user->getEmail(), &user_password);
 }
 

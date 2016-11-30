@@ -105,7 +105,7 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
 
     string uri = this->getStringFromMgStr(httpMessage->query_string);
     std::string queryParams = uriDecode(uri);
-    std::cout << queryParams <<endl;
+
     Response* response = new Response();
     long page_size, page_number;
     std::string *search_value_name, *search_value_mail, *search_value_skill, *search_value_distance, *search_value_position;

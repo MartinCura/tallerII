@@ -69,7 +69,6 @@ void DbBuilder::loadUsers() {
 
         try {
             long user_id = personManager->savePerson(user->serializeMe());
-            std::cout<< user_id << std::endl;
             users_id.push_back(user_id);
             delete(user);
 

@@ -54,6 +54,8 @@ public:
 
     vector<Person *> *search_users_by(map<string, vector<string>*> *search_values);
 
+    vector<Person *> *searchByDistance(vector<string> *distance_search);
+
 private:
     long generateID();
     void validateUsersOfRequest(long fromUserId, long toUserId);
@@ -65,14 +67,14 @@ private:
     void savePositions(vector<WorkHistory *> positions, string user_mail);
     void savePosition(string position_title, string user_mail);
     void deleteUserFromJobPosition(string job_position, string user_mail);
-    void updateWorkHistory(vector<WorkHistory *> new_positions, vector<WorkHistory *> old_positions, string user_mail);
-
-    vector<Person *> *searchByDistance(vector<string> *distance_search);
+    void updateWorkHistory(Person *new_user, Person *old_user);
 
 
     void split2(const string &s, char delim, vector<string> *elems);
 
     vector<string> *split(const string &s, char delim);
+
+    void updatePassword(Person *new_user, Person *old_user);
 };
 
 #endif //PROJECT_PERSONMANAGER_H
