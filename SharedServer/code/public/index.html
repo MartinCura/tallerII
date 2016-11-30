@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+
+<!-- define angular app -->
+<html ng-app="sharedServerClient">
+
+<head>
+
+	<title>SharedServerApi</title>
+
+    <meta charset="utf-8">
+ 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+	
+	<!-- SCROLLS -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" />
+	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" href="simple-sidebar.css" />
+
+	<!-- SPELLS -->
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.js"></script>
+    <script src="//npmcdn.com/api-check@latest/dist/api-check.js"></script>
+	<script src="//npmcdn.com/angular-formly@8.4.0/dist/formly.js"></script>
+	<script src="//npmcdn.com/angular-formly-templates-bootstrap@6.4.0/dist/angular-formly-templates-bootstrap.js"></script>
+
+
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly/8.4.0/formly.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-formly-templates-bootstrap/6.4.0/angular-formly-templates-bootstrap.js"></script> -->
+	
+	<script src="core.js"></script>
+</head>
+
+<!-- define angular controller -->
+<body ng-controller="mainController">
+
+	<div id="wrapper">
+	  <div id="sidebar-wrapper">
+	            <ul class="sidebar-nav">
+	                <li>
+	                    <a href="#categories">Categories</a>
+	                </li>
+	                <li>
+	                    <a href="#skills">Skills</a>
+	                </li>
+	                <li>
+	                    <a href="#job_positions">Job Positions</a>
+	                </li>
+	            </ul>
+	        </div>
+
+	  <div id="page-content-wrapper">
+	  
+	    <!-- angular templating -->
+			<!-- this is where content will be injected -->
+		<div class="container-fluid">
+
+	    	<div ng-view></div>
+	  	</div>  
+	  </div>
+	</div>  
+<!--   <footer class="text-center">
+    <p>Taller II</p>
+ 
+  </footer> -->
+  
+</body>
+
+</html>
