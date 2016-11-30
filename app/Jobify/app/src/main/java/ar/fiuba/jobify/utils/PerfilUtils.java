@@ -87,7 +87,7 @@ public class PerfilUtils {
         Location mLastLocation = null;
         String mCityName = null;
 
-        // No olvidarse de llamar a finish().
+        // Llamar con getBaseContext(). No olvidarse de llamar a finish().
         public MyLocationService(Activity activity, @IdRes int editTextId) {
             ctx = activity.getBaseContext();
 
@@ -113,9 +113,9 @@ public class PerfilUtils {
             }
 
             mLocationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 200, this);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100, this);
 
-            mLastLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            mLastLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (mLastLocation != null && System.currentTimeMillis() - mLastLocation.getTime() < FIFTEEN_MINUTES) {
                 mCityName = obtenerCiudadParaLocation(mLastLocation);
                 if (et_city != null)
@@ -135,7 +135,7 @@ public class PerfilUtils {
 
         public void unpause() {
             try {
-                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 200,
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100,
                         this);
             } catch (SecurityException ex) {
                 Log.w(LOG_TAG, "Security exception??");
@@ -143,8 +143,8 @@ public class PerfilUtils {
         }
 
         /**
-         * No olvidar llamarlo para reestablecer el orden del universo
-         * ...y no perder toda la batería.
+         * No olvidar llamarlo para reestablecer el orden del universo...
+         * y no perder toda la batería.
          */
         public void finish() {
             try {

@@ -17,7 +17,6 @@
         android:id="@+id/nav_drawer_user_thumbnail"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:layout_marginTop="15dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_refreshing"
@@ -37,7 +36,7 @@
         android:id="@+id/nav_drawer_user_nombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="@string/perfil_nombre_y_apellido_default"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:onClick="irAPerfilPropio" />
