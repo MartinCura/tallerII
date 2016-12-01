@@ -1,0 +1,23 @@
+html {
+	overflow-y:scroll;
+}
+
+#job_positions {
+	margin-bottom:30px;
+} 
+
+.hiden {
+	display: none;
+}
+
+.righty {
+	float: right;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.main-list {
+	width: 100%;
+}
