@@ -36,17 +36,23 @@ public class BusquedaRequest {
     }
 
     public static BusquedaRequest crear(String nombre, String email, String nombreJobPosition,
-                                        List<Skill> skills, int distancia) {
+                                        List<String> skills, int distancia) {
         BusquedaRequest br = new BusquedaRequest();
 
-        br.name = nombre;
-        br.mail = email;
+        br.name = (nombre == null) ? null : nombre.toLowerCase();
+        br.mail = (email == null) ? null : email.toLowerCase();
         br.jobPosition = nombreJobPosition != null && !nombreJobPosition.isEmpty()
-                ? nombreJobPosition : null;
-        for (Skill sk : skills) {
-            if (sk != null)
-                br.skills.add(sk.getName());
+                ? nombreJobPosition.toLowerCase() : null;
+        if (skills != null) {
+            for (String sk : skills) {
+                if (sk != null)
+                    br.skills.add(sk);
+            }
         }
+//        for (Skill sk : skills) {
+//            if (sk != null && sk.getName() != null)
+//                br.skills.add(sk.getName().toLowerCase());
+//        }
         br.distancia = distancia;
 
         return br;
@@ -88,7 +94,10 @@ public class BusquedaRequest {
             map.put(ctx.getString(R.string.get_busqueda_users_distance_query), d);
         }
         return Utils.getAppServerUrl(ctx, ctx.getString(R.string.get_search_path), map);
-        // TODO: Reemplazar espacios por otra cosa??
+    }
+
+    public boolean incluyeDistancia() {
+        return distancia > 0;
     }
 
 

@@ -60,12 +60,12 @@ public class Employment implements Nombrable {
      * Devuelve un String del formato {@code [jobPosition] en [company]}.
       */
     public String getOneLiner() {
-        return getPositionTitle() + " en " + getCompany();
+        return getPositionTitle() + (getCompany().isEmpty() ? "" : " en " + getCompany());
     }
 
     public String getCompleto() {
-        String ret = getPositionTitle() + " en " + getCompany() + "\n"
-                + "desde " + getFromDate();
+        String ret = getPositionTitle() + (getCompany().isEmpty() ? "" : " en " + getCompany()) + "\n"
+                + (getFromDate().isEmpty() ? "" : "desde " + getFromDate());
         if (!getToDate().isEmpty())
             ret += " hasta " +getToDate();
         return ret;

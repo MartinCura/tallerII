@@ -185,7 +185,7 @@ public class BusquedaActivity extends NavDrawerActivity {
         if (mail.isEmpty()) mail = null;
 
         BusquedaRequest busquedaReq = BusquedaRequest.crear(nombre, mail,
-                mSelectedJobPositionString, mSkillAdapter.getList(), distancia);
+                mSelectedJobPositionString, mSkillAdapter.getStringList(), distancia);
         Log.d(LOG_TAG, "BusqRequest: "+busquedaReq.toJson());//
         startActivity(
                 new Intent(this, UserListActivity.class)
