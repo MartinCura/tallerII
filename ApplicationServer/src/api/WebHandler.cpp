@@ -11,7 +11,7 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
     try {
         if (&httpMessage->uri) {
             string url = this->getUrl(httpMessage->uri);
-            if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users$"))) {
+            if (regex_match(url, regex("/users/.*")) || regex_match(url, regex("/users"))) {
                 this->logRequest(httpMessage);
                 handler = new UsersHandler();
                 response = handler->handleRequest(httpMessage, url);
