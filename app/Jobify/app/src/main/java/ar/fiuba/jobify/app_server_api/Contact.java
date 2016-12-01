@@ -1,5 +1,7 @@
 package ar.fiuba.jobify.app_server_api;
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -40,6 +42,7 @@ public class Contact {
         return getFirstName() + " " + getLastName();
     }
 
+    @Nullable
     public Employment getCurrentJob() {
         return currentJob;
     }

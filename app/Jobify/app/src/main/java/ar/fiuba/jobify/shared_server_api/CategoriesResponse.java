@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.shared_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -24,6 +25,7 @@ public class CategoriesResponse {
         categories = new ArrayList<>();
     }
 
+    @Nullable
     public static CategoriesResponse parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -43,6 +45,7 @@ public class CategoriesResponse {
         return categories;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }

@@ -8,8 +8,7 @@ import android.app.Activity;
  */
 public class JobPosition implements Nombrable {
 
-    String
-            name = "",
+    String  name = "",
             description = "",
             category = "";
 

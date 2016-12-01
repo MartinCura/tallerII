@@ -79,7 +79,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                 ArrayList<String> jpArray = new ArrayList<>();
                 jpArray.add(opcionVaciaStr);
                 for (JobPosition jp : jobPositions) {
-                    jpArray.add(jp.getNombre());
+                    if (jp != null)
+                        jpArray.add(jp.getNombre());
                 }
                 ArrayAdapter<String> jpAdapter =
                         new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, jpArray);
@@ -101,8 +102,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                 });
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(this, "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
-                    .show();//
+//            Toast.makeText(this, "Problemas con SS.JobPositions", Toast.LENGTH_LONG)
+//                    .show();//
             Log.e(LOG_TAG, "Problemas con SS.JobPositions");
         }
 
@@ -118,7 +119,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                 ArrayList<String> skArray = new ArrayList<>();
                 skArray.add(opcionVaciaStr);
                 for (Skill sk : skills) {
-                    skArray.add(sk.getNombre());
+                    if (sk != null)
+                        skArray.add(sk.getNombre());
                 }
                 ArrayAdapter<String> skAdapter =
                         new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, skArray);
@@ -140,8 +142,8 @@ public class BusquedaActivity extends NavDrawerActivity {
                 });
             }
         } catch (SharedDataSingleton.NoDataException ex) {
-            Toast.makeText(this, "Problemas con SS.Skills", Toast.LENGTH_LONG)
-                    .show();//
+//            Toast.makeText(this, "Problemas con SS.Skills", Toast.LENGTH_LONG)
+//                    .show();//
             Log.e(LOG_TAG, "Problemas con SS.Skills");
         }
     }
@@ -176,8 +178,14 @@ public class BusquedaActivity extends NavDrawerActivity {
         int distancia = Utils.getTextViewInt(this, R.id.busqueda_distancia);
         if (distancia < 0) distancia = 0;
 
-        BusquedaRequest busquedaReq = BusquedaRequest.crear(mSelectedJobPositionString,
-                                                        mSkillAdapter.getList(), distancia);
+        String nombre = Utils.getTextViewText(this, R.id.busqueda_nombre);
+        if (nombre.isEmpty()) nombre = null;
+
+        String mail = Utils.getTextViewText(this, R.id.busqueda_mail);
+        if (mail.isEmpty()) mail = null;
+
+        BusquedaRequest busquedaReq = BusquedaRequest.crear(nombre, mail,
+                mSelectedJobPositionString, mSkillAdapter.getStringList(), distancia);
         Log.d(LOG_TAG, "BusqRequest: "+busquedaReq.toJson());//
         startActivity(
                 new Intent(this, UserListActivity.class)

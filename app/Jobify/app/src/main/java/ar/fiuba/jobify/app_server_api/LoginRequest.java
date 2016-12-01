@@ -16,8 +16,8 @@ import org.json.JSONObject;
 public class LoginRequest {
 
     // TODO: Revisar manera en que se guarda la contraseña
-    String email;
-    String password;
+    String email = "";
+    String password = "";
 
     // Acá podría validarse algo más si hiciera falta
 

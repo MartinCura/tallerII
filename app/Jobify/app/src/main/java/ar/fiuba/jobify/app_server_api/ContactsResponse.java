@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.app_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -25,6 +26,7 @@ public class ContactsResponse {
         contacts = new ArrayList<>();
     }
 
+    @Nullable
     public static ContactsResponse parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -44,6 +46,7 @@ public class ContactsResponse {
         return contacts;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }
@@ -51,7 +54,7 @@ public class ContactsResponse {
 
     public Contact.Status getStatusForId(long idRequester) {
         for ( Contact c : contacts ) {
-            if (c.getId() == idRequester)
+            if (c != null && c.getId() == idRequester)
                 return c.getStatus();
         }
         return Contact.Status.NONE;
@@ -60,7 +63,7 @@ public class ContactsResponse {
     public ArrayList<Contact> getContactsWithStatus(Contact.Status st) {
         ArrayList<Contact> list = new ArrayList<>();
         for (Contact c : contacts) {
-            if (c.getStatus().equals(st))
+            if (c != null && c.getStatus().equals(st))
                 list.add(c);
         }
         return list;

@@ -6,12 +6,14 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,17 +36,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import ar.fiuba.jobify.app_server_api.AllUsersResponse;
 import ar.fiuba.jobify.app_server_api.BusquedaRequest;
 import ar.fiuba.jobify.app_server_api.BusquedaResponse;
 import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.ConversationsResponse;
+import ar.fiuba.jobify.app_server_api.Locacion;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.shared_server_api.ResponseMetadata;
 import ar.fiuba.jobify.utils.RequestQueueSingleton;
 import ar.fiuba.jobify.utils.Utils;
 
@@ -132,6 +134,7 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_SOLICITUDES:
                 if (sab != null)
                     sab.setTitle("Solicitudes pendientes");
+                esconderBotonDeBusqueda();
                 showProgress(true);
                 listarSolicitudesReceived();
                 break;
@@ -140,8 +143,7 @@ public class UserListActivity extends NavDrawerActivity {
                     sab.setTitle("Profesionales más populares");
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
-//                listarMasPopulares();
-                listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
+                listarMasPopulares();
                 break;
             case MODE_BUSQUEDA:
                 if (sab != null)
@@ -154,6 +156,7 @@ public class UserListActivity extends NavDrawerActivity {
                 if (sab != null)
                     sab.setTitle("Conversaciones");
                 showProgress(true);
+                esconderBotonDeBusqueda();
                 listarConversaciones();
                 break;
             case MODE_NONE:
@@ -174,6 +177,13 @@ public class UserListActivity extends NavDrawerActivity {
                     .getInstance(this.getApplicationContext())
                     .getRequestQueue();
             mRequestQueue.cancelAll(LOG_TAG);
+        }
+    }
+
+    private void esconderBotonDeBusqueda() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.user_list_fab);
+        if (fab != null) {
+            fab.setVisibility(View.GONE);
         }
     }
 
@@ -212,7 +222,8 @@ public class UserListActivity extends NavDrawerActivity {
 
                         } else {
                             for (Contact c : contactsReceived) {
-                                agregarResultado(new User(c));
+                                if (c != null)
+                                    agregarResultado(new User(c));
                             }
                         }
                     }
@@ -228,42 +239,6 @@ public class UserListActivity extends NavDrawerActivity {
                     }
                 }, LOG_TAG);
     }
-
-    /// de prueba //;//
-    private void listarTodosLosUsuarios() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
-        if (toolbar != null)
-            toolbar.setTitle("Todos los usuarios");
-        else
-            Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
-
-        Utils.getJsonFromAppServer(this, getString(R.string.get_all_users_path),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        AllUsersResponse allUsersResponse =
-                                AllUsersResponse.parseJSON(response.toString());
-
-                        if (allUsersResponse == null) {
-                            Log.e(LOG_TAG, "Null parsed JSON from all_users");
-                            return;
-                        }
-
-                        int cant = Long.valueOf(allUsersResponse.getMetadata().getCount()).intValue();
-                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
-                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
-
-                        if (mExpectedListSize == 0) {
-                            mostrarNoHayResultados();
-                        } else {
-                            for (long id : allUsersResponse.getAllUsers()) {
-                                fetchAndAddUser(id);
-                            }
-                        }
-                    }
-        }, LOG_TAG);
-    }
-    ///
 
     private void listarMasPopulares() {
         mBusquedaReq = new BusquedaRequest();
@@ -309,15 +284,18 @@ public class UserListActivity extends NavDrawerActivity {
                             return;
                         }
 
-                        mExpectedListSize =
-                                Long.valueOf(convResponse.getMetadata().getTotalCount()).intValue();
-
+                        ResponseMetadata meta = convResponse.getMetadata();
+                        if (meta != null) {
+                            mExpectedListSize = Long.valueOf(meta.getTotalCount()).intValue();
+                        } else
+                            Log.e(LOG_TAG, "ConversationsResponse Metadata null!");
                         if (mExpectedListSize == 0) {
                             mostrarNoHayResultados();
 
                         } else {
                             for (User user : convResponse.getConversations()) {
-                                agregarResultado(user);
+                                if (user != null)
+                                    agregarResultado(user);
                             }
                         }
                     }
@@ -387,21 +365,11 @@ public class UserListActivity extends NavDrawerActivity {
         }
     }
 
-    @Deprecated
-    private void fetchAndAddUser(long id) {
-        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        agregarResultado(User.parseJSON(response.toString()));
-                    }
-                }, LOG_TAG);
-    }
-
     private void mostrarNoHayResultados() {
         Utils.showView(this, R.id.userlist_sin_resultados_layout);
         showProgress(false);
     }
+
 
     /**
      * Carga los siguientes PAGE_SIZE resultados de una búsqueda con mBusquedaReq.
@@ -418,20 +386,35 @@ public class UserListActivity extends NavDrawerActivity {
         }
         //showProgress(true);//TODO?
 
+        Locacion loc = null;
+        if (mBusquedaReq.incluyeDistancia()) {
+            // Consigo locación guardada
+            SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+            String storedLocacion = sharedPref.getString(getString(R.string.stored_connected_user_location), "");
+            if (!storedLocacion.isEmpty())
+                loc = Locacion.parseJson(storedLocacion);
+
+            if (loc == null) {
+                String msj = "Debe registrar su ubicación para hacer búsquedas por distancia máxima." +
+                        " Vaya a editar su perfil y presione el botón de Ubicación.";
+                new AlertDialog.Builder(this)
+                        .setTitle("Ubicación no registrada")
+                        .setMessage(msj)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        }
+
+        String urlBusqueda = mBusquedaReq.generarRequestUrl(this, PAGE_SIZE, pageNumber + 1, loc);
         final Context ctx = this;
 
-        int numFirst = (pageNumber * PAGE_SIZE + 1);
-        int numLast  = (pageNumber + 1) * PAGE_SIZE;
-        HashMap<String, String> map = new HashMap<>();
-        map.put(getString(R.string.get_busqueda_users_first_query), Long.toString(numFirst));
-        map.put(getString(R.string.get_busqueda_users_last_query),  Long.toString(numLast));
-        String urlBusqueda = Utils.getAppServerUrl(this, getString(R.string.get_search_path), map);
+        Log.d(LOG_TAG, "urlBusqueda: "+urlBusqueda);//
 
-        // TODO: Revisar
-        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlBusqueda, mBusquedaReq.toJsonObject(),
+        Utils.fetchJsonFromUrl(this, Request.Method.GET, urlBusqueda, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        // TODO: Revisar
                         BusquedaResponse busqResponse = BusquedaResponse.parseJSON(response.toString());
 
                         if (busqResponse == null) {
@@ -441,7 +424,19 @@ public class UserListActivity extends NavDrawerActivity {
                             mostrarNoHayResultados();
                             return;
                         }
-                        int cant = Long.valueOf(busqResponse.getMetadata().getCount()).intValue();
+
+                        int cant = 0;
+                        ResponseMetadata meta = busqResponse.getMetadata();
+                        if (meta != null) {
+                            if (meta.getTotalCount() == 0)
+                                cant = 0;
+                            else {
+                                cant = Long.valueOf(meta.getCount()).intValue();
+                                if (cant == 0)
+                                    cant = PAGE_SIZE; // Por si no se envía
+                            }
+                        } else
+                            Log.e(LOG_TAG, "BusquedaResponse Metadata null!");
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
@@ -450,7 +445,8 @@ public class UserListActivity extends NavDrawerActivity {
 
                         } else {
                             for (User user : busqResponse.getUsers()) {
-                                agregarResultado(user);
+                                if (user != null)
+                                    agregarResultado(user);
                             }
                             mEndlessScrollListener.activar();
                         }
@@ -466,6 +462,7 @@ public class UserListActivity extends NavDrawerActivity {
                         error.printStackTrace();
 
                         showProgress(false);
+                        mostrarNoHayResultados();
                     }
                 }, LOG_TAG);
 

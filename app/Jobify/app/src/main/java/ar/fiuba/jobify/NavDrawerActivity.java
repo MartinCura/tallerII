@@ -30,6 +30,7 @@ import ar.fiuba.jobify.app_server_api.Contact;
 import ar.fiuba.jobify.app_server_api.ContactsResponse;
 import ar.fiuba.jobify.app_server_api.ConversationsResponse;
 import ar.fiuba.jobify.app_server_api.User;
+import ar.fiuba.jobify.shared_server_api.ResponseMetadata;
 import ar.fiuba.jobify.utils.Utils;
 
 public class NavDrawerActivity extends AppCompatActivity
@@ -40,12 +41,17 @@ public class NavDrawerActivity extends AppCompatActivity
 
     public long connectedUserID = 0;
 
+    private NavigationView navView;
+    private Toolbar mToolbar = null;
+
 
     protected void onCreateDrawer(@IdRes int toolbarResId, @IdRes int drawerResId, @IdRes int navResId) {
         mDrawerResId = drawerResId;
         Toolbar toolbar = (Toolbar) findViewById(toolbarResId);
         if (toolbar == null) {
             Log.e(LOG_TAG, "Toolbar no encontrado");
+        } else {
+            mToolbar = toolbar;
         }
         setSupportActionBar(toolbar);
 
@@ -195,6 +201,7 @@ public class NavDrawerActivity extends AppCompatActivity
                         } else {
                             ArrayList<Contact> contactsReceived =
                                     contactsResponse.getContactsWithStatus(Contact.Status.RECEIVED);
+                            // Muestro la cantidad de solicitudes de amistad pendientes
                             int cantSolicitudes = contactsReceived.size();
                             if (cantSolicitudes > 0) {
                                 String newTitle = getString(R.string.nav_solicitudes_option)
@@ -218,13 +225,18 @@ public class NavDrawerActivity extends AppCompatActivity
                         if (convResponse == null) {
                             Log.e(LOG_TAG, "ConversationsResponse null");
                         } else {
-                            long cantUnread = convResponse.getMetadata().getTotalCount();
-                            if (cantUnread > 0) {
-                                String newTitle = getString(R.string.nav_conversations_option)
-                                        + " (" + cantUnread + ")";
-                                conversacionesItem.setTitle(newTitle);
-                                conversacionesItem.setIcon(R.drawable.ic_conversaciones_cerrado);
-                            }
+                            ResponseMetadata meta = convResponse.getMetadata();
+                            if (meta != null) {
+                                // Muestro la cantidad total de mensajes sin leer
+                                long cantUnread = convResponse.getMetadata().getTotalUnreadCount();
+                                if (cantUnread > 0) {
+                                    String newTitle = getString(R.string.nav_conversations_option)
+                                            + " (" + cantUnread + ")";
+                                    conversacionesItem.setTitle(newTitle);
+                                    conversacionesItem.setIcon(R.drawable.ic_conversaciones_cerrado);
+                                }
+                            } else
+                                Log.e(LOG_TAG, "ConversationsResponse Metadata null!");
                         }
                     }
                 }, LOG_TAG);
@@ -285,7 +297,7 @@ public class NavDrawerActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_logout) {
             Utils.confirmarAccion(this, "Cerrar sesión",
-                    "¿Está seguro de que quiere cerrar sesión?\nLo extrañaremos mucho...",
+                    "¿Está seguro de que quiere cerrar sesión?\n\n¡Lo extrañaremos mucho!",
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -309,6 +321,13 @@ public class NavDrawerActivity extends AppCompatActivity
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         } else {
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED);
+        }
+        if (mToolbar != null) {
+            if (block) {
+                mToolbar.setVisibility(View.INVISIBLE);
+            } else {
+                mToolbar.setVisibility(View.VISIBLE);
+            }
         }
     }
 

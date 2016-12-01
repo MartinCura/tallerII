@@ -13,6 +13,8 @@ import android.preference.PreferenceManager;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -96,6 +98,7 @@ public class Utils {
         return "http://" + ip + ":" + puerto + "/";
     }
 
+    @NonNull
     public static String getSharedServerBaseURL(Context ctx) {
         return ctx.getString(R.string.shared_server_base_url); // hardcodeado
     }
@@ -133,8 +136,10 @@ public class Utils {
      */
     public static String getAppServerUrl(Context ctx, long idFetched, String ... paths) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
-        for (String path : paths)
-            builder = builder.appendPath(path);
+        for (String path : paths) {
+            if (path != null)
+                builder = builder.appendPath(path);
+        }
         Uri builtUri = builder.appendPath(Long.toString(idFetched)).build();
         return builtUri.toString();
     }
@@ -145,8 +150,10 @@ public class Utils {
      */
     public static String getAppServerUrl(Context ctx, String ... paths) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon();
-        for (String path : paths)
-            builder = builder.appendPath(path);
+        for (String path : paths) {
+            if (path != null)
+                builder = builder.appendPath(path);
+        }
         Uri builtUri = builder.build();
         return builtUri.toString();
     }
@@ -576,8 +583,9 @@ public class Utils {
      * Busca los datos primero en las preferencias y a falta de ello la fetchea.
      * @param className Se usará para buscar los datos en las preferencias.
      */
+    @Nullable
     public static String getSharedServerDataJsonString(Activity activity,
-                                                  final String className, @StringRes int SsGetPath) {
+                                                       final String className, @StringRes int SsGetPath) {
         SharedPreferences mPrefs = activity.getPreferences(Activity.MODE_PRIVATE);
         final SharedPreferences.Editor prefsEditor = mPrefs.edit();
         String json = mPrefs.getString(className, "");

@@ -490,6 +490,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         editor.apply();
     }
 
+    private void borrarConnectedUserData() {
+        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                .edit();
+        editor.remove(getString(R.string.stored_connected_user_id));
+        editor.remove(getString(R.string.stored_connected_user_token));
+        editor.remove(getString(R.string.stored_connected_user_location));
+        editor.apply();
+    }
+
     private void guardarDatosDeLogin(String email, String password) {
         SharedPreferences.Editor editor =
                 getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)

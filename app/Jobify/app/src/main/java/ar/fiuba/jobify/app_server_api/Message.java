@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.app_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -26,6 +27,7 @@ public class Message {
             to = 0;
     String message = "",
          timestamp = TIMESTAMP_FORMAT;
+
 
     public Message(long from, long to, String mensaje) {
         this.from = from;
@@ -99,6 +101,7 @@ public class Message {
         }
     }
 
+    @Nullable
     public static Message parseJson(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

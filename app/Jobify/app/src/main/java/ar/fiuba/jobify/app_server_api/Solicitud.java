@@ -20,6 +20,7 @@ public class Solicitud {
             contactId = 0;
     Action  action;
 
+
     public Solicitud(long idAutor, long idContacto, Action status) {
         this.authorId = idAutor;
         this.contactId = idContacto;

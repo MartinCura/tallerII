@@ -1,6 +1,7 @@
 package ar.fiuba.jobify.app_server_api;
 
 import android.app.Activity;
+import android.support.annotation.Nullable;
 
 import java.util.Calendar;
 
@@ -47,23 +48,24 @@ public class Employment implements Nombrable {
     }
 
     public String getToDate() {
+        if (toDate == null) return "";
         return toDate;
     }
 
     public boolean esActual() {
-        return (getToDate().equals(""));
+        return (getToDate() == null || getToDate().equals(""));
     }
 
     /**
      * Devuelve un String del formato {@code [jobPosition] en [company]}.
       */
     public String getOneLiner() {
-        return getPositionTitle() + " en " + getCompany();
+        return getPositionTitle() + (getCompany().isEmpty() ? "" : " en " + getCompany());
     }
 
     public String getCompleto() {
-        String ret = getPositionTitle() + " en " + getCompany() + "\n"
-                + "desde " + getFromDate();
+        String ret = getPositionTitle() + (getCompany().isEmpty() ? "" : " en " + getCompany()) + "\n"
+                + (getFromDate().isEmpty() ? "" : "desde " + getFromDate());
         if (!getToDate().isEmpty())
             ret += " hasta " +getToDate();
         return ret;
@@ -84,7 +86,8 @@ public class Employment implements Nombrable {
                     || this.getToDate().equals(((Employment) o).getToDate())));
     }
 
-    // Solo permite obtener un Employment con un JobPosition que ya exista en el SharedData
+    // Permite obtener un Employment con un JobPosition que ya exista en el SharedData
+    @Nullable
     public static Employment create(Activity activity, String company, String position,
                                     int desdeMes, int desdeAnio, int hastaMes, int hastaAnio) {
         String sdPosition;

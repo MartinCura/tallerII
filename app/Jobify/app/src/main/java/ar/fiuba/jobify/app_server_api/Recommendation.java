@@ -20,6 +20,7 @@ public class Recommendation {
     long  from = 0,
             to = 0;
 
+    
     public long getFrom() {
         return from;
     }

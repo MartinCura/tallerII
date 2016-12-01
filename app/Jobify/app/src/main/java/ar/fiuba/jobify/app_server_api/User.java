@@ -1,5 +1,6 @@
 package ar.fiuba.jobify.app_server_api;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -41,7 +42,7 @@ public class User {
 
     Locacion location;
 
-    @SerializedName(value="cantidadRecomendaciones", alternate={"unread_count"})
+    @SerializedName(value="cantidadRecomendaciones", alternate={"cantRecomendaciones", "unread_count"})
     long cantidadRecomendaciones = -1;
     long[] recommendations;
 
@@ -73,7 +74,9 @@ public class User {
         this.id = c.getId();
         this.firstName = c.getFirstName();
         this.lastName = c.getLastName();
-        this.workHistory.add(c.getCurrentJob());
+        Employment currJob = c.getCurrentJob();
+        if (currJob != null)
+            this.workHistory.add(currJob);
     }
 
     public long getId() {
@@ -146,6 +149,8 @@ public class User {
     }
 
     public boolean fueRecomendadoPor(long pepito) {
+        if (recommendations == null)
+            return false;
         for (long i : recommendations)
             if (i == pepito)
                 return true;
@@ -173,8 +178,9 @@ public class User {
     }
 
     public boolean setLocacion(double latitud, double longitud) {
-        if (location == null)
+        if (location == null) {
             location = new Locacion();
+        }
         return location.setLocation(latitud, longitud);
     }
 
@@ -195,11 +201,13 @@ public class User {
         return true;
     }
 
+    // Reemplaza los Skill ya guardados
     public void setSkills(List<Skill> skills) {
         // Chequeos?
         this.skills = new ArrayList<>(skills);
     }
 
+    // Reemplaza los Employment ya guardados
     public void setWorkHistory(List<Employment> workHistory) {
         // Chequeos?
         this.workHistory = new ArrayList<>(workHistory);
@@ -211,8 +219,10 @@ public class User {
      */
     public String getTrabajosActuales() {
         String actual = "";
+        if (workHistory == null)
+            return actual;
         for (Employment trabajo : workHistory) {
-            if (trabajo.esActual()) {
+            if (trabajo != null && trabajo.esActual()) {
                 if (!actual.isEmpty())
                     actual = actual.concat("\n");
                 actual = actual.concat(trabajo.getOneLiner());
@@ -244,7 +254,8 @@ public class User {
         List<String> lista = new ArrayList<>();
         if (getWorkHistory() != null) {
             for (Employment job : getWorkHistory()) {
-                lista.add(job.getCompleto());
+                if (job != null)
+                    lista.add(job.getCompleto());
             }
         }
         return lista;
@@ -254,17 +265,23 @@ public class User {
         List<String> lista = new ArrayList<>();
         if (getSkills() != null) {
             for (Skill skill : getSkills()) {
-                lista.add(skill.getName());
+                if (skill != null)
+                    lista.add(skill.getName());
             }
         }
         return lista;
     }
 
     private void addEmployment(Employment emp) {
+        if (emp == null)
+            return;
+        if (this.workHistory == null)
+            this.workHistory = new ArrayList<>();
         this.workHistory.add(emp);
     }
 
 
+    @Nullable
     public static User parseJSON(String response) {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -272,8 +289,14 @@ public class User {
 
         try {
             User user = gson.fromJson(response, User.class);
+            // Para user reducido, que puede tener un campo "last_job" o "current_job"
             try {
-                // Para user reducido, que tiene un campo "last_job"
+                user.addEmployment(gson.fromJson(
+                        (new JSONObject(response)).getJSONObject("current_job").toString(), // hardcodeo
+                        Employment.class)
+                );
+            } catch (JSONException ex) {/**/}
+            try {
                 user.addEmployment(gson.fromJson(
                         (new JSONObject(response)).getJSONObject("last_job").toString(), // hardcodeo
                         Employment.class)

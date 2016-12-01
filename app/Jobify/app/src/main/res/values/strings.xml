@@ -176,17 +176,15 @@
     <string name="get_messages_user_query">user</string>
     <string name="get_busqueda_path">search</string>
     <string name="stored_connected_user_token">connected_user_token</string>
-    <string name="get_search_path">search</string>
     <string name="info_description">Info</string>
     <string name="userlist_no_results">No hay resultados que mostrar</string>
     <string name="nav_busqueda_option">Buscar</string>
-    <string name="get_busqueda_users_first_query">first</string>
-    <string name="get_busqueda_users_last_query">last</string>
     <string name="ellipsis">…</string>
     <string name="stored_connected_user_email">connected_user_email</string>
     <string name="stored_connected_user_password">connected_user_password</string>
+    <string name="stored_connected_user_location">connected_user_location</string>
     <string name="busqueda_skills_title">Skills</string>
-    <string name="busqueda_distancia_title">Distancia máx.</string>
+    <string name="busqueda_distancia_title">Distancia máxima</string>
     <string name="get_conversations_path">conversations</string>
     <string name="nav_conversations_option">Conversaciones</string>
     <string name="notification_token">notificationtokens</string>
@@ -195,5 +193,21 @@
     <string name="perfil_new_skill_filler">(Skill)</string>
     <string name="perfil_recommendation_success">¡Usuario recomendado!</string>
     <string name="perfil_recommendation_deletion_success">Se ha quitado la recomendación :(</string>
+
+    <string name="get_search_path">search</string>
+    <string name="get_busqueda_users_first_query">first</string>
+    <string name="get_busqueda_users_last_query">last</string>
+    <string name="get_busqueda_users_name_query">names</string>
+    <string name="get_busqueda_users_mail_query">mails</string>
+    <string name="get_busqueda_users_job_positions_query">positions</string>
+    <string name="get_busqueda_users_skills_query">skills</string>
+    <string name="get_busqueda_users_distance_query">distance</string>
+    <string name="get_busqueda_users_page_number_query">pageNumber</string>
+    <string name="get_busqueda_users_page_size_query">size</string>
+
+    <string name="busqueda_nombre_title">Nombre</string>
+    <string name="busqueda_nombre_hint">(opcional)</string>
+    <string name="busqueda_mail_title">Mail</string>
+    <string name="busqueda_mail_hint">(opcional)</string>
 
 </resources>

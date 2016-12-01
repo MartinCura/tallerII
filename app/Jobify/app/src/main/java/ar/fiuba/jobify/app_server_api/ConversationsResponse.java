@@ -32,9 +32,21 @@ public class ConversationsResponse {
         return conversations;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }
+
+//    public int getCantUnreadMessages() {
+//        if (conversations == null)
+//            return 0;
+//        int cant = 0;
+//        for (User u : conversations) {
+//            if (u != null)
+//                cant += u.getUnreadCount();
+//        }
+//        return cant;
+//    }
 
     @Nullable
     public static ConversationsResponse parseJSON(String response) {

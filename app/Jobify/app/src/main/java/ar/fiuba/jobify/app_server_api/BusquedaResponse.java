@@ -7,6 +7,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ import ar.fiuba.jobify.shared_server_api.ResponseMetadata;
  */
 public class BusquedaResponse {
 
+    @SerializedName(value="users", alternate={"result", "results"})
     List<User> users;
     ResponseMetadata metadata;
 
@@ -32,6 +34,7 @@ public class BusquedaResponse {
         return users;
     }
 
+    @Nullable
     public ResponseMetadata getMetadata() {
         return metadata;
     }
