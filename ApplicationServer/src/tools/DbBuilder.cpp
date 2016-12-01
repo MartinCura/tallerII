@@ -42,6 +42,37 @@ void DbBuilder::loadUsers() {
         delete person3;
     } catch (UserAlreadyExistsException &exception) {}
 
+    std::vector<std::string> NOMBRES = { "John", "Jane", "Carlos", "Gabriela", "Carolina",
+        "Sofía", "Bárbara", "Joseph", "Robert", "Pablo", "Antonio", "Carlos",
+        "Susana", "Paula", "José", "Tomás", "Silvana", "Yésica", "Lucas", "Gerualdo",
+        "Héctor", "Viviana", "Calónico", "Fabián", "Roberta", "Mariano", "Mariana",
+        "Rulo", "Eduardo", "José", "Luis", "Octavio", "Guido", "Manuel", "Marcos",
+        "Emanuel", "Humberto", "Gustavo", "Federico", "Osvaldo", "Santiago", "Zancho",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
+        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín" };
+
+    std::vector<std::string> APELLIDOS = {"Doe", "Doe", "Rodríguez", "Saffioti", "Farotto",
+        "López", "Fernández", "Stevenson", "Pérez", "Maradona", "Robertson", "Simpson",
+        "Leela", "Farnsworth", "Argento", "Mercuri", "Fortunatti", "García", "Fernández",
+        "Rodríguez", "Sánchez", "González", "Signorelli", "Gambrazza", "Balbiani", "Pérez",
+        "Zambrano", "Más", "Messi", "Ronaldo", "Turing", "Mandela", "Elqep", "Sanguinetti",
+        "Romualdo", "Hernández", "Escobar", "Andrada", "Pecone", "Goldsmith", "Cabibbe",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
+        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez" };
 
     vector<long> users_id;
     vector<Skill*> skills_disponibles = getSkillsDisponibles();
@@ -49,12 +80,12 @@ void DbBuilder::loadUsers() {
     for (int i = 0; i < 100; i++) {
         Person* user = new Person();
         user->setId(0);
-        user->setCity("Ciudad" + std::to_string(rand() % 5));
+        user->setCity("Ciudad " + std::to_string(rand() % 5));
         user->setDateOfBirth(std::to_string(rand() % 30 + 1) + "/" + std::to_string(rand() % 12 + 1) + "/1993");
-        user->setEmail("usuariofalso" + std::to_string(i+1) + "@gmail.com");
-        user->setLastName("ApellidoFalso" + std::to_string(i + 1));
-        user->setFirstName("NombreFalso" + std::to_string(rand() % 100 + 1));
-        user->setSummary("DescripcionFalsa" + std::to_string(i + 1));
+        user->setEmail(NOMBRES[i] + APELLIDOS[i % 100] + "@gmail.com");
+        user->setLastName(APELLIDOS[i % 100]);
+        user->setFirstName(NOMBRES[i % 100]);
+        user->setSummary("Yo ser bueno en hacer cosas... muy!");
         float x = -180.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(180.0 + 180.0)));
         float y =  -180.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(180.0 + 180.0)));
         user->setLocation(x, y);
@@ -64,17 +95,16 @@ void DbBuilder::loadUsers() {
         for (int j = 0; j < has_n_skills; j++) {
             user->addSkill(skills_disponibles[rand() % skills_disponibles.size()]);
         }
-
         for (int h = 0; h < has_n_jobs; h++) {
             user->addWorkHistory(trabajos_disponibles[rand() % trabajos_disponibles.size()]);
         }
+        user->setTotalRecommendations(rand() % 10);
 
         try {
             long user_id = personManager->savePerson(user->serializeMe());
             users_id.push_back(user_id);
             delete(user);
-
-        }catch(UserAlreadyExistsException& exception1) {}
+        } catch (UserAlreadyExistsException& exception1) {}
 
     }
 
@@ -244,10 +274,11 @@ void DbBuilder::saveToken(string token, string user_mail) {
 }
 
 vector<Skill *> DbBuilder::getSkillsDisponibles() {
+    std::vector<std::string> SKILLS = { "Café", "Café", "Liderazgo", "PHP", "JavaScript avanzado" };
     vector<Skill*> skills_disponibles;
     for (int i = 0; i < 50; i++) {
         Skill* skill = new Skill();
-        skill->setName("skill" + std::to_string(i + 1));
+        skill->setName(SKILLS[i % SKILLS.size()]);
         skills_disponibles.push_back(skill);
     }
 
@@ -255,10 +286,11 @@ vector<Skill *> DbBuilder::getSkillsDisponibles() {
 }
 
 vector<WorkHistory *> DbBuilder::getTrabajosDisponibles() {
+    std::vector<std::string> POSITIONS = { "Developer", "CEO", "Barista", "Ninja" };
     vector<WorkHistory*> trabajos_disponibles;
     for (int i = 0; i < 10; i++) {
         WorkHistory* workHistory = new WorkHistory();
-        workHistory->setPositionTitle("jobPosition" + std::to_string(i + 1));
+        workHistory->setPositionTitle(POSITIONS[i % POSITIONS.size()]);
         trabajos_disponibles.push_back(workHistory);
     }
     return trabajos_disponibles;

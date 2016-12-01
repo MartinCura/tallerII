@@ -89,10 +89,11 @@ Person* getFakePerson2() {
     return person;
 }
 vector<Skill *> getSkillsDisponibles() {
+    std::vector<std::string> SKILLS = { "Café", "Café", "Liderazgo", "PHP", "JavaScript avanzado" };
     vector<Skill*> skills_disponibles;
     for (int i = 0; i < 5; i++) {
         Skill* skill = new Skill();
-        skill->setName("skill" + std::to_string(i + 1));
+        skill->setName(SKILLS[i]);
         skills_disponibles.push_back(skill);
     }
 
@@ -100,10 +101,11 @@ vector<Skill *> getSkillsDisponibles() {
 }
 
 vector<WorkHistory *> getTrabajosDisponibles() {
+    std::vector<std::string> POSITIONS = { "Developer", "CEO", "Barista", "Ninja" };
     vector<WorkHistory*> trabajos_disponibles;
     for (int i = 0; i < 4; i++) {
         WorkHistory* workHistory = new WorkHistory();
-        workHistory->setPositionTitle("jobPosition" + std::to_string(i + 1));
+        workHistory->setPositionTitle(POSITIONS[i]);
         trabajos_disponibles.push_back(workHistory);
     }
     return trabajos_disponibles;
@@ -244,7 +246,7 @@ TEST(SearchEngine, SearchByJobPosition) {
     DBWrapper* db = DBWrapper::openDb(namedb);
     PersonManager* personManager = new PersonManager(db);
     std::vector<string>* search1 = new std::vector<string>();
-    search1->push_back("jobPosition2");
+    search1->push_back("CEO");
 
     vector<Person*>* result = personManager->searchByJobPosition(search1);
     EXPECT_EQ(result->size(),2);
@@ -283,8 +285,8 @@ TEST(SearchEngine, SearchByJobPosition2) {
     DBWrapper* db = DBWrapper::openDb(namedb);
     PersonManager* personManager = new PersonManager(db);
     std::vector<string>* search1 = new std::vector<string>();
-    search1->push_back("jobPosition2");
-    search1->push_back("jobPosition1");
+    search1->push_back("CEO");
+    search1->push_back("Barista");
     vector<Person*>* result = personManager->searchByJobPosition(search1);
     EXPECT_EQ(result->size(),1);
     db->destroyDB(namedb);
@@ -355,4 +357,3 @@ TEST(SearchEngine, SearchBySkill) {
     delete namedb;
 
 }
-
