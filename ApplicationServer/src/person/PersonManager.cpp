@@ -589,14 +589,6 @@ void PersonManager::saveRecommendation(Json::Value recommendation) {
     recommendationsManager->addRecommendation(fromUserId, toUserId);
     delete recommendationsManager;
 }
-
-Json::Value PersonManager::getRecommendationsByUserId(long userId) {
-    RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
-    Json::Value recommendations = recommendationsManager->getRecommendationsAsJson(userId);
-    delete recommendationsManager;
-    return recommendations;
-}
-
 void PersonManager::removeRecommendation(long fromUserId, long toUserId) {
     this->validateUsersOfRequest(fromUserId, toUserId);
     RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
