@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "DbBuilder.h"
+#include "../session/SessionManager.h"
 
 
 DbBuilder::DbBuilder() {
@@ -13,30 +14,31 @@ DbBuilder::~DbBuilder() {
 }
 
 void DbBuilder::setLastId(){
-    std::string last_id = std::to_string(0);
+    std::string last_id = std::to_string(3);
     db->putKey("lastID", &last_id);
 }
 
 void DbBuilder::loadUsers() {
     setLastId();
     PersonManager *personManager = new PersonManager(this->db);
+    SessionManager* sessionManager = new SessionManager(this->db);
     RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
     try {
         Person* person1 = this->getFakePerson1();
         personManager->savePerson(person1->serializeMe(), (long) 1);
-        this->saveToken("tokenUser1", person1->getEmail());
+        sessionManager->saveToken("tokenUser1", person1->getEmail());
         delete person1;
     } catch (UserAlreadyExistsException &exception) {}
     try {
         Person* person2 = this->getFakePerson2();
         personManager->savePerson(person2->serializeMe(), (long) 2);
-        this->saveToken("tokenUser2", person2->getEmail());
+        sessionManager->saveToken("tokenUser2", person2->getEmail());
         delete person2;
     } catch (UserAlreadyExistsException &exception) {}
     try {
         Person* person3 = this->getFakePerson3();
         personManager->savePerson(person3->serializeMe(), (long) 3);
-        this->saveToken("tokenUser3", person3->getEmail());
+        sessionManager->saveToken("tokenUser3", person3->getEmail());
         delete person3;
     } catch (UserAlreadyExistsException &exception) {}
 
@@ -90,6 +92,7 @@ void DbBuilder::loadUsers() {
 
     delete personManager;
     delete recommendationsManager;
+    delete sessionManager;
     std::vector<Skill*>::iterator it1 = skills_disponibles.begin();
     while (it1 != skills_disponibles.end()) {
         delete (*it1);

@@ -93,6 +93,7 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) 
         //personManager->updateUser(jperson);
         //delete person;
         Json::Value responseBody;
+        parsedBody["id"] = userId;
         responseBody["id"] = personManager->updateUser(parsedBody);
 
         response->setSuccessfulHeader();

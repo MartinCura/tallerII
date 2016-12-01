@@ -42,16 +42,17 @@ long PersonManager::generateID() {
 long PersonManager::updateUser(Json::Value juser_new_information) {
     //The person already exists in the system and it wants to refresh his information
     Person* new_user = new Person(juser_new_information);
-    std::string user_mail = new_user->getEmail();
+
     Person* old_user;
 
     try {
-        old_user = getUserByMail(user_mail);
+        old_user = getUserById(new_user->getId());
     } catch (UserNotFoundException& exception1) {
         delete new_user;
-        throw UserNotFoundException(user_mail);
+        throw UserNotFoundException(new_user->getId());
     }
 
+    new_user->setEmail(old_user->getEmail());
     //Actualizar nombre completo de usuario;
     updateName(new_user, old_user);
 
@@ -78,8 +79,9 @@ long PersonManager::updateUser(Json::Value juser_new_information) {
     new_user->setLocation(latitude, longitude);
 
     saveUser(new_user);
+    long userId = new_user->getId();
     delete new_user;
-    return new_user->getId();
+    return userId;
 }
 void PersonManager::updateName(Person* new_user, Person* old_user) {
     string user_oldName = old_user->getFullName();
@@ -109,7 +111,7 @@ void PersonManager::updateWorkHistory(Person *new_user, Person *old_user) {
 
         bool position_exists = false;
         for (int j2 = 0; j2 < new_positions.size(); j2 ++) {
-            std::string positionTitle = new_positions[j]->getPositionTitle();
+            std::string positionTitle = new_positions[j2]->getPositionTitle();
             if (old_positions[j]->getPositionTitle().compare(positionTitle) == 0) {
                 position_exists = true;
                 break;
@@ -144,7 +146,7 @@ void PersonManager::updateSkills(Person *new_user, Person *old_user) {
 
         bool skill_exists = false;
         for (int j2 = 0; j2 < new_skills.size(); j2 ++) {
-            std::string skill_name = new_skills[j]->getName();
+            std::string skill_name = new_skills[j2]->getName();
             if (old_skills[j]->getName().compare(skill_name) == 0) {
                 skill_exists = true;
                 break;
@@ -303,9 +305,11 @@ void PersonManager::deleteUserFromSkill(string skill_name, string user_mail) {
     }
 }
 void PersonManager::deleteUserFromJobPosition(string job_position, string user_mail) {
+    std::string key_lowerCase = job_position;
+    std::transform(key_lowerCase.begin(), key_lowerCase.end(), key_lowerCase.begin(), ::tolower);
     std::string output;
     try {
-        output = getUserJobPositionKey(job_position);
+        output = getUserJobPositionKey(key_lowerCase);
         std::vector<string>* users_position = split(output, ',');
         string new_users = "";
         for (int i = 0; i < users_position->size(); i++) {

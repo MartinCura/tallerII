@@ -41,9 +41,9 @@
     - url: "/recommendations"
     - method: "PUT"
     - headers: {Authorization: tokenUser1}
-    - body: '{"to": 12, "from": 1}'
+    - body: '{"to": 0, "from": 1}'
     - validators:
-          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Usuario con el id 12 no existe en el sistema"}
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Usuario con el id 0 no existe en el sistema"}
     - expected_status: [404] # not found
 
 - test:

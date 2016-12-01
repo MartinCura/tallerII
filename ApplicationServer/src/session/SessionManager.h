@@ -9,13 +9,14 @@
 #include <string>
 #include "../DB/DBWrapper.h"
 #include "Session.h"
+#include "../person/Manager.h"
 
 #define USER_TOKEN "user:token_"
 #define USER_MAIL_ID "user:mail_"
 #define USER_UUID_ID "user:uuid_"
 #define USER_PASSWORD "user:password_"
 
-class SessionManager {
+class SessionManager : public Manager{
 public:
     SessionManager(DBWrapper *db);
     ~SessionManager();
@@ -43,23 +44,26 @@ public:
     long getUserId(std::string token);
     std::string facebookLogin(std::string user_mail);
 
+/*
+ * Guarda la información necesaria en la Base de Datos.
+ * La "información necesaria" corresponde con el siguiente formato:
+ * USER_TOKEN + user_mail = { "user_token": <token> , "last_used":<cuando fue usado por ultima vez>}
+ * USER_TOKEN + user_token = { "user_mail": <user_mail>, "last_used":<cuando fue usado por ultima vez>}
+ * El primer formato tiene como objetivo encontrar el token a partir del mail.
+ * El segundo formato tiene como objetivo encontrar la informacion a partir del token.
+ */
+void saveToken(std::string token, std::string user_mail);
+
 private:
-    DBWrapper* db;
 
     bool tokenExpired(std::string last_time_used);
-    /*
-     * Guarda la información necesaria en la Base de Datos.
-     * La "información necesaria" corresponde con el siguiente formato:
-     * USER_TOKEN + user_mail = { "user_token": <token> , "last_used":<cuando fue usado por ultima vez>}
-     * USER_TOKEN + user_token = { "user_mail": <user_mail>, "last_used":<cuando fue usado por ultima vez>}
-     * El primer formato tiene como objetivo encontrar el token a partir del mail.
-     * El segundo formato tiene como objetivo encontrar la informacion a partir del token.
-     */
-    void saveToken(std::string token, std::string user_mail);
+
     /*
      * Genera el codigo del token.
      */
     std::string getNewToken();
+
+    void updateToken(string token, string user_mail);
 };
 
 

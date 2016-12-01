@@ -9,8 +9,8 @@
     - method: "GET"
     - validators:
           - compare: {jsonpath_mini: "id", comparator: "eq", expected: 1}
-          - compare: {jsonpath_mini: "first_name", comparator: "eq", expected: "John"}
-          - compare: {jsonpath_mini: "last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "first_name", comparator: "eq", expected: "john"}
+          - compare: {jsonpath_mini: "last_name", comparator: "eq", expected: "doe"}
     - expected_status: [200] # ok
 
 - test:

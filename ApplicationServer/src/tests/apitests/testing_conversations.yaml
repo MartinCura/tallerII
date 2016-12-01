@@ -73,8 +73,8 @@
     - headers: {Authorization: tokenUser1}
     - method: "GET"
     - validators:
-          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "Jane"}
-          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "jane"}
+          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "doe"}
           - compare: {jsonpath_mini: "conversations.0.unread_count", comparator: "eq", expected: 2}
           - compare: {jsonpath_mini: "conversations.0.with", comparator: "eq", expected: 2}
           - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 2}
@@ -88,8 +88,8 @@
     - headers: {Authorization: tokenUser2}
     - method: "GET"
     - validators:
-          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "John"}
-          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "john"}
+          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "doe"}
           - compare: {jsonpath_mini: "conversations.0.unread_count", comparator: "eq", expected: 2}
           - compare: {jsonpath_mini: "conversations.0.with", comparator: "eq", expected: 1}
           - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 2}
@@ -119,8 +119,8 @@
     - headers: {Authorization: tokenUser1}
     - method: "GET"
     - validators:
-          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "Jane"}
-          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "jane"}
+          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "doe"}
           - compare: {jsonpath_mini: "conversations.0.unread_count", comparator: "eq", expected: 0}
           - compare: {jsonpath_mini: "conversations.0.with", comparator: "eq", expected: 2}
           - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 0}
@@ -134,8 +134,8 @@
     - headers: {Authorization: tokenUser2}
     - method: "GET"
     - validators:
-          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "John"}
-          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "Doe"}
+          - compare: {jsonpath_mini: "conversations.0.first_name", comparator: "eq", expected: "john"}
+          - compare: {jsonpath_mini: "conversations.0.last_name", comparator: "eq", expected: "doe"}
           - compare: {jsonpath_mini: "conversations.0.unread_count", comparator: "eq", expected: 0}
           - compare: {jsonpath_mini: "conversations.0.with", comparator: "eq", expected: 1}
           - compare: {jsonpath_mini: "metadata.total_unread_count", comparator: "eq", expected: 0}
