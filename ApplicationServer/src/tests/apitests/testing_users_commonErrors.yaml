@@ -1,0 +1,89 @@
+---
+- config:
+    - testset: "Testing users url - common errors"
+
+- test:
+    - name: "Get user data - missing id"
+    - group: "[users - errors]"
+    - url: "/users"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Cannot get user id from url."}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Get user data - user not found"
+    - group: "[users - errors]"
+    - url: "/users/12345"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Usuario con el id 12345 no existe en el sistema"}
+    - expected_status: [404] # not found
+
+- test:
+    - name: "Try to create an existent user"
+    - group: "[users - errors]"
+    - url: "/users"
+    - method: "POST"
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "El usuario ya existe en el sistema"}
+    - body: '{"email": "john@doe.com", "password": "1234", "first_name": "John", "last_name": "Doe", "date_of_birth": "02/02/1992"}'
+    - expected_status: [409] # conflict
+
+- test:
+    - name: "Invalid body"
+    - group: "[users - errors]"
+    - url: "/users"
+    - method: "POST"
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Invalid Json."}
+    - body: '{"email": this an invalid json ": "02/02/1992"}'
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Unauthorized to delete"
+    - group: "[users - errors]"
+    - url: "/users/1"
+    - headers: {Authorization: tokenUser3}
+    - method: "DELETE"
+    - expected_status: [403] # forbidden
+
+- test:
+    - name: "Delete - invalid user"
+    - group: "[users - errors]"
+    - url: "/users/someInvalidUserId"
+    - headers: {Authorization: tokenUser1}
+    - method: "DELETE"
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Delete - missing user"
+    - group: "[users - errors]"
+    - url: "/users"
+    - headers: {Authorization: tokenUser1}
+    - method: "DELETE"
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Unauthorized to update"
+    - group: "[users - errors]"
+    - url: "/users/1"
+    - headers: {Authorization: tokenUser3}
+    - method: "PUT"
+    - expected_status: [403] # forbidden
+
+- test:
+    - name: "Put - invalid user"
+    - group: "[users - errors]"
+    - url: "/users/someInvalidUserId"
+    - headers: {Authorization: tokenUser1}
+    - method: "PUT"
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Update - missing user"
+    - group: "[users - errors]"
+    - url: "/users"
+    - headers: {Authorization: tokenUser1}
+    - method: "PUT"
+    - expected_status: [400] # bad request

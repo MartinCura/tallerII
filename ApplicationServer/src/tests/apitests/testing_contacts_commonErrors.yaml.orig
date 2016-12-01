@@ -1,0 +1,82 @@
+---
+- config:
+    - testset: "Testing contacts url - common errors"
+
+- test:
+    - name: "Get contacts - missing id"
+    - group: "[contacts - errors]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Cannot get user id from url."}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Send contact request - missing author_id"
+    - group: "[contacts - errors]"
+    - url: "/contacts"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"contact_id": 2,"action": "add_contact"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing author_id"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Send contact request - missing contact_id"
+    - group: "[contacts - errors]"
+    - url: "/contacts"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"author_id": 1,"action": "add_contact"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing contact_id"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Send contact request - missing action"
+    - group: "[contacts - errors]"
+    - url: "/contacts"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"author_id": 1,"contact_id": 2}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Missing action"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Send contact request a nonexistent user"
+    - group: "[contacts - errors]"
+    - url: "/contacts"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"author_id": 1,"contact_id": 12345,"action": "add_contact"}'
+    - expected_status: [404] # not found
+
+- test:
+    - name: "Delete contact"
+    - group: "[contacts - errors]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser2}
+    - method: "PUT"
+    - body: '{"author_id": 2, "contact_id": 1, "action": "delete_contact"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "delete_contact is not a valid action"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Add contact - POST"
+    - group: "[contacts - errors]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser1}
+    - method: "POST"
+    - expected_status: [501] # not implemented
+
+- test:
+    - name: "Add contact - DELETE"
+    - group: "[contacts - errors]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser1}
+    - method: "DELETE"
+    - expected_status: [501] # not implemented
