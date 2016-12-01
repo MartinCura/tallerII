@@ -34,6 +34,7 @@ Response* UsersHandler::handleGetRequest(http_message* httpMessage, string url) 
         long userId = this->getUserIdFromUrl(url);
         Person *person = personManager->getUserById(userId);
         response->setSuccessfulHeader();
+        person->setPassword("");
         Json::Value body = person->serializeMe();
         body["recommendations"] = personManager->getRecommendationsByUserId(userId);
         response->setBody(body.toStyledString());
