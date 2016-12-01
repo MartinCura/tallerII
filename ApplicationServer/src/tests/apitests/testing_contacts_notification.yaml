@@ -1,0 +1,21 @@
+---
+- config:
+    - testset: "Testing contacts url - notification"
+
+- test:
+    - name: "Set notifications token"
+    - group: "[contacts - notification]"
+    - url: "/notificationtokens/2"
+    - headers: {Authorization: tokenUser2}
+    - method: "PUT"
+    - body: '{"token": "someToken"}'
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Add contact"
+    - group: "[contacts - notification]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser1}
+    - method: "PUT"
+    - body: '{"author_id": 1, "contact_id": 2, "action": "add_contact"}'
+    - expected_status: [200] # ok

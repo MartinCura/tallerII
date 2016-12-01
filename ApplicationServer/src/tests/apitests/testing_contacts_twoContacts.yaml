@@ -1,0 +1,79 @@
+---
+- config:
+    - testset: "Testing contacts url - add two contacts and delete one"
+
+- test:
+    - name: "Get contacts - before"
+    - group: "[contacts - two]"
+    - url: "/contacts/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.count", comparator: "eq", expected: 0}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Add contact - user 2"
+    - group: "[contacts - two]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser1}
+    - method: "PUT"
+    - body: '{"author_id": 1, "contact_id": 2, "action": "add_contact"}'
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Add contact - user 3"
+    - group: "[contacts - two]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser1}
+    - method: "PUT"
+    - body: '{"author_id": 1, "contact_id": 3, "action": "add_contact"}'
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Accept contact - user 2"
+    - group: "[contacts - two]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser2}
+    - method: "PUT"
+    - body: '{"author_id": 2, "contact_id": 1, "action": "accept_contact"}'
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Accept contact - user 3"
+    - group: "[contacts - two]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser3}
+    - method: "PUT"
+    - body: '{"author_id": 3, "contact_id": 1, "action": "accept_contact"}'
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Get contacts - after - accepted"
+    - group: "[contacts - two]"
+    - url: "/contacts/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.count", comparator: "eq", expected: 2}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Delete contact"
+    - group: "[contacts - two]"
+    - url: "/contacts"
+    - headers: {Authorization: tokenUser2}
+    - method: "PUT"
+    - body: '{"author_id": 2, "contact_id": 1, "action": "remove_contact"}'
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Get contacts - after - deleted"
+    - group: "[contacts - two]"
+    - url: "/contacts/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "contacts.0.id", comparator: "eq", expected: 3}
+          - compare: {jsonpath_mini: "metadata.count", comparator: "eq", expected: 1}
+    - expected_status: [200] # ok

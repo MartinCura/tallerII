@@ -1,0 +1,31 @@
+---
+- config:
+    - testset: "Testing Facebook Login url"
+
+- test:
+    - name: "Login existent user"
+    - group: "[facebooklogin]"
+    - url: "/facebooklogin"
+    - method: "POST"
+    - body: '{"token": "someFacebookToken"}'
+    - validators:
+          - compare: {jsonpath_mini: "user_id", comparator: "eq", expected: 1}
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Delete user 1"
+    - group: "[facebooklogin]"
+    - url: "/users/1"
+    - headers: {Authorization: tokenUser1}
+    - method: "DELETE"
+    - expected_status: [200] # ok
+
+- test:
+    - name: "Login NEW user"
+    - group: "[facebooklogin]"
+    - url: "/facebooklogin"
+    - method: "POST"
+    - body: '{"token": "someFacebookToken"}'
+    - validators:
+          - compare: {jsonpath_mini: "user_id", comparator: "gt", expected: 1}
+    - expected_status: [200] # ok

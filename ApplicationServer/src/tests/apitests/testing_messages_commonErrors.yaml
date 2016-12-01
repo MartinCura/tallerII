@@ -1,0 +1,101 @@
+---
+- config:
+    - testset: "Testing messages url - common errors"
+
+- test:
+    - name: "messages - DELETE"
+    - group: "[messages - errors]"
+    - url: "/messages"
+    - headers: {Authorization: tokenUser1}
+    - method: "DELETE"
+    - expected_status: [501] # not implemented
+
+- test:
+    - name: "messages - POST"
+    - group: "[messages - errors]"
+    - url: "/messages"
+    - headers: {Authorization: tokenUser1}
+    - method: "POST"
+    - expected_status: [501] # not implemented
+
+- test:
+    - name: "messages - missing from user"
+    - group: "[messages - errors]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"to": 2, "message": "abc123"}'
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "messages - missing to user"
+    - group: "[messages - errors]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"from": 1, "message": "abc123"}'
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "messages - missing message"
+    - group: "[messages - errors]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"from": 1, "to": 2}'
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "messages - send without permission"
+    - group: "[messages - errors]"
+    - url: "/messages"
+    - headers: {Authorization: tokenUser3}
+    - method: "PUT"
+    - body: '{"from": 1, "to": 2, "message": "hola, como estas?"}'
+    - expected_status: [403] # forbidden
+
+- test:
+    - name: "Add messages - equals ids"
+    - group: "[messages - errors]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"to": 1, "from": 1, "message": "hello"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "From user and to user cannot be equals"}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Add messages - nonexistent to user"
+    - group: "[messages - errors]"
+    - url: "/messages"
+    - method: "PUT"
+    - headers: {Authorization: tokenUser1}
+    - body: '{"to": 0, "from": 1, "message": "hello"}'
+    - validators:
+          - compare: {jsonpath_mini: "error", comparator: "eq", expected: "Usuario con el id 0 no existe en el sistema"}
+    - expected_status: [404] # not found
+
+- test:
+    - name: "Get messages - equeal users"
+    - group: "[messages - errors]"
+    - url: "/messages/1?user=1"
+    - method: "GET"
+    - headers: {Authorization: tokenUser1}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Get messages - invalid first"
+    - group: "[messages - errors]"
+    - url: "/messages/1?user=2&first=invalidParameter&last=12"
+    - method: "GET"
+    - headers: {Authorization: tokenUser1}
+    - expected_status: [400] # bad request
+
+- test:
+    - name: "Get messages - invalid last"
+    - group: "[messages - errors]"
+    - url: "/messages/1?user=2&first=1&last=invalid parameter"
+    - method: "GET"
+    - headers: {Authorization: tokenUser1}
+    - expected_status: [400] # bad request
