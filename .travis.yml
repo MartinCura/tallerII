@@ -1,24 +1,32 @@
+# Use new trusty images, should yield newer compilers and packages
 sudo: required
 
 services:
   - docker
 
-before_install:
-- sudo docker-compose -f SharedServer/docker-compose.yml build
-- sudo docker build -t sharedservertest SharedServer/tests/
-- sudo docker-compose -f SharedServer/docker-compose.yml up -d db 
-- sleep 10
-- sudo docker-compose -f SharedServer/docker-compose.yml up -d 
-- sudo docker exec -itd sharedserver_sharedserver_1 node code/server.js
-- sleep 10
+branches:
 
+  only:
+    - master
+    - ApplicationServer
+
+notifications:
+    email: false
+    slack:
+      rooms:
+        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#commit
+        - tallerii-2c-2016:GGcOHSrhyXYsoUGETyThlbcC#appser
+        
+      on_success: change
+      on_failure: never
+
+  
+before_install:
+  # Creates docker image from Dockerfile called "appserverimg" on the local machine.
+  - docker build -t appserverimg .
+  - docker images #To verify that the new images are on the local host.
+  
 script:
-- sudo docker ps -a
-- sudo docker exec -it sharedserver_sharedserver_1 ps -A
-- sudo docker logs sharedserver_sharedserver_1
-- sudo docker exec -it sharedserver_sharedserver_1 curl -I localhost
-- curl -I localhost
-- sudo docker run -it sharedservertest bash
 
   # Creates dockers from docker images
 
@@ -34,4 +42,3 @@ script:
  # - mkdir build
  # - cd build
  # - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make install && make test
-
