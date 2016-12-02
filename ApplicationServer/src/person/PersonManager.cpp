@@ -534,21 +534,36 @@ vector<Person *> *PersonManager::searchByDistance(vector<string> *distance_searc
     delete search_location;
     return users_result;
 }
+
+/// Busca entre los usuarios, aquellos que posean el conjunto de nombres pasado por parámetro
+/// Hoy en día solo tiene lógica un solo nombre, debido a que es un AND.
+/// \param user_searchName vector de string que guarda
+/// todos los nombres buscados por el usuario y que el resultado debe poseer.
+/// \return vector de objetos del tipo Person que tienen las caracteristicas solicitadas.
 vector<Person *> * PersonManager::searchByName(vector<string> *user_searchName) {
     std::vector<Person*>* users_result = new vector<Person*>();
     leveldb::Slice startSlice = USER_NAME_ID;
-    leveldb::Slice endSlice = USER_UUID_ID;
+    leveldb::Slice endSlice = USER_PASSWORD;
     std::string user_search = (*user_searchName)[0];
     std::transform(user_search.begin(), user_search.end(), user_search.begin(), ::tolower);
     std::regex e ("(.*)("+user_search+")(.*)");
     shared_ptr<leveldb::Iterator> iterator(db->newIterator());
+
+    //Debido a que los usuarios se guardan por nombre, de la siguiente manera:
+    // Key: "user:name_<first_name>-<last_name>_<user_mail>
+    // Como se está realizando una busqueda ya sea por nombre como por apellido
+    // Se quita de la key la parte correspondiente al mail y a la key misma "user:name"
+
+
+
     for(iterator->Seek(startSlice); iterator->Valid() && ((iterator->key()).ToString().compare(endSlice.ToString()) < 0) ; iterator->Next())
     {
         // Read the record
         if( !iterator->value().empty() )
         {
-
-            if(regex_match(iterator->key().ToString(), e)) {
+            //Se trabaja solo con el nombre
+            std::string clean_full_name = this->getCleanName_FromKey(iterator->key().ToString());
+            if(regex_match(clean_full_name, e)) {
                 users_result->push_back(getUserByMail(iterator->value().ToString()));
             }
         }
@@ -556,7 +571,30 @@ vector<Person *> * PersonManager::searchByName(vector<string> *user_searchName) 
     return users_result;
 }
 
+/// A partir de la key: "user:name_<first_name>-<last_name>_<user_mail>"
+/// Se obtiene el nombre completo del usuario: "<first_name> <last_name>"
+/// \param key : key a parsear
+/// \return nombre completo
+std::string PersonManager::getCleanName_FromKey(std::string key) {
+    std::vector<string>* partes_key = this->split(key , '_');
+    std::string full_name;
+    try {
+        full_name = (*partes_key)[1];
+    }catch (std::exception exception1) {
+        throw BadImplementationException();
+    }
 
+    std::vector<string>* parts_name = this->split(full_name, '-');
+    //Nombre Completo separado por espacio.
+    std::string clean_full_name = "";
+    for(int i = 0; i < parts_name->size(); i++) {
+        clean_full_name += (*parts_name)[i];
+        clean_full_name += " ";
+    }
+    //Se quita el ultimo espacio innecesario
+    return clean_full_name.substr(0, clean_full_name.length() - 1);
+
+}
 vector<Contact*> PersonManager::getContactsByUserId(long id) {
     if (!this->userExists(id)) {
         throw UserNotFoundException(id);

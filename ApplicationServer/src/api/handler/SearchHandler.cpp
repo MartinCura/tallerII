@@ -256,7 +256,8 @@ string SearchHandler::getParameterFromQueryParams(string queryParams, string par
 string * SearchHandler::getSearchByFromQueryParams(string query_params, std::string parameter) {
      //elemento de busqueda
     if (hasParameter(query_params, parameter)) {
-        return new string(this->getParameterFromQueryParams(query_params, parameter));
+        std::string parameter_value = this->getParameterFromQueryParams(query_params, parameter);
+        return (parameter_value == "")? nullptr:(new string (parameter_value));
     }
     return nullptr;
 }

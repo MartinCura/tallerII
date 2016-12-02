@@ -64,6 +64,8 @@ private:
     void updatePassword(Person *new_user, Person *old_user);
 
     vector<long> *getAllUsersIds();
+
+    string getCleanName_FromKey(string key);
 };
 
 #endif //PROJECT_PERSONMANAGER_H
