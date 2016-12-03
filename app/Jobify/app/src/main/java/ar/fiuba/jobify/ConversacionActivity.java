@@ -138,7 +138,7 @@ public class ConversacionActivity extends NavDrawerActivity {
     @Override
     public void onStart() {
         super.onStart();
-        activityVisible = false;
+        activityVisible = true;
     }
 
     @Override
