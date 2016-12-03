@@ -99,6 +99,9 @@ public class JobifyChat extends FirebaseMessagingService {
                     return;
                 }
 
+                Log.d("idlog", "id conversación:" + ConversacionActivity.corresponsalID );
+                Log.d("idlog", "id del sender" + sender);
+
                 if (!(ConversacionActivity.activityVisible && ConversacionActivity.corresponsalID == sender)) {
                     NotificationCompat.Builder mBuilder =
                             null;
@@ -135,13 +138,14 @@ public class JobifyChat extends FirebaseMessagingService {
                     mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
 
                 }
-                // notify chat
-                try {
-                    EventBus.getDefault().post(new MessageEvent(message.getJSONObject("mensaje")));
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if (ConversacionActivity.corresponsalID == sender) {
+                    // notify chat
+                    try {
+                        EventBus.getDefault().post(new MessageEvent(message.getJSONObject("mensaje")));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-
 
             } else if (message.has("solicitud")){
 
