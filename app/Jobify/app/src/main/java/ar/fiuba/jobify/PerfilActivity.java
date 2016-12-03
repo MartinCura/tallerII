@@ -581,10 +581,8 @@ public class PerfilActivity extends NavDrawerActivity {
                     String mailFooter = "Estimada " + userFullName + "," +
                             "\n\n\n\n\n\n\nTe encontré mediante Jobify!";
 
-//                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-//                            "mailto", userEmail, null));
                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                            "mailto","abc@gmail.com", null));
+                            "mailto", userEmail, null));
                     emailIntent.putExtra(Intent.EXTRA_EMAIL, destinatarios);
                     emailIntent.putExtra(Intent.EXTRA_TEXT, mailFooter);
 
