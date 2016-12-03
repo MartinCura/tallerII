@@ -2,8 +2,55 @@
 #include "DbBuilder.h"
 #include "../session/SessionManager.h"
 
-const char *JOB_POSITIONS_FILE = "../ApplicationServer/src/tools/DbBuilderSettings/JobPositionsFromSharedServer.js";
-const char *SKILLS_FILE = "../ApplicationServer/src/tools/DbBuilderSettings/SkillsFromSharedServer.js";
+const char *JOB_POSITIONS_FILE = "{\n"
+        "    \"job_positions\":[\n"
+        "    {\n"
+        "        \"name\":\"Developer\",\n"
+        "        \"description\":\"Un desarrollador de software común y silvestre.\",\n"
+        "        \"category\":\"Programación\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"CEO\",\n"
+        "        \"description\":\"Ruler of the world, empezando por una empresa.\",\n"
+        "        \"category\":\"Management\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"Barista\",\n"
+        "        \"description\":\"Toco botones artísticamente.\",\n"
+        "        \"category\":\"Cafetería\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"Ninja\",\n"
+        "        \"description\":\"Puede resolver toto tipo de problemas técnicos en una organización\",\n"
+        "        \"category\":\"Programación\"\n"
+        "    }\n"
+        "]\n"
+        "}";
+
+const char *SKILLS_FILE = "{\n"
+        "    \"skills\":[\n"
+        "    {\n"
+        "        \"name\":\"Café\",\n"
+        "        \"description\":\"Habilidad para apretar el botón de la máquina de café sin le que tiemble el pulso.\",\n"
+        "        \"category\":\"Cafetería\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"Liderazgo\",\n"
+        "        \"description\":\"Superpotencia mundial en hacer que los demás hagan lo que desee.\",\n"
+        "        \"category\":\"Management\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"PHP\",\n"
+        "        \"description\":\"Conocimiento novato del lenguaje PHP.\",\n"
+        "        \"category\":\"Programación\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"JavaScript avanzado\",\n"
+        "        \"description\":\"Conocimiento avanzado de lenguaje JavaScript.\",\n"
+        "        \"category\":\"Programación\"\n"
+        "    }\n"
+        "]\n"
+        "}";
 
 DbBuilder::DbBuilder() {
     this->namedb = new string(Config::getInstance()->get(Config::NAME_DB));
@@ -177,7 +224,7 @@ Skill* DbBuilder::getSkill(int skillIndex) {
 }
 
 void DbBuilder::loadAvailableJobPositions() {
-    string jobPositionsAsString = this->loadFile(JOB_POSITIONS_FILE);
+    string jobPositionsAsString = JOB_POSITIONS_FILE;
     Json::Value jobPositionsAsArray = this->parseFile(jobPositionsAsString)["job_positions"];
     for (int index = 0; index < jobPositionsAsArray.size(); index++) {
         this->jobPositions.push_back(jobPositionsAsArray[index]["name"].asString());
@@ -185,7 +232,7 @@ void DbBuilder::loadAvailableJobPositions() {
 }
 
 void DbBuilder::loadAvailableSkills() {
-    string skillsAsString = this->loadFile(SKILLS_FILE);
+    string skillsAsString = SKILLS_FILE;
     Json::Value skillsAsArray = this->parseFile(skillsAsString)["skills"];
     for (int index = 0; index < skillsAsArray.size(); index++) {
         Skill* skill = new Skill(skillsAsArray[index]);
@@ -196,20 +243,6 @@ void DbBuilder::loadAvailableSkills() {
 void DbBuilder::setLastId(){
     std::string last_id = std::to_string(3);
     db->putKey("lastID", &last_id);
-}
-
-string DbBuilder::loadFile(string path) {
-    string line;
-    string fileContent;
-    ifstream settingsFile(path.c_str());
-    if (!settingsFile.is_open()) {
-        throw "Invalid or nonexistent file";
-    }
-    while (getline(settingsFile, line)) {
-        fileContent += line;
-    }
-    settingsFile.close();
-    return fileContent;
 }
 
 Json::Value DbBuilder::parseFile(string fileContent) {

@@ -29,7 +29,6 @@ private:
     vector<Skill*> skills;
 
     void setLastId();
-    string loadFile(string path);
     Json::Value parseFile(string fileContent);
     void loadAvailableJobPositions();
     void loadAvailableSkills();
