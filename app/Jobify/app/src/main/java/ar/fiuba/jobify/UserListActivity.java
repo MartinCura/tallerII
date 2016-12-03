@@ -14,6 +14,7 @@ import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import ar.fiuba.jobify.app_server_api.AllUsersResponse;
 import ar.fiuba.jobify.app_server_api.BusquedaRequest;
 import ar.fiuba.jobify.app_server_api.BusquedaResponse;
 import ar.fiuba.jobify.app_server_api.Contact;
@@ -143,7 +145,8 @@ public class UserListActivity extends NavDrawerActivity {
                     sab.setTitle("Profesionales más populares");
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
-                listarMasPopulares();
+//                listarMasPopulares();
+                listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
                 break;
             case MODE_BUSQUEDA:
                 if (sab != null)
@@ -242,6 +245,48 @@ public class UserListActivity extends NavDrawerActivity {
                     }
                 }, LOG_TAG);
     }
+
+    /// de prueba //;//
+    private void listarTodosLosUsuarios() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
+        if (toolbar != null) {
+            toolbar.setTitle("Profesionales más populares");
+//            toolbar.setTitle("Todos los usuarios");
+        } else
+            Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
+
+        Utils.getJsonFromAppServer(this, getString(R.string.get_all_users_path),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        AllUsersResponse allUsersResponse =
+                                AllUsersResponse.parseJSON(response.toString());
+
+                        if (allUsersResponse == null) {
+                            Log.e(LOG_TAG, "Null parsed JSON from all_users");
+                            return;
+                        }
+
+                        int cant = 0;
+                        ResponseMetadata meta = allUsersResponse.getMetadata();
+                        if (meta != null) {
+                            cant = Long.valueOf(meta.getCount()).intValue();
+                        } else
+                            Log.e(LOG_TAG, "AllUsersResponse Metadata null!");
+                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
+                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
+
+                        if (mExpectedListSize == 0) {
+                            mostrarNoHayResultados();
+                        } else {
+                            for (long id : allUsersResponse.getAllUsers()) {
+                                fetchAndAddUser(id);
+                            }
+                        }
+                    }
+                }, LOG_TAG);
+    }
+    ///
 
     private void listarMasPopulares() {
         mBusquedaReq = new BusquedaRequest();
@@ -371,6 +416,17 @@ public class UserListActivity extends NavDrawerActivity {
         }
     }
 
+    @Deprecated
+    private void fetchAndAddUser(long id) {
+        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        agregarResultado(User.parseJSON(response.toString()));
+                    }
+                }, LOG_TAG);
+    }
+
     private void mostrarNoHayResultados() {
         Utils.showView(this, R.id.userlist_sin_resultados_layout);
         showProgress(false);
@@ -392,23 +448,21 @@ public class UserListActivity extends NavDrawerActivity {
         }
         //showProgress(true);//TODO?
 
+        // Consigo locación guardada
         Locacion loc = null;
-        if (mBusquedaReq.incluyeDistancia()) {
-            // Consigo locación guardada
-            SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
-            String storedLocacion = sharedPref.getString(getString(R.string.stored_connected_user_location), "");
-            if (!storedLocacion.isEmpty())
-                loc = Locacion.parseJson(storedLocacion);
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        String storedLocacion = sharedPref.getString(getString(R.string.stored_connected_user_location), "");
+        if (!storedLocacion.isEmpty())
+            loc = Locacion.parseJson(storedLocacion);
 
-            if (loc == null) {
-                String msj = "Debe registrar su ubicación para hacer búsquedas por distancia máxima." +
-                        " Vaya a editar su perfil y presione el botón de Ubicación.";
-                new AlertDialog.Builder(this)
-                        .setTitle("Ubicación no registrada")
-                        .setMessage(msj)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-            }
+        if (loc == null) {
+            String msj = "Debe registrar su ubicación para hacer búsquedas por distancia máxima." +
+                    " Vaya a editar su perfil y presione el botón de Ubicación.";
+            new AlertDialog.Builder(this)
+                    .setTitle("Ubicación no registrada")
+                    .setMessage(msj)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
         }
 
         String urlBusqueda = mBusquedaReq.generarRequestUrl(this, PAGE_SIZE, pageNumber + 1, loc);
@@ -554,7 +608,7 @@ public class UserListActivity extends NavDrawerActivity {
                             tv_unread.setVisibility(View.VISIBLE);
                         }
                     }
-                // Los demás casos
+                    // Los demás casos
                 } else {
                     if (tv_trabajo != null)
                         tv_trabajo.setText(user.getUltimoTrabajoActual());
