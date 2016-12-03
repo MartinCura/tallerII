@@ -244,7 +244,7 @@ string SearchHandler::getParameterFromQueryParams(string queryParams, string par
     std::string result = "";
     //+1 porque tiene que ser la primera letra despues del =
     for (int i = (int)init_position + (int)parameter.size() + 1; i < queryParams.size(); i++) {
-        if (queryParams[i] == '&' || queryParams[i] == '\0') {
+        if (queryParams[i] == '&') {
             return result;
         }
         result += queryParams[i];

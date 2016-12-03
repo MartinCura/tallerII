@@ -41,7 +41,7 @@ void DbBuilder::loadUsers() {
         sessionManager->saveToken("tokenUser3", person3->getEmail());
         delete person3;
     } catch (UserAlreadyExistsException &exception) {}
-
+/*
     std::vector<std::string> NOMBRES = { "John", "Jane", "Carlos", "Gabriela", "Carolina",
         "Sofía", "Bárbara", "Joseph", "Robert", "Pablo", "Antonio", "Carlos",
         "Susana", "Paula", "José", "Tomás", "Silvana", "Yésica", "Lucas", "Gerualdo",
@@ -120,9 +120,7 @@ void DbBuilder::loadUsers() {
         }
     }
 
-    delete personManager;
-    delete recommendationsManager;
-    delete sessionManager;
+
     std::vector<Skill*>::iterator it1 = skills_disponibles.begin();
     while (it1 != skills_disponibles.end()) {
         delete (*it1);
@@ -134,6 +132,10 @@ void DbBuilder::loadUsers() {
         delete (*it2);
         it2 ++;
     }
+    */
+    delete personManager;
+    delete recommendationsManager;
+    delete sessionManager;
 }
 
 
