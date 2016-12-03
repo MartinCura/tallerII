@@ -49,6 +49,18 @@ void DbBuilder::loadUsers() {
         sessionManager->saveToken("tokenUser3", person3->getEmail());
         delete person3;
     } catch (UserAlreadyExistsException &exception) {}
+    try {
+        Person* person4 = this->getFakePerson4();
+        personManager->savePerson(person4->serializeMe(), (long) 4);
+        sessionManager->saveToken("tokenUser4", person4->getEmail());
+        delete person4;
+    } catch (UserAlreadyExistsException &exception) {}
+    try {
+        Person* person5 = this->getFakePerson5();
+        personManager->savePerson(person5->serializeMe(), (long) 5);
+        sessionManager->saveToken("tokenUser5", person5->getEmail());
+        delete person5;
+    } catch (UserAlreadyExistsException &exception) {}
 }
 
 Person* DbBuilder::getFakePerson1() {
@@ -101,6 +113,44 @@ Person* DbBuilder::getFakePerson3() {
     person->setDateOfBirth("01/01/1990");
     person->setCity("CABA");
     person->setSummary("Hola, soy Carlos Rodriguez");
+    person->setLocation(-58.368368, -34.617589);
+
+    person->addWorkHistory(this->getWorkHistory(2, "Microsoft", "10/2012", "11/2014"));
+    person->addSkill(this->getSkill(2));
+
+    return person;
+}
+
+Person* DbBuilder::getFakePerson4() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Marty");
+    person->setLastName("McFly");
+    person->setEmail("marty@mcfly.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("06/09/1968");
+    person->setCity("Hill Valley, California");
+    person->setSummary("Mi gran habilidad es viajar por el tiempo.");
+    person->setLocation(-58.368370, -34.617500);
+
+    person->addWorkHistory(this->getWorkHistory(0, "IBM", "10/2012", "11/2014"));
+    person->addWorkHistory(this->getWorkHistory(1, "Amazon", "12/2014", ""));
+    person->addSkill(this->getSkill(1));
+    person->addSkill(this->getSkill(2));
+
+    return person;
+}
+
+Person* DbBuilder::getFakePerson5() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Tony");
+    person->setLastName("Stark");
+    person->setEmail("tony@stark.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("01/01/1970");
+    person->setCity("Manhattan");
+    person->setSummary("Mi hobbie es salvar al mundo.");
     person->setLocation(-58.368368, -34.617589);
 
     person->addWorkHistory(this->getWorkHistory(2, "Microsoft", "10/2012", "11/2014"));

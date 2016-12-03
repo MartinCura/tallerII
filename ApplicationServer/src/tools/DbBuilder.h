@@ -19,6 +19,8 @@ public:
     Person* getFakePerson1();
     Person* getFakePerson2();
     Person* getFakePerson3();
+    Person* getFakePerson4();
+    Person* getFakePerson5();
 
 private:
     DBWrapper* db;
