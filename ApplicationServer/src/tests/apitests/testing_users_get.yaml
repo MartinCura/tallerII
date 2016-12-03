@@ -17,19 +17,19 @@
           - compare: {jsonpath_mini: "summary", comparator: "eq", expected: "Hi, this is John Doe"}
           - compare: {jsonpath_mini: "location.latitude", comparator: "eq", expected: -58.368368}
           - compare: {jsonpath_mini: "location.longitude", comparator: "eq", expected: -34.617589}
-          - compare: {jsonpath_mini: "skills.0.category", comparator: "eq", expected: "software"}
-          - compare: {jsonpath_mini: "skills.0.description", comparator: "eq", expected: "JavaScript programming language"}
-          - compare: {jsonpath_mini: "skills.0.name", comparator: "eq", expected: "javascript"}
-          - compare: {jsonpath_mini: "skills.1.category", comparator: "eq", expected: "management"}
-          - compare: {jsonpath_mini: "skills.1.description", comparator: "eq", expected: "Project Management"}
-          - compare: {jsonpath_mini: "skills.1.name", comparator: "eq", expected: "pm"}
+          - compare: {jsonpath_mini: "skills.0.category", comparator: "eq", expected: "Cafetería"}
+          - compare: {jsonpath_mini: "skills.0.description", comparator: "eq", expected: "Habilidad para apretar el botón de la máquina de café sin le que tiemble el pulso."}
+          - compare: {jsonpath_mini: "skills.0.name", comparator: "eq", expected: "café"}
+          - compare: {jsonpath_mini: "skills.1.category", comparator: "eq", expected: "Management"}
+          - compare: {jsonpath_mini: "skills.1.description", comparator: "eq", expected: "Superpotencia mundial en hacer que los demás hagan lo que desee."}
+          - compare: {jsonpath_mini: "skills.1.name", comparator: "eq", expected: "liderazgo"}
           - compare: {jsonpath_mini: "work_history.0.company", comparator: "eq", expected: "IBM"}
           - compare: {jsonpath_mini: "work_history.0.from_date", comparator: "eq", expected: "10/2012"}
-          - compare: {jsonpath_mini: "work_history.0.position_title", comparator: "eq", expected: "JavaScript Developer"}
+          - compare: {jsonpath_mini: "work_history.0.position_title", comparator: "eq", expected: "Developer"}
           - compare: {jsonpath_mini: "work_history.0.to_date", comparator: "eq", expected: "11/2014"}
           - compare: {jsonpath_mini: "work_history.1.company", comparator: "eq", expected: "Amazon"}
           - compare: {jsonpath_mini: "work_history.1.from_date", comparator: "eq", expected: "12/2014"}
-          - compare: {jsonpath_mini: "work_history.1.position_title", comparator: "eq", expected: "Project Manager"}
+          - compare: {jsonpath_mini: "work_history.1.position_title", comparator: "eq", expected: "CEO"}
           - compare: {jsonpath_mini: "work_history.1.to_date", comparator: "eq", expected: ""}
     - expected_status: [200] # ok
 
@@ -46,19 +46,19 @@
           - compare: {jsonpath_mini: "date_of_birth", comparator: "eq", expected: "01/11/1991"}
           - compare: {jsonpath_mini: "city", comparator: "eq", expected: "madrid"}
           - compare: {jsonpath_mini: "summary", comparator: "eq", expected: "Hi, this is Jane Doe"}
-          - compare: {jsonpath_mini: "skills.0.category", comparator: "eq", expected: "software"}
-          - compare: {jsonpath_mini: "skills.0.description", comparator: "eq", expected: "PHP programming language"}
+          - compare: {jsonpath_mini: "skills.0.category", comparator: "eq", expected: "Programación"}
+          - compare: {jsonpath_mini: "skills.0.description", comparator: "eq", expected: "Conocimiento novato del lenguaje PHP."}
           - compare: {jsonpath_mini: "skills.0.name", comparator: "eq", expected: "php"}
-          - compare: {jsonpath_mini: "skills.1.category", comparator: "eq", expected: "software"}
-          - compare: {jsonpath_mini: "skills.1.description", comparator: "eq", expected: "Software Quality Assurance"}
-          - compare: {jsonpath_mini: "skills.1.name", comparator: "eq", expected: "qa"}
+          - compare: {jsonpath_mini: "skills.1.category", comparator: "eq", expected: "Programación"}
+          - compare: {jsonpath_mini: "skills.1.description", comparator: "eq", expected: "Conocimiento avanzado de lenguaje JavaScript."}
+          - compare: {jsonpath_mini: "skills.1.name", comparator: "eq", expected: "javascript avanzado"}
           - compare: {jsonpath_mini: "work_history.0.company", comparator: "eq", expected: "Microsoft"}
           - compare: {jsonpath_mini: "work_history.0.from_date", comparator: "eq", expected: "10/2013"}
-          - compare: {jsonpath_mini: "work_history.0.position_title", comparator: "eq", expected: "QA"}
+          - compare: {jsonpath_mini: "work_history.0.position_title", comparator: "eq", expected: "Barista"}
           - compare: {jsonpath_mini: "work_history.0.to_date", comparator: "eq", expected: "11/2015"}
           - compare: {jsonpath_mini: "work_history.1.company", comparator: "eq", expected: "E-bay"}
           - compare: {jsonpath_mini: "work_history.1.from_date", comparator: "eq", expected: "12/2015"}
-          - compare: {jsonpath_mini: "work_history.1.position_title", comparator: "eq", expected: "PHP Developer"}
+          - compare: {jsonpath_mini: "work_history.1.position_title", comparator: "eq", expected: "Ninja"}
           - compare: {jsonpath_mini: "work_history.1.to_date", comparator: "eq", expected: ""}
     - expected_status: [200] # ok
 

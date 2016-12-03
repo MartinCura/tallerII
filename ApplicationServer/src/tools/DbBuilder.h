@@ -23,13 +23,16 @@ public:
 private:
     DBWrapper* db;
     string *namedb;
-    void saveToken(string token, string user_mail);
-
-    vector<Skill *> getSkillsDisponibles();
-
-    vector<WorkHistory *> getTrabajosDisponibles();
+    vector<string> jobPositions;
+    vector<Skill*> skills;
 
     void setLastId();
+    string loadFile(string path);
+    Json::Value parseFile(string fileContent);
+    void loadAvailableJobPositions();
+    void loadAvailableSkills();
+    WorkHistory* getWorkHistory(int jobPositionIndex, string company, string fromDate, string toDate);
+    Skill* getSkill(int skillIndex);
 };
 
 #endif //PROJECT_DBBUILDER_H
