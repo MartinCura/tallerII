@@ -576,17 +576,7 @@ public class PerfilActivity extends NavDrawerActivity {
             tv_mail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String destinatarios[] = { userEmail };
-                    String chooserTitle = "Enviar correo electrónico a " + userFullName;
-                    String mailFooter = "Estimada " + userFullName + "," +
-                            "\n\n\n\n\n\n\nTe encontré mediante Jobify!";
-
-                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                            "mailto", userEmail, null));
-                    emailIntent.putExtra(Intent.EXTRA_EMAIL, destinatarios);
-                    emailIntent.putExtra(Intent.EXTRA_TEXT, mailFooter);
-
-                    startActivity( Intent.createChooser(emailIntent, chooserTitle) );
+                    composeEmail(userFullName, userEmail);
                 }
             });
         }
@@ -629,6 +619,20 @@ public class PerfilActivity extends NavDrawerActivity {
         PerfilUtils.colorearBotonRecomendar(this, mUser.fueRecomendadoPor(connectedUserID));
     }
 
+    public void composeEmail(String nombreDestinatario, String emailDestinatario) {
+        String destinatarios[] = { emailDestinatario };
+        String chooserTitle = "Enviar correo electrónico a " + nombreDestinatario;
+        String mailFooter = nombreDestinatario + ",\n\n\n\n\n\n\nTe encontré mediante Jobify!";
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, destinatarios);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, mailFooter);
+
+        if (emailIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity( Intent.createChooser(emailIntent, chooserTitle) );
+        }
+    }
 
     public void updateProfileInformation() {
 

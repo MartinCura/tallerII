@@ -448,21 +448,23 @@ public class UserListActivity extends NavDrawerActivity {
         }
         //showProgress(true);//TODO?
 
-        // Consigo locación guardada
         Locacion loc = null;
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
-        String storedLocacion = sharedPref.getString(getString(R.string.stored_connected_user_location), "");
-        if (!storedLocacion.isEmpty())
-            loc = Locacion.parseJson(storedLocacion);
+        if (mBusquedaReq.incluyeDistancia()) {
+            // Consigo locación guardada
+            SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+            String storedLocacion = sharedPref.getString(getString(R.string.stored_connected_user_location), "");
+            if (!storedLocacion.isEmpty())
+                loc = Locacion.parseJson(storedLocacion);
 
-        if (loc == null) {
-            String msj = "Debe registrar su ubicación para hacer búsquedas por distancia máxima." +
-                    " Vaya a editar su perfil y presione el botón de Ubicación.";
-            new AlertDialog.Builder(this)
-                    .setTitle("Ubicación no registrada")
-                    .setMessage(msj)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+            if (loc == null) {
+                String msj = "Debe registrar su ubicación para hacer búsquedas por distancia máxima." +
+                        " Vaya a editar su perfil y presione el botón de Ubicación.";
+                new AlertDialog.Builder(this)
+                        .setTitle("Ubicación no registrada")
+                        .setMessage(msj)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
         }
 
         String urlBusqueda = mBusquedaReq.generarRequestUrl(this, PAGE_SIZE, pageNumber + 1, loc);

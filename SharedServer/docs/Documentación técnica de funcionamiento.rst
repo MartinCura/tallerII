@@ -1,5 +1,5 @@
-Documentación ténica de funcionamiento
-======================================
+Documentación técnica de funcionamiento
+=======================================
 
 Tecnologías y librerías
 -----------------------
