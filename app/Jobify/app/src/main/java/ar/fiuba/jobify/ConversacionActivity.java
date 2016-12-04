@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -52,7 +53,7 @@ public class ConversacionActivity extends NavDrawerActivity {
 
     public final static String CORRESPONSAL_ID_MESSAGE = "ar.fiuba.jobify.CORRESPONSAL_ID_MESSAGE";
 
-    private final int CANT_MENSAJES_POR_PAGE = 10;
+    private final int CANT_MENSAJES_POR_PAGE = 20;
 
     // ID de aquel con quien es la conversación
     public static long corresponsalID = 0;
@@ -72,9 +73,9 @@ public class ConversacionActivity extends NavDrawerActivity {
     public static boolean activityVisible = false;
 
 
+    @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
-
         // Toast.makeText(this, "llegó!", Toast.LENGTH_LONG).show();
         if (!activityVisible || !recibirMensajesNuevos(event.mensaje)) {
             Log.d("log", "show notification");
@@ -382,6 +383,7 @@ public class ConversacionActivity extends NavDrawerActivity {
             String urlEnvioMensaje = Utils.getAppServerUrl(this, getString(R.string.put_messages_path));
 
             final JSONObject jsObjMessage = message.toJsonObject();
+            Log.d(LOG_TAG, "Envío mensaje "+mensajeAEnviar);//
 
             Utils.fetchJsonFromUrl(this, Request.Method.PUT, urlEnvioMensaje, jsObjMessage,
                     new Response.Listener<JSONObject>() {
@@ -491,12 +493,12 @@ public class ConversacionActivity extends NavDrawerActivity {
                             holderOut = (ViewHolderOutgoing) convertView.getTag();
                         }
 
-//                        holderOut.iv_status TODO?
-//                        if (message.getMessageStatus() == Message.Status.DELIVERED) {
-//                            holderOut.messageStatus.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_double_tick));
-//                        } else if (message.getMessageStatus() == Message.Status.SENT) {
-//                            holderOut.messageStatus.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_single_tick));
-//                        }
+                        Message.State state = message.getState();
+                        if (state == Message.State.RECEIVED) {
+                            holderOut.iv_status.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_double_tick));
+                        } else if (state == Message.State.SENT) {
+                            holderOut.iv_status.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_single_tick));
+                        }
                         holderOut.tv_message.setText(message.getMessage());
                         holderOut.tv_time.setText(message.getHoraSinSegundos());
                         break;
