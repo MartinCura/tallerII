@@ -76,7 +76,7 @@ public class ConversacionActivity extends NavDrawerActivity {
     public void onMessageEvent(MessageEvent event) {
 
         // Toast.makeText(this, "llegó!", Toast.LENGTH_LONG).show();
-        if (!recibirMensajesNuevos(event.mensaje) || !activityVisible){
+        if (!activityVisible || !recibirMensajesNuevos(event.mensaje)) {
             Log.d("log", "show notification");
         }
     }

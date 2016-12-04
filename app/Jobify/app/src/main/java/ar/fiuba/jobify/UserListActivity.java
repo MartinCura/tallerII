@@ -502,12 +502,13 @@ public class UserListActivity extends NavDrawerActivity {
                         int cant = 0;
                         ResponseMetadata meta = busqResponse.getMetadata();
                         if (meta != null) {
-                            if (meta.getTotalCount() == 0)
+                            long total = meta.getTotalCount();
+                            if (total == 0)
                                 cant = 0;
                             else {
                                 cant = Long.valueOf(meta.getCount()).intValue();
                                 if (cant == 0)
-                                    cant = PAGE_SIZE; // Por si no se envía
+                                    cant = Long.valueOf(total).intValue(); // Por si no se envía
                             }
                         } else
                             Log.e(LOG_TAG, "BusquedaResponse Metadata null!");
