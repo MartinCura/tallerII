@@ -151,6 +151,7 @@ public class PerfilActivity extends NavDrawerActivity {
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         onCreateDrawer(R.id.perfil_toolbar, R.id.perfil_drawer_layout, R.id.perfil_nav_view);
+        displayItemAsSelected(-1);
     }
 
     @SuppressWarnings("deprecation")
@@ -890,6 +891,13 @@ public class PerfilActivity extends NavDrawerActivity {
                 });
     }
 
+
+    @Override
+    protected void iniciarPerfilPropio() {
+        if (fetchedUserID == connectedUserID)
+            return;
+        super.iniciarPerfilPropio();
+    }
 
     public void irAConversacion(View v) {
         Utils.iniciarConversacionActivity(this, fetchedUserID);

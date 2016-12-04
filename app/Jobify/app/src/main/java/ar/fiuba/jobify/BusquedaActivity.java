@@ -55,6 +55,7 @@ public class BusquedaActivity extends NavDrawerActivity {
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         onCreateDrawer(R.id.busqueda_toolbar, R.id.busqueda_drawer_layout, R.id.busqueda_nav_view);
+        displayItemAsSelected(R.id.nav_busqueda);
     }
 
     @Override
@@ -192,5 +193,10 @@ public class BusquedaActivity extends NavDrawerActivity {
                         .putExtra(UserListActivity.LIST_MODE_MESSAGE, UserListActivity.MODE_BUSQUEDA)
                         .putExtra(UserListActivity.BUSQUEDA_REQUEST_MESSAGE, busquedaReq.toJson())
         );
+    }
+
+    @Override
+    protected void iniciarBusqueda() {
+        // Ya estoy en activity de búsqueda
     }
 }

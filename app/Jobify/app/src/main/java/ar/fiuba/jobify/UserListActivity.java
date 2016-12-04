@@ -154,6 +154,7 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_SOLICITUDES:
                 if (sab != null)
                     sab.setTitle("Solicitudes pendientes");
+                displayItemAsSelected(R.id.nav_solicitudes);
                 esconderBotonDeBusqueda();
                 showProgress(true);
                 listarSolicitudesReceived();
@@ -161,6 +162,7 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_MOST_POPULAR:
                 if (sab != null)
                     sab.setTitle("Profesionales más populares");
+                displayItemAsSelected(R.id.nav_most_popular);
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
 //                listarMasPopulares();
@@ -169,6 +171,7 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_BUSQUEDA:
                 if (sab != null)
                     sab.setTitle("Resultados");
+                displayItemAsSelected(R.id.nav_busqueda);
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
                 generarBusqueda();
@@ -176,6 +179,7 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_CONVERSACIONES:
                 if (sab != null)
                     sab.setTitle("Conversaciones");
+                displayItemAsSelected(R.id.nav_conversaciones);
                 showProgress(true);
                 esconderBotonDeBusqueda();
                 listarConversaciones();
@@ -685,5 +689,24 @@ public class UserListActivity extends NavDrawerActivity {
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
         }
+    }
+
+    @Override
+    protected void iniciarMasPopulares() {
+        if (mode == MODE_MOST_POPULAR)
+            return;
+        super.iniciarMasPopulares();
+    }
+
+    protected void iniciarSolicitudes() {
+        if (mode == MODE_SOLICITUDES)
+            return;
+        super.iniciarSolicitudes();
+    }
+
+    protected void iniciarConversaciones() {
+        if (mode == MODE_CONVERSACIONES)
+            return;
+        super.iniciarConversaciones();
     }
 }

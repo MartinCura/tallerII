@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -200,7 +199,7 @@ public class NavDrawerActivity extends AppCompatActivity
         final Menu navMenu = navView.getMenu();
 
         MenuItem solItem = navMenu.findItem(R.id.nav_solicitudes);
-        // Si fue quitado, lo vuelvo a agregar
+        // Si fue quitado, lo vuelvo a agregar // No se usa más
         if (solItem == null) {
             solItem = navMenu.add(0, Menu.NONE, 3, R.string.nav_solicitudes_option);
         }
@@ -261,6 +260,20 @@ public class NavDrawerActivity extends AppCompatActivity
                 }, LOG_TAG);
     }
 
+    protected void displayItemAsSelected(int itemId) {
+        if (navView != null) {
+            for (int i = 0; i < navView.getMenu().size(); ++i) {
+                MenuItem item = navView.getMenu().getItem(i);
+                if (item.getItemId() == itemId)
+                    item.setCheckable(true).setChecked(true);
+                else
+                    item.setChecked(false);
+            }
+        } else {
+            Log.e(LOG_TAG, "Nav View no encontrado para marcar selección");
+        }
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -279,39 +292,25 @@ public class NavDrawerActivity extends AppCompatActivity
         } else if (id == R.id.nav_solicitudes) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
-            startActivity(
-                    new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
-                                      UserListActivity.MODE_SOLICITUDES)
-            );
+            iniciarSolicitudes();
             return false;
 
         } else if (id == R.id.nav_most_popular) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
-            startActivity(
-                    new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
-                                      UserListActivity.MODE_MOST_POPULAR)
-            );
+            iniciarMasPopulares();
             return false;
 
         } else if (id == R.id.nav_busqueda) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
-            startActivity(
-                    new Intent(this, BusquedaActivity.class)
-            );
+            iniciarBusqueda();
             return false;
 
         } else if (id == R.id.nav_conversaciones) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
-            startActivity(
-                    new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
-                                      UserListActivity.MODE_CONVERSACIONES)
-            );
+            iniciarConversaciones();
             return false;
 
         } else if (id == R.id.nav_logout) {
@@ -329,6 +328,51 @@ public class NavDrawerActivity extends AppCompatActivity
 
         return true;
     }
+
+    public void irAPerfilPropio(View v) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
+        if (drawer != null)
+            drawer.closeDrawer(GravityCompat.START);
+        iniciarPerfilPropio();
+    }
+
+    /////// Métodos para ir a cierta sección. Overridearlas para evitar o cambiar el comportamiento.
+
+    protected void iniciarPerfilPropio() {
+        Utils.iniciarPerfilActivity(this, connectedUserID, false);
+    }
+
+    protected void iniciarBusqueda() {
+        startActivity(
+                new Intent(this, BusquedaActivity.class)
+        );
+    }
+
+    protected void iniciarMasPopulares() {
+        startActivity(
+                new Intent(this, UserListActivity.class)
+                        .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                UserListActivity.MODE_MOST_POPULAR)
+        );
+    }
+
+    protected void iniciarSolicitudes() {
+        startActivity(
+                new Intent(this, UserListActivity.class)
+                        .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                UserListActivity.MODE_SOLICITUDES)
+        );
+    }
+
+    protected void iniciarConversaciones() {
+        startActivity(
+                new Intent(this, UserListActivity.class)
+                        .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                UserListActivity.MODE_CONVERSACIONES)
+        );
+    }
+
+    ///////
 
     protected void bloquearNavDrawer(boolean block) {
         DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
@@ -348,10 +392,6 @@ public class NavDrawerActivity extends AppCompatActivity
                 mToolbar.setVisibility(View.VISIBLE);
             }
         }
-    }
-
-    public void irAPerfilPropio(View v) {
-        Utils.iniciarPerfilActivity(this, connectedUserID, false);
     }
 
     private void borrarConnectedUserData() {

@@ -133,6 +133,7 @@ public class ConversacionActivity extends NavDrawerActivity {
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         onCreateDrawer(R.id.conversacion_toolbar, R.id.conversacion_drawer_layout, R.id.conversacion_nav_view);
+        displayItemAsSelected(R.id.nav_conversaciones);
     }
 
     @Override
