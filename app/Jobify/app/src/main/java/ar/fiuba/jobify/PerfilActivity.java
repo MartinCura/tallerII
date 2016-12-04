@@ -524,6 +524,14 @@ public class PerfilActivity extends NavDrawerActivity {
                             fetchedUser = mUser;
                             fillProfile(mUser);
 
+                            if (fetchedUserID == connectedUserID) {
+                                SharedPreferences.Editor editor =
+                                        getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                                                .edit();
+                                editor.putString(getString(R.string.stored_connected_user_fullname), mUser.getFullName());
+                                editor.apply();
+                            }
+
                         } else {
                             Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el perfil");
                         }

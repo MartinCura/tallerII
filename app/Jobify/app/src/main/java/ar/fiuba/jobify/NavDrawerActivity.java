@@ -122,20 +122,7 @@ public class NavDrawerActivity extends AppCompatActivity
     }
 
     public void setUpDrawerHeaderUser() {
-        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), connectedUserID,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        User mUser = User.parseJSON(response.toString());
-                        if (mUser != null) {
-                            fillDrawerHeaderText(mUser);
-
-                        } else {
-                            Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el header del ND");
-                        }
-                    }
-                }, LOG_TAG);
-
+        fillDrawerHeaderText();
         setUpDrawerHeaderImage();
     }
 
@@ -147,14 +134,18 @@ public class NavDrawerActivity extends AppCompatActivity
             Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG, true);
     }
 
-    private void fillDrawerHeaderText(User user) {
+    private void fillDrawerHeaderText() {
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        String storedEmail = sharedPref.getString(getString(R.string.stored_connected_user_email), "");
+        String storedFullName = sharedPref.getString(getString(R.string.stored_connected_user_fullname), "");
+        // Si se ponen strings vacíos, no me importa. Solo al comienzo es probable que pase.
         TextView tv_nombre = (TextView) findViewById(R.id.nav_drawer_user_nombre);
         if (tv_nombre != null)
-            tv_nombre.setText(user.getFullName());
+            tv_nombre.setText(storedFullName);
 
         TextView tv_mail = (TextView) findViewById(R.id.nav_drawer_user_mail);
         if (tv_mail != null)
-            tv_mail.setText(user.getEmail());
+            tv_mail.setText(storedEmail);
     }
 
     @Override

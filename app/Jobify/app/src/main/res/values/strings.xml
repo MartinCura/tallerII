@@ -181,6 +181,7 @@
     <string name="nav_busqueda_option">Buscar</string>
     <string name="ellipsis">…</string>
     <string name="stored_connected_user_email">connected_user_email</string>
+    <string name="stored_connected_user_fullname">connected_user_fullname</string>
     <string name="stored_connected_user_password">connected_user_password</string>
     <string name="stored_connected_user_location">connected_user_location</string>
     <string name="busqueda_skills_title">Skills</string>
