@@ -127,8 +127,8 @@ public class Utils {
 
     public static String getAppServerBaseURL(Context ctx) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
-        String ip = sharedPref.getString("pref_appServer_ip", ctx.getString(R.string.pref_default_appServer_ip));
-        String puerto = sharedPref.getString("pref_appServer_puerto", ctx.getString(R.string.pref_default_appServer_puerto));
+        String ip = sharedPref.getString(ctx.getString(R.string.pref_app_server_ip), ctx.getString(R.string.pref_default_appServer_ip));
+        String puerto = sharedPref.getString(ctx.getString(R.string.pref_app_server_port), ctx.getString(R.string.pref_default_appServer_puerto));
 
         try {
             if (Integer.parseInt(puerto) <= 0)

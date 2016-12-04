@@ -210,5 +210,7 @@
     <string name="busqueda_nombre_hint">(opcional)</string>
     <string name="busqueda_mail_title">Mail</string>
     <string name="busqueda_mail_hint">(opcional)</string>
+    <string name="pref_app_server_ip">pref_appServer_ip</string>
+    <string name="pref_app_server_port">pref_appServer_puerto</string>
 
 </resources>
