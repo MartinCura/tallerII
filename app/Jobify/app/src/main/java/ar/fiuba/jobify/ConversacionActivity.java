@@ -118,9 +118,8 @@ public class ConversacionActivity extends NavDrawerActivity {
         if (mListView != null) {
 
             mMessageArrayAdapter = new MessageArrayAdapter(this, new ArrayList<Message>());
-            mEndlessScrollListener = new EndlessScrollListener();
             mListView.setAdapter(mMessageArrayAdapter);
-            mListView.setOnScrollListener(mEndlessScrollListener);
+            mListView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
             mListView.setDivider(null);
             mListView.setDividerHeight(18); //hardcode
 
@@ -192,7 +191,7 @@ public class ConversacionActivity extends NavDrawerActivity {
 
         int cantNuevos = mMessageArrayAdapter.agregarNuevoMensaje(nuevoMensaje);
 
-        if (cantNuevos > 0) {
+        if (nuevoMensaje.getAutoria(connectedUserID) == Message.Autoria.AJENO && cantNuevos > 0) {
             // Request fantasma para marcar como leídos los mensajes recibidos por notificación
             int masViejo = cantNuevos > CANT_MENSAJES_POR_PAGE ? cantNuevos : CANT_MENSAJES_POR_PAGE;
             HashMap<String, String> map = new HashMap<>();
@@ -309,7 +308,7 @@ public class ConversacionActivity extends NavDrawerActivity {
      */
     private boolean cargarMasMensajes(long page, boolean forzarCarga) {
         if (!forzarCarga && (page * CANT_MENSAJES_POR_PAGE >= maxMensaje)) {
-            mEndlessScrollListener.desactivar();
+            //mEndlessScrollListener.desactivar();
             return false;
         }
         long numFirst = (page * CANT_MENSAJES_POR_PAGE + 1) + mOffset;
