@@ -376,7 +376,7 @@ public class Utils {
                             return;
                         }
                         if (error.networkResponse.statusCode == ServerStatusCode.OK) {
-//                            Log.e(logTag, "Problema con la imagen. Re-request");//
+                            Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
                             return;
                         }
@@ -410,6 +410,79 @@ public class Utils {
         RequestQueueSingleton.getInstance(ctx)
                 .addToRequestQueue(request);
         return true;
+    }
+
+    // TODO: esto es un malformado semiclon de la función de arriba;
+    // TODO: muy mala reutilización de código, pero hay que cambiar varias cosas para refactorizar.
+    // Asumo que si se le carga una imagen se la quiere ver, por lo que cambia visibilidad!
+    public static void cargarImagenDeURLenImageView(final Activity act, final @IdRes int iv_id,
+                                  final String url, final String logTag, final boolean squareCrop) {
+
+        ImageRequest request = new ImageRequest(url,
+                new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap bitmap) {
+                        ImageView imageView = (ImageView) act.findViewById(iv_id);
+                        if (imageView == null) {
+                            Log.e(logTag, "No pude post-encontrar ImageView, no cargo imagen");
+                            return;
+                        }
+                        if (squareCrop)
+                            imageView.setImageBitmap(cropToSquare(bitmap));
+                        else
+                            imageView.setImageBitmap(bitmap);
+                        imageView.setVisibility(View.VISIBLE);
+                    }
+                }, 0, 0,
+                ImageView.ScaleType.CENTER_INSIDE, null,
+
+                new Response.ErrorListener() {
+                    @SuppressWarnings("deprecation")
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse == null) {
+                            Log.e(logTag, "Error de response, no pude cargar la imagen." +
+                                    " (url: " + url + ")");
+                            return;
+                        }
+                        if (error.networkResponse.statusCode == ServerStatusCode.OK) {
+//                            Log.e(logTag, "Problema con la imagen. Re-request");//
+                            cargarImagenDeURLenImageView(act, iv_id, url, logTag, squareCrop);
+                            return;
+                        }
+                        switch (error.networkResponse.statusCode) {
+                            case ServerStatusCode.NOTFOUND:
+                            case ServerStatusCode.OK_NOCONTENT:
+                                Log.d(logTag, "Imagen no existe");
+                                break;
+                            default:
+                                Log.d(logTag, "Error cargando imagen: " +
+                                        statusCodeString(error.networkResponse.statusCode));
+                        }
+
+                        ImageView imageView = (ImageView) act.findViewById(iv_id);
+                        if (imageView == null) {
+                            Log.e(logTag, "No pude post-encontrar ImageView, ni en el error!");
+                            return;
+                        }
+                        @DrawableRes int drawableId = R.drawable.ic_person;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            imageView.setImageDrawable(act.getDrawable(drawableId));
+                        } else {
+                            imageView.setImageDrawable(act.getResources().getDrawable(drawableId));
+                        }
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                String token = getToken(act);
+                if (token != null)
+                    headers.put("Authorization", token);
+                return headers;
+            }
+        };
+        RequestQueueSingleton.getInstance(act)
+                .addToRequestQueue(request);
     }
 
 

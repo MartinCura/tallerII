@@ -122,30 +122,45 @@ public class NavDrawerActivity extends AppCompatActivity
     }
 
     public void setUpDrawerHeaderUser() {
-        fillDrawerHeaderText();
-        setUpDrawerHeaderImage();
-    }
-
-    protected void setUpDrawerHeaderImage() {
-        String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_thumbnail_path));
-        ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
-
-        if (iv_thumbnail != null)
-            Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG, true);
-    }
-
-    private void fillDrawerHeaderText() {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
         String storedEmail = sharedPref.getString(getString(R.string.stored_connected_user_email), "");
         String storedFullName = sharedPref.getString(getString(R.string.stored_connected_user_fullname), "");
-        // Si se ponen strings vacíos, no me importa. Solo al comienzo es probable que pase.
+        if (storedEmail.isEmpty() || storedFullName.isEmpty()
+                || findViewById(R.id.nav_drawer_user_nombre) == null
+                || findViewById(R.id.nav_drawer_user_mail) == null) {
+            // Hay algo en el flujo que hace que el header drawer NO se cargue hasta después.
+            // En este caso, voy a hacer que se busquen solamente para que pase el tiempo necesario
+            // y ya estén utilizables los TextView a completar.
+            Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), connectedUserID,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            User mUser = User.parseJSON(response.toString());
+                            if (mUser != null) {
+                                fillDrawerHeaderText(mUser.getFullName(), mUser.getEmail());
+
+                            } else {
+                                Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el header del ND");
+                            }
+                        }
+                    }, LOG_TAG);
+        } else {
+            fillDrawerHeaderText(storedFullName, storedEmail);
+        }
+
+        String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_thumbnail_path));
+        Utils.cargarImagenDeURLenImageView(this, R.id.nav_drawer_user_thumbnail, urlGetThumbnail,
+                LOG_TAG, true);
+    }
+
+    private void fillDrawerHeaderText(String fullName, String email) {
         TextView tv_nombre = (TextView) findViewById(R.id.nav_drawer_user_nombre);
         if (tv_nombre != null)
-            tv_nombre.setText(storedFullName);
+            tv_nombre.setText(fullName);
 
         TextView tv_mail = (TextView) findViewById(R.id.nav_drawer_user_mail);
         if (tv_mail != null)
-            tv_mail.setText(storedEmail);
+            tv_mail.setText(email);
     }
 
     @Override

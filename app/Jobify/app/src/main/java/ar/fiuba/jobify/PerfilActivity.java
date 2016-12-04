@@ -542,21 +542,6 @@ public class PerfilActivity extends NavDrawerActivity {
 
     public void cargarFotoDePerfil(final long idFetched) {
 
-        // De muy poco uso
-//        if (mCurrentPhotoPath != null) {
-//            ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
-//            if (imageView != null) {
-//                try {
-//                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mPhotoURI);
-//                    imageView.setImageBitmap(imageBitmap);
-//                    return;
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                    Log.e(LOG_TAG, "Error en cargado de imagen de perfil");
-//                }
-//            }
-//        }
-
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                 .appendPath(getString(R.string.get_photo_path))
                 .appendPath(Long.toString(idFetched))
@@ -566,8 +551,6 @@ public class PerfilActivity extends NavDrawerActivity {
         Utils.cargarImagenDeURLenImageView(getApplicationContext(),
                 (ImageView) findViewById(R.id.perfil_image),
                 url, LOG_TAG);
-
-        setUpDrawerHeaderImage();
     }
 
     private void fillProfile(User mUser) {
