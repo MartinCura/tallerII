@@ -14,7 +14,6 @@ import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +39,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import ar.fiuba.jobify.app_server_api.AllUsersResponse;
 import ar.fiuba.jobify.app_server_api.BusquedaRequest;
 import ar.fiuba.jobify.app_server_api.BusquedaResponse;
 import ar.fiuba.jobify.app_server_api.Contact;
@@ -166,7 +164,7 @@ public class UserListActivity extends NavDrawerActivity {
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
                 listarMasPopulares();
-//                listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
+//                listarTodosLosUsuarios();//
                 break;
             case MODE_BUSQUEDA:
                 if (sab != null)
@@ -263,45 +261,45 @@ public class UserListActivity extends NavDrawerActivity {
     }
 
     /// de prueba //;//
-    private void listarTodosLosUsuarios() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
-        if (toolbar != null) {
-            toolbar.setTitle("Profesionales más populares");
-//            toolbar.setTitle("Todos los usuarios");
-        } else
-            Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
-
-        Utils.getJsonFromAppServer(this, getString(R.string.get_all_users_path),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        AllUsersResponse allUsersResponse =
-                                AllUsersResponse.parseJSON(response.toString());
-
-                        if (allUsersResponse == null) {
-                            Log.e(LOG_TAG, "Null parsed JSON from all_users");
-                            return;
-                        }
-
-                        int cant = 0;
-                        ResponseMetadata meta = allUsersResponse.getMetadata();
-                        if (meta != null) {
-                            cant = Long.valueOf(meta.getCount()).intValue();
-                        } else
-                            Log.e(LOG_TAG, "AllUsersResponse Metadata null!");
-                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
-                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
-
-                        if (mExpectedListSize == 0) {
-                            mostrarNoHayResultados();
-                        } else {
-                            for (long id : allUsersResponse.getAllUsers()) {
-                                fetchAndAddUser(id);
-                            }
-                        }
-                    }
-                }, LOG_TAG);
-    }
+//    private void listarTodosLosUsuarios() {
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
+//        if (toolbar != null) {
+//            toolbar.setTitle("Profesionales más populares");
+////            toolbar.setTitle("Todos los usuarios");
+//        } else
+//            Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
+//
+//        Utils.getJsonFromAppServer(this, getString(R.string.get_all_users_path),
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        AllUsersResponse allUsersResponse =
+//                                AllUsersResponse.parseJSON(response.toString());
+//
+//                        if (allUsersResponse == null) {
+//                            Log.e(LOG_TAG, "Null parsed JSON from all_users");
+//                            return;
+//                        }
+//
+//                        int cant = 0;
+//                        ResponseMetadata meta = allUsersResponse.getMetadata();
+//                        if (meta != null) {
+//                            cant = Long.valueOf(meta.getCount()).intValue();
+//                        } else
+//                            Log.e(LOG_TAG, "AllUsersResponse Metadata null!");
+//                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
+//                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
+//
+//                        if (mExpectedListSize == 0) {
+//                            mostrarNoHayResultados();
+//                        } else {
+//                            for (long id : allUsersResponse.getAllUsers()) {
+//                                fetchAndAddUser(id);
+//                            }
+//                        }
+//                    }
+//                }, LOG_TAG);
+//    }
     ///
 
     private void listarMasPopulares() {
@@ -432,16 +430,16 @@ public class UserListActivity extends NavDrawerActivity {
         }
     }
 
-    @Deprecated
-    private void fetchAndAddUser(long id) {
-        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        agregarResultado(User.parseJSON(response.toString()));
-                    }
-                }, LOG_TAG);
-    }
+//    @Deprecated
+//    private void fetchAndAddUser(long id) {
+//        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        agregarResultado(User.parseJSON(response.toString()));
+//                    }
+//                }, LOG_TAG);
+//    }
 
     private void mostrarNoHayResultados() {
         Utils.showView(this, R.id.userlist_sin_resultados_layout);
@@ -462,7 +460,6 @@ public class UserListActivity extends NavDrawerActivity {
                 mEndlessScrollListener.desactivar();
             return false;
         }
-        //showProgress(true);//TODO?
 
         Locacion loc = null;
         if (mBusquedaReq.incluyeDistancia()) {
@@ -492,6 +489,7 @@ public class UserListActivity extends NavDrawerActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        Log.d(LOG_TAG, response.toString());//
                         // TODO: Revisar
                         BusquedaResponse busqResponse = BusquedaResponse.parseJSON(response.toString());
 
@@ -523,9 +521,12 @@ public class UserListActivity extends NavDrawerActivity {
                             mostrarNoHayResultados();
 
                         } else {
+                            Log.d(LOG_TAG, "Resultados:");//
                             for (User user : busqResponse.getUsers()) {
-                                if (user != null)
+                                if (user != null) {
+                                    Log.d(LOG_TAG, user.toJson());//
                                     agregarResultado(user);
+                                }
                             }
                             mEndlessScrollListener.activar();
                         }
@@ -589,9 +590,7 @@ public class UserListActivity extends NavDrawerActivity {
 
             // El modo conversaciones muestra unreadCount
             // en vez de trabajo actual y cantidad de recomendaciones
-            boolean usuarioReducido = true;
-            if (mode != MODE_CONVERSACIONES)
-                usuarioReducido = false;
+            boolean usuarioReducido = mode == MODE_CONVERSACIONES;
 
             User user = getItem(position);
             if (user != null) {
@@ -629,14 +628,18 @@ public class UserListActivity extends NavDrawerActivity {
                     }
                 // Los demás casos
                 } else {
-                    if (tv_trabajo != null)
-                        tv_trabajo.setText(user.getUltimoTrabajoActual());
+                    if (tv_trabajo != null) {
+                        tv_trabajo.setText(user.getCurrentJob());
+                        tv_trabajo.setVisibility(View.VISIBLE);
+                    }
                     if (tv_recom != null) {
                         long cantRecom = user.getCantRecomendaciones();
                         if (cantRecom == 0)
                             tv_recom.setVisibility(View.GONE);
-                        else
+                        else {
                             tv_recom.setText(String.format(Locale.US, "%d", cantRecom));
+                            tv_recom.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
             }

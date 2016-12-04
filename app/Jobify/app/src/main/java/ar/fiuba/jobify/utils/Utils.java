@@ -376,7 +376,7 @@ public class Utils {
                             return;
                         }
                         if (error.networkResponse.statusCode == ServerStatusCode.OK) {
-                            Log.e(logTag, "Problema con la imagen. Re-request");//
+//                            Log.e(logTag, "Problema con la imagen. Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
                             return;
                         }

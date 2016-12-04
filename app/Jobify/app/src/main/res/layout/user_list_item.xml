@@ -44,6 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginRight="13dp"
         android:textSize="20sp"
         android:drawableRight="@drawable/ic_recomendar_negro"
         android:text="@string/perfil_cant_recomendaciones_default" />
