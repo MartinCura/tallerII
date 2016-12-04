@@ -78,36 +78,34 @@ void DbBuilder::loadUsers() {
     setLastId();
     PersonManager *personManager = new PersonManager(this->db);
     SessionManager* sessionManager = new SessionManager(this->db);
-    try {
-        Person* person1 = this->getFakePerson1();
-        personManager->savePerson(person1->serializeMe(), (long) 1);
-        sessionManager->saveToken("tokenUser1", person1->getEmail());
-        delete person1;
-    } catch (UserAlreadyExistsException &exception) {}
-    try {
-        Person* person2 = this->getFakePerson2();
-        personManager->savePerson(person2->serializeMe(), (long) 2);
-        sessionManager->saveToken("tokenUser2", person2->getEmail());
-        delete person2;
-    } catch (UserAlreadyExistsException &exception) {}
-    try {
-        Person* person3 = this->getFakePerson3();
-        personManager->savePerson(person3->serializeMe(), (long) 3);
-        sessionManager->saveToken("tokenUser3", person3->getEmail());
-        delete person3;
-    } catch (UserAlreadyExistsException &exception) {}
-    try {
-        Person* person4 = this->getFakePerson4();
-        personManager->savePerson(person4->serializeMe(), (long) 4);
-        sessionManager->saveToken("tokenUser4", person4->getEmail());
-        delete person4;
-    } catch (UserAlreadyExistsException &exception) {}
-    try {
-        Person* person5 = this->getFakePerson5();
-        personManager->savePerson(person5->serializeMe(), (long) 5);
-        sessionManager->saveToken("tokenUser5", person5->getEmail());
-        delete person5;
-    } catch (UserAlreadyExistsException &exception) {}
+    vector<Person*> fakePeople;
+    fakePeople.push_back(this->getFakePerson1());
+    fakePeople.push_back(this->getFakePerson2());
+    fakePeople.push_back(this->getFakePerson3());
+    fakePeople.push_back(this->getFakePerson4());
+    fakePeople.push_back(this->getFakePerson5());
+    fakePeople.push_back(this->getFakePerson6());
+    fakePeople.push_back(this->getFakePerson7());
+    fakePeople.push_back(this->getFakePerson8());
+    fakePeople.push_back(this->getFakePerson9());
+    fakePeople.push_back(this->getFakePerson10());
+    fakePeople.push_back(this->getFakePerson11());
+    fakePeople.push_back(this->getFakePerson12());
+    fakePeople.push_back(this->getFakePerson13());
+    fakePeople.push_back(this->getFakePerson14());
+    fakePeople.push_back(this->getFakePerson15());
+    for (int i = 1; i <= 15; i++) {
+        try {
+            Person* person = fakePeople[i - 1];
+            personManager->savePerson(person->serializeMe(), (long) i);
+            string token = "tokenUser" + to_string(i);
+            sessionManager->saveToken(token, person->getEmail());
+        } catch (UserAlreadyExistsException &exception) {}
+    }
+    long size = fakePeople.size();
+    for (int i = 0; i != size; i++) {
+        fakePeople.pop_back();
+    }
 }
 
 Person* DbBuilder::getFakePerson1() {
@@ -121,12 +119,10 @@ Person* DbBuilder::getFakePerson1() {
     person->setCity("Buenos Aires");
     person->setSummary("Hi, this is John Doe");
     person->setLocation(-58.368368, -34.617589);
-
     person->addWorkHistory(this->getWorkHistory(0, "IBM", "10/2012", "11/2014"));
     person->addWorkHistory(this->getWorkHistory(1, "Amazon", "12/2014", ""));
     person->addSkill(this->getSkill(0));
     person->addSkill(this->getSkill(1));
-
     return person;
 }
 
@@ -141,12 +137,10 @@ Person* DbBuilder::getFakePerson2() {
     person->setCity("Madrid");
     person->setSummary("Hi, this is Jane Doe");
     person->setLocation(-58.368368, -34.617589);
-
     person->addWorkHistory(this->getWorkHistory(2, "Microsoft", "10/2013", "11/2015"));
     person->addWorkHistory(this->getWorkHistory(3, "E-bay", "12/2015", ""));
     person->addSkill(this->getSkill(2));
     person->addSkill(this->getSkill(3));
-
     return person;
 }
 
@@ -161,10 +155,8 @@ Person* DbBuilder::getFakePerson3() {
     person->setCity("CABA");
     person->setSummary("Hola, soy Carlos Rodriguez");
     person->setLocation(-58.368368, -34.617589);
-
     person->addWorkHistory(this->getWorkHistory(2, "Microsoft", "10/2012", "11/2014"));
     person->addSkill(this->getSkill(2));
-
     return person;
 }
 
@@ -179,12 +171,10 @@ Person* DbBuilder::getFakePerson4() {
     person->setCity("Hill Valley, California");
     person->setSummary("Mi gran habilidad es viajar por el tiempo.");
     person->setLocation(-58.368370, -34.617500);
-
     person->addWorkHistory(this->getWorkHistory(0, "IBM", "10/2012", "11/2014"));
     person->addWorkHistory(this->getWorkHistory(1, "Amazon", "12/2014", ""));
     person->addSkill(this->getSkill(1));
     person->addSkill(this->getSkill(2));
-
     return person;
 }
 
@@ -203,6 +193,176 @@ Person* DbBuilder::getFakePerson5() {
     person->addWorkHistory(this->getWorkHistory(2, "Microsoft", "10/2012", "11/2014"));
     person->addSkill(this->getSkill(2));
 
+    return person;
+}
+
+Person* DbBuilder::getFakePerson6() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Madonna");
+    person->setLastName("Ciccone");
+    person->setEmail("madonna@ciccone.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("16/08/1958");
+    person->setCity("Michigan");
+    person->setSummary("soy la reina del pop.");
+    person->setLocation(-58.368468, -34.627589);
+    person->addWorkHistory(this->getWorkHistory(0, "Sony", "10/1970", ""));
+    person->addSkill(this->getSkill(0));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson7() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Lionel");
+    person->setLastName("Messi");
+    person->setEmail("lionel@messi.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("24/06/1987");
+    person->setCity("Barcelona");
+    person->setSummary("Me gusta mucho jugar al futbol.");
+    person->setLocation(-58.368468, -31.627529);
+    person->addWorkHistory(this->getWorkHistory(1, "Barcelona FC", "10/2000", ""));
+    person->addSkill(this->getSkill(1));
+    person->addSkill(this->getSkill(2));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson8() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Jack");
+    person->setLastName("Sparrow");
+    person->setEmail("jack@sparrow.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("24/06/1980");
+    person->setCity("Caribe");
+    person->setSummary("Soy un gran pirata.");
+    person->setLocation(-57.368468, -31.627529);
+    person->addWorkHistory(this->getWorkHistory(1, "La Perla Negra", "10/2000", ""));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson9() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Maria");
+    person->setLastName("Sanchez");
+    person->setEmail("maria@sanchez.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("04/06/1975");
+    person->setCity("Los Angeles");
+    person->setSummary("Hola, soy Maria Sanchez");
+    person->setLocation(-57.368468, -21.617529);
+    person->addWorkHistory(this->getWorkHistory(0, "Microsoft", "10/2000", "10/2014"));
+    person->addWorkHistory(this->getWorkHistory(3, "IBM", "11/2014", ""));
+    person->addSkill(this->getSkill(2));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson10() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Antonella");
+    person->setLastName("Roccuzzo");
+    person->setEmail("antonella@roccuzzo.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("26/02/1988");
+    person->setCity("Barcelona");
+    person->setSummary("Hola, soy la novia de Messi.");
+    person->setLocation(-57.348478, -21.617529);
+    person->addWorkHistory(this->getWorkHistory(3, "Barcelona FC", "10/2000", ""));
+    person->addSkill(this->getSkill(0));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson11() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Luke");
+    person->setLastName("Skywalker");
+    person->setEmail("luke@skywalker.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("26/02/1968");
+    person->setCity("Tatooine");
+    person->setSummary("Soy Luke Skywalker, mejor conocido como el hijo de Darth Vader.");
+    person->setLocation(-55.348478, -11.617529);
+    person->addWorkHistory(this->getWorkHistory(2, "Granjero", "09/1969", "09/1070"));
+    person->addWorkHistory(this->getWorkHistory(1, "La Rebelion", "10/1070", ""));
+    person->addSkill(this->getSkill(0));
+    person->addSkill(this->getSkill(1));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson12() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Britney");
+    person->setLastName("Spears");
+    person->setEmail("britney@spears.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("01/12/1981");
+    person->setCity("Mississippi");
+    person->setSummary("Ups, I did it again.");
+    person->setLocation(-55.348478, -11.617529);
+    person->addWorkHistory(this->getWorkHistory(2, "Sony", "01/1992", ""));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson13() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Evan");
+    person->setLastName("Baxter");
+    person->setEmail("evan@baxter.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("22/07/2007");
+    person->setCity("Manhattan");
+    person->setSummary("Soy un presentador de noticias.");
+    person->setLocation(-57.348478, -11.617529);
+    person->addWorkHistory(this->getWorkHistory(3, "7 News", "01/1992", ""));
+    person->addSkill(this->getSkill(1));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson14() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Michael");
+    person->setLastName("Jordan");
+    person->setEmail("michael@jordan.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("17/02/1963");
+    person->setCity("Brooklyn");
+    person->setSummary("Me gusta mucho jugar al basket.");
+    person->setLocation(-57.348378, -11.617529);
+    person->addWorkHistory(this->getWorkHistory(0, "Starbucks", "01/1992", "01/1994"));
+    person->addWorkHistory(this->getWorkHistory(1, "NBA", "02/1994", ""));
+    person->addSkill(this->getSkill(1));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson15() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Harry");
+    person->setLastName("Potter");
+    person->setEmail("harry@potter.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("17/12/1990");
+    person->setCity("Hogwarts");
+    person->setSummary("Soy un gran mago.");
+    person->setLocation(-55.348378, -11.627529);
+    person->addWorkHistory(this->getWorkHistory(0, "Starbucks", "01/1992", "01/1994"));
+    person->addWorkHistory(this->getWorkHistory(1, "Wendys", "01/1995", "01/1999"));
+    person->addWorkHistory(this->getWorkHistory(2, "Hogwarts", "02/2000", ""));
+    person->addSkill(this->getSkill(1));
+    person->addSkill(this->getSkill(2));
     return person;
 }
 
