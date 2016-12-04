@@ -184,11 +184,30 @@ public class ConversacionActivity extends NavDrawerActivity {
         long to   = nuevoMensaje.getTo();
         if  (!((from == connectedUserID && to == corresponsalID)
            || (from == corresponsalID || to == connectedUserID))) {
-            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación " + "el usuario actual es: " + corresponsalID);
+            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación." +
+                    " El usuario actual es: " + corresponsalID);
             return false;
         }
 
-        mMessageArrayAdapter.agregarNuevoMensaje(nuevoMensaje);
+        int cantNuevos = mMessageArrayAdapter.agregarNuevoMensaje(nuevoMensaje);
+
+        if (cantNuevos > 0) {
+            // Request fantasma para marcar como leídos los mensajes recibidos por notificación
+            int masViejo = cantNuevos > CANT_MENSAJES_POR_PAGE ? cantNuevos : CANT_MENSAJES_POR_PAGE;
+            HashMap<String, String> map = new HashMap<>();
+            map.put(getString(R.string.get_messages_user_query), Long.toString(corresponsalID));
+            map.put(getString(R.string.get_messages_first_query), "1");   // Carga desde el último mensaje
+            map.put(getString(R.string.get_messages_last_query), Integer.toString(masViejo));
+            String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path), connectedUserID, map);
+            Utils.fetchJsonFromUrl(this, Request.Method.GET, urlMensajes, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(LOG_TAG, "Request fantasma para marcar como leído Success");
+                        }
+                    }, LOG_TAG);
+        }
+
         return true;
     }
 
@@ -421,19 +440,23 @@ public class ConversacionActivity extends NavDrawerActivity {
             notifyDataSetChanged();
         }
 
-        // Chequea que el mensaje sea más nuevo que el último ya listado
-        public void agregarNuevoMensaje(Message nuevoMensaje) {
+        /**
+         *  Chequea que el mensaje sea más nuevo que el último ya listado
+         *  @return Cantidad de mensajes agregados (0 o 1)
+         */
+        public int agregarNuevoMensaje(Message nuevoMensaje) {
             // No agrega si el último mensaje listado no tiene un timestamp menor
             if (getCount() != 0 &&
                     nuevoMensaje.getTimestamp().compareTo(this.chatMessages.get(0).getTimestamp()) <= 0) {
                 Log.i(LOG_TAG, "Se recibió nuevoMensaje con timestamp menor o igual al último." +
                         "msj: " + nuevoMensaje.getMessage());
-                return;
+                return 0;
             }
             this.chatMessages.add(nuevoMensaje);
             maxMensaje++;
             mOffset++;
             notifyDataSetChanged();
+            return 1;
         }
 
         public void vaciar() {

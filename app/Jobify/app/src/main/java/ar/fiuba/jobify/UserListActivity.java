@@ -99,8 +99,6 @@ public class UserListActivity extends NavDrawerActivity {
             Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!");
             return;
         }
-        mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
-        listView.setAdapter(mUserArrayAdapter);
 
         // Obtengo el modo
         Intent intent = getIntent();
@@ -131,6 +129,26 @@ public class UserListActivity extends NavDrawerActivity {
                 }
             });
         }
+    }
+
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ActionBar sab = getSupportActionBar();
+
+        ListView listView = (ListView) findViewById(R.id.user_list);
+        if (listView == null) {
+            Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!");
+            return;
+        }
+        mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
+        listView.setAdapter(mUserArrayAdapter);
 
         switch (mode) {
             case MODE_SOLICITUDES:
@@ -165,12 +183,6 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_NONE:
             default:
         }
-    }
-
-    @Override
-    public void setContentView(@LayoutRes int layoutResID) {
-        super.setContentView(layoutResID);
-        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
     }
 
     public void onStop() {
