@@ -165,8 +165,8 @@ public class UserListActivity extends NavDrawerActivity {
                 displayItemAsSelected(R.id.nav_most_popular);
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
-//                listarMasPopulares();
-                listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
+                listarMasPopulares();
+//                listarTodosLosUsuarios();// TODO: Cambiar por el de arriba una vez que funcione ese
                 break;
             case MODE_BUSQUEDA:
                 if (sab != null)
@@ -627,7 +627,7 @@ public class UserListActivity extends NavDrawerActivity {
                             tv_unread.setVisibility(View.VISIBLE);
                         }
                     }
-                    // Los demás casos
+                // Los demás casos
                 } else {
                     if (tv_trabajo != null)
                         tv_trabajo.setText(user.getUltimoTrabajoActual());
