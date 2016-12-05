@@ -702,7 +702,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
             if (requestCode == PerfilUtils.REQUEST_TAKE_PHOTO) {
                 imageFile = new File(mCurrentPhotoPath);
-                Log.d(LOG_TAG, "Absolute path al sacar una foto: "+mCurrentPhotoPath);
+                Log.d(LOG_TAG, "Absolute path al sacar una foto: "+mCurrentPhotoPath);//
 
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mPhotoURI);

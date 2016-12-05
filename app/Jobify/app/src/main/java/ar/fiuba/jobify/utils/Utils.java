@@ -59,6 +59,7 @@ import java.util.Map;
 import ar.fiuba.jobify.ConversacionActivity;
 import ar.fiuba.jobify.PerfilActivity;
 import ar.fiuba.jobify.R;
+import ar.fiuba.jobify.UserListActivity;
 
 /**
  * Created by martín on 29/09/16.
@@ -490,6 +491,69 @@ public class Utils {
         };
         RequestQueueSingleton.getInstance(act)
                 .addToRequestQueue(request);
+    }
+
+    // De nuevo, código repetido de fin de curso, pero es bastante difícil no repetirlo.
+    // Usada específicamente para cargar imágenes en resultados de UserArrayAdapter
+    public static boolean cargarImagenDeURL(final Context ctx, final long id, final ImageView imageView,
+                                            final UserListActivity.UserArrayAdapter adapter) {
+        final String url = getAppServerUrl(ctx, id, ctx.getString(R.string.get_thumbnail_path));
+
+        ImageRequest request = new ImageRequest(url,
+                new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap bitmap) {
+                        bitmap = cropToSquare(bitmap);
+                        imageView.setImageBitmap(bitmap);
+                        imageView.setVisibility(View.VISIBLE);
+                        adapter.guardarImagen(id, bitmap);
+                    }
+                }, imageView.getWidth(), imageView.getHeight(),
+                ImageView.ScaleType.CENTER_INSIDE, null,
+
+                new Response.ErrorListener() {
+                    @SuppressWarnings("deprecation")
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse == null) {
+                            Log.w(LOG_TAG, "Error de response, no pude cargar la imagen." +
+                                    " (url: " + url + ")");
+                            return;
+                        }
+                        if (error.networkResponse.statusCode == ServerStatusCode.OK) {
+//                            Log.e(logTag, "Problema con la imagen. Re-request");//
+                            cargarImagenDeURL(ctx, id, imageView, adapter);
+                            return;
+                        }
+                        switch (error.networkResponse.statusCode) {
+                            case ServerStatusCode.NOTFOUND:
+                            case ServerStatusCode.OK_NOCONTENT:
+                                Log.w(LOG_TAG, "Imagen no existe");
+                                break;
+                            default:
+                                Log.w(LOG_TAG, "Error cargando imagen: " +
+                                        statusCodeString(error.networkResponse.statusCode));
+                        }
+
+                        @DrawableRes int drawableId = R.drawable.ic_person;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            imageView.setImageDrawable(ctx.getDrawable(drawableId));
+                        } else {
+                            imageView.setImageDrawable(ctx.getResources().getDrawable(drawableId));
+                        }
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                String token = getToken(ctx);
+                if (token != null)
+                    headers.put("Authorization", token);
+                return headers;
+            }
+        };
+        RequestQueueSingleton.getInstance(ctx)
+                .addToRequestQueue(request);
+        return true;
     }
 
 

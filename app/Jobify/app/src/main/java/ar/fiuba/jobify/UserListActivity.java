@@ -7,11 +7,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -34,9 +37,13 @@ import com.android.volley.VolleyError;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -70,7 +77,7 @@ public class UserListActivity extends NavDrawerActivity {
     public final static String BUSQUEDA_REQUEST_MESSAGE = package_name+"_BUSQUEDA_REQUEST_MESSAGE";
 
     private final static int DEFAULT_LIST_SIZE = 20;
-    private final static int PAGE_SIZE = 10;
+    private final static int PAGE_SIZE = 20;
     // Si busco más, crecer esta variable.
     private int mExpectedListSize = DEFAULT_LIST_SIZE;
 
@@ -459,7 +466,7 @@ public class UserListActivity extends NavDrawerActivity {
         }
         if (!forzarCarga && (pageNumber * PAGE_SIZE >= cantResultados)) {
             if (mEndlessScrollListener != null)
-                mEndlessScrollListener.desactivar();
+//                mEndlessScrollListener.desactivar();
             return false;
         }
 
@@ -502,7 +509,7 @@ public class UserListActivity extends NavDrawerActivity {
                             return;
                         }
 
-                        int cant = 0;
+                        int cant = PAGE_SIZE;
                         ResponseMetadata meta = busqResponse.getMetadata();
                         if (meta != null) {
                             long total = meta.getTotalCount();
@@ -511,10 +518,12 @@ public class UserListActivity extends NavDrawerActivity {
                             else {
                                 cant = Long.valueOf(meta.getCount()).intValue();
                                 if (cant == 0)
-                                    cant = Long.valueOf(total).intValue(); // Por si no se envía
+                                    // Por si no se envía el count en el metadata
+                                    cant = total < PAGE_SIZE ? Long.valueOf(total).intValue() : PAGE_SIZE;
                             }
                         } else
                             Log.e(LOG_TAG, "BusquedaResponse Metadata null!");
+
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
@@ -572,8 +581,9 @@ public class UserListActivity extends NavDrawerActivity {
     }
 
 
-    private class UserArrayAdapter extends ArrayAdapter<User> {
+    public class UserArrayAdapter extends ArrayAdapter<User> {
         Context ctx;
+        HashMap<Long, String> imagePaths = new HashMap<>();
 
         public UserArrayAdapter(Context context, List<User> userList) {
             super(UserListActivity.this, R.layout.user_list_item, userList);
@@ -597,10 +607,10 @@ public class UserListActivity extends NavDrawerActivity {
             User user = getItem(position);
             if (user != null) {
                 ImageView iv_thumbnail = (ImageView) itemView.findViewById(R.id.list_item_thumbnail);
-                TextView tv_nombre  = (TextView) itemView.findViewById(R.id.list_item_nombre);
+                TextView tv_nombre = (TextView) itemView.findViewById(R.id.list_item_nombre);
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.list_item_trabajo);
-                TextView tv_recom   = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
-                TextView tv_unread  = (TextView) itemView.findViewById(R.id.list_item_unread_messages);
+                TextView tv_recom = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
+                TextView tv_unread = (TextView) itemView.findViewById(R.id.list_item_unread_messages);
 
                 if (iv_thumbnail != null) {
                     // Limpio para recyclado
@@ -611,14 +621,15 @@ public class UserListActivity extends NavDrawerActivity {
                         iv_thumbnail.setImageDrawable(ctx.getResources().getDrawable(drawableId));
                     }
 
-                    Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
-                            .appendPath(getString(R.string.get_thumbnail_path))
-                            .appendPath(Long.toString(user.getId()))
-                            .build();
-                    final String url = builtUri.toString();
-
-                    Utils.cargarImagenDeURLenImageView(getContext(),
-                            iv_thumbnail, url, LOG_TAG, true);
+                    long idUser = user.getId();
+                    Bitmap bitmap = cargarBitmapDeImagenGuardada(idUser);
+                    if (bitmap != null) {
+//                        Log.d(LOG_TAG, "Cargué thumbnail desde archivo!");//
+                        iv_thumbnail.setImageBitmap(bitmap);
+                    } else {
+//                        Log.d(LOG_TAG, "Fetcheo thumbnail...");//
+                        Utils.cargarImagenDeURL(ctx, idUser, iv_thumbnail, this);
+                    }
                 }
 
                 if (tv_nombre != null)
@@ -636,7 +647,7 @@ public class UserListActivity extends NavDrawerActivity {
                             tv_unread.setVisibility(View.VISIBLE);
                         }
                     }
-                // Los demás casos
+                    // Los demás casos
                 } else {
                     if (tv_trabajo != null) {
                         tv_trabajo.setText(user.getCurrentJob());
@@ -654,6 +665,54 @@ public class UserListActivity extends NavDrawerActivity {
                 }
             }
             return itemView;
+        }
+
+
+        private Bitmap cargarBitmapDeImagenGuardada(long id) {
+            String imagePath = imagePaths.get(id);
+            if (imagePath == null)
+                return null;
+            File imgFile = new File(imagePath);
+            if (imgFile.exists())
+                return BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            return null;
+        }
+
+        @Nullable
+        public File guardarImagen(long id, Bitmap bitmap) {
+            bitmap = Utils.normalizarBitmap(bitmap);
+
+            boolean success = false;
+            File imageFile = null;
+            try {
+                imageFile = createImageFile(id);
+
+                FileOutputStream outStream = new FileOutputStream(imageFile);
+
+                // Pierdo calidad ;//
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outStream);
+
+                outStream.flush();
+                outStream.close();
+                success = true;
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                Log.e(LOG_TAG, "Error en guardado de thumbnail");
+            }
+
+            if (!success)
+                return null;
+
+            this.imagePaths.put(id, imageFile.getAbsolutePath());
+            return imageFile;
+        }
+
+        private File createImageFile(long id) throws IOException {
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            if (storageDir == null)
+                throw new IOException("getExternalFilesDir dio error");
+            return new File(storageDir, id + ".jpg");
         }
     }
 
@@ -675,10 +734,10 @@ public class UserListActivity extends NavDrawerActivity {
             this.activado = true;
             this.loading = true;
         }
-        public void desactivar() {
-            this.activado = false;
-            this.loading = false;
-        }
+//        public void desactivar() {
+//            this.activado = false;
+//            this.loading = false;
+//        }
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
@@ -694,8 +753,9 @@ public class UserListActivity extends NavDrawerActivity {
             }
             if (!loading && firstVisibleItem != 0
                     && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                if (cargarPageDeUsuarios(currentPage, false))
-                    loading = true;
+//                if (cargarPageDeUsuarios(currentPage, false))
+//                    loading = true;
+                cargarPageDeUsuarios(currentPage, false);
             }
         }
 
