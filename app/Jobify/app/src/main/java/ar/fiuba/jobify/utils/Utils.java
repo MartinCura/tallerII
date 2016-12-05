@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -81,6 +82,12 @@ public class Utils {
                 new Intent(callingActivity, ConversacionActivity.class)
                         .putExtra(ConversacionActivity.CORRESPONSAL_ID_MESSAGE, remitenteUserId)
         );
+    }
+
+    public static void limpiarNotificaciones(Context ctx) {
+        NotificationManager mNotificationManager =
+                (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancelAll();
     }
 
     /////////////////////////////////////////// FETCHER ////////////////////////////////////////////
@@ -223,13 +230,13 @@ public class Utils {
                 responseListener, logTag);
     }
 
-    public static void getJsonFromAppServer(Context context, String getPathSegment,
-                                            Response.Listener<JSONObject> responseListener,
-                                            final String logTag) {
-
-        getJsonFromUrl(context, getAppServerUrl(context, getPathSegment), null, responseListener,
-                logTag);
-    }
+//    public static void getJsonFromAppServer(Context context, String getPathSegment,
+//                                            Response.Listener<JSONObject> responseListener,
+//                                            final String logTag) {
+//
+//        getJsonFromUrl(context, getAppServerUrl(context, getPathSegment), null, responseListener,
+//                logTag);
+//    }
 
 //    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
 //                                            JSONObject jsonRequest,
@@ -413,7 +420,7 @@ public class Utils {
     }
 
     // TODO: esto es un malformado semiclon de la función de arriba;
-    // TODO: muy mala reutilización de código, pero hay que cambiar varias cosas para refactorizar.
+    // TODO: semi-fea reutilización de código, pero hay que cambiar varias cosas para refactorizar.
     // Asumo que si se le carga una imagen se la quiere ver, por lo que cambia visibilidad!
     public static void cargarImagenDeURLenImageView(final Activity act, final @IdRes int iv_id,
                                   final String url, final String logTag, final boolean squareCrop) {

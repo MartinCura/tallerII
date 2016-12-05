@@ -150,6 +150,7 @@ public class ConversacionActivity extends NavDrawerActivity {
         if (corresponsalID > 0) {
             cargarHeaderConversacion();
             cargarUltimosMensajes();
+            Utils.limpiarNotificaciones(this);
         }
     }
 
@@ -587,10 +588,10 @@ public class ConversacionActivity extends NavDrawerActivity {
             this.activado = true;
             this.loading = true;
         }
-        public void desactivar() {
-            this.activado = false;
-            this.loading = false;
-        }
+//        public void desactivar() {
+//            this.activado = false;
+//            this.loading = false;
+//        }
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,

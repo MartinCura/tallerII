@@ -359,6 +359,7 @@ public class UserListActivity extends NavDrawerActivity {
                                 if (user != null)
                                     agregarResultado(user);
                             }
+                            Utils.limpiarNotificaciones(ctx);
                         }
                     }
                 }, new Response.ErrorListener() {

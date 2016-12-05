@@ -105,17 +105,21 @@ public class JobifyChat extends FirebaseMessagingService {
                 if (!(ConversacionActivity.activityVisible && ConversacionActivity.corresponsalID == sender)) {
                     NotificationCompat.Builder mBuilder =
                             null;
+
+                    String mensaje = "";
                     try {
-                        mBuilder = new NotificationCompat.Builder(this)
-                                .setContentTitle("Nuevo mensaje")
-                                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-                                .setAutoCancel(true)
-                                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mensaje))
-                                .setSmallIcon(R.drawable.logo_v2_j_square)
-                                .setContentText(message.getJSONObject("mensaje").getString("message"));
+                        mensaje = message.getJSONObject("mensaje").getString("message");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
+                    mBuilder = new NotificationCompat.Builder(this)
+                            .setContentTitle("Nuevo mensaje")
+                            .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                            .setAutoCancel(true)
+                            .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mensaje))
+                            .setSmallIcon(R.drawable.logo_v2_j_square)
+                            .setContentText(mensaje);
 
                     //ConversacionActivity.
 
