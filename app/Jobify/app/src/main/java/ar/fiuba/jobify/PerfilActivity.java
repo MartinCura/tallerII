@@ -573,7 +573,6 @@ public class PerfilActivity extends NavDrawerActivity {
             });
         }
 
-
         Utils.setTextViewText(this, R.id.text_perfil_ciudad, mUser.getCity());
 
         long cantRecom = mUser.getCantRecomendaciones();
