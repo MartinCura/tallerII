@@ -14,7 +14,7 @@
     <dimen name="spacing_large">16dp</dimen>
     <dimen name="spacing_xlarge">32dp</dimen>
 
-    <dimen name="card_elevation_normal">3dp</dimen>
+    <dimen name="card_elevation_normal">4dp</dimen>
 
     <dimen name="elevation_low">9dp</dimen>
     <dimen name="elevation_high">12dp</dimen>

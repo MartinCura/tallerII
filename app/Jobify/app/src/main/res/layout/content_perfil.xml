@@ -547,6 +547,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/text_margin"
+                            android:layout_marginRight="4dp"
+                            android:layout_marginBottom="4dp"
                             android:layout_alignParentRight="true"
                             android:layout_below="@id/perfil_skills_new_title"
                             android:layout_gravity="end"

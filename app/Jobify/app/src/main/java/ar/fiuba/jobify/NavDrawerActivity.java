@@ -15,7 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -99,7 +99,7 @@ public class NavDrawerActivity extends AppCompatActivity
 
     private void setUpDrawerHeader() {
         // Misterio de la naturaleza
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.nav_drawer_header_layout);
+        RelativeLayout headerLayout = (RelativeLayout) findViewById(R.id.nav_drawer_header_layout);
         if (headerLayout != null) {
             headerLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
