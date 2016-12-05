@@ -75,7 +75,7 @@ DbBuilder::~DbBuilder() {
 }
 
 void DbBuilder::loadUsers() {
-    setLastId();
+   // setLastId();
     PersonManager *personManager = new PersonManager(this->db);
     SessionManager* sessionManager = new SessionManager(this->db);
     vector<Person*> fakePeople;
@@ -97,7 +97,7 @@ void DbBuilder::loadUsers() {
     for (int i = 1; i <= 15; i++) {
         try {
             Person* person = fakePeople[i - 1];
-            personManager->savePerson(person->serializeMe(), (long) i);
+            personManager->savePerson(person->serializeMe());
             string token = "tokenUser" + to_string(i);
             sessionManager->saveToken(token, person->getEmail());
         } catch (UserAlreadyExistsException &exception) {}

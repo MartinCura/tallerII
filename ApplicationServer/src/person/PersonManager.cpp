@@ -31,8 +31,14 @@ vector<string>* PersonManager::split(const std::string &s, char delim) {
     return elems;
 }
 long PersonManager::generateID() {
+
     std::string last_id;
-    db->getKey("lastID", &last_id);
+    if (!db->existsKey("lastID", &last_id)) {
+        std::string initial_id = std::to_string(1);
+        db->putKey("lastID", &initial_id);
+
+        return 1;
+    }
     std::string new_last_id = std::to_string(std::stol(last_id) + 1);
     db->putKey("lastID", &new_last_id);
     return std::stol(last_id) + 1;
