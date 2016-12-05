@@ -9,6 +9,7 @@ branches:
   only:
     - master
     - ApplicationServer
+    - PruebasDeBusqueda
 
 notifications:
     email: false
