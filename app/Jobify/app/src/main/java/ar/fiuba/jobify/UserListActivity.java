@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -145,7 +146,7 @@ public class UserListActivity extends NavDrawerActivity {
             Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!");
             return;
         }
-        mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
+        mUserArrayAdapter = new UserArrayAdapter(this, new ArrayList<User>());
         listView.setAdapter(mUserArrayAdapter);
 
         switch (mode) {
@@ -491,7 +492,6 @@ public class UserListActivity extends NavDrawerActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d(LOG_TAG, response.toString());//
-                        // TODO: Revisar
                         BusquedaResponse busqResponse = BusquedaResponse.parseJSON(response.toString());
 
                         if (busqResponse == null) {
@@ -522,10 +522,8 @@ public class UserListActivity extends NavDrawerActivity {
                             mostrarNoHayResultados();
 
                         } else {
-                            Log.d(LOG_TAG, "Resultados:");//
                             for (User user : busqResponse.getUsers()) {
                                 if (user != null) {
-                                    Log.d(LOG_TAG, user.toJson());//
                                     agregarResultado(user);
                                 }
                             }
@@ -575,11 +573,14 @@ public class UserListActivity extends NavDrawerActivity {
 
 
     private class UserArrayAdapter extends ArrayAdapter<User> {
+        Context ctx;
 
-        public UserArrayAdapter(List<User> userList) {
+        public UserArrayAdapter(Context context, List<User> userList) {
             super(UserListActivity.this, R.layout.user_list_item, userList);
+            this.ctx = context;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -602,6 +603,14 @@ public class UserListActivity extends NavDrawerActivity {
                 TextView tv_unread  = (TextView) itemView.findViewById(R.id.list_item_unread_messages);
 
                 if (iv_thumbnail != null) {
+                    // Limpio para recyclado
+                    @DrawableRes int drawableId = R.drawable.ic_refreshing;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        iv_thumbnail.setImageDrawable(ctx.getDrawable(drawableId));
+                    } else {
+                        iv_thumbnail.setImageDrawable(ctx.getResources().getDrawable(drawableId));
+                    }
+
                     Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
                             .appendPath(getString(R.string.get_thumbnail_path))
                             .appendPath(Long.toString(user.getId()))
