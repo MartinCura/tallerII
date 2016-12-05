@@ -2,143 +2,111 @@
 #include "DbBuilder.h"
 #include "../session/SessionManager.h"
 
+const char *JOB_POSITIONS_FILE = "{\n"
+        "    \"job_positions\":[\n"
+        "    {\n"
+        "        \"name\":\"Developer\",\n"
+        "        \"description\":\"Un desarrollador de software común y silvestre.\",\n"
+        "        \"category\":\"Programación\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"CEO\",\n"
+        "        \"description\":\"Ruler of the world, empezando por una empresa.\",\n"
+        "        \"category\":\"Management\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"Barista\",\n"
+        "        \"description\":\"Toco botones artísticamente.\",\n"
+        "        \"category\":\"Cafetería\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"Ninja\",\n"
+        "        \"description\":\"Puede resolver toto tipo de problemas técnicos en una organización\",\n"
+        "        \"category\":\"Programación\"\n"
+        "    }\n"
+        "]\n"
+        "}";
+
+const char *SKILLS_FILE = "{\n"
+        "    \"skills\":[\n"
+        "    {\n"
+        "        \"name\":\"Café\",\n"
+        "        \"description\":\"Habilidad para apretar el botón de la máquina de café sin le que tiemble el pulso.\",\n"
+        "        \"category\":\"Cafetería\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"Liderazgo\",\n"
+        "        \"description\":\"Superpotencia mundial en hacer que los demás hagan lo que desee.\",\n"
+        "        \"category\":\"Management\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"PHP\",\n"
+        "        \"description\":\"Conocimiento novato del lenguaje PHP.\",\n"
+        "        \"category\":\"Programación\"\n"
+        "    },\n"
+        "    {\n"
+        "        \"name\":\"JavaScript avanzado\",\n"
+        "        \"description\":\"Conocimiento avanzado de lenguaje JavaScript.\",\n"
+        "        \"category\":\"Programación\"\n"
+        "    }\n"
+        "]\n"
+        "}";
 
 DbBuilder::DbBuilder() {
     this->namedb = new string(Config::getInstance()->get(Config::NAME_DB));
     db = DBWrapper::openDb(namedb);
+    this->loadAvailableJobPositions();
+    this->loadAvailableSkills();
 }
 
 DbBuilder::~DbBuilder() {
     DBWrapper::ResetInstance();
     delete namedb;
-}
 
-void DbBuilder::setLastId(){
-    std::string last_id = std::to_string(3);
-    db->putKey("lastID", &last_id);
+    long sizePos = this->jobPositions.size();
+    for (int i = 0; i != sizePos; i++) {
+        this->jobPositions.pop_back();
+    }
+
+    long sizeSkills = this->skills.size();
+    for (int i = 0; i != sizeSkills; i++) {
+        this->skills.pop_back();
+    }
 }
 
 void DbBuilder::loadUsers() {
     setLastId();
     PersonManager *personManager = new PersonManager(this->db);
     SessionManager* sessionManager = new SessionManager(this->db);
-    RecommendationsManager* recommendationsManager = new RecommendationsManager(this->db);
-    try {
-        Person* person1 = this->getFakePerson1();
-        personManager->savePerson(person1->serializeMe(), (long) 1);
-        sessionManager->saveToken("tokenUser1", person1->getEmail());
-        delete person1;
-    } catch (UserAlreadyExistsException &exception) {}
-    try {
-        Person* person2 = this->getFakePerson2();
-        personManager->savePerson(person2->serializeMe(), (long) 2);
-        sessionManager->saveToken("tokenUser2", person2->getEmail());
-        delete person2;
-    } catch (UserAlreadyExistsException &exception) {}
-    try {
-        Person* person3 = this->getFakePerson3();
-        personManager->savePerson(person3->serializeMe(), (long) 3);
-        sessionManager->saveToken("tokenUser3", person3->getEmail());
-        delete person3;
-    } catch (UserAlreadyExistsException &exception) {}
-/*
-    std::vector<std::string> NOMBRES = { "John", "Jane", "Carlos", "Gabriela", "Carolina",
-        "Sofía", "Bárbara", "Joseph", "Robert", "Pablo", "Antonio", "Carlos",
-        "Susana", "Paula", "José", "Tomás", "Silvana", "Yésica", "Lucas", "Gerualdo",
-        "Héctor", "Viviana", "Calónico", "Fabián", "Roberta", "Mariano", "Mariana",
-        "Rulo", "Eduardo", "José", "Luis", "Octavio", "Guido", "Manuel", "Marcos",
-        "Emanuel", "Humberto", "Gustavo", "Federico", "Osvaldo", "Santiago", "Zancho",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín",
-        "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín", "Martín" };
-
-    std::vector<std::string> APELLIDOS = {"Doe", "Doe", "Rodríguez", "Saffioti", "Farotto",
-        "López", "Fernández", "Stevenson", "Pérez", "Maradona", "Robertson", "Simpson",
-        "Leela", "Farnsworth", "Argento", "Mercuri", "Fortunatti", "García", "Fernández",
-        "Rodríguez", "Sánchez", "González", "Signorelli", "Gambrazza", "Balbiani", "Pérez",
-        "Zambrano", "Más", "Messi", "Ronaldo", "Turing", "Mandela", "Elqep", "Sanguinetti",
-        "Romualdo", "Hernández", "Escobar", "Andrada", "Pecone", "Goldsmith", "Cabibbe",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez",
-        "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez", "Martínez" };
-
-    vector<long> users_id;
-    vector<Skill*> skills_disponibles = getSkillsDisponibles();
-    vector<WorkHistory*> trabajos_disponibles = getTrabajosDisponibles();
-    for (int i = 0; i < 100; i++) {
-        Person* user = new Person();
-        user->setId(0);
-        user->setCity("Ciudad " + std::to_string(rand() % 5));
-        user->setDateOfBirth(std::to_string(rand() % 30 + 1) + "/" + std::to_string(rand() % 12 + 1) + "/1993");
-        user->setEmail(NOMBRES[i] + APELLIDOS[i % 100] + "@gmail.com");
-        user->setLastName(APELLIDOS[i % 100]);
-        user->setFirstName(NOMBRES[i % 100]);
-        user->setSummary("Yo ser bueno en hacer cosas... muy!");
-        float x = -180.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(180.0 + 180.0)));
-        float y =  -180.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(180.0 + 180.0)));
-        user->setLocation(x, y);
-        user->setPassword("usuarioFalso" + std::to_string(i + 1));
-        int has_n_skills = rand() % 3;
-        int has_n_jobs = rand() % 3;
-        for (int j = 0; j < has_n_skills; j++) {
-            user->addSkill(skills_disponibles[rand() % skills_disponibles.size()]);
-        }
-        for (int h = 0; h < has_n_jobs; h++) {
-            user->addWorkHistory(trabajos_disponibles[rand() % trabajos_disponibles.size()]);
-        }
-        user->setTotalRecommendations(rand() % 10);
-
+    vector<Person*> fakePeople;
+    fakePeople.push_back(this->getFakePerson1());
+    fakePeople.push_back(this->getFakePerson2());
+    fakePeople.push_back(this->getFakePerson3());
+    fakePeople.push_back(this->getFakePerson4());
+    fakePeople.push_back(this->getFakePerson5());
+    fakePeople.push_back(this->getFakePerson6());
+    fakePeople.push_back(this->getFakePerson7());
+    fakePeople.push_back(this->getFakePerson8());
+    fakePeople.push_back(this->getFakePerson9());
+    fakePeople.push_back(this->getFakePerson10());
+    fakePeople.push_back(this->getFakePerson11());
+    fakePeople.push_back(this->getFakePerson12());
+    fakePeople.push_back(this->getFakePerson13());
+    fakePeople.push_back(this->getFakePerson14());
+    fakePeople.push_back(this->getFakePerson15());
+    for (int i = 1; i <= 15; i++) {
         try {
-            long user_id = personManager->savePerson(user->serializeMe());
-            users_id.push_back(user_id);
-            delete(user);
-        } catch (UserAlreadyExistsException& exception1) {}
-
+            Person* person = fakePeople[i - 1];
+            personManager->savePerson(person->serializeMe(), (long) i);
+            string token = "tokenUser" + to_string(i);
+            sessionManager->saveToken(token, person->getEmail());
+        } catch (UserAlreadyExistsException &exception) {}
     }
-
-    //Simulación de recomendación entre usuarios.
-    if (users_id.size() != 0) {
-        for (int k = 0; k < 200; k++) {
-            long from_id = users_id[rand() % users_id.size()];
-            long to_id = users_id[rand() % users_id.size()];
-            while (to_id == from_id) {
-                to_id = users_id[rand() % users_id.size()];
-            }
-            recommendationsManager->addRecommendation(from_id, to_id);
-        }
+    long size = fakePeople.size();
+    for (int i = 0; i != size; i++) {
+        fakePeople.pop_back();
     }
-
-
-    std::vector<Skill*>::iterator it1 = skills_disponibles.begin();
-    while (it1 != skills_disponibles.end()) {
-        delete (*it1);
-        it1 ++;
-    }
-
-    std::vector<WorkHistory*>::iterator it2 = trabajos_disponibles.begin();
-    while (it2 != trabajos_disponibles.end()) {
-        delete (*it2);
-        it2 ++;
-    }
-    */
-    delete personManager;
-    delete recommendationsManager;
-    delete sessionManager;
 }
-
-
 
 Person* DbBuilder::getFakePerson1() {
     Person* person = new Person();
@@ -151,33 +119,10 @@ Person* DbBuilder::getFakePerson1() {
     person->setCity("Buenos Aires");
     person->setSummary("Hi, this is John Doe");
     person->setLocation(-58.368368, -34.617589);
-
-    WorkHistory* workHistory1 = new WorkHistory();
-    workHistory1->setCompany("IBM");
-    workHistory1->setPositionTitle("JavaScript Developer");
-    workHistory1->setFromDate("10/2012");
-    workHistory1->setToDate("11/2014");
-    person->addWorkHistory(workHistory1);
-
-    WorkHistory* workHistory2 = new WorkHistory();
-    workHistory2->setCompany("Amazon");
-    workHistory2->setPositionTitle("Project Manager");
-    workHistory2->setFromDate("12/2014");
-    workHistory2->setToDate("");
-    person->addWorkHistory(workHistory2);
-
-    Skill* skill1 = new Skill();
-    skill1->setName("JavaScript");
-    skill1->setDescription("JavaScript programming language");
-    skill1->setCategory("software");
-    person->addSkill(skill1);
-
-    Skill* skill2 = new Skill();
-    skill2->setName("PM");
-    skill2->setDescription("Project Management");
-    skill2->setCategory("management");
-    person->addSkill(skill2);
-
+    person->addWorkHistory(this->getWorkHistory(0, "IBM", "10/2012", "11/2014"));
+    person->addWorkHistory(this->getWorkHistory(1, "Amazon", "12/2014", ""));
+    person->addSkill(this->getSkill(0));
+    person->addSkill(this->getSkill(1));
     return person;
 }
 
@@ -192,33 +137,10 @@ Person* DbBuilder::getFakePerson2() {
     person->setCity("Madrid");
     person->setSummary("Hi, this is Jane Doe");
     person->setLocation(-58.368368, -34.617589);
-
-    WorkHistory* workHistory1 = new WorkHistory();
-    workHistory1->setCompany("Microsoft");
-    workHistory1->setPositionTitle("QA");
-    workHistory1->setFromDate("10/2013");
-    workHistory1->setToDate("11/2015");
-    person->addWorkHistory(workHistory1);
-
-    WorkHistory* workHistory2 = new WorkHistory();
-    workHistory2->setCompany("E-bay");
-    workHistory2->setPositionTitle("PHP Developer");
-    workHistory2->setFromDate("12/2015");
-    workHistory2->setToDate("");
-    person->addWorkHistory(workHistory2);
-
-    Skill* skill1 = new Skill();
-    skill1->setName("Php");
-    skill1->setDescription("PHP programming language");
-    skill1->setCategory("software");
-    person->addSkill(skill1);
-
-    Skill* skill2 = new Skill();
-    skill2->setName("QA");
-    skill2->setDescription("Software Quality Assurance");
-    skill2->setCategory("software");
-    person->addSkill(skill2);
-
+    person->addWorkHistory(this->getWorkHistory(2, "Microsoft", "10/2013", "11/2015"));
+    person->addWorkHistory(this->getWorkHistory(3, "E-bay", "12/2015", ""));
+    person->addSkill(this->getSkill(2));
+    person->addSkill(this->getSkill(3));
     return person;
 }
 
@@ -233,67 +155,262 @@ Person* DbBuilder::getFakePerson3() {
     person->setCity("CABA");
     person->setSummary("Hola, soy Carlos Rodriguez");
     person->setLocation(-58.368368, -34.617589);
+    person->addWorkHistory(this->getWorkHistory(2, "Microsoft", "10/2012", "11/2014"));
+    person->addSkill(this->getSkill(2));
+    return person;
+}
 
-    WorkHistory* workHistory1 = new WorkHistory();
-    workHistory1->setCompany("QA");
-    workHistory1->setPositionTitle("Microsoft");
-    workHistory1->setFromDate("10/2012");
-    workHistory1->setToDate("11/2014");
-    person->addWorkHistory(workHistory1);
+Person* DbBuilder::getFakePerson4() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Marty");
+    person->setLastName("McFly");
+    person->setEmail("marty@mcfly.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("06/09/1968");
+    person->setCity("Hill Valley, California");
+    person->setSummary("Mi gran habilidad es viajar por el tiempo.");
+    person->setLocation(-58.368370, -34.617500);
+    person->addWorkHistory(this->getWorkHistory(0, "IBM", "10/2012", "11/2014"));
+    person->addWorkHistory(this->getWorkHistory(1, "Amazon", "12/2014", ""));
+    person->addSkill(this->getSkill(1));
+    person->addSkill(this->getSkill(2));
+    return person;
+}
 
-    Skill* skill1 = new Skill();
-    skill1->setName("JavaScript");
-    skill1->setDescription("JavaScript programming language");
-    skill1->setCategory("software");
-    person->addSkill(skill1);
+Person* DbBuilder::getFakePerson5() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Tony");
+    person->setLastName("Stark");
+    person->setEmail("tony@stark.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("01/01/1970");
+    person->setCity("Manhattan");
+    person->setSummary("Mi hobbie es salvar al mundo.");
+    person->setLocation(-58.368368, -34.617589);
+
+    person->addWorkHistory(this->getWorkHistory(2, "Microsoft", "10/2012", "11/2014"));
+    person->addSkill(this->getSkill(2));
 
     return person;
 }
 
-void DbBuilder::saveToken(string token, string user_mail) {
-    std::string token_string, token2_string;
-    time_t creation_time;
-    Json::Value jtoken, jtoken2;
-    Json::FastWriter fastWriter;
-    char buff[20];
-
-    creation_time = time(NULL);
-    strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&creation_time));
-    std::string now  = std::string(buff);
-
-    jtoken["user_token"] = token;
-    jtoken["last_used"] = now;
-
-    token_string = fastWriter.write(jtoken);
-
-    jtoken2["user_mail"] = user_mail;
-    jtoken2["last_used"] = now;
-
-    token2_string = fastWriter.write(jtoken2);
-
-    this->db->putKey("user:token_" + user_mail, &token_string);
-    this->db->putKey("user:token_" + token, &token2_string);
+Person* DbBuilder::getFakePerson6() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Madonna");
+    person->setLastName("Ciccone");
+    person->setEmail("madonna@ciccone.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("16/08/1958");
+    person->setCity("Michigan");
+    person->setSummary("soy la reina del pop.");
+    person->setLocation(-58.368468, -34.627589);
+    person->addWorkHistory(this->getWorkHistory(0, "Sony", "10/1970", ""));
+    person->addSkill(this->getSkill(0));
+    return person;
 }
 
-vector<Skill *> DbBuilder::getSkillsDisponibles() {
-    std::vector<std::string> SKILLS = { "Café", "Café", "Liderazgo", "PHP", "JavaScript avanzado" };
-    vector<Skill*> skills_disponibles;
-    for (int i = 0; i < 50; i++) {
-        Skill* skill = new Skill();
-        skill->setName(SKILLS[i % SKILLS.size()]);
-        skills_disponibles.push_back(skill);
-    }
-
-    return skills_disponibles;
+Person* DbBuilder::getFakePerson7() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Lionel");
+    person->setLastName("Messi");
+    person->setEmail("lionel@messi.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("24/06/1987");
+    person->setCity("Barcelona");
+    person->setSummary("Me gusta mucho jugar al futbol.");
+    person->setLocation(-58.368468, -31.627529);
+    person->addWorkHistory(this->getWorkHistory(1, "Barcelona FC", "10/2000", ""));
+    person->addSkill(this->getSkill(1));
+    person->addSkill(this->getSkill(2));
+    return person;
 }
 
-vector<WorkHistory *> DbBuilder::getTrabajosDisponibles() {
-    std::vector<std::string> POSITIONS = { "Developer", "CEO", "Barista", "Ninja" };
-    vector<WorkHistory*> trabajos_disponibles;
-    for (int i = 0; i < 10; i++) {
-        WorkHistory* workHistory = new WorkHistory();
-        workHistory->setPositionTitle(POSITIONS[i % POSITIONS.size()]);
-        trabajos_disponibles.push_back(workHistory);
+Person* DbBuilder::getFakePerson8() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Jack");
+    person->setLastName("Sparrow");
+    person->setEmail("jack@sparrow.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("24/06/1980");
+    person->setCity("Caribe");
+    person->setSummary("Soy un gran pirata.");
+    person->setLocation(-57.368468, -31.627529);
+    person->addWorkHistory(this->getWorkHistory(1, "La Perla Negra", "10/2000", ""));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson9() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Maria");
+    person->setLastName("Sanchez");
+    person->setEmail("maria@sanchez.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("04/06/1975");
+    person->setCity("Los Angeles");
+    person->setSummary("Hola, soy Maria Sanchez");
+    person->setLocation(-57.368468, -21.617529);
+    person->addWorkHistory(this->getWorkHistory(0, "Microsoft", "10/2000", "10/2014"));
+    person->addWorkHistory(this->getWorkHistory(3, "IBM", "11/2014", ""));
+    person->addSkill(this->getSkill(2));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson10() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Antonella");
+    person->setLastName("Roccuzzo");
+    person->setEmail("antonella@roccuzzo.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("26/02/1988");
+    person->setCity("Barcelona");
+    person->setSummary("Hola, soy la novia de Messi.");
+    person->setLocation(-57.348478, -21.617529);
+    person->addWorkHistory(this->getWorkHistory(3, "Barcelona FC", "10/2000", ""));
+    person->addSkill(this->getSkill(0));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson11() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Luke");
+    person->setLastName("Skywalker");
+    person->setEmail("luke@skywalker.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("26/02/1968");
+    person->setCity("Tatooine");
+    person->setSummary("Soy Luke Skywalker, mejor conocido como el hijo de Darth Vader.");
+    person->setLocation(-55.348478, -11.617529);
+    person->addWorkHistory(this->getWorkHistory(2, "Granjero", "09/1969", "09/1070"));
+    person->addWorkHistory(this->getWorkHistory(1, "La Rebelion", "10/1070", ""));
+    person->addSkill(this->getSkill(0));
+    person->addSkill(this->getSkill(1));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson12() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Britney");
+    person->setLastName("Spears");
+    person->setEmail("britney@spears.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("01/12/1981");
+    person->setCity("Mississippi");
+    person->setSummary("Ups, I did it again.");
+    person->setLocation(-55.348478, -11.617529);
+    person->addWorkHistory(this->getWorkHistory(2, "Sony", "01/1992", ""));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson13() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Evan");
+    person->setLastName("Baxter");
+    person->setEmail("evan@baxter.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("22/07/2007");
+    person->setCity("Manhattan");
+    person->setSummary("Soy un presentador de noticias.");
+    person->setLocation(-57.348478, -11.617529);
+    person->addWorkHistory(this->getWorkHistory(3, "7 News", "01/1992", ""));
+    person->addSkill(this->getSkill(1));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson14() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Michael");
+    person->setLastName("Jordan");
+    person->setEmail("michael@jordan.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("17/02/1963");
+    person->setCity("Brooklyn");
+    person->setSummary("Me gusta mucho jugar al basket.");
+    person->setLocation(-57.348378, -11.617529);
+    person->addWorkHistory(this->getWorkHistory(0, "Starbucks", "01/1992", "01/1994"));
+    person->addWorkHistory(this->getWorkHistory(1, "NBA", "02/1994", ""));
+    person->addSkill(this->getSkill(1));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
+Person* DbBuilder::getFakePerson15() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("Harry");
+    person->setLastName("Potter");
+    person->setEmail("harry@potter.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("17/12/1990");
+    person->setCity("Hogwarts");
+    person->setSummary("Soy un gran mago.");
+    person->setLocation(-55.348378, -11.627529);
+    person->addWorkHistory(this->getWorkHistory(0, "Starbucks", "01/1992", "01/1994"));
+    person->addWorkHistory(this->getWorkHistory(1, "Wendys", "01/1995", "01/1999"));
+    person->addWorkHistory(this->getWorkHistory(2, "Hogwarts", "02/2000", ""));
+    person->addSkill(this->getSkill(1));
+    person->addSkill(this->getSkill(2));
+    return person;
+}
+
+WorkHistory* DbBuilder::getWorkHistory(int jobPositionIndex, string company, string fromDate, string toDate) {
+    WorkHistory* workHistory = new WorkHistory();
+    workHistory->setCompany(company);
+    workHistory->setPositionTitle(this->jobPositions[jobPositionIndex]);
+    workHistory->setFromDate(fromDate);
+    workHistory->setToDate(toDate);
+    return workHistory;
+}
+
+Skill* DbBuilder::getSkill(int skillIndex) {
+    Skill* skill = new Skill();
+    skill->setName(this->skills[skillIndex]->getName());
+    skill->setDescription(this->skills[skillIndex]->getDescription());
+    skill->setCategory(this->skills[skillIndex]->getCategory());
+    return skill;
+}
+
+void DbBuilder::loadAvailableJobPositions() {
+    string jobPositionsAsString = JOB_POSITIONS_FILE;
+    Json::Value jobPositionsAsArray = this->parseFile(jobPositionsAsString)["job_positions"];
+    for (int index = 0; index < jobPositionsAsArray.size(); index++) {
+        this->jobPositions.push_back(jobPositionsAsArray[index]["name"].asString());
     }
-    return trabajos_disponibles;
+}
+
+void DbBuilder::loadAvailableSkills() {
+    string skillsAsString = SKILLS_FILE;
+    Json::Value skillsAsArray = this->parseFile(skillsAsString)["skills"];
+    for (int index = 0; index < skillsAsArray.size(); index++) {
+        Skill* skill = new Skill(skillsAsArray[index]);
+        this->skills.push_back(skill);
+    }
+}
+
+void DbBuilder::setLastId(){
+    std::string last_id = std::to_string(3);
+    db->putKey("lastID", &last_id);
+}
+
+Json::Value DbBuilder::parseFile(string fileContent) {
+    Json::Value root;
+    Json::Reader reader;
+    bool parsingSuccessful = reader.parse(fileContent, root);
+    if (!parsingSuccessful) {
+        throw "Invalid Config file.";
+    }
+    return root;
 }

@@ -188,7 +188,8 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
         user_minInformation["first_name"] = (*result)[i]->getFirstName();
         user_minInformation["last_name"] = (*result)[i]->getLastName();
         user_minInformation["id"] = (*result)[i]->getId();
-        user_minInformation["current_job"] = ((*result)[i]->getCurrentJob() == nullptr) ? "":(*result)[i]->getCurrentJob()->serializeMe();
+        if ((*result)[i]->getCurrentJob() != nullptr)
+            user_minInformation["current_job"] = (*result)[i]->getCurrentJob()->serializeMe();
         user_minInformation["tot_recommendations"] = (*result)[i]->getTotalOfRecommendations();
         user_minInformation["mail"] = (*result)[i]->getEmail();
         //user_minInformation["picture]
