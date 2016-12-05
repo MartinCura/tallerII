@@ -7,6 +7,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +28,7 @@ public class Message {
             to = 0;
     String message = "",
          timestamp = TIMESTAMP_FORMAT;
+    State state;
 
 
     public Message(long from, long to, String mensaje) {
@@ -80,6 +82,33 @@ public class Message {
 
     public enum Autoria {
         AJENO, PROPIO
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public enum State {
+
+        @SerializedName("sent")
+        SENT (0),
+
+        @SerializedName("received")
+        RECEIVED (1),
+
+        @SerializedName("read")
+        READ (2);
+
+        private final int value;
+
+        State(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
     }
 
     public String toJson() {

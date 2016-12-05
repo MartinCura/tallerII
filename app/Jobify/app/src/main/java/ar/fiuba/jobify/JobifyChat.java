@@ -89,17 +89,26 @@ public class JobifyChat extends FirebaseMessagingService {
                 }
 
                 if (!(ConversacionActivity.activityVisible && ConversacionActivity.corresponsalID == receiver)) {
+                Log.d("idlog", "id conversación:" + ConversacionActivity.corresponsalID );
+                Log.d("idlog", "id del sender" + sender);
+
                     NotificationCompat.Builder mBuilder =
                             null;
+
+                    String mensaje = "";
                     try {
-                        mBuilder = new NotificationCompat.Builder(this)
-                                .setContentTitle("Notificación")
-                                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-                                .setAutoCancel(true)
-                                .setContentText(message.getJSONObject("mensaje").getString("message"));
+                        mensaje = message.getJSONObject("mensaje").getString("message");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
+                    mBuilder = new NotificationCompat.Builder(this)
+                            .setContentTitle("Nuevo mensaje")
+                            .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                            .setAutoCancel(true)
+                            .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mensaje))
+                            .setSmallIcon(R.drawable.logo_v2_j_square)
+                            .setContentText(mensaje);
 
                     //ConversacionActivity.
 
@@ -122,11 +131,13 @@ public class JobifyChat extends FirebaseMessagingService {
                     mNotificationManager.notify(r.nextInt(1000000000), mBuilder.build());
 
                 }
-                // notify chat
-                try {
-                    EventBus.getDefault().post(new MessageEvent(message.getJSONObject("mensaje")));
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if (ConversacionActivity.corresponsalID == sender) {
+                    // notify chat
+                    try {
+                        EventBus.getDefault().post(new MessageEvent(message.getJSONObject("mensaje")));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             // if this is a notification:

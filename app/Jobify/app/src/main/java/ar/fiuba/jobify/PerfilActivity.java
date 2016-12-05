@@ -150,6 +150,7 @@ public class PerfilActivity extends NavDrawerActivity {
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         onCreateDrawer(R.id.perfil_toolbar, R.id.perfil_drawer_layout, R.id.perfil_nav_view);
+        displayItemAsSelected(-1);
     }
 
     @SuppressWarnings("deprecation")
@@ -520,6 +521,14 @@ public class PerfilActivity extends NavDrawerActivity {
                             fetchedUser = mUser;
                             fillProfile(mUser);
 
+                            if (fetchedUserID == connectedUserID) {
+                                SharedPreferences.Editor editor =
+                                        getSharedPreferences(getString(R.string.shared_pref_connected_user), 0)
+                                                .edit();
+                                editor.putString(getString(R.string.stored_connected_user_fullname), mUser.getFullName());
+                                editor.apply();
+                            }
+
                         } else {
                             Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el perfil");
                         }
@@ -529,21 +538,6 @@ public class PerfilActivity extends NavDrawerActivity {
 
 
     public void cargarFotoDePerfil(final long idFetched) {
-
-        // De muy poco uso
-//        if (mCurrentPhotoPath != null) {
-//            ImageView imageView = (ImageView) findViewById(R.id.perfil_image);
-//            if (imageView != null) {
-//                try {
-//                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mPhotoURI);
-//                    imageView.setImageBitmap(imageBitmap);
-//                    return;
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                    Log.e(LOG_TAG, "Error en cargado de imagen de perfil");
-//                }
-//            }
-//        }
 
         Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
                 .appendPath(getString(R.string.get_photo_path))
@@ -561,6 +555,7 @@ public class PerfilActivity extends NavDrawerActivity {
         Utils.showView(this, R.id.perfil_information_layout);
 
         mCollapsingToolbarLayout.setTitle(mUser.getFullName());
+                    composeEmail(userFullName, userEmail);
 
         Utils.setTextViewText(this, R.id.text_perfil_mail, mUser.getEmail());
         Utils.setTextViewText(this, R.id.text_perfil_ciudad, mUser.getCity());
@@ -588,6 +583,20 @@ public class PerfilActivity extends NavDrawerActivity {
         PerfilUtils.colorearBotonRecomendar(this, mUser.fueRecomendadoPor(connectedUserID));
     }
 
+    public void composeEmail(String nombreDestinatario, String emailDestinatario) {
+        String destinatarios[] = { emailDestinatario };
+        String chooserTitle = "Enviar correo electrónico a " + nombreDestinatario;
+        String mailFooter = nombreDestinatario + ",\n\n\n\n\n\n\nTe encontré mediante Jobify!";
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, destinatarios);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, mailFooter);
+
+        if (emailIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity( Intent.createChooser(emailIntent, chooserTitle) );
+        }
+    }
 
     public void updateProfileInformation() {
 
@@ -665,7 +674,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
             if (requestCode == PerfilUtils.REQUEST_TAKE_PHOTO) {
                 imageFile = new File(mCurrentPhotoPath);
-                Log.d(LOG_TAG, "Absolute path al sacar una foto: "+mCurrentPhotoPath);
+                Log.d(LOG_TAG, "Absolute path al sacar una foto: "+mCurrentPhotoPath);//
 
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mPhotoURI);
@@ -855,6 +864,13 @@ public class PerfilActivity extends NavDrawerActivity {
                 });
     }
 
+
+    @Override
+    protected void iniciarPerfilPropio() {
+        if (fetchedUserID == connectedUserID)
+            return;
+        super.iniciarPerfilPropio();
+    }
 
     public void irAConversacion(View v) {
         Utils.iniciarConversacionActivity(this, fetchedUserID);

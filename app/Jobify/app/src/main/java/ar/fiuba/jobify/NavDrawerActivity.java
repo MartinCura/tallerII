@@ -15,8 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -97,7 +96,7 @@ public class NavDrawerActivity extends AppCompatActivity
 
     private void setUpDrawerHeader() {
         // Misterio de la naturaleza
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.nav_drawer_header_layout);
+        RelativeLayout headerLayout = (RelativeLayout) findViewById(R.id.nav_drawer_header_layout);
         if (headerLayout != null) {
             headerLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -119,35 +118,44 @@ public class NavDrawerActivity extends AppCompatActivity
     }
 
     public void setUpDrawerHeaderUser() {
-        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), connectedUserID,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        User mUser = User.parseJSON(response.toString());
-                        if (mUser != null) {
-                            fillDrawerHeaderText(mUser);
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        String storedEmail = sharedPref.getString(getString(R.string.stored_connected_user_email), "");
+        String storedFullName = sharedPref.getString(getString(R.string.stored_connected_user_fullname), "");
+        if (storedEmail.isEmpty() || storedFullName.isEmpty()
+                || findViewById(R.id.nav_drawer_user_nombre) == null
+                || findViewById(R.id.nav_drawer_user_mail) == null) {
+            // Hay algo en el flujo que hace que el header drawer NO se cargue hasta después.
+            // En este caso, voy a hacer que se busquen solamente para que pase el tiempo necesario
+            // y ya estén utilizables los TextView a completar.
+            Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), connectedUserID,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            User mUser = User.parseJSON(response.toString());
+                            if (mUser != null) {
+                                fillDrawerHeaderText(mUser.getFullName(), mUser.getEmail());
 
-                        } else {
-                            Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el header del ND");
+                            } else {
+                                Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el header del ND");
+                            }
                         }
-                    }
-                }, LOG_TAG);
-
+                    }, LOG_TAG);
+        } else {
+            fillDrawerHeaderText(storedFullName, storedEmail);
+        }
         String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_thumbnail_path));
-        ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
-
-        if (iv_thumbnail != null)
-            Utils.cargarImagenDeURLenImageView(this, iv_thumbnail, urlGetThumbnail, LOG_TAG, true);
+        Utils.cargarImagenDeURLenImageView(this, R.id.nav_drawer_user_thumbnail, urlGetThumbnail,
+                LOG_TAG, true);
     }
 
-    private void fillDrawerHeaderText(User user) {
+    private void fillDrawerHeaderText(String fullName, String email) {
         TextView tv_nombre = (TextView) findViewById(R.id.nav_drawer_user_nombre);
         if (tv_nombre != null)
-            tv_nombre.setText(user.getFullName());
+            tv_nombre.setText(fullName);
 
         TextView tv_mail = (TextView) findViewById(R.id.nav_drawer_user_mail);
         if (tv_mail != null)
-            tv_mail.setText(user.getEmail());
+            tv_mail.setText(email);
     }
 
     @Override
@@ -186,6 +194,7 @@ public class NavDrawerActivity extends AppCompatActivity
     public void setUpNavigationMenu(NavigationView navView) {
         final Menu navMenu = navView.getMenu();
         final MenuItem solicitudesItem = navMenu.findItem(R.id.nav_solicitudes);
+        // Si fue quitado, lo vuelvo a agregar // No se usa más
         final MenuItem conversacionesItem = navMenu.findItem(R.id.nav_conversaciones);
 
         String urlContactos = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_contacts_path));
@@ -242,6 +251,20 @@ public class NavDrawerActivity extends AppCompatActivity
                 }, LOG_TAG);
     }
 
+    protected void displayItemAsSelected(int itemId) {
+        if (navView != null) {
+            for (int i = 0; i < navView.getMenu().size(); ++i) {
+                MenuItem item = navView.getMenu().getItem(i);
+                if (item.getItemId() == itemId)
+                    item.setCheckable(true).setChecked(true);
+                else
+                    item.setChecked(false);
+            }
+        } else {
+            Log.e(LOG_TAG, "Nav View no encontrado para marcar selección");
+        }
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -260,39 +283,25 @@ public class NavDrawerActivity extends AppCompatActivity
         } else if (id == R.id.nav_solicitudes) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
-            startActivity(
-                    new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
-                                      UserListActivity.MODE_SOLICITUDES)
-            );
+            iniciarSolicitudes();
             return false;
 
         } else if (id == R.id.nav_most_popular) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
-            startActivity(
-                    new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
-                                      UserListActivity.MODE_MOST_POPULAR)
-            );
+            iniciarMasPopulares();
             return false;
 
         } else if (id == R.id.nav_busqueda) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
-            startActivity(
-                    new Intent(this, BusquedaActivity.class)
-            );
+            iniciarBusqueda();
             return false;
 
         } else if (id == R.id.nav_conversaciones) {
             if (drawer != null)
                 drawer.closeDrawer(GravityCompat.START);
-            startActivity(
-                    new Intent(this, UserListActivity.class)
-                            .putExtra(UserListActivity.LIST_MODE_MESSAGE,
-                                      UserListActivity.MODE_CONVERSACIONES)
-            );
+            iniciarConversaciones();
             return false;
 
         } else if (id == R.id.nav_logout) {
@@ -310,6 +319,51 @@ public class NavDrawerActivity extends AppCompatActivity
 
         return true;
     }
+
+    public void irAPerfilPropio(View v) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
+        if (drawer != null)
+            drawer.closeDrawer(GravityCompat.START);
+        iniciarPerfilPropio();
+    }
+
+    /////// Métodos para ir a cierta sección. Overridearlas para evitar o cambiar el comportamiento.
+
+    protected void iniciarPerfilPropio() {
+        Utils.iniciarPerfilActivity(this, connectedUserID, false);
+    }
+
+    protected void iniciarBusqueda() {
+        startActivity(
+                new Intent(this, BusquedaActivity.class)
+        );
+    }
+
+    protected void iniciarMasPopulares() {
+        startActivity(
+                new Intent(this, UserListActivity.class)
+                        .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                UserListActivity.MODE_MOST_POPULAR)
+        );
+    }
+
+    protected void iniciarSolicitudes() {
+        startActivity(
+                new Intent(this, UserListActivity.class)
+                        .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                UserListActivity.MODE_SOLICITUDES)
+        );
+    }
+
+    protected void iniciarConversaciones() {
+        startActivity(
+                new Intent(this, UserListActivity.class)
+                        .putExtra(UserListActivity.LIST_MODE_MESSAGE,
+                                UserListActivity.MODE_CONVERSACIONES)
+        );
+    }
+
+    ///////
 
     protected void bloquearNavDrawer(boolean block) {
         DrawerLayout drawer = (DrawerLayout) findViewById(mDrawerResId);
@@ -329,10 +383,6 @@ public class NavDrawerActivity extends AppCompatActivity
                 mToolbar.setVisibility(View.VISIBLE);
             }
         }
-    }
-
-    public void irAPerfilPropio(View v) {
-        Utils.iniciarPerfilActivity(this, connectedUserID, false);
     }
 
     private void borrarConnectedUserData() {

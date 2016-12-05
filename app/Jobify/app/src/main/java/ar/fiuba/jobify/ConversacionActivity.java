@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -52,7 +53,7 @@ public class ConversacionActivity extends NavDrawerActivity {
 
     public final static String CORRESPONSAL_ID_MESSAGE = "ar.fiuba.jobify.CORRESPONSAL_ID_MESSAGE";
 
-    private final int CANT_MENSAJES_POR_PAGE = 10;
+    private final int CANT_MENSAJES_POR_PAGE = 20;
 
     // ID de aquel con quien es la conversación
     public static long corresponsalID = 0;
@@ -72,11 +73,11 @@ public class ConversacionActivity extends NavDrawerActivity {
     public static boolean activityVisible = false;
 
 
+    @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
-
         // Toast.makeText(this, "llegó!", Toast.LENGTH_LONG).show();
-        if (!recibirMensajesNuevos(event.mensaje) || !activityVisible){
+        if (!activityVisible || !recibirMensajesNuevos(event.mensaje)) {
             Log.d("log", "show notification");
         }
     }
@@ -117,9 +118,8 @@ public class ConversacionActivity extends NavDrawerActivity {
         if (mListView != null) {
 
             mMessageArrayAdapter = new MessageArrayAdapter(this, new ArrayList<Message>());
-            mEndlessScrollListener = new EndlessScrollListener();
             mListView.setAdapter(mMessageArrayAdapter);
-            mListView.setOnScrollListener(mEndlessScrollListener);
+            mListView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
             mListView.setDivider(null);
             mListView.setDividerHeight(18); //hardcode
 
@@ -133,12 +133,13 @@ public class ConversacionActivity extends NavDrawerActivity {
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         onCreateDrawer(R.id.conversacion_toolbar, R.id.conversacion_drawer_layout, R.id.conversacion_nav_view);
+        displayItemAsSelected(R.id.nav_conversaciones);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        activityVisible = false;
+        activityVisible = true;
     }
 
     @Override
@@ -149,6 +150,7 @@ public class ConversacionActivity extends NavDrawerActivity {
         if (corresponsalID > 0) {
             cargarHeaderConversacion();
             cargarUltimosMensajes();
+            Utils.limpiarNotificaciones(this);
         }
     }
 
@@ -184,11 +186,30 @@ public class ConversacionActivity extends NavDrawerActivity {
         long to   = nuevoMensaje.getTo();
         if  (!((from == connectedUserID && to == corresponsalID)
            || (from == corresponsalID || to == connectedUserID))) {
-            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación " + "el usuario actual es: " + corresponsalID);
+            Log.i(LOG_TAG, "nuevoMensaje no es para esta conversación." +
+                    " El usuario actual es: " + corresponsalID);
             return false;
         }
 
-        mMessageArrayAdapter.agregarNuevoMensaje(nuevoMensaje);
+        int cantNuevos = mMessageArrayAdapter.agregarNuevoMensaje(nuevoMensaje);
+
+        if (nuevoMensaje.getAutoria(connectedUserID) == Message.Autoria.AJENO && cantNuevos > 0) {
+            // Request fantasma para marcar como leídos los mensajes recibidos por notificación
+            int masViejo = cantNuevos > CANT_MENSAJES_POR_PAGE ? cantNuevos : CANT_MENSAJES_POR_PAGE;
+            HashMap<String, String> map = new HashMap<>();
+            map.put(getString(R.string.get_messages_user_query), Long.toString(corresponsalID));
+            map.put(getString(R.string.get_messages_first_query), "1");   // Carga desde el último mensaje
+            map.put(getString(R.string.get_messages_last_query), Integer.toString(masViejo));
+            String urlMensajes = Utils.getAppServerUrl(this, getString(R.string.get_messages_path), connectedUserID, map);
+            Utils.fetchJsonFromUrl(this, Request.Method.GET, urlMensajes, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(LOG_TAG, "Request fantasma para marcar como leído Success");
+                        }
+                    }, LOG_TAG);
+        }
+
         return true;
     }
 
@@ -290,7 +311,7 @@ public class ConversacionActivity extends NavDrawerActivity {
      */
     private boolean cargarMasMensajes(long page, boolean forzarCarga) {
         if (!forzarCarga && (page * CANT_MENSAJES_POR_PAGE >= maxMensaje)) {
-            mEndlessScrollListener.desactivar();
+            //mEndlessScrollListener.desactivar();
             return false;
         }
         long numFirst = (page * CANT_MENSAJES_POR_PAGE + 1) + mOffset;
@@ -364,6 +385,7 @@ public class ConversacionActivity extends NavDrawerActivity {
             String urlEnvioMensaje = Utils.getAppServerUrl(this, getString(R.string.put_messages_path));
 
             final JSONObject jsObjMessage = message.toJsonObject();
+            Log.d(LOG_TAG, "Envío mensaje "+mensajeAEnviar);//
 
             Utils.fetchJsonFromUrl(this, Request.Method.PUT, urlEnvioMensaje, jsObjMessage,
                     new Response.Listener<JSONObject>() {
@@ -420,19 +442,23 @@ public class ConversacionActivity extends NavDrawerActivity {
             notifyDataSetChanged();
         }
 
-        // Chequea que el mensaje sea más nuevo que el último ya listado
-        public void agregarNuevoMensaje(Message nuevoMensaje) {
+        /**
+         *  Chequea que el mensaje sea más nuevo que el último ya listado
+         *  @return Cantidad de mensajes agregados (0 o 1)
+         */
+        public int agregarNuevoMensaje(Message nuevoMensaje) {
             // No agrega si el último mensaje listado no tiene un timestamp menor
             if (getCount() != 0 &&
                     nuevoMensaje.getTimestamp().compareTo(this.chatMessages.get(0).getTimestamp()) <= 0) {
                 Log.i(LOG_TAG, "Se recibió nuevoMensaje con timestamp menor o igual al último." +
                         "msj: " + nuevoMensaje.getMessage());
-                return;
+                return 0;
             }
             this.chatMessages.add(nuevoMensaje);
             maxMensaje++;
             mOffset++;
             notifyDataSetChanged();
+            return 1;
         }
 
         public void vaciar() {
@@ -467,12 +493,12 @@ public class ConversacionActivity extends NavDrawerActivity {
                             holderOut = (ViewHolderOutgoing) convertView.getTag();
                         }
 
-//                        holderOut.iv_status TODO?
-//                        if (message.getMessageStatus() == Message.Status.DELIVERED) {
-//                            holderOut.messageStatus.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_double_tick));
-//                        } else if (message.getMessageStatus() == Message.Status.SENT) {
-//                            holderOut.messageStatus.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_single_tick));
-//                        }
+                        Message.State state = message.getState();
+                        if (state == Message.State.RECEIVED) {
+                            holderOut.iv_status.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_double_tick));
+                        } else if (state == Message.State.SENT) {
+                            holderOut.iv_status.setImageDrawable(ContextCompat.getDrawable(ctx, R.drawable.ic_single_tick));
+                        }
                         holderOut.tv_message.setText(message.getMessage());
                         holderOut.tv_time.setText(message.getHoraSinSegundos());
                         break;
@@ -561,10 +587,10 @@ public class ConversacionActivity extends NavDrawerActivity {
             this.activado = true;
             this.loading = true;
         }
-        public void desactivar() {
-            this.activado = false;
-            this.loading = false;
-        }
+//        public void desactivar() {
+//            this.activado = false;
+//            this.loading = false;
+//        }
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,

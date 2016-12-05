@@ -397,6 +397,16 @@ public class PerfilUtils {
         int hastaMes = (et_hasta_mes.length() == 0) ? 0 : Integer.valueOf(et_hasta_mes.getText().toString());
         int hastaAnio = (et_hasta_anio.length() == 0) ? 0 : Integer.valueOf(et_hasta_anio.getText().toString());
 
+        if (et_hasta_anio.length() != 0) {
+            int dm = Integer.valueOf(et_desde_mes.getText().toString());
+            int da = Integer.valueOf(et_desde_anio.getText().toString());
+            if (da > hastaAnio || (da == hastaAnio && dm > hastaMes)) {
+                et_hasta_anio.setError("Fecha 'hasta' no puede ser posterior a 'desde'");
+                et_hasta_anio.requestFocus();
+                return false;
+            }
+        }
+
         try {
             Employment nuevoEmployment = Employment.create(act,
                     et_company.getText().toString(),
