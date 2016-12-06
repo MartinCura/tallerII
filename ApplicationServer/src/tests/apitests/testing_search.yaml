@@ -1,0 +1,79 @@
+---
+- config:
+    - testset: "Testing search url"
+
+- test:
+    - name: "get all users - GET"
+    - group: "[all users - OK]"
+    - url: "/search?pageNumber=1&size=20"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "result", comparator: "count_eq", expected: 15}
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 15}
+    - expected_status: [200] #OK
+
+- test:
+    - name: "get all users (page size less than the total count of users)- GET"
+    - group: "[all users - OK]"
+    - url: "/search?pageNumber=1&size=6"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "result", comparator: "count_eq", expected: 6}
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 15}
+    - expected_status: [200] #OK
+
+- test:
+    - name: "get all users (page size less than the total count of users part 2)- GET"
+    - group: "[all users - OK]"
+    - url: "/search?pageNumber=3&size=6"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "result", comparator: "count_eq", expected: 3}
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 15}
+    - expected_status: [200] #OK
+
+- test:
+    - name: "get all users pageNumber out of range - GET"
+    - group: "[all users - ERROR]"
+    - url: "/search?pageNumber=4&size=6"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 15}
+          - compare: {jsonpath_mini: "result", comparator: "type", expected: None}
+    - expected_status: [200] #OK
+
+- test:
+    - name: "search by first_name - GET"
+    - group: "[all users - OK]"
+    - url: "/search?names=lionel&pageNumber=1&size=20"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+          - compare: {jsonpath_mini: "result.0.first_name", comparator: "eq", expected: "lionel"}
+          - compare: {jsonpath_mini: "result.0.id", comparator: "eq", expected: 7}
+    - expected_status: [200] #OK
+
+- test:
+    - name: "search by first_name or last name or full name - GET"
+    - group: "[all users - OK]"
+    - url: "/search?names=j&pageNumber=1&size=20"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 4}
+          - compare: {jsonpath_mini: "result.0.first_name", comparator: "eq", expected: "jack"}
+          - compare: {jsonpath_mini: "result.1.first_name", comparator: "eq", expected: "jane"}
+          - compare: {jsonpath_mini: "result.2.first_name", comparator: "eq", expected: "john"}
+          - compare: {jsonpath_mini: "result.3.last_name", comparator: "eq", expected: "jordan"}
+    - expected_status: [200] #OK
+    
+- test:
+    - name: "search by first_name or last name or full name - GET"
+    - group: "[all users - ERROR]"
+    - url: "/search?names=wk&pageNumber=1&size=20"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 0}
+    - expected_status: [200] #OK
+ 
+
+
