@@ -495,7 +495,7 @@ vector<Person *> *PersonManager::searchByMail(vector<string> *user_mail) {
         // Read the record
         if( !iterator->value().empty() )
         {
-
+			std::string key_value = iterator->key().ToString();
             if(regex_match(iterator->key().ToString(), e)) {
                 //busqueda del usuario
                 std::string user_information = iterator->value().ToString();

@@ -94,7 +94,8 @@ void DbBuilder::loadUsers() {
     fakePeople.push_back(this->getFakePerson13());
     fakePeople.push_back(this->getFakePerson14());
     fakePeople.push_back(this->getFakePerson15());
-    for (int i = 1; i <= 15; i++) {
+    fakePeople.push_back(this->getFakePerson16());
+    for (int i = 1; i <= fakePeople.size(); i++) {
         try {
             Person* person = fakePeople[i - 1];
             personManager->savePerson(person->serializeMe());
