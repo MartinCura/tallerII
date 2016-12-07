@@ -269,6 +269,7 @@ bool Person::hasPosition(std::string position) {
     for(int j = 0; j < this->workHistory.size(); j++) {
         std::string position2 = this->workHistory[j]->getPositionTitle();
         std::transform(position2.begin(), position2.end(), position2.begin(), ::tolower);
+        std::transform(position.begin(), position.end(), position.begin(), ::tolower);
         if(position2.compare(position) == 0) return true;
     }
     return false;

@@ -135,6 +135,45 @@
     - validators:
           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 0}
     - expected_status: [200] #OK    
-   
-    
+
+- test:
+    - name: "search by one position - GET"
+    - group: "[search position - OK]"
+    - url: "/search?positions=NinJa&pageNumber=1&size=20"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 4}
+    - expected_status: [200] #OK
+
+- test:
+     - name: "search by several positions - GET"
+     - group: "[search position - OK]"
+     - url: "/search?positions=NinJa,developer&pageNumber=1&size=20"
+     - method: "GET"
+     - validators:
+           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+           - compare: {jsonpath_mini: "result.0.first_name", comparator: "eq", expected: "maria"}
+     - expected_status: [200] #OK
+
+- test:
+     - name: "search by everything  - GET"
+     - group: "[search - OK]"
+     - url: "/search?names=maria&mails=maria&skills=pHp&positions=NinJa,developer&pageNumber=1&size=20"
+     - method: "GET"
+     - validators:
+           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+           - compare: {jsonpath_mini: "result.0.first_name", comparator: "eq", expected: "maria"}
+     - expected_status: [200] #OK
+
+
+- test:
+     - name: "search by everything  - GET"
+     - group: "[search - OK]"
+     - url: "/search?names=maria&mails=maria&positions=NinJa,developer&pageNumber=1&size=20"
+     - method: "GET"
+     - validators:
+           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+           - compare: {jsonpath_mini: "result.0.first_name", comparator: "eq", expected: "maria"}
+     - expected_status: [200] #OK
+
 

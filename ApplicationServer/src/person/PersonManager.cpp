@@ -339,6 +339,7 @@ void PersonManager::deleteUserFromJobPosition(string job_position, string user_m
 vector<Person *> *PersonManager::search_users_by(map<string, std::vector<string>*> *search_values) {
     std::vector<Person*>* partial_result = nullptr;
     std::vector<Person*>* result = nullptr;
+    std::vector<Person*> descarte;
 
     if((*search_values)["skill"] != nullptr) partial_result = this->searchBySkill((*search_values)["skill"]);
     if(partial_result == nullptr) {
@@ -349,7 +350,10 @@ vector<Person *> *PersonManager::search_users_by(map<string, std::vector<string>
     else{
         if((*search_values)["position"] != nullptr) {
             for(int i = 0; i < partial_result->size(); i++) {
-                if (!(*partial_result)[i]->has_every_position((*search_values)["position"])) delete (*partial_result)[i];
+                if (!(*partial_result)[i]->has_every_position((*search_values)["position"])){
+                    descarte.push_back((*partial_result)[i]);
+                    (*partial_result)[i] = nullptr;
+                }
             }
         }
     }if(partial_result == nullptr) {
@@ -361,7 +365,12 @@ vector<Person *> *PersonManager::search_users_by(map<string, std::vector<string>
             std::regex e ("(.*)("+search_mail+")(.*)");
             for(int i = 0; i < partial_result->size(); i++) {
                 if ((*partial_result)[i] != nullptr) {
-                    if(!regex_match((*partial_result)[i]->getEmail(), e)) delete (*partial_result)[i];
+                    Person* user = (*partial_result)[i];
+                    if(!regex_match(user->getEmail(), e)){
+                        descarte.push_back((*partial_result)[i]);
+                        (*partial_result)[i] = nullptr;
+
+                    }
                 }
             }
         }
@@ -376,7 +385,9 @@ vector<Person *> *PersonManager::search_users_by(map<string, std::vector<string>
             for(int i = 0; i < partial_result->size(); i++) {
                 if ((*partial_result)[i] != nullptr) {
                     if (!regex_match((*partial_result)[i]->getFirstName(), e) and !regex_match((*partial_result)[i]->getLastName(), e)) {
-                        delete (*partial_result)[i];
+                        descarte.push_back((*partial_result)[i]);
+                        (*partial_result)[i] = nullptr;
+
                     }
                 }
             }
@@ -398,7 +409,9 @@ vector<Person *> *PersonManager::search_users_by(map<string, std::vector<string>
                     double distance = search_location->getDistanceFrom((*partial_result)[i]->getLocation());
                     if(distance >= max_distance) {
                         //busqueda del usuario
-                        delete (*partial_result)[i];
+                        descarte.push_back((*partial_result)[i]);
+                        (*partial_result)[i] = nullptr;
+
                     }
                 }
             }
@@ -411,6 +424,9 @@ vector<Person *> *PersonManager::search_users_by(map<string, std::vector<string>
         if ((*partial_result)[k] != nullptr) {
             result->push_back((*partial_result)[k]);
         }
+    }
+    for (int k = 0; k < descarte.size(); k++) {
+            delete (descarte[k]);
     }
     delete partial_result;
     return result;

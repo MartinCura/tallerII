@@ -155,7 +155,7 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
     }else {
 
         search_values->insert(std::pair<string, vector<string>*>("name",names));
-        search_values->insert(std::pair<string, vector<string>*>("positions",positions));
+        search_values->insert(std::pair<string, vector<string>*>("position",positions));
         search_values->insert(std::pair<string, vector<string>*>("skill",skills));
         search_values->insert(std::pair<string, vector<string>*>("distance",distance));
         search_values->insert(std::pair<string, vector<string>*>("mail",mails));
