@@ -193,3 +193,13 @@
      - url: "/search?distances=-57.368468,0&pageNumber=1&size=20"
      - method: "GET"
      - expected_status: [400] #BAD REQUEST
+
+- test:
+     - name: "search by distance  get the point and name - GET"
+     - group: "[search distane - OK]"
+     - url: "/search?names=jack&distances=-57.368468,-31.627529,0&pageNumber=1&size=20"
+     - method: "GET"
+     - validators:
+           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
+           - compare: {jsonpath_mini: "result.0.id", comparator: "eq", expected: 8 }
+     - expected_status: [200] #OK

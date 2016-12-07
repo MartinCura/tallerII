@@ -400,14 +400,14 @@ vector<Person *> *PersonManager::search_users_by(map<string, std::vector<string>
             vector<string> *distance_search = (*search_values)["distance"];
             double latitud = stod((*distance_search)[0]);
             double longitud = stod((*distance_search)[1]);
-            double max_distance = stod((*distance_search)[3]);
+            double max_distance = stod((*distance_search)[2]);
             Location* search_location = new Location();
             search_location->setLatitude(latitud);
             search_location->setLongitude(longitud);
             for(int i = 0; i < partial_result->size(); i++) {
                 if ((*partial_result)[i] != nullptr) {
                     double distance = search_location->getDistanceFrom((*partial_result)[i]->getLocation());
-                    if(distance >= max_distance) {
+                    if(distance > max_distance) {
                         //busqueda del usuario
                         descarte.push_back((*partial_result)[i]);
                         (*partial_result)[i] = nullptr;
