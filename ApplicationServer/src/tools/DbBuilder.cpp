@@ -366,6 +366,22 @@ Person* DbBuilder::getFakePerson15() {
     return person;
 }
 
+Person* DbBuilder::getFakePerson16() {
+    Person* person = new Person();
+    person->setId(0);
+    person->setFirstName("El que no es");
+    person->setLastName("pero tiene mail parecido");
+    person->setEmail("jacksparrow@idem.com");
+    person->setPassword("123abc");
+    person->setDateOfBirth("24/06/1992");
+    person->setCity("Caribe");
+    person->setSummary("Soy un gran pirata.");
+    person->setLocation(-57.368468, -31.627529);
+    person->addWorkHistory(this->getWorkHistory(1, "La Perla Negra", "10/2000", ""));
+    person->addSkill(this->getSkill(3));
+    return person;
+}
+
 WorkHistory* DbBuilder::getWorkHistory(int jobPositionIndex, string company, string fromDate, string toDate) {
     WorkHistory* workHistory = new WorkHistory();
     workHistory->setCompany(company);
