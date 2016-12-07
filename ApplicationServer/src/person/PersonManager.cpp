@@ -548,7 +548,7 @@ vector<Person *> *PersonManager::searchByDistance(vector<string> *distance_searc
             juser = this->getJsonFromString(user_information);
             Person* user = new Person(juser);
             double distance = search_location->getDistanceFrom(user->getLocation());
-            if(distance < std::pow(max_distance, 2)) {
+            if(distance <= std::pow(max_distance, 2)) {
                 //busqueda del usuario
                 users_result->push_back(user);
             }

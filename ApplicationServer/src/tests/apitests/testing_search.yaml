@@ -167,13 +167,29 @@
 
 
 - test:
-     - name: "search by everything  - GET"
-     - group: "[search - OK]"
-     - url: "/search?names=maria&mails=maria&positions=NinJa,developer&pageNumber=1&size=20"
+     - name: "search by distance  - GET"
+     - group: "[search distane - OK]"
+     - url: "/search?distances=-57.368468,-31.627529,1000000&pageNumber=1&size=20"
      - method: "GET"
      - validators:
-           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 1}
-           - compare: {jsonpath_mini: "result.0.first_name", comparator: "eq", expected: "maria"}
+           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 16}
+     - expected_status: [200] #OK
+
+- test:
+     - name: "search by distance  get the point - GET"
+     - group: "[search distane - OK]"
+     - url: "/search?distances=-57.368468,-31.627529,0&pageNumber=1&size=20"
+     - method: "GET"
+     - validators:
+           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 2}
+           - compare: {jsonpath_mini: "result.0.id", comparator: "eq", expected: 8 }
+           - compare: {jsonpath_mini: "result.1.id", comparator: "eq", expected: 16 }
      - expected_status: [200] #OK
 
 
+- test:
+     - name: "search by distance  get the point - GET"
+     - group: "[search distane - ERROR]"
+     - url: "/search?distances=-57.368468,0&pageNumber=1&size=20"
+     - method: "GET"
+     - expected_status: [400] #BAD REQUEST

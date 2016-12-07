@@ -140,7 +140,14 @@ Response *SearchHandler::handleGetRequest(http_message *httpMessage, string url)
     if (search_value_mail != nullptr) mails = this->split(*search_value_mail, ',');
     if (search_value_name != nullptr) names = this->split(*search_value_name, ',');
     if (search_value_position != nullptr) positions = this->split(*search_value_position, ',');
-    if (search_value_distance != nullptr) distance = this->split(*search_value_distance, ',');
+    if (search_value_distance != nullptr) {
+        distance = this->split(*search_value_distance, ',');
+        if (distance->size() != 3) {
+            response->setBadRequestHeader();
+            response->setErrorBody("La cantidad de valores para la busqueda por distancia debe ser 3");
+            return response;
+        }
+    }
 
 
     PersonManager* personManager = new PersonManager(this->db);
