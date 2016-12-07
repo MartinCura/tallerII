@@ -1,6 +1,7 @@
 package ar.fiuba.jobify.utils;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -55,6 +56,7 @@ import java.util.Map;
 import ar.fiuba.jobify.ConversacionActivity;
 import ar.fiuba.jobify.PerfilActivity;
 import ar.fiuba.jobify.R;
+import ar.fiuba.jobify.UserListActivity;
 
 
 /**
@@ -81,12 +83,18 @@ public class Utils {
         );
     }
 
+    public static void limpiarNotificaciones(Context ctx) {
+        NotificationManager mNotificationManager =
+                (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancelAll();
+    }
+
     /////////////////////////////////////////// FETCHER ////////////////////////////////////////////
 
     public static String getAppServerBaseURL(Context ctx) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
-        String ip = sharedPref.getString("pref_appServer_ip", ctx.getString(R.string.pref_default_appServer_ip));
-        String puerto = sharedPref.getString("pref_appServer_puerto", ctx.getString(R.string.pref_default_appServer_puerto));
+        String ip = sharedPref.getString(ctx.getString(R.string.pref_app_server_ip), ctx.getString(R.string.pref_default_appServer_ip));
+        String puerto = sharedPref.getString(ctx.getString(R.string.pref_app_server_port), ctx.getString(R.string.pref_default_appServer_puerto));
 
         try {
             if (Integer.parseInt(puerto) <= 0)
@@ -181,13 +189,13 @@ public class Utils {
                 responseListener, logTag);
     }
 
-    public static void getJsonFromAppServer(Context context, String getPathSegment,
-                                            Response.Listener<JSONObject> responseListener,
-                                            final String logTag) {
-
-        getJsonFromUrl(context, getAppServerUrl(context, getPathSegment), null, responseListener,
-                logTag);
-    }
+//    public static void getJsonFromAppServer(Context context, String getPathSegment,
+//                                            Response.Listener<JSONObject> responseListener,
+//                                            final String logTag) {
+//
+//        getJsonFromUrl(context, getAppServerUrl(context, getPathSegment), null, responseListener,
+//                logTag);
+//    }
 
 //    public static void getJsonFromAppServer(Context ctx, String getPathSegment,
 //                                            JSONObject jsonRequest,
@@ -362,6 +370,142 @@ public class Utils {
                             headers.put("Authorization", token);
                         return headers;
                     }
+        };
+        RequestQueueSingleton.getInstance(ctx)
+                .addToRequestQueue(request);
+        return true;
+    }
+
+    // TODO: esto es un malformado semiclon de la función de arriba;
+    // TODO: semi-fea reutilización de código, pero hay que cambiar varias cosas para refactorizar.
+    // Asumo que si se le carga una imagen se la quiere ver, por lo que cambia visibilidad!
+    public static void cargarImagenDeURLenImageView(final Activity act, final @IdRes int iv_id,
+                                  final String url, final String logTag, final boolean squareCrop) {
+
+        ImageRequest request = new ImageRequest(url,
+                new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap bitmap) {
+                        ImageView imageView = (ImageView) act.findViewById(iv_id);
+                        if (imageView == null) {
+                            Log.e(logTag, "No pude post-encontrar ImageView, no cargo imagen");
+                            return;
+                        }
+                        if (squareCrop)
+                            imageView.setImageBitmap(cropToSquare(bitmap));
+                        else
+                            imageView.setImageBitmap(bitmap);
+                        imageView.setVisibility(View.VISIBLE);
+                    }
+                }, 0, 0,
+                ImageView.ScaleType.CENTER_INSIDE, null,
+
+                new Response.ErrorListener() {
+                    @SuppressWarnings("deprecation")
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse == null) {
+                            Log.e(logTag, "Error de response, no pude cargar la imagen." +
+                                    " (url: " + url + ")");
+                            return;
+                        }
+                        if (error.networkResponse.statusCode == ServerStatusCode.OK) {
+//                            Log.e(logTag, "Problema con la imagen. Re-request");//
+                            cargarImagenDeURLenImageView(act, iv_id, url, logTag, squareCrop);
+                            return;
+                        }
+                        switch (error.networkResponse.statusCode) {
+                            case ServerStatusCode.NOTFOUND:
+                            case ServerStatusCode.OK_NOCONTENT:
+                                Log.d(logTag, "Imagen no existe");
+                                break;
+                            default:
+                                Log.d(logTag, "Error cargando imagen: " +
+                                        statusCodeString(error.networkResponse.statusCode));
+                        }
+
+                        ImageView imageView = (ImageView) act.findViewById(iv_id);
+                        if (imageView == null) {
+                            Log.e(logTag, "No pude post-encontrar ImageView, ni en el error!");
+                            return;
+                        }
+                        @DrawableRes int drawableId = R.drawable.ic_person;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            imageView.setImageDrawable(act.getDrawable(drawableId));
+                        } else {
+                            imageView.setImageDrawable(act.getResources().getDrawable(drawableId));
+                        }
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                String token = getToken(act);
+                if (token != null)
+                    headers.put("Authorization", token);
+                return headers;
+            }
+        };
+        RequestQueueSingleton.getInstance(act)
+                .addToRequestQueue(request);
+    }
+
+    // De nuevo, código repetido de fin de curso, pero es bastante difícil no repetirlo.
+    // Usada específicamente para cargar imágenes en resultados de UserArrayAdapter
+    public static boolean cargarImagenDeURL(final Context ctx, final long id, final ImageView imageView,
+                                            final UserListActivity.UserArrayAdapter adapter) {
+        final String url = getAppServerUrl(ctx, id, ctx.getString(R.string.get_thumbnail_path));
+
+        ImageRequest request = new ImageRequest(url,
+                new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap bitmap) {
+                        bitmap = cropToSquare(bitmap);
+                        imageView.setImageBitmap(bitmap);
+                        imageView.setVisibility(View.VISIBLE);
+                        adapter.guardarImagen(id, bitmap);
+                    }
+                }, imageView.getWidth(), imageView.getHeight(),
+                ImageView.ScaleType.CENTER_INSIDE, null,
+
+                new Response.ErrorListener() {
+                    @SuppressWarnings("deprecation")
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse == null) {
+                            Log.w(LOG_TAG, "Error de response, no pude cargar la imagen." +
+                                    " (url: " + url + ")");
+                            return;
+                        }
+                        if (error.networkResponse.statusCode == ServerStatusCode.OK) {
+//                            Log.e(logTag, "Problema con la imagen. Re-request");//
+                            cargarImagenDeURL(ctx, id, imageView, adapter);
+                            return;
+                        }
+                        switch (error.networkResponse.statusCode) {
+                            case ServerStatusCode.NOTFOUND:
+                            case ServerStatusCode.OK_NOCONTENT:
+                                Log.w(LOG_TAG, "Imagen no existe");
+                                break;
+                            default:
+                                Log.w(LOG_TAG, "Error cargando imagen: " +
+                                        statusCodeString(error.networkResponse.statusCode));
+                        }
+
+                        @DrawableRes int drawableId = R.drawable.ic_person;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                            imageView.setImageDrawable(ctx.getDrawable(drawableId));
+                        } else {
+                            imageView.setImageDrawable(ctx.getResources().getDrawable(drawableId));
+                        }
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                String token = getToken(ctx);
+                if (token != null)
+                    headers.put("Authorization", token);
+                return headers;
+            }
         };
         RequestQueueSingleton.getInstance(ctx)
                 .addToRequestQueue(request);

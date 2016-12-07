@@ -9,6 +9,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.SerializedName;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +51,24 @@ public class BusquedaResponse {
 
         try {
             return gson.fromJson(response, BusquedaResponse.class);
+
+//            try {
+//                JSONArray jsonArray = new JSONObject(response).getJSONArray("result");
+//
+//                // No es lo más lindo pero es lo más rápido que se me ocurrió.
+//                int i = 0;
+//                for (User user : br.users) {
+//                    user.addEmployment(gson.fromJson(
+//                            jsonArray.getJSONObject(i).getJSONObject("current_job").toString(), // hardcodeo
+//                            Employment.class)
+//                    );
+//                    i++;
+//                }
+//            } catch (JSONException ex) {
+//                Log.w("BusquedaResponse", "JSON Exception!!");
+//            }
+//
+//            return br;
 
         } catch (JsonSyntaxException e) {
             Log.e("API", "Json Syntax exception!");

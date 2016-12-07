@@ -7,10 +7,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -33,9 +37,13 @@ import com.android.volley.VolleyError;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,7 +77,7 @@ public class UserListActivity extends NavDrawerActivity {
     public final static String BUSQUEDA_REQUEST_MESSAGE = package_name+"_BUSQUEDA_REQUEST_MESSAGE";
 
     private final static int DEFAULT_LIST_SIZE = 20;
-    private final static int PAGE_SIZE = 10;
+    private final static int PAGE_SIZE = 20;
     // Si busco más, crecer esta variable.
     private int mExpectedListSize = DEFAULT_LIST_SIZE;
 
@@ -97,8 +105,6 @@ public class UserListActivity extends NavDrawerActivity {
             Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!");
             return;
         }
-        mUserArrayAdapter = new UserArrayAdapter(new ArrayList<User>());
-        listView.setAdapter(mUserArrayAdapter);
 
         // Obtengo el modo
         Intent intent = getIntent();
@@ -129,11 +135,32 @@ public class UserListActivity extends NavDrawerActivity {
                 }
             });
         }
+    }
+
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ActionBar sab = getSupportActionBar();
+
+        ListView listView = (ListView) findViewById(R.id.user_list);
+        if (listView == null) {
+            Log.e(LOG_TAG, "No se encontró la listview de userlist!!!!!");
+            return;
+        }
+        mUserArrayAdapter = new UserArrayAdapter(this, new ArrayList<User>());
+        listView.setAdapter(mUserArrayAdapter);
 
         switch (mode) {
             case MODE_SOLICITUDES:
                 if (sab != null)
                     sab.setTitle("Solicitudes pendientes");
+                displayItemAsSelected(R.id.nav_solicitudes);
                 esconderBotonDeBusqueda();
                 showProgress(true);
                 listarSolicitudesReceived();
@@ -141,13 +168,16 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_MOST_POPULAR:
                 if (sab != null)
                     sab.setTitle("Profesionales más populares");
+                displayItemAsSelected(R.id.nav_most_popular);
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
                 listarMasPopulares();
+//                listarTodosLosUsuarios();//
                 break;
             case MODE_BUSQUEDA:
                 if (sab != null)
                     sab.setTitle("Resultados");
+                displayItemAsSelected(R.id.nav_busqueda);
                 showProgress(true);
                 listView.setOnScrollListener(mEndlessScrollListener = new EndlessScrollListener());
                 generarBusqueda();
@@ -155,6 +185,7 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_CONVERSACIONES:
                 if (sab != null)
                     sab.setTitle("Conversaciones");
+                displayItemAsSelected(R.id.nav_conversaciones);
                 showProgress(true);
                 esconderBotonDeBusqueda();
                 listarConversaciones();
@@ -162,12 +193,6 @@ public class UserListActivity extends NavDrawerActivity {
             case MODE_NONE:
             default:
         }
-    }
-
-    @Override
-    public void setContentView(@LayoutRes int layoutResID) {
-        super.setContentView(layoutResID);
-        onCreateDrawer(R.id.user_list_toolbar, R.id.user_list_drawer_layout, R.id.user_list_nav_view);
     }
 
     public void onStop() {
@@ -240,6 +265,48 @@ public class UserListActivity extends NavDrawerActivity {
                 }, LOG_TAG);
     }
 
+    /// de prueba //;//
+//    private void listarTodosLosUsuarios() {
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.user_list_toolbar);
+//        if (toolbar != null) {
+//            toolbar.setTitle("Profesionales más populares");
+////            toolbar.setTitle("Todos los usuarios");
+//        } else
+//            Log.w(LOG_TAG, "No pude encontrar toolbar para settear título");
+//
+//        Utils.getJsonFromAppServer(this, getString(R.string.get_all_users_path),
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        AllUsersResponse allUsersResponse =
+//                                AllUsersResponse.parseJSON(response.toString());
+//
+//                        if (allUsersResponse == null) {
+//                            Log.e(LOG_TAG, "Null parsed JSON from all_users");
+//                            return;
+//                        }
+//
+//                        int cant = 0;
+//                        ResponseMetadata meta = allUsersResponse.getMetadata();
+//                        if (meta != null) {
+//                            cant = Long.valueOf(meta.getCount()).intValue();
+//                        } else
+//                            Log.e(LOG_TAG, "AllUsersResponse Metadata null!");
+//                        cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
+//                        mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
+//
+//                        if (mExpectedListSize == 0) {
+//                            mostrarNoHayResultados();
+//                        } else {
+//                            for (long id : allUsersResponse.getAllUsers()) {
+//                                fetchAndAddUser(id);
+//                            }
+//                        }
+//                    }
+//                }, LOG_TAG);
+//    }
+    ///
+
     private void listarMasPopulares() {
         mBusquedaReq = new BusquedaRequest();
         cargarPageDeUsuarios(0, false);
@@ -297,6 +364,7 @@ public class UserListActivity extends NavDrawerActivity {
                                 if (user != null)
                                     agregarResultado(user);
                             }
+                            Utils.limpiarNotificaciones(ctx);
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -365,6 +433,17 @@ public class UserListActivity extends NavDrawerActivity {
         }
     }
 
+//    @Deprecated
+//    private void fetchAndAddUser(long id) {
+//        Utils.getJsonFromAppServer(this, getString(R.string.get_user_path), id,
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        agregarResultado(User.parseJSON(response.toString()));
+//                    }
+//                }, LOG_TAG);
+//    }
+
     private void mostrarNoHayResultados() {
         Utils.showView(this, R.id.userlist_sin_resultados_layout);
         showProgress(false);
@@ -381,10 +460,9 @@ public class UserListActivity extends NavDrawerActivity {
         }
         if (!forzarCarga && (pageNumber * PAGE_SIZE >= cantResultados)) {
             if (mEndlessScrollListener != null)
-                mEndlessScrollListener.desactivar();
+//                mEndlessScrollListener.desactivar();
             return false;
         }
-        //showProgress(true);//TODO?
 
         Locacion loc = null;
         if (mBusquedaReq.incluyeDistancia()) {
@@ -414,7 +492,7 @@ public class UserListActivity extends NavDrawerActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // TODO: Revisar
+                        Log.d(LOG_TAG, response.toString());//
                         BusquedaResponse busqResponse = BusquedaResponse.parseJSON(response.toString());
 
                         if (busqResponse == null) {
@@ -425,18 +503,21 @@ public class UserListActivity extends NavDrawerActivity {
                             return;
                         }
 
-                        int cant = 0;
+                        int cant = PAGE_SIZE;
                         ResponseMetadata meta = busqResponse.getMetadata();
                         if (meta != null) {
-                            if (meta.getTotalCount() == 0)
+                            long total = meta.getTotalCount();
+                            if (total == 0)
                                 cant = 0;
                             else {
                                 cant = Long.valueOf(meta.getCount()).intValue();
                                 if (cant == 0)
-                                    cant = PAGE_SIZE; // Por si no se envía
+                                    // Por si no se envía el count en el metadata
+                                    cant = total < PAGE_SIZE ? Long.valueOf(total).intValue() : PAGE_SIZE;
                             }
                         } else
                             Log.e(LOG_TAG, "BusquedaResponse Metadata null!");
+
                         cantResultados = cant < MAX_RESULTADOS ? cant : MAX_RESULTADOS;
                         mExpectedListSize = cant < mExpectedListSize ? cant : mExpectedListSize;
 
@@ -445,8 +526,9 @@ public class UserListActivity extends NavDrawerActivity {
 
                         } else {
                             for (User user : busqResponse.getUsers()) {
-                                if (user != null)
+                                if (user != null) {
                                     agregarResultado(user);
+                                }
                             }
                             mEndlessScrollListener.activar();
                         }
@@ -490,12 +572,16 @@ public class UserListActivity extends NavDrawerActivity {
     }
 
 
-    private class UserArrayAdapter extends ArrayAdapter<User> {
+    public class UserArrayAdapter extends ArrayAdapter<User> {
+        Context ctx;
+        HashMap<Long, String> imagePaths = new HashMap<>();
 
-        public UserArrayAdapter(List<User> userList) {
+        public UserArrayAdapter(Context context, List<User> userList) {
             super(UserListActivity.this, R.layout.user_list_item, userList);
+            this.ctx = context;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -507,27 +593,34 @@ public class UserListActivity extends NavDrawerActivity {
 
             // El modo conversaciones muestra unreadCount
             // en vez de trabajo actual y cantidad de recomendaciones
-            boolean usuarioReducido = true;
-            if (mode != MODE_CONVERSACIONES)
-                usuarioReducido = false;
+            boolean usuarioReducido = mode == MODE_CONVERSACIONES;
 
             User user = getItem(position);
             if (user != null) {
                 ImageView iv_thumbnail = (ImageView) itemView.findViewById(R.id.list_item_thumbnail);
-                TextView tv_nombre  = (TextView) itemView.findViewById(R.id.list_item_nombre);
+                TextView tv_nombre = (TextView) itemView.findViewById(R.id.list_item_nombre);
                 TextView tv_trabajo = (TextView) itemView.findViewById(R.id.list_item_trabajo);
-                TextView tv_recom   = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
-                TextView tv_unread  = (TextView) itemView.findViewById(R.id.list_item_unread_messages);
+                TextView tv_recom = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
+                TextView tv_unread = (TextView) itemView.findViewById(R.id.list_item_unread_messages);
 
                 if (iv_thumbnail != null) {
-                    Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(getContext())).buildUpon()
-                            .appendPath(getString(R.string.get_thumbnail_path))
-                            .appendPath(Long.toString(user.getId()))
-                            .build();
-                    final String url = builtUri.toString();
+                    // Limpio para recyclado
+                    @DrawableRes int drawableId = R.drawable.ic_refreshing;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        iv_thumbnail.setImageDrawable(ctx.getDrawable(drawableId));
+                    } else {
+                        iv_thumbnail.setImageDrawable(ctx.getResources().getDrawable(drawableId));
+                    }
 
-                    Utils.cargarImagenDeURLenImageView(getContext(),
-                            iv_thumbnail, url, LOG_TAG);
+                    long idUser = user.getId();
+                    Bitmap bitmap = cargarBitmapDeImagenGuardada(idUser);
+                    if (bitmap != null) {
+//                        Log.d(LOG_TAG, "Cargué thumbnail desde archivo!");//
+                        iv_thumbnail.setImageBitmap(bitmap);
+                    } else {
+//                        Log.d(LOG_TAG, "Fetcheo thumbnail...");//
+                        Utils.cargarImagenDeURL(ctx, idUser, iv_thumbnail, this);
+                    }
                 }
 
                 if (tv_nombre != null)
@@ -545,20 +638,72 @@ public class UserListActivity extends NavDrawerActivity {
                             tv_unread.setVisibility(View.VISIBLE);
                         }
                     }
-                // Los demás casos
+                    // Los demás casos
                 } else {
-                    if (tv_trabajo != null)
-                        tv_trabajo.setText(user.getUltimoTrabajoActual());
+                    if (tv_trabajo != null) {
+                        tv_trabajo.setText(user.getCurrentJob());
+                        tv_trabajo.setVisibility(View.VISIBLE);
+                    }
                     if (tv_recom != null) {
                         long cantRecom = user.getCantRecomendaciones();
                         if (cantRecom == 0)
                             tv_recom.setVisibility(View.GONE);
-                        else
+                        else {
                             tv_recom.setText(String.format(Locale.US, "%d", cantRecom));
+                            tv_recom.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
             }
             return itemView;
+        }
+
+
+        private Bitmap cargarBitmapDeImagenGuardada(long id) {
+            String imagePath = imagePaths.get(id);
+            if (imagePath == null)
+                return null;
+            File imgFile = new File(imagePath);
+            if (imgFile.exists())
+                return BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            return null;
+        }
+
+        @Nullable
+        public File guardarImagen(long id, Bitmap bitmap) {
+            bitmap = Utils.normalizarBitmap(bitmap);
+
+            boolean success = false;
+            File imageFile = null;
+            try {
+                imageFile = createImageFile(id);
+
+                FileOutputStream outStream = new FileOutputStream(imageFile);
+
+                // Pierdo calidad ;//
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outStream);
+
+                outStream.flush();
+                outStream.close();
+                success = true;
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                Log.e(LOG_TAG, "Error en guardado de thumbnail");
+            }
+
+            if (!success)
+                return null;
+
+            this.imagePaths.put(id, imageFile.getAbsolutePath());
+            return imageFile;
+        }
+
+        private File createImageFile(long id) throws IOException {
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            if (storageDir == null)
+                throw new IOException("getExternalFilesDir dio error");
+            return new File(storageDir, id + ".jpg");
         }
     }
 
@@ -580,10 +725,10 @@ public class UserListActivity extends NavDrawerActivity {
             this.activado = true;
             this.loading = true;
         }
-        public void desactivar() {
-            this.activado = false;
-            this.loading = false;
-        }
+//        public void desactivar() {
+//            this.activado = false;
+//            this.loading = false;
+//        }
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
@@ -599,13 +744,33 @@ public class UserListActivity extends NavDrawerActivity {
             }
             if (!loading && firstVisibleItem != 0
                     && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                if (cargarPageDeUsuarios(currentPage, false))
-                    loading = true;
+//                if (cargarPageDeUsuarios(currentPage, false))
+//                    loading = true;
+                cargarPageDeUsuarios(currentPage, false);
             }
         }
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
         }
+    }
+
+    @Override
+    protected void iniciarMasPopulares() {
+        if (mode == MODE_MOST_POPULAR)
+            return;
+        super.iniciarMasPopulares();
+    }
+
+    protected void iniciarSolicitudes() {
+        if (mode == MODE_SOLICITUDES)
+            return;
+        super.iniciarSolicitudes();
+    }
+
+    protected void iniciarConversaciones() {
+        if (mode == MODE_CONVERSACIONES)
+            return;
+        super.iniciarConversaciones();
     }
 }

@@ -42,12 +42,13 @@ public class User {
 
     Locacion location;
 
-    @SerializedName(value="cantidadRecomendaciones", alternate={"cantRecomendaciones", "unread_count"})
+    @SerializedName(value="cantidadRecomendaciones", alternate={"cantRecomendaciones", "unread_count", "tot_recommendations"})
     long cantidadRecomendaciones = -1;
     long[] recommendations;
 
     List<Skill> skills;
     List<Employment> workHistory;
+    Employment currentJob = null;   // Solo a usar en BusquedaResponse
 
 
     @SuppressWarnings("unused")
@@ -243,6 +244,12 @@ public class User {
         return trabajos.substring(index);
     }
 
+    public String getCurrentJob() {
+        if (currentJob != null)
+            return currentJob.getOneLiner();
+        return getUltimoTrabajoActual();
+    }
+
     /**
      * @return String del formato {@code Fecha de nacimiento: 01/01/1990}.
      */
@@ -272,14 +279,13 @@ public class User {
         return lista;
     }
 
-    private void addEmployment(Employment emp) {
+    public void addEmployment(Employment emp) {
         if (emp == null)
             return;
         if (this.workHistory == null)
             this.workHistory = new ArrayList<>();
         this.workHistory.add(emp);
     }
-
 
     @Nullable
     public static User parseJSON(String response) {
@@ -288,22 +294,7 @@ public class User {
                 .create();
 
         try {
-            User user = gson.fromJson(response, User.class);
-            // Para user reducido, que puede tener un campo "last_job" o "current_job"
-            try {
-                user.addEmployment(gson.fromJson(
-                        (new JSONObject(response)).getJSONObject("current_job").toString(), // hardcodeo
-                        Employment.class)
-                );
-            } catch (JSONException ex) {/**/}
-            try {
-                user.addEmployment(gson.fromJson(
-                        (new JSONObject(response)).getJSONObject("last_job").toString(), // hardcodeo
-                        Employment.class)
-                );
-            } catch (JSONException ex) {/**/}
-
-            return user;
+            return gson.fromJson(response, User.class);
 
         } catch (JsonSyntaxException ex) {
             Log.e("API", "Json Syntax exception!");
