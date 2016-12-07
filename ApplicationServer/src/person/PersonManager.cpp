@@ -423,11 +423,13 @@ vector<Person *> * PersonManager::searchBySkill(vector<string> *skills_search) {
     //fixme
     std::vector<string>* users_withSkill;
     std::vector<Person*>* users_result = new vector<Person*>();
-
+    std::string skill_lowcase = (*skills_search)[0];
+	
+    std::transform(skill_lowcase.begin(), skill_lowcase.end(), skill_lowcase.begin(), ::tolower);	
     //Se filtra por uno solo de los skills primero, obteniendo todos los usuarios que tienen dicho skill.
     try {
         //Todos los usuarios con el skill en forma persona1, persona2, persona3
-        users_withSkill = split(getUserSkillKey((*skills_search)[0]),',');
+        users_withSkill = split(getUserSkillKey(skill_lowcase),',');
     } catch (KeyNotFound& exception1) {
         return users_result;
     }

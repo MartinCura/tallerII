@@ -109,6 +109,32 @@
           - compare: {jsonpath_mini: "result.0.last_name", comparator: "eq", expected: "sparrow"}
     - expected_status: [200] #OK    
 
-  
+- test:
+    - name: "search by one skill - GET"
+    - group: "[search skill - ERROR]"
+    - url: "/search?skills=jack&pageNumber=1&size=20"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 0}
+    - expected_status: [200] #OK    
+
+- test:
+    - name: "search by one skill - GET"
+    - group: "[search skill - ERROR]"
+    - url: "/search?skills=ninJa&pageNumber=1&size=20"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 0}
+    - expected_status: [200] #OK    
+
+- test:
+    - name: "search by one skill - GET"
+    - group: "[search skill - OK]"
+    - url: "/search?skills=caFE&pageNumber=1&size=20"
+    - method: "GET"
+    - validators:
+          - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 0}
+    - expected_status: [200] #OK    
+   
     
 

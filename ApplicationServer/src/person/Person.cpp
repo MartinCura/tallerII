@@ -244,7 +244,9 @@ void Person::setTotalRecommendations(int i) {
 
 bool Person::has_every_skill(std::vector<string> *skills) {
     for(int i = 0; i < skills->size(); i++ ) {
-        if (!this->hasSkill((*skills)[i])) return false;
+	std::string skill_lowcase = (*skills)[i];
+    	std::transform(skill_lowcase.begin(), skill_lowcase.end(), skill_lowcase.begin(), ::tolower); 
+        if (!this->hasSkill(skill_lowcase)) return false;
     }
     return true;
 }
