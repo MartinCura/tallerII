@@ -175,8 +175,8 @@ public class ImageRequest extends Request<Bitmap> {
 //        try {
 //            String byteString = new String(data, "UTF-8");
 //            Log.d("Miau1", "length "+byteString.length());
-//            Log.d("Miau1", "comienzo: "+byteString.substring(0, 100));
-//            Log.d("Miau1", "final: "+byteString.substring(byteString.length()-100));
+//            Log.d("Miau1", "comienzo: "+byteString.substring(0, 1000));
+//            Log.d("Miau1", "final: "+byteString.substring(byteString.length()-1000));
 //            Log.d("Miau2", "ÚLTIMO: `"+byteString.substring(byteString.length()-1)+"` que es `"+data[data.length-1]+"`.");
 //        } catch (UnsupportedEncodingException uee) {}//;//
 

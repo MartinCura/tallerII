@@ -384,7 +384,7 @@ public class Utils {
                             return;
                         }
                         if (error.networkResponse.statusCode == ServerStatusCode.OK) {
-//                            Log.e(logTag, "Problema con la imagen. Re-request");//
+//                            Log.e(logTag, "Problema con la imagen. NO Re-request");//
                             cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
                             return;
                         }
@@ -453,7 +453,7 @@ public class Utils {
                             return;
                         }
                         if (error.networkResponse.statusCode == ServerStatusCode.OK) {
-//                            Log.e(logTag, "Problema con la imagen. Re-request");//
+//                            Log.e(logTag, "Problema con la imagen. NO Re-request");//
                             cargarImagenDeURLenImageView(act, iv_id, url, logTag, squareCrop);
                             return;
                         }
@@ -494,9 +494,10 @@ public class Utils {
     }
 
     // De nuevo, código repetido de fin de curso, pero es bastante difícil no repetirlo.
-    // Usada específicamente para cargar imágenes en resultados de UserArrayAdapter
+    // Usada específicamente para cargar imágenes en resultados de UserArrayAdapter.
+    // Antes de setear la imagen recibida, chequea que no haya cambiado el nombre para dicho resultado.
     public static boolean cargarImagenDeURL(final Context ctx, final long id, final ImageView imageView,
-                                            final UserListActivity.UserArrayAdapter adapter) {
+                final TextView tv, final String name, final UserListActivity.UserArrayAdapter adapter) {
         final String url = getAppServerUrl(ctx, id, ctx.getString(R.string.get_thumbnail_path));
 
         ImageRequest request = new ImageRequest(url,
@@ -504,8 +505,11 @@ public class Utils {
                     @Override
                     public void onResponse(Bitmap bitmap) {
                         bitmap = cropToSquare(bitmap);
-                        imageView.setImageBitmap(bitmap);
-                        imageView.setVisibility(View.VISIBLE);
+                        if (tv == null || tv.toString().equals(name)) {
+                            imageView.setImageBitmap(bitmap);
+                            imageView.setVisibility(View.VISIBLE);
+                        } else
+                            Log.d(LOG_TAG, "Ítem cambió, no setteo (aunque sí guardo) "+name);
                         adapter.guardarImagen(id, bitmap);
                     }
                 }, imageView.getWidth(), imageView.getHeight(),
@@ -520,8 +524,8 @@ public class Utils {
                             return;
                         }
                         if (error.networkResponse.statusCode == ServerStatusCode.OK) {
-//                            Log.e(logTag, "Problema con la imagen. Re-request");//
-                            cargarImagenDeURL(ctx, id, imageView, adapter);
+//                            Log.e(LOG_TAG, "Problema con la imagen. NO Re-request");//
+                            cargarImagenDeURL(ctx, id, imageView, tv, name, adapter);
                             return;
                         }
                         switch (error.networkResponse.statusCode) {

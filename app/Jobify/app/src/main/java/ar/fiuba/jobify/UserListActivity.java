@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -485,7 +486,16 @@ public class UserListActivity extends NavDrawerActivity {
                         .setTitle("Ubicación no registrada")
                         .setMessage(msj)
                         .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                // Al cerrar el diálogo, salir de UserListActivity (volviendo a la Búsqueda)
+                                finish();
+                            }
+                        })
                         .show();
+                mostrarNoHayResultados();
+                return false;
             }
         }
 
@@ -612,28 +622,9 @@ public class UserListActivity extends NavDrawerActivity {
                 TextView tv_recom = (TextView) itemView.findViewById(R.id.list_item_recomendaciones);
                 TextView tv_unread = (TextView) itemView.findViewById(R.id.list_item_unread_messages);
 
-                if (iv_thumbnail != null) {
-                    // Limpio para recyclado
-                    @DrawableRes int drawableId = R.drawable.ic_refreshing;
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                        iv_thumbnail.setImageDrawable(ctx.getDrawable(drawableId));
-                    } else {
-                        iv_thumbnail.setImageDrawable(ctx.getResources().getDrawable(drawableId));
-                    }
-
-                    long idUser = user.getId();
-                    Bitmap bitmap = cargarBitmapDeImagenGuardada(idUser);
-                    if (bitmap != null) {
-//                        Log.d(LOG_TAG, "Cargué thumbnail desde archivo!");//
-                        iv_thumbnail.setImageBitmap(bitmap);
-                    } else {
-//                        Log.d(LOG_TAG, "Fetcheo thumbnail...");//
-                        Utils.cargarImagenDeURL(ctx, idUser, iv_thumbnail, this);
-                    }
-                }
-
+                String nombre = user.getFullName();
                 if (tv_nombre != null)
-                    tv_nombre.setText(user.getFullName());
+                    tv_nombre.setText(nombre);
                 // Para listar conversaciones
                 if (usuarioReducido) {
                     if (tv_trabajo != null)
@@ -661,6 +652,26 @@ public class UserListActivity extends NavDrawerActivity {
                             tv_recom.setText(String.format(Locale.US, "%d", cantRecom));
                             tv_recom.setVisibility(View.VISIBLE);
                         }
+                    }
+                }
+
+                if (iv_thumbnail != null) {
+                    // Limpio para recyclado
+                    @DrawableRes int drawableId = R.drawable.ic_refreshing;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        iv_thumbnail.setImageDrawable(ctx.getDrawable(drawableId));
+                    } else {
+                        iv_thumbnail.setImageDrawable(ctx.getResources().getDrawable(drawableId));
+                    }
+
+                    long idUser = user.getId();
+                    Bitmap bitmap = cargarBitmapDeImagenGuardada(idUser);
+                    if (bitmap != null) {
+//                        Log.d(LOG_TAG, "Cargué thumbnail desde archivo!");//
+                        iv_thumbnail.setImageBitmap(bitmap);
+                    } else {
+//                        Log.d(LOG_TAG, "Fetcheo thumbnail...");//
+                        Utils.cargarImagenDeURL(ctx, idUser, iv_thumbnail, tv_nombre, nombre, this);
                     }
                 }
             }
