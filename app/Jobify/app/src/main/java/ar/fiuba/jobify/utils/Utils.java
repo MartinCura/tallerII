@@ -409,6 +409,7 @@ public class Utils {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
+                        headers.put("Connection", "close"); //Te amo, header que mejora cosas ~ mc
                         String token = getToken(ctx);
                         if (token != null)
                             headers.put("Authorization", token);
@@ -421,8 +422,8 @@ public class Utils {
     }
 
     // TODO: esto es un malformado semiclon de la función de arriba;
-    // TODO: semi-fea reutilización de código, pero hay que cambiar varias cosas para refactorizar.
-    // Asumo que si se le carga una imagen se la quiere ver, por lo que cambia visibilidad!
+    // semi-fea reutilización de código, pero hay que cambiar varias cosas para refactorizar.
+    // Asumo que si se le carga una imagen se la quiere ver, por lo que le cambia la visibilidad!
     public static void cargarImagenDeURLenImageView(final Activity act, final @IdRes int iv_id,
                                   final String url, final String logTag, final boolean squareCrop) {
 
@@ -483,6 +484,7 @@ public class Utils {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
+                headers.put("Connection", "close"); //Te amo, header que mejora cosas ~ mc
                 String token = getToken(act);
                 if (token != null)
                     headers.put("Authorization", token);
@@ -505,11 +507,11 @@ public class Utils {
                     @Override
                     public void onResponse(Bitmap bitmap) {
                         bitmap = cropToSquare(bitmap);
-                        if (tv == null || tv.toString().equals(name)) {
+                        if (tv == null || tv.getText().equals(name)) {
                             imageView.setImageBitmap(bitmap);
                             imageView.setVisibility(View.VISIBLE);
                         } else
-                            Log.d(LOG_TAG, "Ítem cambió, no setteo (aunque sí guardo) "+name);
+                            Log.d(LOG_TAG, "Ítem cambió, no setteo (sí guardo) "+name+" vs "+tv.getText());
                         adapter.guardarImagen(id, bitmap);
                     }
                 }, imageView.getWidth(), imageView.getHeight(),
@@ -538,17 +540,20 @@ public class Utils {
                                         statusCodeString(error.networkResponse.statusCode));
                         }
 
-                        @DrawableRes int drawableId = R.drawable.ic_person;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                            imageView.setImageDrawable(ctx.getDrawable(drawableId));
-                        } else {
-                            imageView.setImageDrawable(ctx.getResources().getDrawable(drawableId));
+                        if (tv == null || tv.getText().equals(name)) {
+                            @DrawableRes int drawableId = R.drawable.ic_person;
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                                imageView.setImageDrawable(ctx.getDrawable(drawableId));
+                            } else {
+                                imageView.setImageDrawable(ctx.getResources().getDrawable(drawableId));
+                            }
                         }
                     }
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
+                headers.put("Connection", "close"); //Te amo, header que mejora cosas ~ mc
                 String token = getToken(ctx);
                 if (token != null)
                     headers.put("Authorization", token);
