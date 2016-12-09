@@ -3,6 +3,7 @@
 #include "tools/DbBuilder.h"
 #include "tools/MainHelper.h"
 #include "config/Config.h"
+#include "Exceptions/SpecialRequestException.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -28,13 +29,19 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         WebHandler *webHandler = new WebHandler();
         Response* response = new Response();
         struct http_message *httpMessage = (struct http_message *) ev_data;
-        struct mbuf body = processMessage(nc, httpMessage, webHandler, response);
-        MainHelper* mainHelper = new MainHelper();
-        if (!mainHelper->validBody(body, nc->send_mbuf)) {
-            mbuf_remove(&nc->send_mbuf, nc->send_mbuf.len);
-            processMessage(nc, httpMessage, webHandler, response);
+        try {
+            struct mbuf body = processMessage(nc, httpMessage, webHandler, response);
+            MainHelper* mainHelper = new MainHelper();
+            if (!mainHelper->validBody(body, nc->send_mbuf)) {
+                mbuf_remove(&nc->send_mbuf, nc->send_mbuf.len);
+                processMessage(nc, httpMessage, webHandler, response);
+            }
+            delete mainHelper;
+        } catch (SpecialRequestException &e) {
+            // REVISAR
+            s_http_server_opts.document_root = "/usr/appServer/img";
+            mg_serve_http(nc, (struct http_message *) ev_data, s_http_server_opts);
         }
-        delete mainHelper;
         delete response;
         delete webHandler;
     }

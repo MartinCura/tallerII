@@ -38,9 +38,9 @@ file(GLOB_RECURSE SOURCE_FILES
     config/*.cpp
 )
 
-# Requests that an executable is to be built using ${SOURCE_FILES}. 
+# Requests that an executable is to be built using ${SOURCE_FILES}.
 # The first argument is the name of the executable
-# The second argument are the source files from wich to build the executable
+# The second argument are the source files from which to build the executable
 add_executable(${TARGET} ${SOURCE_FILES}
     DB/ApplicationSDB.cpp
     DB/ApplicationSDB.h
@@ -61,6 +61,7 @@ add_executable(${TARGET} ${SOURCE_FILES}
     Security/Security.h
     Exceptions/NotAuthorizedException.h
     Exceptions/BadImplementationException.h
+    Exceptions/SpecialRequestException.h
     api/handler/TopTenHandler.cpp
     api/handler/TopTenHandler.h
     api/handler/SearchHandler.cpp

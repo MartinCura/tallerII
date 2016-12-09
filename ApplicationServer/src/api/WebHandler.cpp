@@ -80,20 +80,30 @@ Response* WebHandler::handleRequest(http_message* httpMessage) {
                 this->logResponse(response);
                 delete handler;
                 return response;
-            } else if (regex_match(url, regex("/search.*"))) {
+            }
+            else if (regex_match(url, regex("/search.*"))) {
                 this->logRequest(httpMessage);
                 handler = new SearchHandler();
                 response = handler->handleRequest(httpMessage, url);
                 this->logResponse(response);
                 delete handler;
                 return response;
-            }else {
+            }
+            else if (regex_match(url, regex("/profile.*"))) {
+                this->logRequest(httpMessage);
+                throw SpecialRequestException();
+                // HECHO POR MARTÍN, no se puede confiar en él, REVISAR
+                // Chequear que haya sido un GET? Qué más hay que tener en cuenta?
+            }
+            else {
                 this->logRequest(httpMessage);
                 response->setNotFoundHeader();
                 this->logResponse(response);
                 return response;
             }
         }
+    } catch (SpecialRequestException &e) {
+        throw e;
     } catch (exception &e) {
         this->logRequest(httpMessage);
         response->setInternalServerErrorHeader();

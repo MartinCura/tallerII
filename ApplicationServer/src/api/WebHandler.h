@@ -13,6 +13,7 @@
 #include "handler/MessagesHandler.h"
 #include "handler/ConversationsHandler.h"
 #include "handler/NotificationTokenHandler.h"
+#include "../Exceptions/SpecialRequestException.h"
 #include "../logger/Logger.h"
 #include <regex>
 #include <cstring>

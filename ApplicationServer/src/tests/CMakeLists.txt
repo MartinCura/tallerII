@@ -101,6 +101,7 @@ add_executable (${TARGET} ${SOURCES}
     ../person/Manager.cpp
     ../person/Manager.h
     ../Exceptions/BadImplementationException.h
+    ../Exceptions/SpecialRequestException.h
     ../Exceptions/KeyNotFound.h
     SearchUsersTesting.cpp
 
