@@ -147,7 +147,7 @@ public class NavDrawerActivity extends AppCompatActivity
             fillDrawerHeaderText(storedFullName, storedEmail);
         }
 
-        String urlGetThumbnail = Utils.getAppServerUrl(this, connectedUserID, getString(R.string.get_thumbnail_path));
+        String urlGetThumbnail = Utils.getAppServerProfileUrl(this, connectedUserID);
         Utils.cargarImagenDeURLenImageView(this, R.id.nav_drawer_user_thumbnail, urlGetThumbnail,
                 LOG_TAG, true);
     }

@@ -654,13 +654,10 @@ public class PerfilUtils {
             Contact contact = (Contact) getItem(position);
             if (contact != null) {
 
-                Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(PerfilActivity.getContext())).buildUpon()
-                        .appendPath(act.getString(R.string.get_thumbnail_path))
-                        .appendPath(Long.toString(contact.getId()))
-                        .build();
+                String photoUrl = Utils.getAppServerProfileUrl(PerfilActivity.getContext(), contact.getId());
                 if (!Utils.cargarImagenDeURLenImageView(act.getApplicationContext(),
                         (ImageView) itemView.findViewById(R.id.contact_card_foto),
-                        builtUri.toString(), LOG_TAG)) {
+                        photoUrl, LOG_TAG)) {
                     Log.d(LOG_TAG, "No encontré ImageView para contacto en Perfil");
                 }
 

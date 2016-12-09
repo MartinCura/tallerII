@@ -236,8 +236,7 @@ public class ConversacionActivity extends NavDrawerActivity {
         }
 
         ImageButton ib_thumbnail = (ImageButton) findViewById(R.id.conversacion_thumbnail);
-        String urlGetThumbnail = Utils.getAppServerUrl(this, corresponsalID,
-                getString(R.string.get_thumbnail_path));
+        String urlGetThumbnail = Utils.getAppServerProfileUrl(this, corresponsalID);
         Utils.cargarImagenDeURLenImageView(this, ib_thumbnail, urlGetThumbnail, LOG_TAG, true);
     }
 
@@ -384,7 +383,7 @@ public class ConversacionActivity extends NavDrawerActivity {
             String urlEnvioMensaje = Utils.getAppServerUrl(this, getString(R.string.put_messages_path));
 
             final JSONObject jsObjMessage = message.toJsonObject();
-            Log.d(LOG_TAG, "Envío mensaje "+mensajeAEnviar);//
+            Log.d(LOG_TAG, "Envío mensaje: "+mensajeAEnviar);//
 
             Utils.fetchJsonFromUrl(this, Request.Method.PUT, urlEnvioMensaje, jsObjMessage,
                     new Response.Listener<JSONObject>() {

@@ -542,13 +542,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
 
     public void cargarFotoDePerfil(final long idFetched) {
-
-        Uri builtUri = Uri.parse(Utils.getAppServerBaseURL(this)).buildUpon()
-                .appendPath(getString(R.string.get_photo_path))
-                .appendPath(Long.toString(idFetched))
-                .build();
-        final String url = builtUri.toString();
-
+        final String url = Utils.getAppServerProfileUrl(this, idFetched);
         Utils.cargarImagenDeURLenImageView(getApplicationContext(),
                 (ImageView) findViewById(R.id.perfil_image),
                 url, LOG_TAG);

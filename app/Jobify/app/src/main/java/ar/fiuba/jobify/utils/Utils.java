@@ -174,7 +174,6 @@ public class Utils {
     public static String getAppServerUrl(Context ctx, String path, HashMap<String, String> map) {
         Uri.Builder builder = Uri.parse(Utils.getAppServerBaseURL(ctx)).buildUpon()
                 .appendPath(path);
-//                .appendPath(Long.toString(idFetched));
         for (Map.Entry<String, String> entry : map.entrySet())
             builder.appendQueryParameter(entry.getKey(), entry.getValue());
         return builder.build().toString();
@@ -207,6 +206,16 @@ public class Utils {
         Uri builtUri = builder.build();
         return builtUri.toString();
     }
+
+    /**
+     * Devuelve un String con la URL para utilizar en un GET de la imagen de perfil
+     * del usuario {@code idFetched}. Su formato es:
+     * {@code http://<AppServer>/profile/<idFetched>.jpeg}
+     */
+    public static String getAppServerProfileUrl(Context ctx, long idFetched) {
+        return getAppServerUrl(ctx, idFetched, ctx.getString(R.string.get_profile_path)) + ".jpeg";
+    }
+
 
     /**
      * Obtiene el JSON devuelto tras requestear un GET al AppServer a .../[getPath]/[idFetched]
@@ -385,7 +394,7 @@ public class Utils {
                         }
                         if (error.networkResponse.statusCode == ServerStatusCode.OK) {
 //                            Log.e(logTag, "Problema con la imagen. NO Re-request");//
-                            cargarImagenDeURLenImageView(ctx, imageView, url, logTag);
+                            cargarImagenDeURLenImageView(ctx, imageView, url, logTag, squareCrop);
                             return;
                         }
                         switch (error.networkResponse.statusCode) {
@@ -500,7 +509,8 @@ public class Utils {
     // Antes de setear la imagen recibida, chequea que no haya cambiado el nombre para dicho resultado.
     public static boolean cargarImagenDeURL(final Context ctx, final long id, final ImageView imageView,
                 final TextView tv, final String name, final UserListActivity.UserArrayAdapter adapter) {
-        final String url = getAppServerUrl(ctx, id, ctx.getString(R.string.get_thumbnail_path));
+
+        final String url = getAppServerProfileUrl(ctx, id);
 
         ImageRequest request = new ImageRequest(url,
                 new Response.Listener<Bitmap>() {
