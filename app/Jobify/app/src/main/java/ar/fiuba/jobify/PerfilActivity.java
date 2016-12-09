@@ -275,6 +275,7 @@ public class PerfilActivity extends NavDrawerActivity {
             }
 
             refreshProfileInformation(fetchedUserID);
+            setUpDrawerHeaderUser(true);
 
         } else {    /** Cambiar a modo edición */
             // Cambia color del botón de edición
@@ -693,13 +694,14 @@ public class PerfilActivity extends NavDrawerActivity {
                 && resultCode == RESULT_OK) {
 
             File imageFile;
+            Bitmap bitmap = null;
 
             if (requestCode == PerfilUtils.REQUEST_TAKE_PHOTO) {
                 imageFile = new File(mCurrentPhotoPath);
                 Log.d(LOG_TAG, "Absolute path al sacar una foto: "+mCurrentPhotoPath);//
 
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mPhotoURI);
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mPhotoURI);
 
                     bitmap = Utils.normalizarBitmap(bitmap);
                     imageFile = guardarImagen(bitmap);
@@ -720,7 +722,7 @@ public class PerfilActivity extends NavDrawerActivity {
                     Log.d(LOG_TAG, "imageUri al elegir una imagen: "+imageUri);
                     mPhotoURI = imageUri;
 
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                     bitmap = Utils.normalizarBitmap(bitmap);
 
                     imageFile = guardarImagen(bitmap);
@@ -742,17 +744,53 @@ public class PerfilActivity extends NavDrawerActivity {
 
             if (imageFile != null && imageFile.exists()) {
                 try {
+                    final Bitmap newBitmap = bitmap;
+                    Toast.makeText(getContext(), "Actualizando imagen de perfil...", Toast.LENGTH_SHORT)
+                            .show();
                     Utils.PhotoMultipartRequest<String> imageUploadReq =
                             new Utils.PhotoMultipartRequest<>(getContext(), url, imageFile,
                                     new Response.Listener<String>() {
                                         @Override
                                         public void onResponse(String response) {
-                                            Log.d(LOG_TAG, "Response correcta i guess. " + response);
+                                            Log.d(LOG_TAG, "Response correcta. " + response);//
+
+                                            // Reemplazo foto de perfil con imagen recién obtenida.
+                                            if (newBitmap != null) {
+                                                ImageView iv_perfil = (ImageView) findViewById(R.id.perfil_image);
+                                                if (iv_perfil != null) {
+                                                    iv_perfil.setImageBitmap(newBitmap);
+                                                } else {
+                                                    Log.w(LOG_TAG, "No encontré imageview de imagen de perfil");
+                                                }
+                                                ImageView iv_thumbnail = (ImageView) findViewById(R.id.nav_drawer_user_thumbnail);
+                                                if (iv_thumbnail != null) {
+                                                    iv_thumbnail.setImageBitmap(newBitmap);
+                                                } else {
+                                                    Log.w(LOG_TAG, "No encontré imageview de imagen de perfil");
+                                                }
+                                            }
                                         }
                                     }, new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
-                                            Log.e(LOG_TAG, "Volley image post error");
+                                            // Ya que se considera un error si el response viene vacío...
+                                            if (!(error.getCause() instanceof java.net.ProtocolException)) {
+                                                Log.e(LOG_TAG, "Volley image post error, recargo imagen actual");
+                                                Toast.makeText(getContext(), "Ocurrió un error al subir la imagen", Toast.LENGTH_LONG)
+                                                        .show();
+
+//                                                ImageView iv_perfil = (ImageView) findViewById(R.id.perfil_image);
+//                                                if (iv_perfil != null) {
+//                                                    @DrawableRes int drawableId = R.drawable.ic_person;
+//                                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+//                                                        iv_perfil.setImageDrawable(getDrawable(drawableId));
+//                                                    } else {
+//                                                        iv_perfil.setImageDrawable(getResources().getDrawable(drawableId));
+//                                                    }
+//                                                }
+                                            }
+                                            cargarFotoDePerfil(fetchedUserID);
+
                                             error.printStackTrace();
                                             if (error.networkResponse != null) {
                                                 int statusCode = error.networkResponse.statusCode;

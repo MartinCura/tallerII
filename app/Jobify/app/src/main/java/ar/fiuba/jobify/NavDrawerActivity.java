@@ -121,10 +121,14 @@ public class NavDrawerActivity extends AppCompatActivity
     }
 
     public void setUpDrawerHeaderUser() {
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
+        setUpDrawerHeaderUser(false);
+    }
+
+    public void setUpDrawerHeaderUser(boolean forceLoad) {
+        final SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref_connected_user), 0);
         String storedEmail = sharedPref.getString(getString(R.string.stored_connected_user_email), "");
         String storedFullName = sharedPref.getString(getString(R.string.stored_connected_user_fullname), "");
-        if (storedEmail.isEmpty() || storedFullName.isEmpty()
+        if (forceLoad || storedEmail.isEmpty() || storedFullName.isEmpty()
                 || findViewById(R.id.nav_drawer_user_nombre) == null
                 || findViewById(R.id.nav_drawer_user_mail) == null) {
             // Hay algo en el flujo que hace que el header drawer NO se cargue hasta después.
@@ -137,7 +141,10 @@ public class NavDrawerActivity extends AppCompatActivity
                             User mUser = User.parseJSON(response.toString());
                             if (mUser != null) {
                                 fillDrawerHeaderText(mUser.getFullName(), mUser.getEmail());
-
+                                sharedPref.edit().
+                                        putString(getString(R.string.stored_connected_user_fullname),
+                                                mUser.getFullName())
+                                        .apply();
                             } else {
                                 Log.e(LOG_TAG, "Error de parseo de usuario, no puedo llenar el header del ND");
                             }
