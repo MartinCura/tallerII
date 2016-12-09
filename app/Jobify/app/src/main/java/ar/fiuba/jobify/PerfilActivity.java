@@ -112,7 +112,8 @@ public class PerfilActivity extends NavDrawerActivity {
             fabRecomendar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    toggleRecomendar(fetchedUserID);
+                    if (fetchedUser != null && fetchedUser.getId() != connectedUserID)
+                        toggleRecomendar(fetchedUserID);
                 }
             });
         }
@@ -127,14 +128,13 @@ public class PerfilActivity extends NavDrawerActivity {
             fabEditar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (fetchedUser != null)
+                    if (fetchedUser != null && fetchedUser.getId() != connectedUserID)
                         toggleEditMode();
                 }
             });
         }
 
         PerfilUtils.populateSpinners(this);
-//        PerfilUtils.populateAutoCompleteLists(this); deprecated
 
         if (fetchedUserID == connectedUserID) {
             if (fabAmigar != null) fabAmigar.setVisibility(View.GONE);
@@ -879,6 +879,8 @@ public class PerfilActivity extends NavDrawerActivity {
 
 
     private void toggleRecomendar(final long recomendadoID) {
+        if (fetchedUser == null)
+            return;
 
         final boolean yaRecomendado = fetchedUser.fueRecomendadoPor(connectedUserID);
         final int method;
