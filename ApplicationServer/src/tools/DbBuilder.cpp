@@ -107,6 +107,8 @@ void DbBuilder::loadUsers() {
     for (int i = 0; i != size; i++) {
         fakePeople.pop_back();
     }
+    delete personManager;
+    delete sessionManager;
 }
 
 Person* DbBuilder::getFakePerson1() {

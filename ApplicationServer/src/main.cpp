@@ -38,7 +38,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             delete mainHelper;
         } catch (SpecialRequestException &e) {
-            // REVISAR
             s_http_server_opts.document_root = "/usr/appServer/img";
             mg_serve_http(nc, (struct http_message *) ev_data, s_http_server_opts);
         }
