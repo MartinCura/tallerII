@@ -370,8 +370,8 @@ Person* DbBuilder::getFakePerson15() {
 Person* DbBuilder::getFakePerson16() {
     Person* person = new Person();
     person->setId(0);
-    person->setFirstName("El que no es");
-    person->setLastName("pero tiene mail parecido");
+    person->setFirstName("Jackie");
+    person->setLastName("Sparrow");
     person->setEmail("jacksparrow@idem.com");
     person->setPassword("123abc");
     person->setDateOfBirth("24/06/1992");
