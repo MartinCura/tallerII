@@ -372,7 +372,7 @@ Person* DbBuilder::getFakePerson15() {
 Person* DbBuilder::getFakePerson16() {
     Person* person = new Person();
     person->setId(0);
-    person->setFirstName("Jackie");
+    person->setFirstName("Maggie");
     person->setLastName("Sparrow");
     person->setEmail("jacksparrow@idem.com");
     person->setPassword("123abc");

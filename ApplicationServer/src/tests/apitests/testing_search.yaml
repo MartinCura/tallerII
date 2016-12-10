@@ -95,7 +95,7 @@
           - compare: {jsonpath_mini: "metadata.total_count", comparator: "eq", expected: 2}
           - compare: {jsonpath_mini: "result.0.first_name", comparator: "eq", expected: "jack"}
           - compare: {jsonpath_mini: "result.0.last_name", comparator: "eq", expected: "sparrow"}
-          - compare: {jsonpath_mini: "result.1.first_name", comparator: "eq", expected: "el que no es"}
+          - compare: {jsonpath_mini: "result.1.first_name", comparator: "eq", expected: "maggie"}
     - expected_status: [200] #OK    
 
 - test:
