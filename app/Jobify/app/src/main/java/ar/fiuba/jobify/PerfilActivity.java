@@ -36,6 +36,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -752,6 +753,16 @@ public class PerfilActivity extends NavDrawerActivity {
                                     new Response.Listener<String>() {
                                         @Override
                                         public void onResponse(String response) {
+                                            try {
+                                                if (response != null) {
+                                                    JSONObject jsonObj = new JSONObject(response);
+                                                    if (jsonObj.getString("successful").equals("false")) {
+                                                        Toast.makeText(getContext(), "Ocurrió un error al subir la imagen", Toast.LENGTH_LONG)
+                                                                .show();
+                                                        return;
+                                                    }
+                                                }
+                                            } catch (JSONException ex) {/**/}
                                             Log.d(LOG_TAG, "Response correcta. " + response);//
 
                                             // Reemplazo foto de perfil con imagen recién obtenida.

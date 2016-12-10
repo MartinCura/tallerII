@@ -508,6 +508,14 @@ public class UserListActivity extends NavDrawerActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        if (response == null) {
+                            Toast.makeText(ctx, "Ha ocurrido un error", Toast.LENGTH_LONG)
+                                    .show();
+                            Log.e(LOG_TAG, "Response null para búsqueda");
+                            mostrarNoHayResultados();
+                            return;
+                        }
+
                         Log.d(LOG_TAG, response.toString());//
                         BusquedaResponse busqResponse = BusquedaResponse.parseJSON(response.toString());
 

@@ -203,15 +203,6 @@ public class JobifyChat extends FirebaseMessagingService {
 
 
             }
-            // if this is a notification:
-                // TODO
-            // here we call the callback to the activity
-
-
-            // if this is a message:
-
-
-
         }
 
         // Check if message contains a notification payload.

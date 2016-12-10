@@ -31,6 +31,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -325,11 +326,19 @@ public class Utils {
                 }, logTag);
     }
 
+
+    public static void fetchJsonFromUrl(final Context context, int method, final String url,
+                                        JSONObject jsonRequest,
+                                        Response.Listener<JSONObject> responseListener,
+                                        Response.ErrorListener errorListener, final String logTag) {
+        fetchJsonFromUrl(context, method, url, jsonRequest, true, responseListener, errorListener, logTag);
+    }
+
     /**
      * Fetchea un json. Los demás métodos overloadean este.
      */
     public static void fetchJsonFromUrl(final Context context, int method, final String url,
-                                        JSONObject jsonRequest,
+                                        JSONObject jsonRequest, boolean shouldRetry,
                                         Response.Listener<JSONObject> responseListener,
                                         Response.ErrorListener errorListener, final String logTag) {
 
@@ -352,6 +361,11 @@ public class Utils {
                     }
         };
         jsObjRequest.setTag(logTag);
+        jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                shouldRetry ? DefaultRetryPolicy.DEFAULT_MAX_RETRIES : 0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
         RequestQueueSingleton.getInstance(context).addToRequestQueue(jsObjRequest);
     }
 

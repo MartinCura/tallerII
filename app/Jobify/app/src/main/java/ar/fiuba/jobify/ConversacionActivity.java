@@ -318,6 +318,10 @@ public class ConversacionActivity extends NavDrawerActivity {
         // Arregla por cómo funciona AppServer ahora, pero no me parece lo más seguro
         // TODO: Sacar si se cambia el funcionamiento en la API.
         numLast = (maxMensaje < numLast) ? maxMensaje : numLast;
+        if (numLast < numFirst) {
+            Log.d(LOG_TAG, "Nada que fetchear? numLast < numFirst");
+            return false;
+        }
 
         HashMap<String, String> map = new HashMap<>();
         map.put(getString(R.string.get_messages_user_query), Long.toString(corresponsalID));
@@ -385,7 +389,7 @@ public class ConversacionActivity extends NavDrawerActivity {
             final JSONObject jsObjMessage = message.toJsonObject();
             Log.d(LOG_TAG, "Envío mensaje: "+mensajeAEnviar);//
 
-            Utils.fetchJsonFromUrl(this, Request.Method.PUT, urlEnvioMensaje, jsObjMessage,
+            Utils.fetchJsonFromUrl(this, Request.Method.PUT, urlEnvioMensaje, jsObjMessage, false,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
