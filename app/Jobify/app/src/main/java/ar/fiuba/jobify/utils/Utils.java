@@ -362,7 +362,7 @@ public class Utils {
         };
         jsObjRequest.setTag(logTag);
         jsObjRequest.setRetryPolicy(new DefaultRetryPolicy(
-                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                4000, //DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
                 shouldRetry ? DefaultRetryPolicy.DEFAULT_MAX_RETRIES : 0,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
