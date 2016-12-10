@@ -111,6 +111,25 @@ vector<WorkHistory *> getTrabajosDisponibles() {
     return trabajos_disponibles;
 }
 
+Skill* getSkill(vector<Skill*> skillsDisponibles, int index) {
+    Skill* skillToCopy = skillsDisponibles[index];
+    Skill* newSkill = new Skill();
+    newSkill->setName(skillToCopy->getName());
+    newSkill->setDescription(skillToCopy->getDescription());
+    newSkill->setCategory(skillToCopy->getCategory());
+    return newSkill;
+}
+
+WorkHistory* getWorkHistory(vector<WorkHistory*> trabajosDisponibles, int index) {
+    WorkHistory* workHistoryToCopy = trabajosDisponibles[index];
+    WorkHistory* newWorkHistory = new WorkHistory();
+    newWorkHistory->setPositionTitle(workHistoryToCopy->getPositionTitle());
+    newWorkHistory->setCompany(workHistoryToCopy->getCompany());
+    newWorkHistory->setFromDate(workHistoryToCopy->getFromDate());
+    newWorkHistory->setToDate(workHistoryToCopy->getToDate());
+    return newWorkHistory;
+}
+
 void setDB() {
 
     string* namedb = new string();
@@ -142,20 +161,20 @@ void setDB() {
 
     }
 
-    users[2]->addSkill(skills_disponibles[1]);
-    users[2]->addSkill(skills_disponibles[2]);
-    users[3]->addSkill(skills_disponibles[4]);
-    users[4]->addSkill(skills_disponibles[2]);
-    users[0]->addSkill(skills_disponibles[2]);
+    users[2]->addSkill(getSkill(skills_disponibles, 1));
+    users[2]->addSkill(getSkill(skills_disponibles, 2));
+    users[3]->addSkill(getSkill(skills_disponibles, 4));
+    users[4]->addSkill(getSkill(skills_disponibles, 2));
+    users[0]->addSkill(getSkill(skills_disponibles, 2));
 
     users[0]->setTotalRecommendations(3);
 
     users[2]->setLocation(25.0,25.0);
 
-    users[0]->addWorkHistory(trabajos_disponibles[0]);
-    users[0]->addWorkHistory(trabajos_disponibles[1]);
-    users[0]->addWorkHistory(trabajos_disponibles[2]);
-    users[1]->addWorkHistory(trabajos_disponibles[1]);
+    users[0]->addWorkHistory(getWorkHistory(trabajos_disponibles, 0));
+    users[0]->addWorkHistory(getWorkHistory(trabajos_disponibles, 1));
+    users[0]->addWorkHistory(getWorkHistory(trabajos_disponibles, 2));
+    users[1]->addWorkHistory(getWorkHistory(trabajos_disponibles, 1));
 
     for (int i = 0; i < 5; i++) {
         try {
