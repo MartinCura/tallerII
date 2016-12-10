@@ -4,6 +4,7 @@ set (CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage -std=c++0x")
 set (TARGET ApplicationServer_src)
 set (CPACK_GENERATOR "DEB")
 set (CPACK_DEBIAN_PACKAGE_MAINTAINER "David Doria")
+#set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
 include(CPack)
 
