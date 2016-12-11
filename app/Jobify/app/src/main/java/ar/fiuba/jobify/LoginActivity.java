@@ -384,7 +384,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Log.e(LOG_TAG, "Error de parseo de LoginResponse");
                                 return;
                             }
-                            Toast.makeText(LoginActivity.this, "¡Registración exitosa!\n", Toast.LENGTH_LONG)
+                            Toast.makeText(LoginActivity.this, "¡Registración exitosa!", Toast.LENGTH_LONG)
                                     .show();
 
                             isNewUser = true;

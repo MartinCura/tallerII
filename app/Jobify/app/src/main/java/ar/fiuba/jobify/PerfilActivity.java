@@ -170,7 +170,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
         // Obtengo el modo en el que debe comenzar
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(PERFIL_MODE_MESSAGE)) {
+        if (intent != null && intent.hasExtra(PERFIL_MODE_MESSAGE) && !inEditingMode) {
 
             boolean empezarEnModoEdicion = intent.getBooleanExtra(PERFIL_MODE_MESSAGE, false);
             if (empezarEnModoEdicion) {
@@ -191,6 +191,8 @@ public class PerfilActivity extends NavDrawerActivity {
                 inEditingMode = false;
                 toggleEditMode();
                 startLocationService(null);
+
+                intent.removeExtra(PERFIL_MODE_MESSAGE);
             }
         }
     }
@@ -368,7 +370,9 @@ public class PerfilActivity extends NavDrawerActivity {
             // Fix
             Utils.hideView(this, R.id.perfil_contactos_frame);
             Utils.hideView(this, R.id.text_perfil_cant_recomendaciones);
-
+            Utils.showView(this, R.id.text_perfil_ciudad);
+            Utils.showView(this, R.id.text_perfil_trabajo_actual);
+            Utils.showView(this, R.id.text_perfil_resumen);
         }
 
         // Togglear la visibilidad de views pertinentes a cada modo
@@ -515,6 +519,7 @@ public class PerfilActivity extends NavDrawerActivity {
 
 
     public void refreshProfileInformation(final long idFetched) {
+        final PerfilActivity thisActivity = this;
 
         Utils.getJsonFromAppServer(getContext(), getString(R.string.get_user_path), idFetched,
                 new Response.Listener<JSONObject>() {
@@ -533,6 +538,19 @@ public class PerfilActivity extends NavDrawerActivity {
                                                 .edit();
                                 editor.putString(getString(R.string.stored_connected_user_fullname), mUser.getFullName());
                                 editor.apply();
+
+                                if ((mUser.getFirstName().isEmpty() || mUser.getLastName().isEmpty())
+                                        && !inEditingMode) {
+                                    PerfilUtils.showProgress(thisActivity, false);
+                                    Utils.showView(thisActivity, R.id.perfil_information_layout);
+
+                                    inEditingMode = false;
+                                    toggleEditMode();
+                                    startLocationService(null);
+
+                                    Toast.makeText(thisActivity, "Todavía le falta completar su nombre", Toast.LENGTH_LONG)
+                                            .show();
+                                }
                             }
 
                         } else {

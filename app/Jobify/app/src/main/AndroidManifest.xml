@@ -48,7 +48,7 @@
             android:name=".PerfilActivity"
             android:label="@string/title_activity_perfil"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
