@@ -21,7 +21,9 @@ const char *Response::getHeader() {
     }
     *fullHeader += "Content-Length: " + to_string(this->bodyLength) + "\r\n";
     *fullHeader += "\r\n";
-    return (*fullHeader).c_str();
+    const char* headerAsChar = (*fullHeader).c_str();
+    delete fullHeader;
+    return headerAsChar;
 }
 
 const char *Response::getBody() {

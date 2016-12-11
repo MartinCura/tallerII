@@ -223,6 +223,7 @@ Json::Value Person::serializeMe() {
 void Person::deleteWorkHistory() {
     long size = this->workHistory.size();
     for (int i = 0; i != size; i++) {
+        delete this->workHistory[i];
         this->workHistory.pop_back();
     }
 }
@@ -230,6 +231,7 @@ void Person::deleteWorkHistory() {
 void Person::deleteSkills() {
     long size = this->skills.size();
     for (int i = 0; i != size; i++) {
+        delete this->skills[i];
         this->skills.pop_back();
     }
 }

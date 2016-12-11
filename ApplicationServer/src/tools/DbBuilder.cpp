@@ -70,6 +70,7 @@ DbBuilder::~DbBuilder() {
 
     long sizeSkills = this->skills.size();
     for (int i = 0; i != sizeSkills; i++) {
+        delete this->skills[i];
         this->skills.pop_back();
     }
 }
@@ -105,6 +106,7 @@ void DbBuilder::loadUsers() {
     }
     long size = fakePeople.size();
     for (int i = 0; i != size; i++) {
+        delete fakePeople[i];
         fakePeople.pop_back();
     }
     delete personManager;
