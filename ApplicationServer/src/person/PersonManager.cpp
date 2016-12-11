@@ -694,9 +694,14 @@ void PersonManager::validateUsersOfRequest(long fromUserId, long toUserId) {
 string PersonManager::getNotificationTokenByUserId(long userId) {
     if (!this->userExists(userId)) throw UserNotFoundException(userId);
     NotificationTokenManager* notificationTokenManager = new NotificationTokenManager(this->db);
-    string token = notificationTokenManager->getTokenByUserId(userId);
-    delete notificationTokenManager;
-    return token;
+    try {
+        string token = notificationTokenManager->getTokenByUserId(userId);
+        delete notificationTokenManager;
+        return token;
+    } catch (NonexistentNotificationToken &e) {
+        delete notificationTokenManager;
+        throw e;
+    }
 }
 
 void PersonManager::setOrUpdateNotificationToken(Json::Value request, long userId) {
