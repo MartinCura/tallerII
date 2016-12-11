@@ -20,7 +20,11 @@ Response* MessagesHandler::handleGetRequest(http_message* httpMessage, string ur
         long fromUserId = this->getUserIdFromUrl(url);
         //Security
         //Solo el auto tiene permiso para leer los mensajes
-        if (!Security::hasPermissionToReadMessage(this->session->getUserId(), fromUserId)) throw NotAuthorizedException();
+        if (!Security::hasPermissionToReadMessage(this->session->getUserId(), fromUserId)) {
+            delete personManager;
+            delete response;
+            throw NotAuthorizedException();
+        }
         long toUserId = this->getToUserFromQueryParams(queryParams);
         vector<Message*> messages = personManager->getMessages(fromUserId, toUserId);
         long totalCount = messages.size();
@@ -60,7 +64,11 @@ Response* MessagesHandler::handlePutRequest(http_message* httpMessage, string ur
         long userId = parsedBody["from"].asLargestInt();
         //Seguridad:
         // El usuario solo puede enviar mensaje si es el autor.
-        if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId)) throw NotAuthorizedException();
+        if (!Security::hasPermissionToSendMessage(this->session->getUserId(), userId))  {
+            delete personManager;
+            delete response;
+            throw NotAuthorizedException();
+        }
         string savedMessage = personManager->saveMessage(parsedBody);
         this->sendNotification(savedMessage, personManager);
         response->setSuccessfulHeader();

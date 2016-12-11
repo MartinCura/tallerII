@@ -26,7 +26,11 @@ Response* RecommendationsHandler::handleDeleteRequest(http_message* httpMessage,
         long toUserId = this->getToUserFromQueryParams(queryParams);
         //Seguridad:
         // El usuario solo puede enviar recomendaciones  si es el autor.
-        if (!Security::hasPermissionToDeleteRecommendations(this->session->getUserId(), fromUserId))throw NotAuthorizedException();
+        if (!Security::hasPermissionToDeleteRecommendations(this->session->getUserId(), fromUserId)) {
+            delete personManager;
+            delete response;
+            throw NotAuthorizedException();
+        }
         personManager->removeRecommendation(fromUserId, toUserId);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {
@@ -51,7 +55,11 @@ Response* RecommendationsHandler::handlePutRequest(http_message* httpMessage, st
         long userId = parsedBody["from"].asLargestInt();
         //Seguridad:
         // El usuario solo puede enviar recomendaciones  si es el autor.
-        if (!Security::hasPermissionToSendRecommendations(this->session->getUserId(), userId))throw NotAuthorizedException();
+        if (!Security::hasPermissionToSendRecommendations(this->session->getUserId(), userId)) {
+            delete personManager;
+            delete response;
+            throw NotAuthorizedException();
+        }
         personManager->saveRecommendation(parsedBody);
         response->setSuccessfulHeader();
     } catch (UserNotFoundException &e) {

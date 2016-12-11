@@ -10,6 +10,8 @@ Response* ConversationsHandler::handleGetRequest(http_message* httpMessage, stri
     try {
         long userId = this->getUserIdFromUrl(url);
         if (!Security::hasPermissionToGetMessages(this->session->getUserId(), userId)) {
+            delete personManager;
+            delete response;
             throw NotAuthorizedException();
         }
         vector<Conversation*> conversations = personManager->getAllConversations(userId);

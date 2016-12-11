@@ -23,6 +23,8 @@ Response* NotificationTokenHandler::handlePutRequest(http_message* httpMessage, 
     try {
         long userId = this->getUserIdFromUrl(url);
         if (!Security::hasPermissionToUpdateNotificationToken(this->session->getUserId(), userId)) {
+            delete personManager;
+            delete response;
             throw NotAuthorizedException();
         }
         Json::Value parsedBody = this->parseBody(requestBody);

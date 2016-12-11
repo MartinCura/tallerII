@@ -58,6 +58,8 @@ Response* UsersHandler::handleDeleteRequest(http_message* httpMessage, string ur
         //Seguridad:
         // El usuario solo puede eliminar su perfil.
         if (!Security::hasPermissionToDeleteUser(this->session->getUserId(), userId)) {
+            delete personManager;
+            delete response;
             throw NotAuthorizedException();
         }
         personManager->deletePerson(userId);
@@ -82,6 +84,8 @@ Response* UsersHandler::handlePutRequest(http_message* httpMessage, string url) 
     //Seguridad:
     // El usuario solo puede editar su perfil.
     if (!Security::hasPermissionToEdit(this->session->getUserId(), userId)) {
+        delete personManager;
+        delete response;
         throw NotAuthorizedException();
     }
 

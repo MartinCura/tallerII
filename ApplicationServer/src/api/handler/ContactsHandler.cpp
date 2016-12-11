@@ -63,7 +63,11 @@ Response* ContactsHandler::handlePutRequest(http_message* httpMessage, string ur
        long author_id = parsedBody["author_id"].asLargestInt();
        //Security
        //Solo puede enviar una solicitud a otro usuario, el dueño de la cuenta.
-       if(!Security::hasPermissionToContactUser(this->session->getUserId(), author_id)) throw NotAuthorizedException();
+       if(!Security::hasPermissionToContactUser(this->session->getUserId(), author_id)) {
+           delete personManager;
+           delete response;
+           throw NotAuthorizedException();
+       }
        personManager->saveOrUpdateRelation(parsedBody);
        if (parsedBody["action"] == RelationsManager::ADD_CONTACT_ACTION) {
            this->sendNotification(parsedBody, personManager);
